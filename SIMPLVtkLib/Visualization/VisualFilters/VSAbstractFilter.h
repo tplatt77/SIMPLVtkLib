@@ -73,6 +73,15 @@ class VSAbstractWidget;
 class VSDataSetFilter;
 class VSLookupTableController;
 
+/**
+* @class VSAbstractFilter VSAbstractFilter.h 
+* SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h
+* @brief This is the base class for all visual filters in SIMPLVtkLib.
+* Classes that inherit from this handle various vtk algorithms for filtering 
+* out parts of the vtkDataSet input into the top-level VSDataSetFilter.  Filters
+* can be chained together to be more specific about what kind of data should be 
+* shown by pushing the output of a filter as the input for each of its child filters.
+*/
 class SIMPLVtkLib_EXPORT VSAbstractFilter : public QWidget
 {
   Q_OBJECT
@@ -98,6 +107,7 @@ public:
   QVector<VSAbstractFilter*> getChildren() const;
   VSAbstractFilter* getChild(int index);
   int getIndexOfChild(VSAbstractFilter* child) const;
+  QVector<VSAbstractFilter*> getDescendants() const;
 
   virtual std::shared_ptr<VSRenderController::VtkDataSetStruct_t> getDataSetStruct();
 

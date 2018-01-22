@@ -111,6 +111,9 @@ set(Project_SRCS
 
   ${${PROJECT_NAME}_Visualization_Controllers_HDRS}
   ${${PROJECT_NAME}_Visualization_Controllers_SRCS}
+
+  ${${PROJECT_NAME}_QtWidgets_HDRS}
+  ${${PROJECT_NAME}_QtWidgets_SRCS}
 )
 
 if(UNIX AND NOT APPLE)

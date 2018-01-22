@@ -63,11 +63,11 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkVertexGlyphFilter.h>
 
-#include "SIMPLBridge/VSTetrahedralGeom.h"
-#include "SIMPLBridge/VSTriangleGeom.h"
-#include "SIMPLBridge/VSEdgeGeom.h"
-#include "SIMPLBridge/VSVertexGeom.h"
-#include "SIMPLBridge/VSQuadGeom.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSTetrahedralGeom.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSTriangleGeom.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSEdgeGeom.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSQuadGeom.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -86,110 +86,148 @@ SIMPLVtkBridge::~SIMPLVtkBridge()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSRenderController::Pointer SIMPLVtkBridge::WrapDataContainerArrayAsVSRenderController(DataContainerArray::Pointer dca)
+std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> SIMPLVtkBridge::WrapDataContainerArrayAsStruct(DataContainerArray::Pointer dca, AttributeMatrix::Types types)
 {
+  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedDataContainers;
+
   if(!dca)
   {
-    return VSRenderController::NullPointer();
+    return wrappedDataContainers;
   }
-
-  VSRenderController::VtkDataStructVector_t vtkDataStructVector;
 
   QList<DataContainer::Pointer> dcs = dca->getDataContainers();
 
   for(QList<DataContainer::Pointer>::Iterator dc = dcs.begin(); dc != dcs.end(); ++dc)
   {
-    if(!(*dc))
+    WrappedDataContainerPtr wrappedDataContainer = WrapDataContainerAsStruct((*dc), types);
+
+    if(wrappedDataContainer)
     {
-      continue;
-    }
-    if(!(*dc)->getGeometry())
-    {
-      continue;
-    }
-    VTK_PTR(vtkDataSet) dataSet = WrapGeometry((*dc)->getGeometry());
-    if(!dataSet)
-    {
-      continue;
-    }
-    else
-    {
-      std::shared_ptr<VSRenderController::VtkDataSetStruct_t> vtkDataSetStruct(new VSRenderController::VtkDataSetStruct_t());
-
-      vtkDataSetStruct->DataSet = dataSet;
-      vtkDataSetStruct->Name = (*dc)->getName();
-      vtkDataSetStruct->ViewOptions = QVector<std::shared_ptr<VSRenderController::VtkDataViewStruct_t>>();
-
-      DataContainer::AttributeMatrixMap_t attrMats = (*dc)->getAttributeMatrices();
-
-      for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
-      {
-        if(!(*attrMat))
-        {
-          continue;
-        }
-        // For now, only support Cell, Edge, and Vertex AttributeMatrices
-        if((*attrMat)->getType() != AttributeMatrix::Type::Cell
-          && (*attrMat)->getType() != AttributeMatrix::Type::Edge
-          && (*attrMat)->getType() != AttributeMatrix::Type::Face
-          && (*attrMat)->getType() != AttributeMatrix::Type::Vertex)
-        {
-          continue;
-        }
-        else
-        {
-          // If the attribute matrix is of type cell but the elements and tuples do not
-          // match up, just continue ; this really should never happen!
-          if((*attrMat)->getNumberOfTuples() != dataSet->GetNumberOfCells())
-          {
-            continue;
-          }
-
-          QStringList arrayNames = (*attrMat)->getAttributeArrayNames();
-
-          for(QStringList::Iterator arrayName = arrayNames.begin(); arrayName != arrayNames.end(); ++arrayName)
-          {
-            IDataArray::Pointer array = (*attrMat)->getAttributeArray((*arrayName));
-            if(!array)
-            {
-              continue;
-            }
-            // Do not support bool arrays for the moment...
-            // else
-            {
-              VTK_PTR(vtkDataArray) vtkArray = WrapIDataArray(array);
-              if(!vtkArray)
-              {
-                continue;
-              }
-              else
-              {
-                vtkArray->SetName(array->getName().toStdString().c_str());
-
-                std::shared_ptr<VSRenderController::VtkDataViewStruct_t> newView(new VSRenderController::VtkDataViewStruct_t());
-
-                newView->Name = *arrayName;
-
-                vtkDataSetStruct->ViewOptions.push_back(newView);
-
-                vtkDataSetStruct->DataSet->GetCellData()->AddArray(vtkArray);
-              }
-            }
-          }
-        }
-      }
-
-      vtkCellData* cellData = vtkDataSetStruct->DataSet->GetCellData();
-      if(cellData->GetNumberOfArrays() > 0)
-      {
-        cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
-      }
-      vtkDataStructVector.push_back(vtkDataSetStruct);
+      wrappedDataContainers.push_back(wrappedDataContainer);
     }
   }
 
-  VSRenderController::Pointer vtkDataBlob = VSRenderController::CreateVSRenderController(vtkDataStructVector);
-  return vtkDataBlob;
+  return wrappedDataContainers;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapDataContainerAsStruct(DataContainer::Pointer dc, AttributeMatrix::Types types)
+{
+  if(!dc)
+  {
+    return nullptr;
+  }
+  if(!dc->getGeometry())
+  {
+    return nullptr;
+  }
+  VTK_PTR(vtkDataSet) dataSet = WrapGeometry(dc->getGeometry());
+  if(!dataSet)
+  {
+    return nullptr;
+  }
+  else
+  {
+    WrappedDataContainerPtr wrappedDcStruct;
+    wrappedDcStruct->m_DataSet = dataSet;
+
+    DataContainer::AttributeMatrixMap_t attrMats = dc->getAttributeMatrices();
+
+    for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
+    {
+      if(!(*attrMat))
+      {
+        continue;
+      }
+      // For now, only support the requested AttributeMatrix types
+      if(types.contains((*attrMat)->getType()))
+      {
+        wrappedDcStruct->m_CellData = WrapAttributeMatrixAsStructs((*attrMat));
+
+        // Add vtkDataArrays to the vtkDataSet
+        vtkCellData* cellData = dataSet->GetCellData();
+        for(auto cellDataIter = wrappedDcStruct->m_CellData.begin(); cellDataIter != wrappedDcStruct->m_CellData.end(); cellDataIter++)
+        {
+          cellData->AddArray((*cellDataIter)->m_VtkArray);
+        }
+
+        if(cellData->GetNumberOfArrays() > 0)
+        {
+          cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
+        }
+      }
+    }
+
+    return wrappedDcStruct;
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<SIMPLVtkBridge::WrappedDataArrayPtr> SIMPLVtkBridge::WrapAttributeMatrixAsStructs(AttributeMatrix::Pointer attrMat)
+{
+  std::vector<WrappedDataArrayPtr> wrappedDataArrays;
+
+  if(!attrMat)
+  {
+    return wrappedDataArrays;
+  }
+
+  QStringList arrayNames = attrMat->getAttributeArrayNames();
+
+  for(QStringList::Iterator arrayName = arrayNames.begin(); arrayName != arrayNames.end(); ++arrayName)
+  {
+    IDataArray::Pointer array = attrMat->getAttributeArray((*arrayName));
+    if(!array)
+    {
+      continue;
+    }
+
+    WrappedDataArrayPtr wrappedDataArray = WrapIDataArrayAsStruct(array);
+    if(wrappedDataArray)
+    {
+      wrappedDataArrays.push_back(wrappedDataArray);
+    }
+  }
+
+  return wrappedDataArrays;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::WrappedDataArrayPtr SIMPLVtkBridge::WrapIDataArrayAsStruct(IDataArray::Pointer dataArray)
+{
+  if(!dataArray)
+  {
+    return nullptr;
+  }
+
+  VTK_PTR(vtkDataArray) vtkArray = WrapIDataArray(dataArray);
+  if(!vtkArray)
+  {
+    return nullptr;
+  }
+  else
+  {
+    WrappedDataArrayPtr wrappedDataArray;
+
+    QString arrayName = dataArray->getName();
+    vtkArray->SetName(arrayName.toStdString().c_str());
+
+    wrappedDataArray->m_ArrayName = arrayName;
+    wrappedDataArray->m_SIMPLArray = dataArray;
+    wrappedDataArray->m_VtkArray = vtkArray;
+
+    return wrappedDataArray;
+  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -435,39 +473,39 @@ VTK_PTR(vtkDataArray) SIMPLVtkBridge::WrapIDataArray(IDataArray::Pointer array)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSRenderController::Pointer SIMPLVtkBridge::WrapImageGeomAsVtkImageData(ImageGeom::Pointer image, FloatArrayType::Pointer cellData)
-{
-  size_t dims[3] = {0, 0, 0};
-  float res[3] = {0.0f, 0.0f, 0.0f};
-  float origin[3] = {0.0f, 0.0f, 0.0f};
-
-  image->getDimensions(dims);
-  image->getResolution(res);
-  image->getOrigin(origin);
-
-  VTK_NEW(vtkImageData, vtk_image);
-  vtk_image->SetExtent(0, dims[0], 0, dims[1], 0, dims[2]);
-  vtk_image->SetDimensions(dims[0] + 1, dims[1] + 1, dims[2] + 1);
-  vtk_image->SetSpacing(res[0], res[1], res[2]);
-  vtk_image->SetOrigin(origin[0], origin[1], origin[2]);
-
-  VTK_NEW(vtkFloatArray, flt);
-  flt->SetVoidArray(cellData->getVoidPointer(0), cellData->getSize(), 1);
-
-  vtk_image->GetCellData()->SetScalars(flt);
-
-  std::shared_ptr<VSRenderController::VtkDataViewStruct_t> vtkDataViewStruct(new VSRenderController::VtkDataViewStruct_t());
-  vtkDataViewStruct->Name = cellData->getName();
-
-  std::shared_ptr<VSRenderController::VtkDataSetStruct_t> vtkDataSetStruct(new VSRenderController::VtkDataSetStruct_t());
-  vtkDataSetStruct->DataSet = vtk_image;
-  vtkDataSetStruct->Name = image->getName();
-  vtkDataSetStruct->ViewOptions.push_back(vtkDataViewStruct);
-
-  VSRenderController::VtkDataStructVector_t vtkDataStructVector;
-  vtkDataStructVector.push_back(vtkDataSetStruct);
-
-  VSRenderController::Pointer vtkDataBlob = VSRenderController::CreateVSRenderController(vtkDataStructVector);
-
-  return vtkDataBlob;
-}
+//VSRenderController::Pointer SIMPLVtkBridge::WrapImageGeomAsVtkImageData(ImageGeom::Pointer image, FloatArrayType::Pointer cellData)
+//{
+//  size_t dims[3] = {0, 0, 0};
+//  float res[3] = {0.0f, 0.0f, 0.0f};
+//  float origin[3] = {0.0f, 0.0f, 0.0f};
+//
+//  image->getDimensions(dims);
+//  image->getResolution(res);
+//  image->getOrigin(origin);
+//
+//  VTK_NEW(vtkImageData, vtk_image);
+//  vtk_image->SetExtent(0, dims[0], 0, dims[1], 0, dims[2]);
+//  vtk_image->SetDimensions(dims[0] + 1, dims[1] + 1, dims[2] + 1);
+//  vtk_image->SetSpacing(res[0], res[1], res[2]);
+//  vtk_image->SetOrigin(origin[0], origin[1], origin[2]);
+//
+//  VTK_NEW(vtkFloatArray, flt);
+//  flt->SetVoidArray(cellData->getVoidPointer(0), cellData->getSize(), 1);
+//
+//  vtk_image->GetCellData()->SetScalars(flt);
+//
+//  std::shared_ptr<VSRenderController::VtkDataViewStruct_t> vtkDataViewStruct(new VSRenderController::VtkDataViewStruct_t());
+//  vtkDataViewStruct->Name = cellData->getName();
+//
+//  std::shared_ptr<VSRenderController::VtkDataSetStruct_t> vtkDataSetStruct(new VSRenderController::VtkDataSetStruct_t());
+//  vtkDataSetStruct->DataSet = vtk_image;
+//  vtkDataSetStruct->Name = image->getName();
+//  vtkDataSetStruct->ViewOptions.push_back(vtkDataViewStruct);
+//
+//  VSRenderController::VtkDataStructVector_t vtkDataStructVector;
+//  vtkDataStructVector.push_back(vtkDataSetStruct);
+//
+//  VSRenderController::Pointer vtkDataBlob = VSRenderController::CreateVSRenderController(vtkDataStructVector);
+//
+//  return vtkDataBlob;
+//}

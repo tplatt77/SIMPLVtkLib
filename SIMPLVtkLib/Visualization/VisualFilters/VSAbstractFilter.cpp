@@ -287,6 +287,23 @@ int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* child) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
+{
+  QVector<VSAbstractFilter*> descendants;
+
+  int count = m_children.size();
+  for(int i = 0; i < count; i++)
+  {
+    descendants.push_back(m_children[i]);
+    descendants.append(m_children[i]->getDescendants());
+  }
+
+  return descendants;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getChild(int index)
 {
   return m_children.at(index);

@@ -33,126 +33,181 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSController.h"
+#include "VSFilterViewSettings.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include <vtkColorTransferFunction.h>
+#include <vtkDataSetMapper.h>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSController::VSController(QObject* parent)
-  : QObject(parent)
+VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
+  : QObject(nullptr)
+  , m_Filter(filter)
 {
+  setupActors();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(DataContainerArray::Pointer dca)
+VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
+  : QObject(nullptr)
+  , m_Filter(copy.m_Filter)
+  , m_ShowFilter(copy.m_ShowFilter)
+  , m_ActiveArray(copy.m_ActiveArray)
+  , m_ActiveComponent(copy.m_ActiveComponent)
+  , m_MapColors(copy.m_MapColors)
+  , m_ShowScalarBar(copy.m_ShowScalarBar)
 {
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Add VSDataSetFilter for each DataContainer with relevant data
+  setupActors();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(DataContainer::Pointer dc)
+VSAbstractFilter* VSFilterViewSettings::getFilter()
 {
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // TODO: Add VSDataSetFilter if the DataContainer contains relevant data for rendering
+  return m_Filter;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::updateData(DataContainerArray::Pointer dca)
+bool VSFilterViewSettings::getVisible()
 {
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Check if any of the DataContainers are already imported as VSDataSetFilters
-  // TODO: Update any DataContainers already imported
-  // TODO: Import any DataContainers that are not already imported
+  return m_ShowFilter;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::updateData(DataContainer::Pointer dc)
+int VSFilterViewSettings::getActiveArrayIndex()
 {
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // TODO: Check if the DataContainer is already imported as a VSDataSetFilter
-  // TODO: Update the DataContainer if it is already imported
-  // TODO: Import the DataContainer if it is not already imported
+  return m_ActiveArray;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::removeData(DataContainerArray::Pointer dca)
+int VSFilterViewSettings::getActiveComponentIndex()
 {
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Check if any of the DataContainers are already imported as VSDataSetFilters
-  // TODO: Remove any of the DataContainers already imported
+  return m_ActiveComponent;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::removeData(DataContainer::Pointer dc)
+bool VSFilterViewSettings::getMapColors()
 {
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // TODO: Check if the DataContainer is already imported as a VSDataSetFilter
-  // TODO: Remove the DataContainer if it is already imported
+  return m_MapColors;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSViewController* VSController::getActiveViewController()
+bool VSFilterViewSettings::isScalarBarVisible()
 {
-  return m_ActiveViewController;
+  return m_ShowScalarBar;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::setActiveViewController(VSViewController* activeView)
+VTK_PTR(vtkActor) VSFilterViewSettings::getActor()
 {
-  if(m_ActiveViewController != activeView)
-  {
-    m_ActiveViewController = activeView;
-
-    emit activeViewChanged(m_ActiveViewController);
-  }
+  return m_Actor;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSDataSetFilter*> VSController::getDataFilters()
+VTK_PTR(vtkScalarBarWidget) VSFilterViewSettings::getScalarBarWidget()
 {
-  return m_DataFilters;
+  return m_ScalarBarWidget;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSController::getAllFilters()
+void VSFilterViewSettings::show()
 {
-  QVector<VSAbstractFilter*> filters(m_DataFilters.size());
+  setVisible(true);
+}
 
-  size_t count = m_DataFilters.size();
-  for(int i = 0; i < count; i++)
-  {
-    filters.push_back(m_DataFilters[i]);
-    filters.append(m_DataFilters[i]->getDescendants());
-  }
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::hide()
+{
+  setVisible(false);
+}
 
-  return filters;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setVisible(bool visible)
+{
+  m_ShowFilter = visible;
+
+  emit visibilityChanged(m_ShowFilter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setActiveArrayIndex(int index)
+{
+  m_ActiveArray = index;
+
+  emit activeArrayIndexChanged(m_ActiveArray);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setActiveComponentIndex(int index)
+{
+  m_ActiveComponent = index;
+
+  emit activeComponentIndexChanged(m_ActiveComponent);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setMapColors(bool mapColors)
+{
+  m_MapColors = mapColors;
+
+  emit mapColorsChanged(m_MapColors);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setScalarBarVisible(bool visible)
+{
+  m_ShowScalarBar = visible;
+
+  emit showScalarBarChanged(m_ShowScalarBar);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setupActors()
+{
+  m_Mapper = VTK_PTR(vtkDataSetMapper)::New();
+  //m_Mapper->SetInputConnection(m_Filter->getOutputPort());
+
+  m_Actor = VTK_PTR(vtkActor)::New();
+  m_Actor->SetMapper(m_Mapper);
+
+  m_LookupTable = new VSLookupTableController();
+  //m_LookupTable->getColorTransferFunction();
+
+  m_ScalarBarActor = VTK_PTR(vtkScalarBarActor)::New();
+  m_ScalarBarWidget = VTK_PTR(vtkScalarBarWidget)::New();
+  m_ScalarBarWidget->SetScalarBarActor(m_ScalarBarActor);
 }
