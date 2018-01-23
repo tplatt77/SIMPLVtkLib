@@ -132,6 +132,7 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapDataContainerAsStruc
   {
     WrappedDataContainerPtr wrappedDcStruct;
     wrappedDcStruct->m_DataSet = dataSet;
+    wrappedDcStruct->m_Name = dc->getName();
 
     DataContainer::AttributeMatrixMap_t attrMats = dc->getAttributeMatrices();
 

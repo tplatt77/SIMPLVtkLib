@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
+* Copyright (c) 2009-2017 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,90 +33,49 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSCropFilter_h_
-#define _VSCropFilter_h_
+#include "VSFilterView.h"
 
-#include <QtWidgets/QWidget>
+#include "SIMPLVtkLib/QtWidgets/VSFilterModel.h"
 
-#include "VSAbstractFilter.h"
-#include "ui_VSCropFilter.h"
-
-#include <vtkBox.h>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
-
-/**
- * @class VSCropFilter VSCropFilter.h SIMPLView/VtkSIMPL/VisualFilters/VSCropFilter.h
- * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
- * and Z bounds. This class can be chained with other VSAbstractFilters to
- * further specify the data allowed to be visualized. This filter requires 
- * the incoming data type to be a vtkImageData, thus restricting it to following 
- * VSDataSetFilters.
- */
-class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterView::VSFilterView(QWidget* parent)
+  : QTreeView(parent)
 {
-  Q_OBJECT
+  connectSlots();
+}
 
-public:
-  /**
-  * @brief Constructor
-  * @param parentWidget
-  * @param parent
-  */
-  VSCropFilter(VSAbstractFilter* parent);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::setController(VSController* controller)
+{
+  m_Controller = controller;
+}
 
-  /**
-  * @brief Deconstructor
-  */
-  ~VSCropFilter();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::itemClicked(const QModelIndex& index)
+{
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  emit filterClicked(filter);
+}
 
-  /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::connectSlots()
+{
+  connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
+}
 
-  /**
-  * @brief Initializes the filter and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
-  const QString getFilterName() override;
-
-  /**
-  * @brief Returns the VSAbstractWidget for the filter
-  * @return
-  */
-  //VSAbstractWidget* getWidget() override;
-
-  /**
-  * @brief Applies changes to the filter
-  */
-  //void apply() override;
-
-  /**
-  * @brief Returns the output data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  * @return
-  */
-  static dataType_t getRequiredInputType();
-
-private:
-  VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
-
-  //VSCropWidget* m_cropWidget;
-};
-
-#endif /* _VSCropFilter_h_ */
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSFilterView::getFilterFromIndex(const QModelIndex& index)
+{
+  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+  return filterModel->getFilterFromIndex(index);
+}

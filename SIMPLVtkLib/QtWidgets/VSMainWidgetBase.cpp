@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
+* Copyright (c) 2009-2017 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,138 +33,78 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSSliceFilter.h"
-
-#include <QtCore/QString>
-
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCutter.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
+#include "VSMainWidgetBase.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
-: VSAbstractFilter()
+VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
+  : QWidget(parent)
+  , m_Controller(new VSController())
 {
-  m_SliceAlgorithm = nullptr;
-  setParentFilter(parent);
-
-  //m_SliceWidget = new VSPlaneWidget(sliceFunctionWidget, parent->getBounds(), parent->getInteractor());
-  //m_SliceWidget->show();
-
-  //connect(m_SliceWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  setFilter();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilter::~VSSliceFilter()
+void VSMainWidgetBase::connectSlots()
 {
-  m_SliceAlgorithm = nullptr;
-  //delete m_SliceWidget;
+  connect(m_Controller, SIGNAL(activeViewChanged(VSViewController*)), 
+    this, SLOT(activeViewChanged(VSViewController*)));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilter::setBounds(double* bounds)
+VSController* VSMainWidgetBase::getController()
 {
-  if(nullptr == bounds)
+  return m_Controller;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
+{
+  return m_CurrentFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
+{
+  // Update VSFilterViewSettings to use the new ViewController's version
+  if(controller && m_CurrentFilter)
   {
-    return;
+    changeFilterViewSettings(controller->getViewSettings(m_CurrentFilter));
   }
 
-  //m_SliceWidget->setBounds(bounds);
+  // TODO: Update filter tree visibility
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilter::setFilter()
+void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
 {
-  m_SliceAlgorithm = vtkSmartPointer<vtkCutter>::New();
-  //m_SliceAlgorithm->SetCutFunction(m_SliceWidget->getImplicitFunction());
+  m_CurrentFilter = filter;
 
-  if(nullptr != m_ParentFilter)
+  VSViewController* activeView = m_Controller->getActiveViewController();
+  if(activeView)
   {
-    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
+    changeFilterViewSettings(activeView->getViewSettings(filter));
   }
-
-  m_SliceAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
-
-  //calculateOutput();
-  m_ConnectedInput = false;
+  else
+  {
+    changeFilterViewSettings(nullptr);
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void VSSliceFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_SliceAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_SliceAlgorithm->GetOutputPort());
-//  }
-//
-//  m_SliceAlgorithm->SetCutFunction(m_SliceWidget->getImplicitFunction());
-//  m_SliceAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString VSSliceFilter::getFilterName()
+void VSMainWidgetBase::changeFilterViewSettings(VSFilterViewSettings* filterView)
 {
-  return "Slice";
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//VSAbstractWidget* VSSliceFilter::getWidget()
-//{
-//  return m_SliceWidget;
-//}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::apply()
-{
-  //m_SliceWidget->apply();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getOutputType()
-{
-  return POLY_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
-{
-  return ANY_DATA_SET;
+  // TODO: Update displayed information
 }

@@ -57,27 +57,27 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSClipFilter::VSClipFilter(QWidget* parentWidget, VSAbstractFilter* parent)
-: VSAbstractFilter(parentWidget, parent->getInteractor())
+VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
+: VSAbstractFilter()
 {
-  setupUi(this);
-
-  m_clipAlgorithm = nullptr;
+  m_ClipAlgorithm = nullptr;
   setParentFilter(parent);
 
-  m_planeWidget = new VSPlaneWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
-  m_boxWidget = new VSBoxWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
+  //m_PlaneWidget = new VSPlaneWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
+  //m_BoxWidget = new VSBoxWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
 
-  connect(clipTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeClipType(int)));
-  connect(insideOutCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setInsideOut(int)));
+  //connect(clipTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeClipType(int)));
+  //connect(insideOutCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setInsideOut(int)));
 
-  connect(m_planeWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-  connect(m_boxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  //connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  //connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 
   setFilter();
 
-  m_lastInsideOutState = 0;
+  m_LastInsideOutState = 0;
   changeClipType(PLANE, false);
+
+  setText(getFilterName());
 }
 
 // -----------------------------------------------------------------------------
@@ -85,9 +85,9 @@ VSClipFilter::VSClipFilter(QWidget* parentWidget, VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 VSClipFilter::~VSClipFilter()
 {
-  m_clipAlgorithm = nullptr;
-  delete m_planeWidget;
-  delete m_boxWidget;
+  m_ClipAlgorithm = nullptr;
+  delete m_PlaneWidget;
+  delete m_BoxWidget;
 }
 
 // -----------------------------------------------------------------------------
@@ -100,8 +100,8 @@ void VSClipFilter::setBounds(double* bounds)
     return;
   }
 
-  m_planeWidget->setBounds(bounds);
-  m_boxWidget->setBounds(bounds);
+  m_PlaneWidget->setBounds(bounds);
+  m_BoxWidget->setBounds(bounds);
 }
 
 // -----------------------------------------------------------------------------
@@ -109,17 +109,16 @@ void VSClipFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSClipFilter::setFilter()
 {
-  m_clipAlgorithm = vtkSmartPointer<vtkTableBasedClipDataSet>::New();
-  m_clipAlgorithm->SetClipFunction(getWidget()->getImplicitFunction());
+  m_ClipAlgorithm = vtkSmartPointer<vtkTableBasedClipDataSet>::New();
+  m_ClipAlgorithm->SetClipFunction(getWidget()->getImplicitFunction());
 
-  if(nullptr != m_parentFilter)
+  if(nullptr != m_ParentFilter)
   {
-    m_ParentProducer->SetOutput(m_parentFilter->getOutput());
+    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
   }
 
-  m_clipAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_filterMapper->SetInputConnection(m_ParentProducer->GetOutputPort());
-  setViewScalarId(m_parentFilter->getViewScalarId());
+  m_ClipAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
 
   m_ConnectedInput = false;
 }
@@ -127,48 +126,20 @@ void VSClipFilter::setFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-{
-  if(nullptr == inputData.GetPointer())
-  {
-    return;
-  }
-
-  m_dataSet = inputData;
-
-  if(nullptr == m_clipAlgorithm)
-  {
-    return;
-  }
-
-  m_planeWidget->setBounds(inputData->GetBounds());
-  m_boxWidget->setBounds(inputData->GetBounds());
-
-  m_ConnectedInput = false;
-
-  setDirty();
-}
-
-// -----------------------------------------------------------------------------
+//void VSClipFilter::calculateOutput()
+//{
+//  if(!m_ConnectedInput && m_ParentFilter)
+//  {
+//    m_ClipAlgorithm->SetInputData(m_ParentFilter->getOutput());
+//    m_ConnectedInput = true;
 //
-// -----------------------------------------------------------------------------
-void VSClipFilter::calculateOutput()
-{
-  if(!m_ConnectedInput && m_parentFilter)
-  {
-    m_clipAlgorithm->SetInputData(m_parentFilter->getOutput());
-    m_ConnectedInput = true;
-
-    m_filterMapper->SetInputConnection(m_clipAlgorithm->GetOutputPort());
-  }
-
-  m_clipAlgorithm->Update();
-  m_dataSet = m_clipAlgorithm->GetOutput();
-  m_dataSet->ComputeBounds();
-
-  updateMapperScalars();
-  m_isDirty = false;
-}
+//    m_OutputProducer->SetInputConnection(m_ClipAlgorithm->GetOutputPort());
+//  }
+//
+//  m_ClipAlgorithm->Update();
+//
+//  m_isDirty = false;
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -181,51 +152,30 @@ const QString VSClipFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget* VSClipFilter::getWidget()
-{
-  switch(m_currentClipType)
-  {
-  case PLANE:
-    return m_planeWidget;
-  case BOX:
-    return m_boxWidget;
-  default:
-    return m_planeWidget;
-  }
-}
+//VSAbstractWidget* VSClipFilter::getWidget()
+//{
+//  switch(m_CurrentClipType)
+//  {
+//  case PLANE:
+//    return m_PlaneWidget;
+//  case BOX:
+//    return m_BoxWidget;
+//  default:
+//    return m_PlaneWidget;
+//  }
+//}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void VSClipFilter::apply()
 {
-  m_lastClipType = m_currentClipType;
-  m_lastInsideOutState = m_clipAlgorithm->GetInsideOut();
+  m_LastClipType = m_CurrentClipType;
+  m_LastInsideOutState = m_ClipAlgorithm->GetInsideOut();
 
   VSAbstractWidget* currentWidget = getWidget();
   currentWidget->apply();
-  m_clipAlgorithm->SetClipFunction(currentWidget->getImplicitFunction());
-
-  setDirty();
-  refresh();
-
-  m_changesWaiting = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSClipFilter::reset()
-{
-  insideOutCheckBox->setChecked(m_lastInsideOutState);
-
-  m_planeWidget->reset();
-  m_boxWidget->reset();
-
-  clipTypeComboBox->setCurrentIndex(m_lastClipType);
-  changeClipType(m_lastClipType);
-
-  m_changesWaiting = false;
+  m_ClipAlgorithm->SetClipFunction(currentWidget->getImplicitFunction());
 }
 
 // -----------------------------------------------------------------------------
@@ -233,49 +183,30 @@ void VSClipFilter::reset()
 // -----------------------------------------------------------------------------
 void VSClipFilter::changeClipType(int type, bool shouldRepaint)
 {
-  m_currentClipType = (clipType_t)type;
+  m_CurrentClipType = (clipType_t)type;
 
-  switch(m_currentClipType)
+  switch(m_CurrentClipType)
   {
   case PLANE:
-    m_planeWidget->show();
-    m_planeWidget->enable();
+    m_PlaneWidget->show();
+    m_PlaneWidget->enable();
 
-    m_boxWidget->hide();
-    m_boxWidget->disable();
-
-    clipFunctionWidget->setMinimumHeight(m_planeWidget->minimumHeight());
+    m_BoxWidget->hide();
+    m_BoxWidget->disable();
     break;
   case BOX:
-    m_planeWidget->hide();
-    m_planeWidget->disable();
+    m_PlaneWidget->hide();
+    m_PlaneWidget->disable();
 
-    m_boxWidget->show();
-    m_boxWidget->enable();
-
-    clipFunctionWidget->setMinimumHeight(m_boxWidget->minimumHeight());
+    m_BoxWidget->show();
+    m_BoxWidget->enable();
     break;
   default:
-    m_planeWidget->show();
-    m_planeWidget->enable();
+    m_PlaneWidget->show();
+    m_PlaneWidget->enable();
 
-    m_boxWidget->hide();
-    m_boxWidget->disable();
-
-    clipFunctionWidget->setMinimumHeight(m_planeWidget->minimumHeight());
-  }
-
-  getInteractor()->Render();
-
-  update();
-  changesWaiting();
-
-  if(shouldRepaint)
-  {
-    repaint();
-    QApplication::instance()->processEvents();
-
-    emit resized(shouldRepaint);
+    m_BoxWidget->hide();
+    m_BoxWidget->disable();
   }
 }
 
@@ -284,9 +215,7 @@ void VSClipFilter::changeClipType(int type, bool shouldRepaint)
 // -----------------------------------------------------------------------------
 void VSClipFilter::setInsideOut(int state)
 {
-  m_clipAlgorithm->SetInsideOut(state);
-
-  changesWaiting();
+  m_ClipAlgorithm->SetInsideOut(state);
 }
 
 // -----------------------------------------------------------------------------

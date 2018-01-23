@@ -150,6 +150,12 @@ protected:
   */
   virtual VSVisualizationWidget* getVisualizationWidget() = 0;
 
+  /**
+  * @brief Handle mouse press events including marking the VSViewController as the active one
+  * @param event
+  */
+  virtual void mousePressEvent(QMouseEvent* event) override;
+
 private:
   VSViewController* m_ViewController = nullptr;
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;

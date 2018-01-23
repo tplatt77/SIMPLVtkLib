@@ -85,6 +85,11 @@ public slots:
   */
   void removeFilter(VSAbstractFilter* filter);
 
+  /**
+  * @brief Sets this VSViewController as the active one for the VSController
+  */
+  void markActive();
+
 protected:
   /**
   * @brief Applies a fresh set of VSFilterViewSettings

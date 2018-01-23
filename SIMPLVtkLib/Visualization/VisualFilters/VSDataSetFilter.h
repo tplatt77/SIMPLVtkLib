@@ -43,14 +43,14 @@
 
 #include <vtkSmartPointer.h>
 
-#include "SIMPLVtkLib/SIMPLBridge/VSRenderController.h"
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class vtkTrivialProducer;
 class vtkAlgorithmOutput;
 
-class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractFilter, private Ui::VSDataSetFilter
+class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
@@ -60,7 +60,7 @@ public:
   * @param parentWidget
   * @param dataSetStruct
   */
-  VSDataSetFilter(QWidget* parentWidget, std::shared_ptr<VSRenderController::VtkDataSetStruct_t> dataSetStruct, vtkRenderWindowInteractor* iren);
+  VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
 
   /**
   * @brief Deconstructor
@@ -85,28 +85,10 @@ public:
   void setBounds(double* bounds) override;
 
   /**
-  * @brief Sets the input vtkDataSet
-  * @param inputData
-  */
-  void setInputData(VTK_PTR(vtkDataSet) inputData) override;
-
-  /**
-  * @brief Calculates the output data
-  */
-  void calculateOutput() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
-
-  /**
-  * @brief Returns whether or not the filter can be deleted. 
-  * VSDataSetFilters cannot be deleted.
-  * @return
-  */
-  bool canDelete() override;
 
   /**
   * @brief Returns the output data type for the filter
@@ -124,13 +106,12 @@ public:
   * @brief Returns the VtkDataSetStruct_t used by the filter
   * @return
   */
-  std::shared_ptr<VSRenderController::VtkDataSetStruct_t> getDataSetStruct() override;
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
 
 private:
-  std::shared_ptr<VSRenderController::VtkDataSetStruct_t> m_dataSetStruct;
-  QString m_dataSetName;
+  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer;
 
-  VTK_PTR(vtkTrivialProducer) m_trivialProducer;
+  VTK_PTR(vtkTrivialProducer) m_TrivialProducer;
 
   //		int m_scalarSetId;
 };

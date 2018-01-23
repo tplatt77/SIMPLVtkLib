@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
+* Copyright (c) 2009-2015 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,90 +33,57 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSCropFilter_h_
-#define _VSCropFilter_h_
+#ifndef _vsinfowidget_h_
+#define _vsinfowidget_h_
 
 #include <QtWidgets/QWidget>
 
-#include "VSAbstractFilter.h"
-#include "ui_VSCropFilter.h"
-
-#include <vtkBox.h>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
+#include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 /**
- * @class VSCropFilter VSCropFilter.h SIMPLView/VtkSIMPL/VisualFilters/VSCropFilter.h
- * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
- * and Z bounds. This class can be chained with other VSAbstractFilters to
- * further specify the data allowed to be visualized. This filter requires 
- * the incoming data type to be a vtkImageData, thus restricting it to following 
- * VSDataSetFilters.
- */
-class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
+* @class VSInfoWidget VSInfoWidget.h SIMPLVtkLib/QtWidgets/VSInfoWidget.h
+* @brief This class handles displaying information about a visual filter and 
+* its view settings in the active VSViewController
+*/
+class VSInfoWidget : public QWidget
 {
   Q_OBJECT
 
 public:
   /**
   * @brief Constructor
-  * @param parentWidget
   * @param parent
   */
-  VSCropFilter(VSAbstractFilter* parent);
+  VSInfoWidget(QWidget* parent = nullptr);
+
+public slots:
+  /**
+  * @brief Changes the filter being displayed
+  * @param filter
+  */
+  void setFilter(VSAbstractFilter* filter);
 
   /**
-  * @brief Deconstructor
+  * @brief Changes the VSViewController used for fetching VSFilterViewSettings
+  * @param viewController
   */
-  ~VSCropFilter();
+  void setViewController(VSViewController* viewController);
+
+protected:
+  /**
+  * @brief Updates the information on the visual filter
+  */
+  void updateFilterInfo();
 
   /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
+  * @brief Updates the information on the VSFilterViewSettings
   */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the filter and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
-  const QString getFilterName() override;
-
-  /**
-  * @brief Returns the VSAbstractWidget for the filter
-  * @return
-  */
-  //VSAbstractWidget* getWidget() override;
-
-  /**
-  * @brief Applies changes to the filter
-  */
-  //void apply() override;
-
-  /**
-  * @brief Returns the output data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  * @return
-  */
-  static dataType_t getRequiredInputType();
+  void updateViewSettingInfo();
 
 private:
-  VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
-
-  //VSCropWidget* m_cropWidget;
+  VSAbstractFilter* m_Filter = nullptr;
+  VSViewController* m_ViewController = nullptr;
 };
 
-#endif /* _VSCropFilter_h_ */
+#endif

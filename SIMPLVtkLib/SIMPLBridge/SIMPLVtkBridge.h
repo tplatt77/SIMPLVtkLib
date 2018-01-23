@@ -42,6 +42,9 @@
 
 #include <string>
 
+#include <vtkDataSet.h>
+#include <vtkDataArray.h>
+
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
@@ -52,7 +55,7 @@
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 
-#include "SIMPLVtkLib/SIMPLBridge/VSRenderController.h"
+#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class vtkImageData;
@@ -82,6 +85,7 @@ public:
   {
     VTK_PTR(vtkDataSet) m_DataSet;
     std::vector<WrappedDataArrayPtr> m_CellData;
+    QString m_Name;
   };
 
   using WrappedDataContainerPtr = std::shared_ptr<WrappedDataContainer>;

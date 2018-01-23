@@ -39,7 +39,6 @@
 #include <QtWidgets/QWidget>
 
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
-#include "ui_VSThresholdFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -69,7 +68,7 @@ class vtkMergeFilter;
  * from VSAbstractFilter, it can be chained with other filters to further
  * specify what part of the volume should be visualized.
  */
-class SIMPLVtkLib_EXPORT VSThresholdFilter : public VSAbstractFilter, private Ui::VSThresholdFilter
+class SIMPLVtkLib_EXPORT VSThresholdFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
@@ -79,7 +78,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSThresholdFilter(QWidget* parentWidget, VSAbstractFilter* parent);
+  VSThresholdFilter(VSAbstractFilter* parent);
 
   /**
   * @brief Deconstructor
@@ -98,17 +97,6 @@ public:
   void setFilter() override;
 
   /**
-  * @brief Sets the input data set
-  * @param inputData
-  */
-  void setInputData(VTK_PTR(vtkDataSet) inputData) override;
-
-  /**
-  * @brief Calculates the output data for the algorithm
-  */
-  void calculateOutput() override;
-
-  /**
   * @brief Returns the filter name
   * @return
   */
@@ -117,17 +105,12 @@ public:
   /**
   * @brief Returns the VSAbstractWidget used by the filter
   */
-  VSAbstractWidget* getWidget() override;
+  //VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Applies updated values to the filter and calculates the output
   */
   void apply() override;
-
-  /**
-  * @brief Resets the filter to its last applied values
-  */
-  void reset() override;
 
   /**
   * @brief Returns the output data type
@@ -148,18 +131,13 @@ public slots:
   */
   void setThresholdScalarId(int id);
 
-protected:
-  /**
-  * @brief Initializes the scalar combo box
-  */
-  void setupScalarsComboBox();
-
 private:
-  int m_currentId, m_lastId;
+  int m_CurrentId;
+  int m_LastId;
 
-  VTK_PTR(vtkThreshold) m_thresholdAlgorithm;
+  VTK_PTR(vtkThreshold) m_ThresholdAlgorithm;
 
-  VSThresholdWidget* m_thresholdWidget;
+  //VSThresholdWidget* m_ThresholdWidget;
 };
 
 #endif /* _VSThresholdFilter_h_ */

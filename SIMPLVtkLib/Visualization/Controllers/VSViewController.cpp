@@ -169,3 +169,11 @@ void VSViewController::removeFilter(VSAbstractFilter* filter)
     viewSettings->deleteLater();
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewController::markActive()
+{
+  m_VSController->setActiveViewController(this);
+}

@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
+* Copyright (c) 2009-2017 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,90 +33,63 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSCropFilter_h_
-#define _VSCropFilter_h_
+#include "VSFilterModel.h"
 
-#include <QtWidgets/QWidget>
-
-#include "VSAbstractFilter.h"
-#include "ui_VSCropFilter.h"
-
-#include <vtkBox.h>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
-
-/**
- * @class VSCropFilter VSCropFilter.h SIMPLView/VtkSIMPL/VisualFilters/VSCropFilter.h
- * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
- * and Z bounds. This class can be chained with other VSAbstractFilters to
- * further specify the data allowed to be visualized. This filter requires 
- * the incoming data type to be a vtkImageData, thus restricting it to following 
- * VSDataSetFilters.
- */
-class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterModel::VSFilterModel(QObject* parent)
+  : QStandardItemModel(parent)
 {
-  Q_OBJECT
 
-public:
-  /**
-  * @brief Constructor
-  * @param parentWidget
-  * @param parent
-  */
-  VSCropFilter(VSAbstractFilter* parent);
+}
 
-  /**
-  * @brief Deconstructor
-  */
-  ~VSCropFilter();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::addFilter(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
 
-  /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
+  if(nullptr == filter->getParentFilter())
+  {
+    appendRow(filter);
+  }
+}
 
-  /**
-  * @brief Initializes the filter and connects it to the vtkMapper
-  */
-  void setFilter() override;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::removeFilter(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
 
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
-  const QString getFilterName() override;
+  QModelIndex index = getIndexFromFilter(filter);
+  QStandardItem* item = takeItem(index.row(), index.column());
+  if(item)
+  {
+    delete item;
+  }
+}
 
-  /**
-  * @brief Returns the VSAbstractWidget for the filter
-  * @return
-  */
-  //VSAbstractWidget* getWidget() override;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
+{
+  return dynamic_cast<VSAbstractFilter*>(item(index.row(), index.column()));
+}
 
-  /**
-  * @brief Applies changes to the filter
-  */
-  //void apply() override;
-
-  /**
-  * @brief Returns the output data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  * @return
-  */
-  static dataType_t getRequiredInputType();
-
-private:
-  VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
-
-  //VSCropWidget* m_cropWidget;
-};
-
-#endif /* _VSCropFilter_h_ */
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
+{
+  return indexFromItem(filter);
+}

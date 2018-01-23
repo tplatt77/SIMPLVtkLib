@@ -55,18 +55,13 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSCropFilter::VSCropFilter(QWidget* parentWidget, VSAbstractFilter* parent)
-: VSAbstractFilter(parentWidget, parent->getInteractor())
+VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
+: VSAbstractFilter()
 {
-  setupUi(this);
+  setText(getFilterName());
 
-  m_cropAlgorithm = nullptr;
+  m_CropAlgorithm = nullptr;
   setParentFilter(parent);
-
-  m_cropWidget = new VSCropWidget(cropFunctionWidget, vtkImageData::SafeDownCast(parent->getOutput()), parent->getInteractor());
-  m_cropWidget->show();
-
-  connect(m_cropWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 
   setFilter();
 }
@@ -76,8 +71,7 @@ VSCropFilter::VSCropFilter(QWidget* parentWidget, VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 VSCropFilter::~VSCropFilter()
 {
-  m_cropAlgorithm = nullptr;
-  delete m_cropWidget;
+  m_CropAlgorithm = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -90,7 +84,7 @@ void VSCropFilter::setBounds(double* bounds)
     return;
   }
 
-  m_cropWidget->setBounds(bounds);
+  //m_cropWidget->setBounds(bounds);
 }
 
 // -----------------------------------------------------------------------------
@@ -98,75 +92,45 @@ void VSCropFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSCropFilter::setFilter()
 {
-  m_cropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
-  m_cropAlgorithm->IncludeBoundaryOn();
-  m_cropAlgorithm->SetVOI(m_cropWidget->getVOI());
+  m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
+  m_CropAlgorithm->IncludeBoundaryOn();
+  //m_CropAlgorithm->SetVOI(m_cropWidget->getVOI());
 
-  if(nullptr != m_parentFilter)
+  if(nullptr != m_ParentFilter)
   {
-    m_ParentProducer->SetOutput(m_parentFilter->getOutput());
+    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
   }
 
-  m_cropAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_filterMapper->SetInputConnection(m_ParentProducer->GetOutputPort());
-  setViewScalarId(m_parentFilter->getViewScalarId());
+  m_CropAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
 
   m_ConnectedInput = false;
-
-  VTK_PTR(vtkDataArray) dataArray = getScalarSet();
-  m_filterMapper->SetScalarRange(dataArray->GetRange()[0], dataArray->GetRange()[1]);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-{
-  if(nullptr == inputData.GetPointer())
-  {
-    return;
-  }
-
-  if(nullptr == m_cropAlgorithm)
-  {
-    return;
-  }
-
-  m_ConnectedInput = false;
-
-  m_ParentProducer->SetOutput(inputData);
-
-  setDirty();
-}
-
-// -----------------------------------------------------------------------------
+//void VSCropFilter::calculateOutput()
+//{
+//  if(!m_ConnectedInput && m_ParentFilter)
+//  {
+//    m_CropAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+//    m_ConnectedInput = true;
 //
-// -----------------------------------------------------------------------------
-void VSCropFilter::calculateOutput()
-{
-  if(!m_ConnectedInput && m_parentFilter)
-  {
-    m_cropAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-    m_ConnectedInput = true;
-
-    m_filterMapper->SetInputConnection(m_cropAlgorithm->GetOutputPort());
-  }
-
-  int* voi = m_cropWidget->getVOI();
-  int* sampleRate = m_cropWidget->getSampleRate();
-
-  m_cropAlgorithm->SetVOI(voi);
-  m_cropAlgorithm->SetSampleRate(sampleRate);
-  m_cropAlgorithm->GetOutput()->SetDimensions(voi[1], voi[3], voi[5]);
-
-  m_cropAlgorithm->Update();
-  m_dataSet = m_cropAlgorithm->GetOutput();
-  m_dataSet->ComputeBounds();
-
-  updateMapperScalars();
-
-  m_isDirty = false;
-}
+//    m_OutputProducer->SetInputConnection(m_CropAlgorithm->GetOutputPort());
+//  }
+//
+//  int* voi = m_cropWidget->getVOI();
+//  int* sampleRate = m_cropWidget->getSampleRate();
+//
+//  m_CropAlgorithm->SetVOI(voi);
+//  m_CropAlgorithm->SetSampleRate(sampleRate);
+//  m_CropAlgorithm->GetOutput()->SetDimensions(voi[1], voi[3], voi[5]);
+//
+//  m_CropAlgorithm->Update();
+//
+//  m_isDirty = false;
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -179,33 +143,10 @@ const QString VSCropFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget* VSCropFilter::getWidget()
-{
-  return m_cropWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::apply()
-{
-  m_cropWidget->apply();
-
-  setDirty();
-  refresh();
-
-  m_changesWaiting = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::reset()
-{
-  m_cropWidget->reset();
-
-  m_changesWaiting = false;
-}
+//VSAbstractWidget* VSCropFilter::getWidget()
+//{
+//  return m_cropWidget;
+//}
 
 // -----------------------------------------------------------------------------
 //

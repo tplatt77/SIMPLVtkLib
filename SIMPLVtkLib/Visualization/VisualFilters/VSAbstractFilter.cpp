@@ -57,59 +57,21 @@
 
 #include <vtkGenericDataObjectWriter.h>
 
-#include "Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
-#include "SIMPLBridge/VSRenderController.h"
-#include "Visualization/VtkWidgets/VSAbstractWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::VSAbstractFilter(QWidget* parent, VTK_PTR(vtkRenderWindowInteractor) interactor)
-: QWidget(parent)
-, m_interactor(interactor)
+VSAbstractFilter::VSAbstractFilter()
+: QObject()
+, QStandardItem()
 {
-  m_parentFilter = nullptr;
+  setCheckable(true);
 
-  m_dataSet = nullptr;
-
-  m_filterMapper = VTK_PTR(vtkDataSetMapper)::New();
-  m_filterMapper->ScalarVisibilityOn();
-  setMapScalars(true);
-
-  m_lookupTable = new VSLookupTableController();
-  m_filterMapper->SetLookupTable(m_lookupTable->getColorTransferFunction());
-
-  m_filterActor = VTK_PTR(vtkActor)::New();
-  m_filterActor->SetMapper(m_filterMapper);
-
-  m_viewScalarId = 0;
-  m_viewScalarComponentId = 0;
-
-  m_isDirty = false;
-  m_changesWaiting = true;
-
-  m_mapScalars = true;
-  m_showLookupTable = true;
-  m_active = true;
-
-  m_scalarBarWidget = VTK_PTR(vtkScalarBarWidget)::New();
-  m_scalarBarWidget->SetInteractor(interactor);
-  VTK_PTR(vtkScalarBarActor) scalarBarActor = m_scalarBarWidget->GetScalarBarActor();
-
-  scalarBarActor->SetLookupTable(m_lookupTable->getColorTransferFunction());
-
-  vtkTextProperty* titleProperty = scalarBarActor->GetTitleTextProperty();
-  titleProperty->SetJustificationToCentered();
-  titleProperty->SetFontSize(titleProperty->GetFontSize() * 1.5);
-
-// introduced in 7.1.0rc1, prevents resizing title to fill width
-#if VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >= 1
-  scalarBarActor->UnconstrainedFontSizeOn();
-#endif
-
-  scalarBarActor->SetTitleRatio(0.75);
+  m_ParentFilter = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -117,9 +79,9 @@ VSAbstractFilter::VSAbstractFilter(QWidget* parent, VTK_PTR(vtkRenderWindowInter
 // -----------------------------------------------------------------------------
 VSAbstractFilter::~VSAbstractFilter()
 {
-  while(m_children.count() > 0)
+  while(m_Children.count() > 0)
   {
-    VSAbstractFilter* child = m_children[0];
+    VSAbstractFilter* child = m_Children[0];
     removeChild(child);
     delete child;
   }
@@ -128,17 +90,9 @@ VSAbstractFilter::~VSAbstractFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilter::setInteractor(vtkRenderWindowInteractor* iren)
-{
-  m_interactor = iren;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter()
 {
-  return m_parentFilter;
+  return m_ParentFilter;
 }
 
 // -----------------------------------------------------------------------------
@@ -146,86 +100,34 @@ VSAbstractFilter* VSAbstractFilter::getParentFilter()
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 {
-  if(m_parentFilter != nullptr)
+  if(m_ParentFilter != nullptr)
   {
-    m_parentFilter->removeChild(this);
+    m_ParentFilter->removeChild(this);
   }
 
   if(nullptr == parent)
   {
-    this->m_parentFilter = nullptr;
-    this->m_dataSet = nullptr;
+    this->m_ParentFilter = nullptr;
     return;
   }
   else
   {
-    m_parentFilter = parent;
-    m_dataSet = m_parentFilter->getOutput();
-    m_parentFilter->m_children.push_back(this);
+    m_ParentFilter = parent;
+    m_ParentFilter->m_Children.push_back(this);
 
     m_ParentProducer = VTK_PTR(vtkTrivialProducer)::New();
-    m_ParentProducer->SetOutput(parent->getOutput());
-    m_filterMapper->SetInputConnection(m_ParentProducer->GetOutputPort());
+    m_ParentProducer->SetInputConnection(parent->getOutputPort());
 
-    if(nullptr != getDataSetStruct())
-    {
-      if(nullptr != getDataSetStruct()->DataSet)
-      {
-        if(nullptr != getDataSetStruct()->DataSet->GetCellData())
-        {
-          if(nullptr != getDataSetStruct()->DataSet->GetCellData()->GetArray(m_viewScalarId))
-          {
-            m_lookupTable->setRange(getDataSetStruct()->DataSet->GetCellData()->GetArray(m_viewScalarId)->GetRange());
-          }
-        }
-      }
-    }
+    m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkDataSet* VSAbstractFilter::getOutput()
+VTK_PTR(vtkAlgorithmOutput) VSAbstractFilter::getOutputPort()
 {
-  if(m_isDirty)
-  {
-    calculateOutput();
-  }
-
-  return m_dataSet;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::refresh()
-{
-  if(m_isDirty)
-  {
-    calculateOutput();
-  }
-
-  for(int i = 0; i < m_children.length(); i++)
-  {
-    m_children[i]->refresh();
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::isDirty()
-{
-  return m_isDirty;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::hasChangesWaiting()
-{
-  return m_changesWaiting;
+  return m_OutputProducer->GetOutputPort();
 }
 
 // -----------------------------------------------------------------------------
@@ -233,12 +135,12 @@ bool VSAbstractFilter::hasChangesWaiting()
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
-  if(m_children.contains(child))
+  if(m_Children.contains(child))
   {
     return;
   }
 
-  m_children.push_back(child);
+  m_Children.push_back(child);
 }
 
 // -----------------------------------------------------------------------------
@@ -246,13 +148,13 @@ void VSAbstractFilter::addChild(VSAbstractFilter* child)
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 {
-  if(!m_children.contains(child))
+  if(!m_Children.contains(child))
   {
     return;
   }
 
-  m_children.removeAll(child);
-  child->setParent(nullptr);
+  m_Children.removeAll(child);
+  child->setParentFilter(nullptr);
 }
 
 // -----------------------------------------------------------------------------
@@ -260,12 +162,12 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getAncestor()
 {
-  if(nullptr == m_parentFilter)
+  if(nullptr == m_ParentFilter)
   {
     return this;
   }
 
-  return m_parentFilter->getAncestor();
+  return m_ParentFilter->getAncestor();
 }
 
 // -----------------------------------------------------------------------------
@@ -273,7 +175,7 @@ VSAbstractFilter* VSAbstractFilter::getAncestor()
 // -----------------------------------------------------------------------------
 QVector<VSAbstractFilter*> VSAbstractFilter::getChildren() const
 {
-  return m_children;
+  return m_Children;
 }
 
 // -----------------------------------------------------------------------------
@@ -281,7 +183,7 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getChildren() const
 // -----------------------------------------------------------------------------
 int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* child) const
 {
-  return m_children.indexOf(child);
+  return m_Children.indexOf(child);
 }
 
 // -----------------------------------------------------------------------------
@@ -291,11 +193,11 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 {
   QVector<VSAbstractFilter*> descendants;
 
-  int count = m_children.size();
+  int count = m_Children.size();
   for(int i = 0; i < count; i++)
   {
-    descendants.push_back(m_children[i]);
-    descendants.append(m_children[i]->getDescendants());
+    descendants.push_back(m_Children[i]);
+    descendants.append(m_Children[i]->getDescendants());
   }
 
   return descendants;
@@ -306,13 +208,13 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getChild(int index)
 {
-  return m_children.at(index);
+  return m_Children.at(index);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::shared_ptr<VSRenderController::VtkDataSetStruct_t> VSAbstractFilter::getDataSetStruct()
+SIMPLVtkBridge::WrappedDataContainerPtr VSAbstractFilter::getWrappedDataContainer()
 {
   VSDataSetFilter* dataSetFilter = getDataSetFilter();
 
@@ -321,23 +223,7 @@ std::shared_ptr<VSRenderController::VtkDataSetStruct_t> VSAbstractFilter::getDat
     return nullptr;
   }
 
-  return dataSetFilter->getDataSetStruct();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkActor) VSAbstractFilter::getActor()
-{
-  return m_filterActor;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSetMapper) VSAbstractFilter::getMapper()
-{
-  return m_filterMapper;
+  return dataSetFilter->getWrappedDataContainer();
 }
 
 // -----------------------------------------------------------------------------
@@ -345,213 +231,12 @@ VTK_PTR(vtkDataSetMapper) VSAbstractFilter::getMapper()
 // -----------------------------------------------------------------------------
 double* VSAbstractFilter::getBounds()
 {
-  if(nullptr == m_parentFilter)
+  if(nullptr == m_ParentFilter)
   {
     return nullptr;
   }
 
-  return m_parentFilter->getBounds();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractWidget* VSAbstractFilter::getWidget()
-{
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkScalarBarWidget) VSAbstractFilter::getScalarBarWidget()
-{
-  return getScalarBarWidget(m_viewScalarId);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkScalarBarWidget) VSAbstractFilter::getScalarBarWidget(int id)
-{
-  m_scalarBarWidget->SetInteractor(m_interactor);
-  return m_scalarBarWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::sharesScalarBar(VSAbstractFilter* other)
-{
-  if(nullptr == other)
-  {
-    return false;
-  }
-
-  if(other->getDataSetFilter() != getDataSetFilter())
-  {
-    return false;
-  }
-
-  if(other->m_viewScalarId != m_viewScalarId || other->m_viewScalarComponentId != m_viewScalarComponentId)
-  {
-    return false;
-  }
-
-  return m_lookupTable->equals(other->m_lookupTable);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setViewScalarId(int id)
-{
-  if(nullptr == m_dataSet)
-  {
-    return;
-  }
-
-  if(id < 0)
-  {
-    id = 0;
-  }
-  m_viewScalarId = id;
-  m_viewScalarComponentId = 0;
-
-  std::shared_ptr<VSRenderController::VtkDataSetStruct_t> dataSetStruct = getDataSetFilter()->getDataSetStruct();
-
-  VTK_PTR(vtkDataArray) dataArray = dataSetStruct->DataSet->GetCellData()->GetArray(id);
-  
-  vtkCellData* cellData = m_dataSet->GetCellData();
-  if(cellData && dataArray.Get() )
-  {
-    cellData->SetActiveScalars(dataArray->GetName());
-    m_filterMapper->SetScalarRange(dataArray->GetRange()[0], dataArray->GetRange()[1]);
-    m_filterMapper->SetScalarModeToDefault();
-    
-    m_lookupTable->setRange(dataArray->GetRange());
-    
-    m_filterMapper->Update();
-    
-    m_scalarBarWidget->GetScalarBarActor()->SetTitle(dataArray->GetName());
-  }
-
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int VSAbstractFilter::getViewScalarId()
-{
-  return m_viewScalarId;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int VSAbstractFilter::getViewScalarComponentId()
-{
-  return m_viewScalarComponentId;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setViewScalarComponentId(int id)
-{
-  if(nullptr == m_dataSet || nullptr == m_filterMapper)
-  {
-    return;
-  }
-
-  if(id < 0)
-  {
-    id = 0;
-  }
-
-  m_viewScalarComponentId = id;
-
-  VTK_PTR(vtkDataArray) dataArray = m_dataSet->GetCellData()->GetArray(m_viewScalarId);
-  int numComponents = dataArray->GetNumberOfComponents();
-  VTK_PTR(vtkScalarsToColors) lookupTable = m_filterMapper->GetLookupTable();
-
-  if(numComponents == 1)
-  {
-    m_scalarBarWidget->GetScalarBarActor()->SetTitle(dataArray->GetName());
-  }
-  else if(id < numComponents)
-  {
-    double* range = dataArray->GetRange(id);
-
-    m_filterMapper->SetScalarModeToUseCellFieldData();
-
-    m_filterMapper->ColorByArrayComponent(m_viewScalarId, m_viewScalarComponentId);
-    m_filterMapper->SetScalarRange(range);
-    m_filterMapper->Update();
-
-    m_lookupTable->setRange(range);
-
-    m_scalarBarWidget->GetScalarBarActor()->SetTitle(dataArray->GetComponentName(id));
-  }
-  else if(id == numComponents)
-  {
-    double* range = dataArray->GetRange(-1);
-
-    m_filterMapper->SetScalarModeToUseCellFieldData();
-
-    m_filterMapper->ColorByArrayComponent(m_viewScalarId, -1);
-    m_filterMapper->SetScalarRange(range);
-    m_filterMapper->Update();
-
-    lookupTable->SetVectorModeToMagnitude();
-    m_lookupTable->setRange(range);
-
-    m_scalarBarWidget->GetScalarBarActor()->SetTitle((QString(dataArray->GetName()) + " Magnitude").toStdString().c_str());
-  }
-
-  lookupTable->Build();
-  getScalarBarWidget()->GetScalarBarActor()->SetLookupTable(lookupTable);
-
-  m_filterMapper->Update();
-  m_interactor->Render();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const char* VSAbstractFilter::scalarIdToName(int scalarId)
-{
-  if(nullptr == m_dataSet)
-  {
-    return "";
-  }
-
-  vtkDataArray* dataArray = m_dataSet->GetCellData()->GetArray(scalarId);
-  if(nullptr == dataArray)
-  {
-    return "";
-  }
-
-  return dataArray->GetName();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataArray) VSAbstractFilter::getBaseDataArray(int id)
-{
-  VSAbstractFilter* ancestor = getAncestor();
-  if(nullptr == ancestor)
-  {
-    return nullptr;
-  }
-
-  if(nullptr == ancestor->m_dataSet)
-  {
-    return nullptr;
-  }
-
-  return ancestor->m_dataSet->GetCellData()->GetArray(id);
+  return m_ParentFilter->getBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -566,33 +251,12 @@ VSDataSetFilter* VSAbstractFilter::getDataSetFilter()
     return cast;
   }
 
-  if(nullptr == m_parentFilter)
+  if(nullptr == m_ParentFilter)
   {
     return nullptr;
   }
 
-  return m_parentFilter->getDataSetFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataArray) VSAbstractFilter::getScalarSet(int id)
-{
-  return m_dataSet->GetCellData()->GetArray(id);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataArray) VSAbstractFilter::getScalarSet()
-{
-  if(m_dataSet->GetCellData()->GetVectors() != nullptr)
-  {
-    return m_dataSet->GetCellData()->GetVectors();
-  }
-
-  return m_dataSet->GetCellData()->GetScalars();
+  return m_ParentFilter->getDataSetFilter();
 }
 
 // -----------------------------------------------------------------------------
@@ -600,80 +264,6 @@ VTK_PTR(vtkDataArray) VSAbstractFilter::getScalarSet()
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::apply()
 {
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::reset()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::canDelete()
-{
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setDirty()
-{
-  m_isDirty = true;
-
-  for(int i = 0; i < m_children.size(); i++)
-  {
-    m_children[i]->setDirty();
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::updateMapperScalars()
-{
-  VTK_PTR(vtkDataArray) dataArray = getScalarSet();
-  if(nullptr == dataArray)
-  {
-    return;
-  }
-
-  m_dataSet->GetCellData()->SetActiveScalars(dataArray->GetName());
-  m_filterMapper->SetInputData(m_dataSet);
-  m_filterMapper->SetScalarRange(getScalarRange());
-  m_filterMapper->Update();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSAbstractFilter::getScalarRange()
-{
-  VSAbstractFilter* ancestorFilter = getAncestor();
-  if(nullptr == ancestorFilter)
-  {
-    return nullptr;
-  }
-
-  vtkDataArray* dataArray = ancestorFilter->m_dataSet->GetCellData()->GetArray(m_viewScalarId);
-
-  return dataArray->GetRange();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkScalarsToColors* VSAbstractFilter::getScalarLookupTable()
-{
-  if(nullptr == m_lookupTable)
-  {
-    return nullptr;
-  }
-
-  return m_lookupTable->getColorTransferFunction();
 }
 
 // -----------------------------------------------------------------------------
@@ -692,82 +282,6 @@ bool VSAbstractFilter::compatibleInput(VSAbstractFilter::dataType_t inputType, V
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilter::changesWaiting()
-{
-  m_changesWaiting = true;
-
-  emit modified();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::getScalarsMapped()
-{
-  return m_mapScalars;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setMapScalars(bool map)
-{
-  if(map)
-  {
-    m_filterMapper->SetColorModeToMapScalars();
-    m_filterMapper->UseLookupTableScalarRangeOn();
-    setViewScalarId(m_viewScalarId);
-  }
-  else
-  {
-    m_filterMapper->UseLookupTableScalarRangeOff();
-    m_filterMapper->SetColorModeToDirectScalars();
-  }
-
-  m_mapScalars = map;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilter::getLookupTableActive()
-{
-  return m_showLookupTable;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setLookupTableActive(bool show)
-{
-  m_showLookupTable = show;
-
-  if(nullptr == getDataSetStruct())
-  {
-    return;
-  }
-
-  m_scalarBarWidget->SetEnabled(m_showLookupTable && m_active);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setFilterActive(bool active)
-{
-  m_active = active;
-
-  if(nullptr == getDataSetStruct())
-  {
-    return;
-  }
-
-  m_scalarBarWidget->SetEnabled(m_showLookupTable && m_active);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSAbstractFilter::saveFile(QString fileName)
 {
   vtkDataSet* output = getOutput();
@@ -777,59 +291,4 @@ void VSAbstractFilter::saveFile(QString fileName)
   writer->SetFileName(fileName.toStdString().c_str());
   writer->SetInputData(output);
   writer->Write();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::setJsonRgbArray(const QJsonObject& preset)
-{
-  if(nullptr == m_lookupTable)
-  {
-    return;
-  }
-
-  m_lookupTable->parseRgbJson(preset);
-  m_filterMapper->SetLookupTable(m_lookupTable->getColorTransferFunction());
-  m_filterMapper->Update();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::invertLookupTable()
-{
-  if(nullptr == m_lookupTable)
-  {
-    return;
-  }
-
-  m_lookupTable->invert();
-  m_filterMapper->Update();
-
-  if(m_interactor != nullptr)
-  {
-    m_interactor->GetRenderWindow()->Render();
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkColorTransferFunction) VSAbstractFilter::getColorTransferFunction()
-{
-  if(nullptr == m_lookupTable)
-  {
-    return nullptr;
-  }
-
-  return m_lookupTable->getColorTransferFunction();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkRenderWindowInteractor) VSAbstractFilter::getInteractor()
-{
-  return m_interactor;
 }

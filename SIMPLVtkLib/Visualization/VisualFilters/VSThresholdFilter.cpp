@@ -63,32 +63,29 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters//VSDataSetFilter.h"
-#include "SIMPLVtkLib/SIMPLBridge/VSRenderController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSThresholdWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSThresholdFilter::VSThresholdFilter(QWidget* parentWidget, VSAbstractFilter* parent)
-: VSAbstractFilter(parentWidget, parent->getInteractor())
+VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
+: VSAbstractFilter()
 {
-  setupUi(this);
-
-  m_thresholdAlgorithm = nullptr;
+  m_ThresholdAlgorithm = nullptr;
   setParentFilter(parent);
 
-  VTK_PTR(vtkDataArray) dataArray = getBaseDataArray(parent->getViewScalarId());
-  double range[2] = {dataArray->GetRange()[0], dataArray->GetRange()[1]};
+  //VTK_PTR(vtkDataArray) dataArray = getBaseDataArray(parent->getViewScalarId());
+  //double range[2] = {dataArray->GetRange()[0], dataArray->GetRange()[1]};
 
-  m_thresholdWidget = new VSThresholdWidget(thresholdFunctionWidget, range, parent->getBounds(), parent->getInteractor());
-  m_thresholdWidget->show();
+  //m_ThresholdWidget = new VSThresholdWidget(thresholdFunctionWidget, range, parent->getBounds(), parent->getInteractor());
+  //m_ThresholdWidget->show();
 
-  connect(m_thresholdWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  //connect(m_ThresholdWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 
   setFilter();
 
-  setupScalarsComboBox();
+  //setupScalarsComboBox();
 }
 
 // -----------------------------------------------------------------------------
@@ -96,7 +93,7 @@ VSThresholdFilter::VSThresholdFilter(QWidget* parentWidget, VSAbstractFilter* pa
 // -----------------------------------------------------------------------------
 VSThresholdFilter::~VSThresholdFilter()
 {
-  delete m_thresholdWidget;
+  //delete m_ThresholdWidget;
 }
 
 // -----------------------------------------------------------------------------
@@ -115,27 +112,25 @@ void VSThresholdFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSThresholdFilter::setFilter()
 {
-  m_currentId = m_parentFilter->getViewScalarId();
-  m_lastId = m_currentId;
+  m_CurrentId = 0;
+  m_LastId = m_CurrentId;
 
-  m_thresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
+  m_ThresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
 
-  if(nullptr != m_parentFilter)
+  if(nullptr != m_ParentFilter)
   {
-    m_ParentProducer->SetOutput(m_parentFilter->getOutput());
+    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
   }
 
-  m_thresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  VTK_PTR(vtkDataArray) dataArray = m_dataSet->GetCellData()->GetScalars();
-  m_filterMapper->SetScalarRange(dataArray->GetRange()[0], dataArray->GetRange()[1]);
+  m_ThresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+  VTK_PTR(vtkDataArray) dataArray = getWrappedDataContainer()->m_DataSet->GetCellData()->GetScalars();
 
-  setThresholdScalarId(m_currentId);
+  setThresholdScalarId(m_CurrentId);
 
-  m_thresholdWidget->setLowerThreshold(dataArray->GetRange()[0]);
-  m_thresholdWidget->setUpperThreshold(dataArray->GetRange()[1]);
+  //m_ThresholdWidget->setLowerThreshold(dataArray->GetRange()[0]);
+  //m_ThresholdWidget->setUpperThreshold(dataArray->GetRange()[1]);
 
-  m_filterMapper->SetInputConnection(m_ParentProducer->GetOutputPort());
-  setViewScalarId(m_parentFilter->getViewScalarId());
+  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
 
   m_ConnectedInput = false;
 }
@@ -143,54 +138,26 @@ void VSThresholdFilter::setFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSThresholdFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-{
-  if(nullptr == inputData.GetPointer())
-  {
-    return;
-  }
-
-  if(nullptr == m_thresholdAlgorithm)
-  {
-    return;
-  }
-
-  m_thresholdWidget->setBounds(inputData->GetBounds());
-  m_ParentProducer->SetOutput(inputData);
-  m_ConnectedInput = false;
-
-  m_dataSet = inputData;
-
-  setDirty();
-}
-
-// -----------------------------------------------------------------------------
+//void VSThresholdFilter::calculateOutput()
+//{
+//  if(!m_ConnectedInput && m_ParentFilter)
+//  {
+//    m_ThresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+//    m_ConnectedInput = true;
 //
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::calculateOutput()
-{
-  if(!m_ConnectedInput && m_parentFilter)
-  {
-    m_thresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-    m_ConnectedInput = true;
-
-    m_filterMapper->SetInputConnection(m_thresholdAlgorithm->GetOutputPort());
-  }
-
-  vtkDataSet* input = m_parentFilter->getOutput();
-  input->GetCellData()->SetActiveScalars(scalarIdToName(m_currentId));
-
-  m_thresholdAlgorithm->SetInputData(input);
-
-  m_thresholdAlgorithm->ThresholdBetween(m_thresholdWidget->getLowerBound(), m_thresholdWidget->getUpperBound());
-  m_thresholdAlgorithm->Update();
-  m_dataSet = m_thresholdAlgorithm->GetOutput();
-
-  m_dataSet->GetCellData()->SetActiveScalars(scalarIdToName(getViewScalarId()));
-
-  updateMapperScalars();
-  m_isDirty = false;
-}
+//    m_OutputProducer->SetInputConnection(m_ThresholdAlgorithm->GetOutputPort());
+//  }
+//
+//  vtkDataSet* input = m_ParentFilter->getOutput();
+//  input->GetCellData()->SetActiveScalars(scalarIdToName(m_CurrentId));
+//
+//  m_ThresholdAlgorithm->SetInputData(input);
+//
+//  m_ThresholdAlgorithm->ThresholdBetween(m_ThresholdWidget->getLowerBound(), m_ThresholdWidget->getUpperBound());
+//  m_ThresholdAlgorithm->Update();
+//
+//  m_isDirty = false;
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -203,36 +170,17 @@ const QString VSThresholdFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget* VSThresholdFilter::getWidget()
-{
-  return m_thresholdWidget;
-}
+//VSAbstractWidget* VSThresholdFilter::getWidget()
+//{
+//  return m_ThresholdWidget;
+//}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void VSThresholdFilter::apply()
 {
-  m_thresholdWidget->apply();
-  m_lastId = m_currentId;
-
-  setDirty();
-  refresh();
-
-  m_changesWaiting = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::reset()
-{
-  scalarsComboBox->setCurrentIndex(m_lastId);
-  setThresholdScalarId(m_lastId);
-
-  m_thresholdWidget->reset();
-
-  m_changesWaiting = false;
+  //m_ThresholdWidget->apply();
 }
 
 // -----------------------------------------------------------------------------
@@ -240,7 +188,7 @@ void VSThresholdFilter::reset()
 // -----------------------------------------------------------------------------
 void VSThresholdFilter::setThresholdScalarId(int id)
 {
-  if(nullptr == m_dataSet)
+  if(nullptr == getWrappedDataContainer())
   {
     return;
   }
@@ -249,44 +197,9 @@ void VSThresholdFilter::setThresholdScalarId(int id)
     id = 0;
   }
 
-  m_currentId = id;
+  m_CurrentId = id;
 
-  vtkDataArray* dataArray = getBaseDataArray(id);
-
-  if(nullptr != dataArray)
-  {
-    m_thresholdWidget->setScalarRange(dataArray->GetRange()[0], dataArray->GetRange()[1]);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setupScalarsComboBox()
-{
-  if(nullptr == m_dataSet)
-  {
-    return;
-  }
-
-  QList<QString> scalarNameList;
-  vtkCellData* cellData = m_dataSet->GetCellData();
-
-  for(int i = 0; i < cellData->GetNumberOfArrays(); i++)
-  {
-    scalarNameList.push_back(cellData->GetArray(i)->GetName());
-  }
-
-  scalarsComboBox->clear();
-  scalarsComboBox->addItems(scalarNameList);
-
-  if(scalarNameList.length() > 0)
-  {
-    scalarsComboBox->setCurrentIndex(0);
-  }
-
-  // set scalar set to threshold against
-  connect(scalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setThresholdScalarId(int)));
+  //vtkDataArray* dataArray = getBaseDataArray(id);
 }
 
 // -----------------------------------------------------------------------------

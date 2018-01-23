@@ -39,8 +39,6 @@
 
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
 
-#include "ui_VSSliceFilter.h"
-
 #include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -56,7 +54,7 @@ class VSPlaneWidget;
  * inheriting from VSAbstractFilter, can be chained together to further 
  * specify what part of the volume should be rendered.
  */
-class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter, private Ui::VSSliceFilter
+class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
@@ -66,7 +64,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSSliceFilter(QWidget* parentWidget, VSAbstractFilter* parent);
+  VSSliceFilter(VSAbstractFilter* parent);
 
   /**
   * @brief Deconstructor
@@ -85,17 +83,6 @@ public:
   void setFilter() override;
 
   /**
-  * @brief Sets the input data for the algorithm
-  * @param inputData
-  */
-  void setInputData(VTK_PTR(vtkDataSet) inputData) override;
-
-  /**
-  * @brief Calculates the output data for the algorithm
-  */
-  void calculateOutput() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -105,17 +92,12 @@ public:
   * @brief Returns the VSAbstractWidget used by the filter
   * @return
   */
-  VSAbstractWidget* getWidget() override;
+  //VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Applies the updated values to the algorithm and updates the output
   */
   void apply() override;
-
-  /**
-  * @brief Resets the filter to the last applied values
-  */
-  void reset() override;
 
   /**
   * @brief Returns the output data type
@@ -130,10 +112,10 @@ public:
   static dataType_t getRequiredInputType();
 
 private:
-  VTK_PTR(vtkPlane) m_slicePlane;
-  VTK_PTR(vtkCutter) m_sliceAlgorithm;
+  VTK_PTR(vtkPlane) m_SlicePlane;
+  VTK_PTR(vtkCutter) m_SliceAlgorithm;
 
-  VSPlaneWidget* m_sliceWidget;
+  //VSPlaneWidget* m_SliceWidget;
 };
 
 #endif /* _VSSliceFilter_H_ */

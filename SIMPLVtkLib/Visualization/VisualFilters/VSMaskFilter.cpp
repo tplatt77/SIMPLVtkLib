@@ -57,18 +57,16 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilter::VSMaskFilter(QWidget* parentWidget, VSAbstractFilter* parent)
-: VSAbstractFilter(parentWidget, parent->getInteractor())
+VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
+: VSAbstractFilter()
 {
-  setupUi(this);
-
-  m_maskAlgorithm = nullptr;
+  m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
 
-  m_maskWidget = new VSMaskWidget(maskFunctionWidget, "", parent->getBounds(), parent->getInteractor());
-  m_maskWidget->show();
+  //m_MaskWidget = new VSMaskWidget(maskFunctionWidget, "", parent->getBounds(), parent->getInteractor());
+  //m_MaskWidget->show();
 
-  connect(m_maskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  //connect(m_MaskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 
   setFilter();
 }
@@ -78,8 +76,8 @@ VSMaskFilter::VSMaskFilter(QWidget* parentWidget, VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 VSMaskFilter::~VSMaskFilter()
 {
-  m_maskAlgorithm = nullptr;
-  delete m_maskWidget;
+  m_MaskAlgorithm = nullptr;
+  //delete m_MaskWidget;
 }
 
 // -----------------------------------------------------------------------------
@@ -98,79 +96,45 @@ void VSMaskFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSMaskFilter::setFilter()
 {
-  m_maskAlgorithm = VTK_PTR(vtkThreshold)::New();
+  m_MaskAlgorithm = VTK_PTR(vtkThreshold)::New();
 
-  if(m_parentFilter != nullptr)
+  if(m_ParentFilter != nullptr)
   {
-    m_dataSet = m_parentFilter->getOutput();
-    m_ParentProducer->SetOutput(m_dataSet);
+    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
   }
 
-  m_maskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_filterMapper->SetInputConnection(m_ParentProducer->GetOutputPort());
-  setViewScalarId(m_parentFilter->getViewScalarId());
+  m_MaskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
 
-  m_maskWidget->updateMaskNames(m_parentFilter->getOutput());
+  //m_MaskWidget->updateMaskNames(m_parentFilter->getOutput());
   m_ConnectedInput = false;
-
-  VTK_PTR(vtkDataArray) dataArray = m_dataSet->GetCellData()->GetScalars();
-  m_filterMapper->SetScalarRange(dataArray->GetRange()[0], dataArray->GetRange()[1]);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMaskFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-{
-  if(nullptr == inputData.GetPointer())
-  {
-    return;
-  }
-
-  if(nullptr == m_maskAlgorithm)
-  {
-    return;
-  }
-
-  m_ParentProducer->SetOutput(inputData);
-  m_ConnectedInput = false;
-
-  m_dataSet = inputData;
-
-  m_maskWidget->updateMaskNames(inputData);
-  setDirty();
-}
-
-// -----------------------------------------------------------------------------
+//void VSMaskFilter::calculateOutput()
+//{
+//  if(!m_ConnectedInput && m_ParentFilter)
+//  {
+//    m_MaskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+//    m_ConnectedInput = true;
 //
-// -----------------------------------------------------------------------------
-void VSMaskFilter::calculateOutput()
-{
-  if(!m_ConnectedInput && m_parentFilter)
-  {
-    m_maskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-    m_ConnectedInput = true;
-
-    m_filterMapper->SetInputConnection(m_maskAlgorithm->GetOutputPort());
-  }
-
-  vtkDataSet* input = m_parentFilter->getOutput();
-  int maskId = m_maskWidget->getMaskId();
-
-  input->GetCellData()->SetActiveScalars(scalarIdToName(maskId));
-
-  m_maskAlgorithm->SetInputData(input);
-
-  m_maskAlgorithm->ThresholdByUpper(1.0);
-  m_maskAlgorithm->Update();
-  m_dataSet = m_maskAlgorithm->GetOutput();
-
-  m_dataSet->GetCellData()->SetActiveScalars(scalarIdToName(getViewScalarId()));
-
-  updateMapperScalars();
-
-  m_isDirty = false;
-}
+//    m_OutputProducer->SetInputConnection(m_MaskAlgorithm->GetOutputPort());
+//  }
+//
+//  vtkDataSet* input = m_ParentFilter->getOutput();
+//  int maskId = m_MaskWidget->getMaskId();
+//
+//  input->GetCellData()->SetActiveScalars(scalarIdToName(maskId));
+//
+//  m_MaskAlgorithm->SetInputData(input);
+//
+//  m_MaskAlgorithm->ThresholdByUpper(1.0);
+//  m_MaskAlgorithm->Update();
+//
+//  m_isDirty = false;
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -183,32 +147,17 @@ const QString VSMaskFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget* VSMaskFilter::getWidget()
-{
-  return m_maskWidget;
-}
+//VSAbstractWidget* VSMaskFilter::getWidget()
+//{
+//  return m_MaskWidget;
+//}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void VSMaskFilter::apply()
 {
-  m_maskWidget->apply();
-
-  setDirty();
-  refresh();
-
-  m_changesWaiting = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskFilter::reset()
-{
-  m_maskWidget->reset();
-
-  m_changesWaiting = false;
+  //m_MaskWidget->apply();
 }
 
 // -----------------------------------------------------------------------------

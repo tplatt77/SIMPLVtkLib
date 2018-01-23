@@ -45,11 +45,12 @@
 #include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
 
+#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QVector>
-#include <QtWidgets/QWidget>
+#include <QtGui/QStandardItemModel>
 
-#include "SIMPLVtkLib/SIMPLBridge/VSRenderController.h"
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -61,17 +62,10 @@ class vtkAlgorithmOutput;
 class vtkColorTransferFunction;
 class vtkDataObject;
 class vtkDataSet;
-class vtkRenderWindowInteractor;
-class vtkActor;
-class vtkDataSetMapper;
 class vtkDataArray;
-class vtkScalarsToColors;
-class vtkScalarBarActor;
-class vtkScalarBarWidget;
 
 class VSAbstractWidget;
 class VSDataSetFilter;
-class VSLookupTableController;
 
 /**
 * @class VSAbstractFilter VSAbstractFilter.h 
@@ -82,7 +76,7 @@ class VSLookupTableController;
 * can be chained together to be more specific about what kind of data should be 
 * shown by pushing the output of a filter as the input for each of its child filters.
 */
-class SIMPLVtkLib_EXPORT VSAbstractFilter : public QWidget
+class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject, public QStandardItem
 {
   Q_OBJECT
 
@@ -95,124 +89,156 @@ public:
     ANY_DATA_SET
   };
 
-  VSAbstractFilter(QWidget* parent, VTK_PTR(vtkRenderWindowInteractor) interactor);
+  /**
+  * @brief Constructor
+  */
+  VSAbstractFilter();
+
+  /**
+  * @brief Deconstructor
+  */
   ~VSAbstractFilter();
 
+  /**
+  * @brief code to setup the vtkAlgorithm for the filter
+  */
   virtual void setFilter() = 0;
-  void setInteractor(vtkRenderWindowInteractor* interactor);
 
+  /**
+  * @brief Returns the parent visual filter
+  * @return
+  */
   VSAbstractFilter* getParentFilter();
+
+  /**
+  * @brief Sets the parent visual filter and sets up the input and output connections
+  * @param parent
+  */
   void setParentFilter(VSAbstractFilter* parent);
+  
+  /**
+  * @brief Returns the highest-level ancestor
+  * @return
+  */
   VSAbstractFilter* getAncestor();
+
+  /**
+  * @brief Returns a vector of all children filters
+  * @return
+  */
   QVector<VSAbstractFilter*> getChildren() const;
+
+  /**
+  * @brief Returns the child at the given index
+  * @param index
+  * @return
+  */
   VSAbstractFilter* getChild(int index);
+
+  /**
+  * @brief Returns the index of the given child filter
+  * @param child
+  * @return
+  */
   int getIndexOfChild(VSAbstractFilter* child) const;
+
+  /**
+  * @brief Returns a vector of all descendant filters
+  * @return
+  */
   QVector<VSAbstractFilter*> getDescendants() const;
 
-  virtual std::shared_ptr<VSRenderController::VtkDataSetStruct_t> getDataSetStruct();
+  /**
+  * @brief Returns the WrappedDataContainerPtr from the VSDataSetFilter
+  * @return
+  */
+  virtual SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
+  /**
+  * @brief Sets the bounds for the filter
+  * @param bounds
+  */
   virtual void setBounds(double* bounds) = 0;
+
+  /**
+  * @brief Returns the bounds for the filter
+  */
   virtual double* getBounds();
 
-  virtual void setInputData(VTK_PTR(vtkDataSet) inputData) = 0;
-  virtual void calculateOutput() = 0;
-  vtkDataSet* getOutput();
+  /**
+  * @brief Returns the output port for the filter
+  * @return
+  */
+  VTK_PTR(vtkAlgorithmOutput) getOutputPort();
 
-  void refresh();
-  bool isDirty();
-  bool hasChangesWaiting();
+  /**
+  * @brief Returns the output data for the filter
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() = 0;
 
+  /**
+  * @brief Returns the filter name
+  * @return
+  */
   virtual const QString getFilterName() = 0;
 
-  VTK_PTR(vtkActor) getActor();
-  VTK_PTR(vtkDataSetMapper) getMapper();
-  VTK_PTR(vtkScalarBarWidget) getScalarBarWidget();
-  VTK_PTR(vtkScalarBarWidget) getScalarBarWidget(int id);
-  bool sharesScalarBar(VSAbstractFilter* other);
+  /**
+  * @brief Returns the VSAbstractWidget that belongs to the filter
+  * @return
+  */
+  virtual VSAbstractWidget* getWidget() = 0;
 
-  virtual VSAbstractWidget* getWidget();
-
-  int getViewScalarId();
-  void setViewScalarId(int id);
-  int getViewScalarComponentId();
-  void setViewScalarComponentId(int id);
-
-  const char* scalarIdToName(int scalarId);
-
+  /**
+  * @brief Save the vtkDataSet output to a file
+  * @param fileName
+  */
   void saveFile(QString fileName);
 
-  VTK_PTR(vtkDataArray) getBaseDataArray(int id);
-
-  virtual bool canDelete();
-
+  /**
+  * @brief Apply changes to the filter
+  */
   virtual void apply();
-  virtual void reset();
 
-  bool getScalarsMapped();
-  void setMapScalars(bool map);
-  bool getLookupTableActive();
-  void setLookupTableActive(bool show);
-  void setFilterActive(bool active);
-
-  void setJsonRgbArray(const QJsonObject& preset);
-
+  /**
+  * @brief Returns the output dataType_t value
+  * @return
+  */
   virtual dataType_t getOutputType() = 0;
+
+  /**
+  * @brief Returns true if the input dataType_t is compatible with a given required type
+  * @param inputType
+  * @param requiredType
+  * @return
+  */
   static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
 
-  void invertLookupTable();
-  VTK_PTR(vtkColorTransferFunction) getColorTransferFunction();
-
-  VTK_PTR(vtkRenderWindowInteractor) getInteractor();
-
-signals:
-  void modified();
-  void resized(bool shouldRepaint = false);
-
-protected slots:
-  void changesWaiting();
-
 protected:
-  VSAbstractFilter* m_parentFilter;
-  QVector<VSAbstractFilter*> m_children;
+  VSAbstractFilter* m_ParentFilter;
+  QVector<VSAbstractFilter*> m_Children;
 
-  VTK_PTR(vtkDataSet) m_dataSet;
-  VTK_PTR(vtkDataSetMapper) m_filterMapper;
-  VTK_PTR(vtkActor) m_filterActor;
-
-  VTK_PTR(vtkDataArray) getScalarSet(int id);
-  VTK_PTR(vtkDataArray) getScalarSet();
-
-  VSLookupTableController* m_lookupTable;
-
-  void updateMapperScalars();
-
+  /**
+  * @brief Returns a pointer to the VSDataSetFilter that stores the input vtkDataSet
+  * @return
+  */
   VSDataSetFilter* getDataSetFilter();
-
-  double* getScalarRange();
-  vtkScalarsToColors* getScalarLookupTable();
-
-  bool m_isDirty;
-  bool m_changesWaiting;
-  void setDirty();
 
   bool m_ConnectedInput = false;
   VTK_PTR(vtkTrivialProducer) m_ParentProducer;
+  VTK_PTR(vtkTrivialProducer) m_OutputProducer;
 
 private:
+  /**
+  * @brief Adds a child VSAbstractFilter
+  * @param child
+  */
   void addChild(VSAbstractFilter* child);
+
+  /**
+  * @brief Remove a child VSAbstractFilter
+  * @param child
+  */
   void removeChild(VSAbstractFilter* child);
-
-  int m_viewScalarId;
-  int m_viewScalarComponentId;
-
-  bool m_mapScalars;
-  bool m_showLookupTable;
-
-  bool m_active;
-
-  VTK_PTR(vtkScalarBarWidget) m_scalarBarWidget;
-
-  VTK_PTR(vtkRenderWindowInteractor) m_interactor;
 };
 
 #ifdef __clang__

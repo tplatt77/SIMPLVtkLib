@@ -58,7 +58,7 @@ class VSBoxWidget;
  * VSClipFilter can use both plan and box clip types as well as inverting
  * the clip applied.
  */
-class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter, private Ui::VSClipFilter
+class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
@@ -74,7 +74,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSClipFilter(QWidget* parentWidget, VSAbstractFilter* parent);
+  VSClipFilter(VSAbstractFilter* parent);
 
   /**
   * @brief Deconstructor
@@ -93,17 +93,6 @@ public:
   void setFilter() override;
 
   /**
-  * @brief Sets the vtkDataSet to use as input data
-  * @param inputData
-  */
-  void setInputData(VTK_PTR(vtkDataSet) inputData) override;
-
-  /**
-  * @brief Generates the output data
-  */
-  void calculateOutput() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -113,17 +102,12 @@ public:
   * @brief Returns the VSAbstractWidget that goes with this filter
   * @return
   */
-  VSAbstractWidget* getWidget() override;
+  //VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Applies changes to the filter and updates the output
   */
   void apply() override;
-
-  /**
-  * @brief Resets the filter to the last generated output
-  */
-  void reset() override;
 
   /**
   * @brief Returns the ouput data type
@@ -151,14 +135,14 @@ protected slots:
   void setInsideOut(int state);
 
 private:
-  VTK_PTR(vtkPlane) m_clipPlane;
-  VTK_PTR(vtkTableBasedClipDataSet) m_clipAlgorithm;
+  VTK_PTR(vtkPlane) m_ClipPlane;
+  VTK_PTR(vtkTableBasedClipDataSet) m_ClipAlgorithm;
 
-  clipType_t m_currentClipType, m_lastClipType;
-  int m_lastInsideOutState;
+  clipType_t m_CurrentClipType, m_LastClipType;
+  int m_LastInsideOutState;
 
-  VSPlaneWidget* m_planeWidget;
-  VSBoxWidget* m_boxWidget;
+  VSPlaneWidget* m_PlaneWidget;
+  VSBoxWidget* m_BoxWidget;
 };
 
 #endif /* _VSClipFilter_H_ */

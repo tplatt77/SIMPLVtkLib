@@ -76,6 +76,11 @@ void VSViewWidget::setActiveFilterSettings(VSFilterViewSettings* settings)
 // -----------------------------------------------------------------------------
 void VSViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible)
 {
+  if(nullptr == getVisualizationWidget())
+  {
+    return;
+  }
+
   if(filterVisible)
   {
     getVisualizationWidget()->getRenderer()->AddActor(viewSettings->getActor());
@@ -177,5 +182,16 @@ void VSViewWidget::changeFilterShowScalarBar(bool showScalarBar)
   if(m_ActiveFilterSettings)
   {
     m_ActiveFilterSettings->setScalarBarVisible(showScalarBar);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::mousePressEvent(QMouseEvent* event)
+{
+  if(m_ViewController)
+  {
+    m_ViewController->markActive();
   }
 }

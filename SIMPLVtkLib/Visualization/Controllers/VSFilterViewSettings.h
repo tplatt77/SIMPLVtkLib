@@ -40,6 +40,8 @@
 
 #include <vtkActor.h>
 #include <vtkMapper.h>
+#include <vtkScalarBarActor.h>
+#include <vtkScalarBarWidget.h>
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"

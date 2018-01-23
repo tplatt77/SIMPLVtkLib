@@ -39,7 +39,6 @@
 #include <QtWidgets/QWidget>
 
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
-#include "ui_VSMaskFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -53,7 +52,7 @@ class VSMaskWidget;
  * numeric or boolean array.  Numeric values greater than or equal to 1 are 
  * visible whereas values less than 1 are hidden.
  */
-class SIMPLVtkLib_EXPORT VSMaskFilter : public VSAbstractFilter, private Ui::VSMaskFilter
+class SIMPLVtkLib_EXPORT VSMaskFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
@@ -63,7 +62,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSMaskFilter(QWidget* parentWidget, VSAbstractFilter* parent);
+  VSMaskFilter(VSAbstractFilter* parent);
 
   /**
   * @brief Deconstructor
@@ -82,17 +81,6 @@ public:
   void setFilter() override;
 
   /**
-  * @brief Sets the input data for the filter
-  * @param inputData
-  */
-  void setInputData(VTK_PTR(vtkDataSet) inputData) override;
-
-  /**
-  * @brief Calculates the output data for the filter
-  */
-  void calculateOutput() override;
-
-  /**
   * Brief Returns the filter name
   * @return
   */
@@ -102,17 +90,12 @@ public:
   * Brief Returns the VSAbstractWidget used by the filter
   * @return
   */
-  VSAbstractWidget* getWidget() override;
+  //VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Applies any changes to the filter
   */
   void apply() override;
-
-  /**
-  * @brief Resets the filter to its last applied values
-  */
-  void reset() override;
 
   /**
   * @brief Returns the output data type
@@ -127,9 +110,9 @@ public:
   static dataType_t getRequiredInputType();
 
 private:
-  VTK_PTR(vtkThreshold) m_maskAlgorithm;
+  VTK_PTR(vtkThreshold) m_MaskAlgorithm;
 
-  VSMaskWidget* m_maskWidget;
+  //VSMaskWidget* m_MaskWidget;
 };
 
 #endif /* _VSMaskFilter_h_ */

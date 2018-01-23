@@ -52,25 +52,13 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter::VSDataSetFilter(QWidget* parentWidget, std::shared_ptr<VSRenderController::VtkDataSetStruct_t> dataSetStruct, vtkRenderWindowInteractor* iren)
-: VSAbstractFilter(parentWidget, iren)
+VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
+: VSAbstractFilter()
+, m_WrappedDataContainer(wrappedDataContainer)
 {
-  setupUi(this);
-
-  m_dataSetName = dataSetStruct->Name;
-  m_dataSetStruct = dataSetStruct;
-  m_dataSet = dataSetStruct->DataSet;
-  m_changesWaiting = false;
-
   setFilter();
-  setViewScalarId(0);
-  vtkDataArray* dataArray = m_dataSetStruct->DataSet->GetCellData()->GetArray(getViewScalarId());
-  if(dataArray)
-  {
-    m_lookupTable->setRange(dataArray->GetRange());
-  }
 
-  hide();
+  setText(wrappedDataContainer->m_Name);
 }
 
 // -----------------------------------------------------------------------------
@@ -85,7 +73,7 @@ VSDataSetFilter::~VSDataSetFilter()
 // -----------------------------------------------------------------------------
 double* VSDataSetFilter::getBounds()
 {
-  return m_dataSet->GetBounds();
+  return m_WrappedDataContainer->m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -98,26 +86,26 @@ void VSDataSetFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSDataSetFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-{
-  m_dataSet = inputData;
-  m_dataSet->ComputeBounds();
-
-  if(m_trivialProducer != nullptr)
-  {
-    m_trivialProducer->SetOutput(m_dataSet);
-  }
-}
+//void VSDataSetFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
+//{
+//  m_dataSet = inputData;
+//  m_dataSet->ComputeBounds();
+//
+//  if(m_trivialProducer != nullptr)
+//  {
+//    m_trivialProducer->SetOutput(m_dataSet);
+//  }
+//}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void VSDataSetFilter::setFilter()
 {
-  m_dataSetStruct->DataSet->ComputeBounds();
-  m_dataSet->ComputeBounds();
+  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  dataSet->ComputeBounds();
   
-  vtkCellData* cellData = m_dataSet->GetCellData();
+  vtkCellData* cellData = dataSet->GetCellData();
   if(cellData)
   {
     vtkDataArray* dataArray = cellData->GetArray(0);
@@ -129,25 +117,10 @@ void VSDataSetFilter::setFilter()
     
   }
   
-  m_trivialProducer = VTK_PTR(vtkTrivialProducer)::New();
-  m_trivialProducer->SetOutput(m_dataSet);
+  m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
+  m_TrivialProducer->SetOutput(dataSet);
 
-  m_filterMapper->SetInputConnection(m_trivialProducer->GetOutputPort());
-
-  VTK_PTR(vtkDataArray) colorArray = m_dataSet->GetCellData()->GetScalars();
-  if(colorArray != nullptr)
-  {
-    m_filterMapper->SetScalarRange(colorArray->GetRange()[0], colorArray->GetRange()[1]);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSDataSetFilter::calculateOutput()
-{
-  m_dataSet->ComputeBounds();
-  m_isDirty = false;
+  m_OutputProducer->SetInputConnection(m_TrivialProducer->GetOutputPort());
 }
 
 // -----------------------------------------------------------------------------
@@ -155,23 +128,15 @@ void VSDataSetFilter::calculateOutput()
 // -----------------------------------------------------------------------------
 const QString VSDataSetFilter::getFilterName()
 {
-  return m_dataSetName;
+  return m_WrappedDataContainer->m_Name;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSDataSetFilter::canDelete()
+SIMPLVtkBridge::WrappedDataContainerPtr VSDataSetFilter::getWrappedDataContainer()
 {
-  return false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::shared_ptr<VSRenderController::VtkDataSetStruct_t> VSDataSetFilter::getDataSetStruct()
-{
-  return m_dataSetStruct;
+  return m_WrappedDataContainer;
 }
 
 // -----------------------------------------------------------------------------

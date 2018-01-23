@@ -114,6 +114,7 @@ set(Project_SRCS
 
   ${${PROJECT_NAME}_QtWidgets_HDRS}
   ${${PROJECT_NAME}_QtWidgets_SRCS}
+  ${${PROJECT_NAME}_QtWidgets_Generated_UI_HDRS}
 )
 
 if(UNIX AND NOT APPLE)
