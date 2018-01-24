@@ -50,6 +50,13 @@
 class vtkTrivialProducer;
 class vtkAlgorithmOutput;
 
+/**
+* @class VSDataSetFilter VSDataSetFilter.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
 class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractFilter
 {
   Q_OBJECT

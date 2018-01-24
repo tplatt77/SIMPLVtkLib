@@ -44,7 +44,7 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
-* @class VtkVertexGeom VtkVertexGeom.h SIMPLView/VtkSIMPL/VtkSupport/VtkVertexGeom.h
+* @class VtkVertexGeom VtkVertexGeom.h SIMPLVtkLib/SIMPLBridge/VtkVertexGeom.h
 * @brief This class is used as an implementation class for vtkMappedUnstructuredGrid to
 * be used with DREAM.3D's VertexGeom.  The implementation maps the cell and point IDs
 * from the DREAM.3D geometry but the vertex points must be copied into the

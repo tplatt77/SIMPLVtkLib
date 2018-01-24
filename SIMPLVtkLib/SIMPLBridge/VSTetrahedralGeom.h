@@ -45,7 +45,7 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
-* @class VtkTetrahedralGeom VtkTetrahedralGeom.h SIMPLView/VtkSIMPL/VtkSupport/VtkTetrahedralGeom.h
+* @class VtkTetrahedralGeom VtkTetrahedralGeom.h SIMPLVtkLib/SIMPLBridge/VtkTetrahedralGeom.h
 * @brief This class is used as an implementation class for vtkMappedUnstructuredGrid to
 * be used with DREAM.3D's TetrahedralGeom.  The implementation maps the cell and point IDs
 * from the DREAM.3D geometry but the vertex points must be copied into the

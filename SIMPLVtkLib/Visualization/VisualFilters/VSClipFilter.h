@@ -51,7 +51,8 @@ class VSPlaneWidget;
 class VSBoxWidget;
 
 /**
- * @class VSClipFilter VSClipFilter.h SIMPLView/VtkSIMPL/VisualFilters/VSClipFilter.h
+ * @class VSClipFilter VSClipFilter.h 
+ * SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h
  * @brief This class is used to create a clip filter over a set of data.
  * This class can be chained with itself or other classes inheriting from 
  * VSAbstractFilter to be more specific about the data being visualized.

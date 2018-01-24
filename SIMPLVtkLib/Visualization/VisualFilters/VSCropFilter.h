@@ -49,7 +49,8 @@ class vtkExtractVOI;
 class VSCropWidget;
 
 /**
- * @class VSCropFilter VSCropFilter.h SIMPLView/VtkSIMPL/VisualFilters/VSCropFilter.h
+ * @class VSCropFilter VSCropFilter.h 
+ * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h
  * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
  * and Z bounds. This class can be chained with other VSAbstractFilters to
  * further specify the data allowed to be visualized. This filter requires 

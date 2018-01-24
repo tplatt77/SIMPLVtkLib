@@ -49,7 +49,7 @@ class VSPlaneWidget;
 
 /**
  * @class VSSliceFilter VSSliceFilter.h 
- * SIMPLView/VtkSIMPL/VisualFilters/VSSliceFilter.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h
  * @brief This class controls the slice filter and, as with other classes 
  * inheriting from VSAbstractFilter, can be chained together to further 
  * specify what part of the volume should be rendered.

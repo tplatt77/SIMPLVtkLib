@@ -47,7 +47,7 @@ class VSMaskWidget;
 
 /**
  * @class VSMaskFilter VSMaskFilter.h 
- * SIMPLView/VtkSIMPL/VisualFilters/VSMaskFilter.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h
  * @brief This class handles the masking process for vtkDataSets based on any 
  * numeric or boolean array.  Numeric values greater than or equal to 1 are 
  * visible whereas values less than 1 are hidden.

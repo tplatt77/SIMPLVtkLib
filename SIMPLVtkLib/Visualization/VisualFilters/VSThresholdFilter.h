@@ -61,7 +61,7 @@ class vtkMergeFilter;
 
 /**
  * @class VSThresholdFilter VSThresholdFilter.h 
- * SIMPLView/VtkSIMPL/VisualFilters/VSThresholdFilter.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h
  * @brief This class handles the thresholding over a given range for a 
  * specified array. This array does not have to match the data array being 
  * visualized and is set separately within the filter. As this class inherits

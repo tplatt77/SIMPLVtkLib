@@ -44,7 +44,7 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
-* @class VtkQuadGeom VtkQuadGeom.h SIMPLView/VtkSIMPL/VtkSupport/VtkQuadGeom.h
+* @class VtkQuadGeom VtkQuadGeom.h SIMPLVtkLib/SIMPLBridge/VtkQuadGeom.h
 * @brief This class is used as an implementation class for vtkMappedUnstructuredGrid to
 * be used with DREAM.3D's QuadGeom.  The implementation maps the cell and point IDs
 * from the DREAM.3D geometry but the vertex points must be copied into the
