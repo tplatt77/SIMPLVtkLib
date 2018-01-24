@@ -130,7 +130,7 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapDataContainerAsStruc
   }
   else
   {
-    WrappedDataContainerPtr wrappedDcStruct;
+    WrappedDataContainerPtr wrappedDcStruct(new WrappedDataContainer());
     wrappedDcStruct->m_DataSet = dataSet;
     wrappedDcStruct->m_Name = dc->getName();
 
@@ -216,7 +216,7 @@ SIMPLVtkBridge::WrappedDataArrayPtr SIMPLVtkBridge::WrapIDataArrayAsStruct(IData
   }
   else
   {
-    WrappedDataArrayPtr wrappedDataArray;
+    WrappedDataArrayPtr wrappedDataArray(new WrappedDataArray());
 
     QString arrayName = dataArray->getName();
     vtkArray->SetName(arrayName.toStdString().c_str());
