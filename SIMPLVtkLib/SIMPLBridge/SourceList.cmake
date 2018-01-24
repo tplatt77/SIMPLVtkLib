@@ -6,7 +6,6 @@ set(VS_SIMPLBridge_SRCS
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSTetrahedralGeom.cpp
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSTriangleGeom.cpp
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSVertexGeom.cpp
-	# ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSRenderController.cpp
 )
 
 set(VS_SIMPLBridge_HDRS
@@ -17,7 +16,6 @@ set(VS_SIMPLBridge_HDRS
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSTetrahedralGeom.h
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSTriangleGeom.h
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h
-	# ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VSRenderController.h
 	${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/VtkMacros.h
 )
 

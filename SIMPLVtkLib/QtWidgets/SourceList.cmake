@@ -1,6 +1,5 @@
 
 set(${PROJECT_NAME}_QtWidgets_HDRS
-  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterModel.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSInfoWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget.h
@@ -10,7 +9,6 @@ set(${PROJECT_NAME}_QtWidgets_HDRS
 )
 
 set(${PROJECT_NAME}_QtWidgets_SRCS
-  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterModel.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSInfoWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget.cpp

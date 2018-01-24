@@ -93,3 +93,24 @@ QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
 {
   return indexFromItem(filter);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<VSAbstractFilter*> VSFilterModel::getBaseFilters()
+{
+  QVector<VSAbstractFilter*> filters;
+
+  int count = rowCount();
+  for(int i = 0; i < count; i++)
+  {
+    QModelIndex modelIndex = index(i, 0);
+    VSAbstractFilter* filter = getFilterFromIndex(modelIndex);
+    if(filter)
+    {
+      filters.push_back(filter);
+    }
+  }
+
+  return filters;
+}

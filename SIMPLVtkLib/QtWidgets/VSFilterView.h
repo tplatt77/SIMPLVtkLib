@@ -40,24 +40,51 @@
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
+/**
+* @class VSFilterView VSFilterView.h SIMPLVtkLib/QtWidgets/VSFilterView.h
+* @brief This class is used for viewing a VSController's VSFilterModel in a 
+* QTreeView and handling user interaction with that model
+*/
 class VSFilterView : public QTreeView
 {
   Q_OBJECT
 
 public:
+  /**
+  * @brief Constructor
+  * @param parent
+  */
   VSFilterView(QWidget* parent = nullptr);
 
+  /**
+  * @brief Sets the VSController to use and interact with through the tree view
+  * @param controller
+  */
   void setController(VSController* controller);
 
 signals:
   void filterClicked(VSAbstractFilter* filter);
 
 protected slots:
+  /**
+  * @brief Handles mouse clicks on an item and emits a signal if the item is a
+  * VSAbstractFilter instance
+  * @param index
+  */
   void itemClicked(const QModelIndex& index);
 
 protected:
+  /**
+  * @brief Connect Qt signals and slots
+  */
   void connectSlots();
 
+  /**
+  * @brief Returns the visual filter at the given index or nullptr if no 
+  * visual filter exists at that location
+  * @param index
+  * @return
+  */
   VSAbstractFilter* getFilterFromIndex(const QModelIndex& index);
 
 private:

@@ -42,6 +42,7 @@
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
 
 /**
@@ -62,6 +63,11 @@ public:
   VSController(QObject* parent = nullptr);
 
   /**
+  * @brief Deconstructor
+  */
+  virtual ~VSController();
+
+  /**
   * @brief Import data from a DataContainerArray and add any relevant DataContainers
   * as top-level VisualFilters
   * @param dca
@@ -74,22 +80,6 @@ public:
   * @param dc
   */
   void importData(DataContainer::Pointer dc);
-
-  /**
-  * @brief Updates any DataContainer already imported and stored as a top-level VisualFilter.
-  * If a DataContainer has not been imported, then the data is imported and added as top-level 
-  * VisualFilter.
-  * @param dca
-  */
-  void updateData(DataContainerArray::Pointer dca);
-
-  /**
-  * @brief Updates the DataContainer if ithas already been imported and stored as a top-level
-  * VisualFilter. If the DataContainer has not been imported, then the data is imported and 
-  * added as top-level VisualFilter.
-  * @param dc
-  */
-  void updateData(DataContainer::Pointer dc);
 
   /**
   * @brief Checks if any DataContainers contained in a DataContainerArray are being 
@@ -115,13 +105,19 @@ public:
   * @brief Returns a vector of top-level data filters
   * @return
   */
-  QVector<VSDataSetFilter*> getDataFilters();
+  QVector<VSAbstractFilter*> getBaseFilters();
 
   /**
   * @brief Returns a vector of all visual filters
   * @return
   */
   QVector<VSAbstractFilter*> getAllFilters();
+
+  /**
+  * @brief Return the filter model used
+  * @return
+  */
+  VSFilterModel* getFilterModel();
 
 public slots:
   /**
@@ -138,7 +134,9 @@ signals:
 private:
   VSViewController* m_ActiveViewController = nullptr;
 
-  QVector<VSDataSetFilter*> m_DataFilters;
+  VSFilterModel* m_FilterModel;
+
+  //QVector<VSDataSetFilter*> m_DataFilters;
 };
 
 #endif

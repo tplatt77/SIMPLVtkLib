@@ -80,6 +80,12 @@ public:
   * @return
   */
   QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
+
+  /**
+  * @brief Returns a vector of top-level filters in the model
+  * @return
+  */
+  QVector<VSAbstractFilter*> getBaseFilters();
 };
 
 #endif

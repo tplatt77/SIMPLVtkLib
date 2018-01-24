@@ -64,6 +64,55 @@ VSController* VSMainWidgetBase::getController()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterView* VSMainWidgetBase::getFilterView()
+{
+  return m_FilterView;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setFilterView(VSFilterView* view)
+{
+  if(m_FilterView)
+  {
+    disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
+  }
+
+  view->setModel(m_Controller->getFilterModel());
+
+  m_FilterView = view;
+  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(changeCurrentFilter(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSInfoWidget* VSMainWidgetBase::getInfoWidget()
+{
+  return m_InfoWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
+{
+  if(m_InfoWidget)
+  {
+    disconnect(this, SIGNAL(updateFilterInfo(VSAbstractFilter*, VSViewController*)),
+      m_InfoWidget, SLOT(updateFilterInfo(VSAbstractFilter*, VSViewController*)));
+  }
+
+  m_InfoWidget = infoWidget;
+
+  connect(this, SIGNAL(updateFilterInfo(VSAbstractFilter*, VSViewController*)), 
+    infoWidget, SLOT(updateFilterInfo(VSAbstractFilter*, VSViewController*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 {
   return m_CurrentFilter;
@@ -75,12 +124,7 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
 {
   // Update VSFilterViewSettings to use the new ViewController's version
-  if(controller && m_CurrentFilter)
-  {
-    changeFilterViewSettings(controller->getViewSettings(m_CurrentFilter));
-  }
-
-  // TODO: Update filter tree visibility
+  emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
 }
 
 // -----------------------------------------------------------------------------
@@ -90,21 +134,5 @@ void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
 {
   m_CurrentFilter = filter;
 
-  VSViewController* activeView = m_Controller->getActiveViewController();
-  if(activeView)
-  {
-    changeFilterViewSettings(activeView->getViewSettings(filter));
-  }
-  else
-  {
-    changeFilterViewSettings(nullptr);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::changeFilterViewSettings(VSFilterViewSettings* filterView)
-{
-  // TODO: Update displayed information
+  emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
 }

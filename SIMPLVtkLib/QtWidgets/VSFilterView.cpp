@@ -35,7 +35,7 @@
 
 #include "VSFilterView.h"
 
-#include "SIMPLVtkLib/QtWidgets/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 
 // -----------------------------------------------------------------------------
 //

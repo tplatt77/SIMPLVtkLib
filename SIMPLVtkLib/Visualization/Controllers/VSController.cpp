@@ -42,7 +42,16 @@
 // -----------------------------------------------------------------------------
 VSController::VSController(QObject* parent)
   : QObject(parent)
+  , m_FilterModel(new VSFilterModel())
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSController::~VSController()
+{
+  delete m_FilterModel;
 }
 
 // -----------------------------------------------------------------------------
@@ -63,30 +72,6 @@ void VSController::importData(DataContainer::Pointer dc)
   SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
 
   // TODO: Add VSDataSetFilter if the DataContainer contains relevant data for rendering
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::updateData(DataContainerArray::Pointer dca)
-{
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Check if any of the DataContainers are already imported as VSDataSetFilters
-  // TODO: Update any DataContainers already imported
-  // TODO: Import any DataContainers that are not already imported
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::updateData(DataContainer::Pointer dc)
-{
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // TODO: Check if the DataContainer is already imported as a VSDataSetFilter
-  // TODO: Update the DataContainer if it is already imported
-  // TODO: Import the DataContainer if it is not already imported
 }
 
 // -----------------------------------------------------------------------------
@@ -135,9 +120,9 @@ void VSController::setActiveViewController(VSViewController* activeView)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSDataSetFilter*> VSController::getDataFilters()
+QVector<VSAbstractFilter*> VSController::getBaseFilters()
 {
-  return m_DataFilters;
+  return m_FilterModel->getBaseFilters();
 }
 
 // -----------------------------------------------------------------------------
@@ -145,14 +130,22 @@ QVector<VSDataSetFilter*> VSController::getDataFilters()
 // -----------------------------------------------------------------------------
 QVector<VSAbstractFilter*> VSController::getAllFilters()
 {
-  QVector<VSAbstractFilter*> filters(m_DataFilters.size());
+  QVector<VSAbstractFilter*> filters = getBaseFilters();
 
-  size_t count = m_DataFilters.size();
+  int count = filters.size();
   for(int i = 0; i < count; i++)
   {
-    filters.push_back(m_DataFilters[i]);
-    filters.append(m_DataFilters[i]->getDescendants());
+    filters.push_back(filters[i]);
+    filters.append(filters[i]->getDescendants());
   }
 
   return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterModel* VSController::getFilterModel()
+{
+  return m_FilterModel;
 }

@@ -38,6 +38,13 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 
+/**
+* @class VSMainWidget VSMainWidget.h SIMPLVtkLib/QtWidgets/VSMainWidget.h
+* @brief This class works as SIMPLVtkLib's main widget that displays information
+* relating to the stored VSController. It subclasses from VSMainWidgetBase for 
+* most of its implementation but is provided with a UI file for formatting the
+* widget.
+*/
 class VSMainWidget : public VSMainWidgetBase
 {
   Q_OBJECT

@@ -38,8 +38,15 @@
 
 #include <QtWidgets/QWidget>
 
+#include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
+#include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
+/**
+* @class VSMainWidgetBase VSMainWidgetBase.h SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h
+* @brief This class is the superclass for VSMainWidget and contains the base methods 
+* for accessing and viewing information regarding visual filters.
+*/
 class VSMainWidgetBase : public QWidget
 {
   Q_OBJECT
@@ -56,6 +63,33 @@ public:
   */
   VSController* getController();
 
+  /**
+  * @brief Returns the VSFilterView used by the main widget. Returns nullptr if none is used
+  * @return
+  */
+  VSFilterView* getFilterView();
+
+  /**
+  * @brief Sets the VSFilterView to use, apply the controller's filter model 
+  * and connect to any signals it might have.
+  * @param view
+  */
+  void setFilterView(VSFilterView* view);
+
+  /**
+  * @brief Returns the VSInfoWidget used by the main widget. Returns nullptr if none is used
+  */
+  VSInfoWidget* getInfoWidget();
+
+  /**
+  * @brief Sets the VSInfoWidget to use for displaying information about the active filter
+  * @param infoWidget
+  */
+  void setInfoWidget(VSInfoWidget* infoWidget);
+
+signals:
+  void updateFilterInfo(VSAbstractFilter* filter, VSViewController* viewController);
+
 protected:
   /**
   * @brief Connect signals and slots for the VSController
@@ -67,13 +101,6 @@ protected:
   * @return
   */
   VSAbstractFilter* getCurrentFilter();
-
-  /**
-  * @brief Change the active VSFilterViewSettings to display information 
-  * about a filter with respect to the active VSViewController
-  * @param filterView
-  */
-  virtual void changeFilterViewSettings(VSFilterViewSettings* filterView);
 
 protected slots:
   /**
@@ -91,6 +118,8 @@ protected slots:
 private:
   VSController* m_Controller;
   VSAbstractFilter* m_CurrentFilter = nullptr;
+  VSFilterView* m_FilterView = nullptr;
+  VSInfoWidget* m_InfoWidget = nullptr;
 };
 
 #endif
