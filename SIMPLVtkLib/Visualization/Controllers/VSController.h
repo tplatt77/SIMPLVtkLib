@@ -82,20 +82,6 @@ public:
   void importData(DataContainer::Pointer dc);
 
   /**
-  * @brief Checks if any DataContainers contained in a DataContainerArray are being 
-  * displayed through top-level VisualFilters and removes them
-  * @param dca
-  */
-  void removeData(DataContainerArray::Pointer dca);
-
-  /**
-  * @brief Checks if the DataContainer is being displayed through a top-level 
-  * VisualFilters and removes it
-  * @param dc
-  */
-  void removeData(DataContainer::Pointer dc);
-
-  /**
   * @brief Returns the active VSViewController
   * @return
   */

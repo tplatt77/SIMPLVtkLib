@@ -60,8 +60,14 @@ VSController::~VSController()
 void VSController::importData(DataContainerArray::Pointer dca)
 {
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Add VSDataSetFilter for each DataContainer with relevant data
+  
+  // Add VSDataSetFilter for each DataContainer with relevant data
+  size_t count = wrappedData.size();
+  for(size_t i = 0; i < count; i++)
+  {
+    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
+    m_FilterModel->appendRow(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -71,29 +77,12 @@ void VSController::importData(DataContainer::Pointer dc)
 {
   SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
 
-  // TODO: Add VSDataSetFilter if the DataContainer contains relevant data for rendering
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::removeData(DataContainerArray::Pointer dca)
-{
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  // TODO: Check if any of the DataContainers are already imported as VSDataSetFilters
-  // TODO: Remove any of the DataContainers already imported
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::removeData(DataContainer::Pointer dc)
-{
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // TODO: Check if the DataContainer is already imported as a VSDataSetFilter
-  // TODO: Remove the DataContainer if it is already imported
+  // Add VSDataSetFilter if the DataContainer contains relevant data for rendering
+  if(wrappedData)
+  {
+    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData);
+    m_FilterModel->appendRow(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
