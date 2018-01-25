@@ -100,6 +100,19 @@ void VSDataSetFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
+{
+  if(nullptr == m_WrappedDataContainer)
+  {
+    return nullptr;
+  }
+
+  return m_WrappedDataContainer->m_DataSet;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSDataSetFilter::setFilter()
 {
   VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
@@ -129,6 +142,14 @@ void VSDataSetFilter::setFilter()
 const QString VSDataSetFilter::getFilterName()
 {
   return m_WrappedDataContainer->m_Name;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractWidget* VSDataSetFilter::getWidget()
+{
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

@@ -92,10 +92,21 @@ public:
   void setBounds(double* bounds) override;
 
   /**
+  * @brief Returns the output data for the filter
+  */
+  VTK_PTR(vtkDataSet) getOutput() override;
+
+  /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
+
+  /**
+  * @brief Returns the VSAbstractWidget that belongs to the filter
+  * @return
+  */
+  VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Returns the output data type for the filter
