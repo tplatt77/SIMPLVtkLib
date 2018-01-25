@@ -133,10 +133,7 @@ signals:
 
 private:
   VSViewController* m_ActiveViewController = nullptr;
-
   VSFilterModel* m_FilterModel;
-
-  //QVector<VSDataSetFilter*> m_DataFilters;
 };
 
 #endif

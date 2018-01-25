@@ -72,6 +72,11 @@ public:
   */
   void saveScreenshot(QString fileName);
 
+  /**
+  * @brief Performs a deep copy based on another visualization widget
+  */
+  void copy(VSVisualizationWidget* other);
+
 public slots:
   /**
   * @brief Renders the VTK context

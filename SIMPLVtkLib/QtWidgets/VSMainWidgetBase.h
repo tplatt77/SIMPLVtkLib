@@ -78,6 +78,7 @@ public:
 
   /**
   * @brief Returns the VSInfoWidget used by the main widget. Returns nullptr if none is used
+  * @return
   */
   VSInfoWidget* getInfoWidget();
 

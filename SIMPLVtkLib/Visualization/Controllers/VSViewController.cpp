@@ -177,3 +177,16 @@ void VSViewController::markActive()
 {
   m_VSController->setActiveViewController(this);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewController::copy(VSViewController* other)
+{
+  m_VSController = other->m_VSController;
+
+  if(other)
+  {
+    copyFilterSettings(*other);
+  }
+}

@@ -138,6 +138,21 @@ void VSVisualizationWidget::initializeRendererAndAxes()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSVisualizationWidget::copy(VSVisualizationWidget* other)
+{
+  // Copy camera values from another visualization widget
+  vtkCamera* otherCamera = other->m_Renderer->GetActiveCamera();
+  vtkCamera* thisCamera = m_Renderer->GetActiveCamera();
+
+  thisCamera->SetPosition(otherCamera->GetPosition());
+  thisCamera->SetFocalPoint(otherCamera->GetFocalPoint());
+
+  // TODO: Copy vtkWidget values from another visualization widget
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VTK_PTR(vtkRenderer) VSVisualizationWidget::getRenderer()
 {
   return m_Renderer;

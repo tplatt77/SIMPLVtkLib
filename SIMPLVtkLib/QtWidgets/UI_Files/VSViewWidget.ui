@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VSMainWidget</class>
- <widget class="QWidget" name="VSMainWidget">
+ <class>VSViewWidget</class>
+ <widget class="QWidget" name="VSViewWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
-    <height>550</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SIMPL Visualization Window</string>
+   <string>Visualization Window</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -30,28 +30,15 @@
     <number>4</number>
    </property>
    <item row="0" column="0">
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QWidget" name="infoWidget" native="true"/>
-     <widget class="VSViewWidget" name="viewWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </widget>
+    <widget class="VSVisualizationWidget" name="visualizationWidget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>VSViewWidget</class>
+   <class>VSVisualizationWidget</class>
    <extends>QWidget</extends>
-   <header>VSViewWidget.h</header>
+   <header>VSVisualizationWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

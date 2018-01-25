@@ -72,6 +72,12 @@ public:
   */
   VSFilterViewSettings* getViewSettings(VSAbstractFilter* filter);
 
+  /**
+  * @brief Performs a deep copy based on another view controller
+  * @param other
+  */
+  void copy(VSViewController* other);
+
 public slots:
   /**
   * @brief Adds a new visual filter to the VSViewController

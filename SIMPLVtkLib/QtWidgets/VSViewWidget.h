@@ -33,132 +33,41 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsviewwidget_h
-#define _vsviewwidget_h
+#ifndef _vsviewwidget_h_
+#define _vsviewwidget_h_
 
-#include <QtWidgets/QWidget>
-
-#include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 
 /**
 * @class VSViewWidget VSViewWidget.h SIMPLVtkLib/QtWidgets/VSViewWidget.h
-* @brief This abstract class applies the VSViewController and VSFilterViewSettings to
-* a VSVisualizationWidget.
+* @brief This class handles a single visualization widget and any corresponding 
+* widget layout.  As it inherits from VSAbstractViewWidget, this class also 
+* handles the VSViewController and VSFilterViewSettings that go along with it.
 */
-class VSViewWidget : public QWidget
+class VSViewWidget : public VSAbstractViewWidget
 {
-  Q_OBJECT
-
 public:
+  /**
+  * @brief Constructor
+  * @param parent
+  */
   VSViewWidget(QWidget* parent = nullptr);
 
   /**
-  * @brief Returns the VSViewController used by the widget
+  * @brief Clones the widget and its view controller
   * @return
   */
-  VSViewController* getViewController();
-
-  /**
-  * @brief Sets the VSViewController for the widget
-  * @param controller
-  */
-  void setViewController(VSViewController* controller);
-
-  /**
-  * @brief Returns a pointer to the active VSFilterViewSettings
-  * @return
-  */
-  VSFilterViewSettings* getActiveFilterSettings();
-
-  /**
-  * @brief Sets the active VSFilterViewSettings
-  * @param settings
-  */
-  virtual void setActiveFilterSettings(VSFilterViewSettings* settings);
-
-protected slots:
-  /**
-  * @brief Change filter visibility
-  * @param viewSettings
-  * @param filterVisible
-  */
-  void changeFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
-
-  /**
-  * @brief Change the active filter's array index
-  * @param index
-  */
-  void changeFilterArrayIndex(int index);
-
-  /**
-  * @brief Change the active filter's component index
-  * @param index
-  */
-  void changeFilterComponentIndex(int index);
-
-  /**
-  * @brief Change the active filter's color map setting
-  * @param mapColors
-  */
-  void changeFilterMapColors(bool mapColors);
-
-  /**
-  * @brief Change the active filter's scalar bar visibility
-  * @param showScalarBar
-  */
-  void changeFilterShowScalarBar(bool showScalarBar);
-
-  /**
-  * @brief Visiblity changed for filter
-  * @param viewSettings
-  * @param filterVisible
-  */
-  virtual void filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible);
-
-  /**
-  * @brief Active array changed for filter
-  * @param viewSettings
-  * @param index
-  */
-  virtual void filterArrayIndexChanged(VSFilterViewSettings* viewSettings, int index);
-
-  /**
-  * @brief Active array component changed for filter
-  * @param viewSettings
-  * @param index
-  */
-  virtual void filterComponentIndexChanged(VSFilterViewSettings* viewSettings, int index);
-
-  /**
-  * @brief Color mapping changed for filter
-  * @param viewSettings
-  * @param mapColors
-  */
-  virtual void filterMapColorsChanged(VSFilterViewSettings* viewSettings, bool mapColors);
-
-  /**
-  * @brief ScalarBar visibility changed for filter
-  * @param viewSettings
-  * @param showScalarBar
-  */
-  void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar);
+  virtual VSAbstractViewWidget* clone() override;
 
 protected:
   /**
   * @brief Returns the VSVisualizationWidget used
   */
-  virtual VSVisualizationWidget* getVisualizationWidget() = 0;
-
-  /**
-  * @brief Handle mouse press events including marking the VSViewController as the active one
-  * @param event
-  */
-  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual VSVisualizationWidget* getVisualizationWidget() override;
 
 private:
-  VSViewController* m_ViewController = nullptr;
-  VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
+  class VSInternals;
+  VSInternals* m_Internals;
 };
 
 #endif

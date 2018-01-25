@@ -35,163 +35,51 @@
 
 #include "VSViewWidget.h"
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSViewController* VSViewWidget::getViewController()
-{
-  return m_ViewController;
-}
+#include "ui_VSViewWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::setViewController(VSViewController* controller)
+class VSViewWidget::VSInternals : public Ui::VSViewWidget
 {
-  m_ViewController = controller;
-
-  // TODO: connect signals / slots
-  // TODO: Add visible filters
-  // TODO: Add visible vtkScalarBarWidgets
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSFilterViewSettings* VSViewWidget::getActiveFilterSettings()
-{
-  return m_ActiveFilterSettings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setActiveFilterSettings(VSFilterViewSettings* settings)
-{
-  m_ActiveFilterSettings = settings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible)
-{
-  if(nullptr == getVisualizationWidget())
+public:
+  VSInternals()
   {
-    return;
+  }
+};
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSViewWidget::VSViewWidget(QWidget* parent)
+  : VSAbstractViewWidget(parent)
+  , m_Internals(new VSInternals())
+{
+  m_Internals->setupUi(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractViewWidget* VSViewWidget::clone()
+{
+  VSViewWidget* viewWidget = new VSViewWidget();
+  
+  viewWidget->getViewController()->copy(this->getViewController());
+  viewWidget->getVisualizationWidget()->copy(this->getVisualizationWidget());
+
+  return viewWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSVisualizationWidget* VSViewWidget::getVisualizationWidget()
+{
+  if(nullptr == m_Internals)
+  {
+    return nullptr;
   }
 
-  if(filterVisible)
-  {
-    getVisualizationWidget()->getRenderer()->AddActor(viewSettings->getActor());
-
-    if(viewSettings->isScalarBarVisible())
-    {
-      //getVisualizationWidget()->getRenderer()->AddActor2D(viewSettings->getScalarBarWidget());
-    }
-  }
-  else
-  {
-    getVisualizationWidget()->getRenderer()->RemoveActor(viewSettings->getActor());
-
-    if(viewSettings->isScalarBarVisible())
-    {
-      //getVisualizationWidget()->getRenderer()->RemoveActor2D(viewSettings->getScalarBarWidget());
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::filterArrayIndexChanged(VSFilterViewSettings* viewSettings, int index)
-{
-  // Handle in subclasses
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::filterComponentIndexChanged(VSFilterViewSettings* viewSettings, int index)
-{
-  // Handle in subclasses
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::filterMapColorsChanged(VSFilterViewSettings* viewSettings, bool mapColors)
-{
-  // Handle in subclasses
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar)
-{
-  // Handle in subclasses
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::changeFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible)
-{
-  viewSettings->setVisible(filterVisible);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::changeFilterArrayIndex(int index)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveArrayIndex(index);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::changeFilterComponentIndex(int index)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveComponentIndex(index);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::changeFilterMapColors(bool mapColors)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setMapColors(mapColors);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::changeFilterShowScalarBar(bool showScalarBar)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setScalarBarVisible(showScalarBar);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::mousePressEvent(QMouseEvent* event)
-{
-  if(m_ViewController)
-  {
-    m_ViewController->markActive();
-  }
+  return m_Internals->visualizationWidget;
 }
