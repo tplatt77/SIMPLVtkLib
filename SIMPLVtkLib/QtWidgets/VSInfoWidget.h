@@ -41,12 +41,14 @@
 #include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSInfoWidget VSInfoWidget.h SIMPLVtkLib/QtWidgets/VSInfoWidget.h
 * @brief This class handles displaying information about a visual filter and 
 * its view settings in the active VSViewController
 */
-class VSInfoWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSInfoWidget : public QWidget
 {
   Q_OBJECT
 

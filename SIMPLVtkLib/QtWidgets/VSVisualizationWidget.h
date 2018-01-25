@@ -41,6 +41,7 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkRenderer.h>
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
 /**
@@ -49,7 +50,7 @@
  * It contains methods for saving screenshots, rendering, and camera settings so that those
  * functions do not have to be rewritten in every 3D visualization class.
  */
-class VSVisualizationWidget : public QVTKOpenGLWidget
+class SIMPLVtkLib_EXPORT VSVisualizationWidget : public QVTKOpenGLWidget
 {
   Q_OBJECT
 

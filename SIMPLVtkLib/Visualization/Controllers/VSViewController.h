@@ -40,6 +40,8 @@
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 class VSController;
 
 /**
@@ -48,7 +50,7 @@ class VSController;
 * @brief This class handles visibility settings for each visualization widget and 
 * connects it to the appropriate VSController through Qt's signals and slots.
 */
-class VSViewController : public QObject
+class SIMPLVtkLib_EXPORT VSViewController : public QObject
 {
   Q_OBJECT
 

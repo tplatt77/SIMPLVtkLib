@@ -45,6 +45,8 @@
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSController VSController.h SIMPLVtkLib/Visualization/Controllers/VSController.h
 * @brief This class handles the top-level controls for SIMPLVtkLib from importing data 
@@ -52,7 +54,7 @@
 * tree is stored within the class so that it can be readily accessed or modified from 
 * inside or outside the library.
 */
-class VSController : public QObject
+class SIMPLVtkLib_EXPORT VSController : public QObject
 {
   Q_OBJECT
 

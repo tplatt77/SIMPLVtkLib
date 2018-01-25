@@ -72,6 +72,9 @@ VSAbstractFilter::VSAbstractFilter()
   setCheckable(true);
 
   m_ParentFilter = nullptr;
+
+  m_ParentProducer = VTK_PTR(vtkTrivialProducer)::New();
+  m_OutputProducer = VTK_PTR(vtkTrivialProducer)::New();
 }
 
 // -----------------------------------------------------------------------------

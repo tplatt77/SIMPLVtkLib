@@ -40,12 +40,14 @@
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSFilterView VSFilterView.h SIMPLVtkLib/QtWidgets/VSFilterView.h
 * @brief This class is used for viewing a VSController's VSFilterModel in a 
 * QTreeView and handling user interaction with that model
 */
-class VSFilterView : public QTreeView
+class SIMPLVtkLib_EXPORT VSFilterView : public QTreeView
 {
   Q_OBJECT
 

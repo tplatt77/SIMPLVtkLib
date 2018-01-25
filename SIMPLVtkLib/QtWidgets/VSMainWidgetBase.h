@@ -42,12 +42,14 @@
 #include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSMainWidgetBase VSMainWidgetBase.h SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h
 * @brief This class is the superclass for VSMainWidget and contains the base methods 
 * for accessing and viewing information regarding visual filters.
 */
-class VSMainWidgetBase : public QWidget
+class SIMPLVtkLib_EXPORT VSMainWidgetBase : public QWidget
 {
   Q_OBJECT
 

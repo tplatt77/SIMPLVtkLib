@@ -38,6 +38,8 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSMainWidget VSMainWidget.h SIMPLVtkLib/QtWidgets/VSMainWidget.h
 * @brief This class works as SIMPLVtkLib's main widget that displays information
@@ -45,7 +47,7 @@
 * most of its implementation but is provided with a UI file for formatting the
 * widget.
 */
-class VSMainWidget : public VSMainWidgetBase
+class SIMPLVtkLib_EXPORT VSMainWidget : public VSMainWidgetBase
 {
   Q_OBJECT
 

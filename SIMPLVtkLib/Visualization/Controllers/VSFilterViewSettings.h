@@ -46,6 +46,8 @@
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSFilterViewSettings VSFilterViewSettings.h
 * SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h
@@ -54,7 +56,7 @@
 * to color by, whether or not to map values to a lookup table, and the visibility of
 * both the vtkActor and vtkScalarBarWidget.
 */
-class VSFilterViewSettings : public QObject
+class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
 {
   Q_OBJECT
 

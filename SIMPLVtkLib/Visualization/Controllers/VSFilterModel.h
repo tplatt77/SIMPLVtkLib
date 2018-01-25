@@ -40,11 +40,13 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSFilterModel VSFilterModel.h SIMPLVtkLib/QtWidgets/VSFilterModel.h
 * @brief This class handles the visual filter model for the VSController.
 */
-class VSFilterModel : public QStandardItemModel
+class SIMPLVtkLib_EXPORT VSFilterModel : public QStandardItemModel
 {
   Q_OBJECT
 

@@ -36,6 +36,7 @@
 #ifndef _vsviewwidget_h_
 #define _vsviewwidget_h_
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 
 /**
@@ -44,7 +45,7 @@
 * widget layout.  As it inherits from VSAbstractViewWidget, this class also 
 * handles the VSViewController and VSFilterViewSettings that go along with it.
 */
-class VSViewWidget : public VSAbstractViewWidget
+class SIMPLVtkLib_EXPORT VSViewWidget : public VSAbstractViewWidget
 {
 public:
   /**

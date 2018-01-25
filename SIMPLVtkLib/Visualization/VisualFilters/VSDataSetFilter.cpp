@@ -127,12 +127,12 @@ void VSDataSetFilter::setFilter()
       char* name = dataArray->GetName();
       cellData->SetActiveScalars(name);
     }
-    
   }
   
   m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
   m_TrivialProducer->SetOutput(dataSet);
 
+  m_ParentProducer->SetInputConnection(m_TrivialProducer->GetOutputPort());
   m_OutputProducer->SetInputConnection(m_TrivialProducer->GetOutputPort());
 }
 

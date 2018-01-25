@@ -42,12 +42,14 @@
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 /**
 * @class VSAbstractViewWidget VSAbstractViewWidget.h SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h
 * @brief This abstract class applies the VSViewController and VSFilterViewSettings to
 * a VSVisualizationWidget.
 */
-class VSAbstractViewWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QWidget
 {
   Q_OBJECT
 
