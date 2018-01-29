@@ -44,6 +44,8 @@ VSController::VSController(QObject* parent)
   : QObject(parent)
   , m_FilterModel(new VSFilterModel())
 {
+  connect(m_FilterModel, SIGNAL(filterAdded(VSAbstractFilter*)), this, SIGNAL(filterAdded(VSAbstractFilter*)));
+  connect(m_FilterModel, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SIGNAL(filterRemoved(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -66,7 +68,7 @@ void VSController::importData(DataContainerArray::Pointer dca)
   for(size_t i = 0; i < count; i++)
   {
     VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
-    m_FilterModel->appendRow(filter);
+    m_FilterModel->addFilter(filter);
   }
 }
 
@@ -81,7 +83,7 @@ void VSController::importData(DataContainer::Pointer dc)
   if(wrappedData)
   {
     VSDataSetFilter* filter = new VSDataSetFilter(wrappedData);
-    m_FilterModel->appendRow(filter);
+    m_FilterModel->addFilter(filter);
   }
 }
 

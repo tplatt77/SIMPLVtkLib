@@ -98,13 +98,7 @@ void VSMaskFilter::setFilter()
 {
   m_MaskAlgorithm = VTK_PTR(vtkThreshold)::New();
 
-  if(m_ParentFilter != nullptr)
-  {
-    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
-  }
-
-  m_MaskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_MaskAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
 
   //m_MaskWidget->updateMaskNames(m_parentFilter->getOutput());
   m_ConnectedInput = false;

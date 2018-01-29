@@ -43,8 +43,8 @@
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
   : QObject(nullptr)
-  , m_Filter(filter)
 {
+  setFilter(filter);
   setupActors();
 }
 
@@ -53,13 +53,13 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
   : QObject(nullptr)
-  , m_Filter(copy.m_Filter)
   , m_ShowFilter(copy.m_ShowFilter)
   , m_ActiveArray(copy.m_ActiveArray)
   , m_ActiveComponent(copy.m_ActiveComponent)
   , m_MapColors(copy.m_MapColors)
   , m_ShowScalarBar(copy.m_ShowScalarBar)
 {
+  setFilter(copy.m_Filter);
   setupActors();
 }
 
@@ -150,7 +150,7 @@ void VSFilterViewSettings::setVisible(bool visible)
 {
   m_ShowFilter = visible;
 
-  emit visibilityChanged(m_ShowFilter);
+  emit visibilityChanged(this, m_ShowFilter);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void VSFilterViewSettings::setActiveArrayIndex(int index)
 {
   m_ActiveArray = index;
 
-  emit activeArrayIndexChanged(m_ActiveArray);
+  emit activeArrayIndexChanged(this, m_ActiveArray);
 }
 
 // -----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 {
   m_ActiveComponent = index;
 
-  emit activeComponentIndexChanged(m_ActiveComponent);
+  emit activeComponentIndexChanged(this, m_ActiveComponent);
 }
 
 // -----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void VSFilterViewSettings::setMapColors(bool mapColors)
 {
   m_MapColors = mapColors;
 
-  emit mapColorsChanged(m_MapColors);
+  emit mapColorsChanged(this, m_MapColors);
 }
 
 // -----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 {
   m_ShowScalarBar = visible;
 
-  emit showScalarBarChanged(m_ShowScalarBar);
+  emit showScalarBarChanged(this, m_ShowScalarBar);
 }
 
 // -----------------------------------------------------------------------------
@@ -199,15 +199,41 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 void VSFilterViewSettings::setupActors()
 {
   m_Mapper = VTK_PTR(vtkDataSetMapper)::New();
-  //m_Mapper->SetInputConnection(m_Filter->getOutputPort());
+  m_Mapper->SetInputConnection(m_Filter->getOutputPort());
 
   m_Actor = VTK_PTR(vtkActor)::New();
   m_Actor->SetMapper(m_Mapper);
 
   m_LookupTable = new VSLookupTableController();
-  //m_LookupTable->getColorTransferFunction();
+  m_Mapper->SetLookupTable(m_LookupTable->getColorTransferFunction());
 
   m_ScalarBarActor = VTK_PTR(vtkScalarBarActor)::New();
+  m_ScalarBarActor->SetLookupTable(m_Mapper->GetLookupTable());
   m_ScalarBarWidget = VTK_PTR(vtkScalarBarWidget)::New();
   m_ScalarBarWidget->SetScalarBarActor(m_ScalarBarActor);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
+{
+  m_Mapper->SetInputConnection(filter->getOutputPort());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setFilter(VSAbstractFilter* filter)
+{
+  if(m_Filter)
+  {
+    disconnect(m_Filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
+  }
+
+  m_Filter = filter;
+  if(filter)
+  {
+    connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
+  }
 }

@@ -47,6 +47,7 @@ VSViewController::VSViewController(VSController* controller)
   : QObject(controller)
   , m_VSController(controller)
 {
+  connectController(controller);
   createFilterSettings();
 }
 
@@ -57,7 +58,24 @@ VSViewController::VSViewController(const VSViewController& copy)
   : QObject(copy.m_VSController)
   , m_VSController(copy.m_VSController)
 {
+  connectController(copy.m_VSController);
   copyFilterSettings(copy);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewController::connectController(VSController* controller)
+{
+  if(m_VSController)
+  {
+    disconnect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(addFilter(VSAbstractFilter*)));
+    disconnect(controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(removeFilter(VSAbstractFilter*)));
+  }
+
+  m_VSController = controller;
+  connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(addFilter(VSAbstractFilter*)));
+  connect(controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(removeFilter(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -142,6 +160,8 @@ void VSViewController::addFilter(VSAbstractFilter* filter)
   VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
 
   m_FilterViewSettings.push_back(viewSettings);
+
+  emit filterAdded(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -184,6 +204,7 @@ void VSViewController::markActive()
 void VSViewController::copy(VSViewController* other)
 {
   m_VSController = other->m_VSController;
+  connectController(other->m_VSController);
 
   if(other)
   {

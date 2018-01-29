@@ -112,13 +112,7 @@ void VSClipFilter::setFilter()
   m_ClipAlgorithm = vtkSmartPointer<vtkTableBasedClipDataSet>::New();
   m_ClipAlgorithm->SetClipFunction(getWidget()->getImplicitFunction());
 
-  if(nullptr != m_ParentFilter)
-  {
-    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
-  }
-
-  m_ClipAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_ClipAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
 
   m_ConnectedInput = false;
 }

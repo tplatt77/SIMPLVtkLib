@@ -60,9 +60,31 @@ void VSAbstractViewWidget::setViewController(VSViewController* controller)
 {
   m_ViewController = controller;
 
-  // TODO: connect signals / slots
-  // TODO: Add visible filters
-  // TODO: Add visible vtkScalarBarWidgets
+  connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
+{
+  VSFilterViewSettings* filterViewSettings = m_ViewController->getViewSettings(filter);
+
+  if(nullptr == filterViewSettings)
+  {
+    return;
+  }
+
+  connect(filterViewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
+  connect(filterViewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
+  connect(filterViewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterComponentIndexChanged(VSFilterViewSettings*, int)));
+  connect(filterViewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(filterMapColorsChanged(VSFilterViewSettings*, bool)));
+  connect(filterViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(filterShowScalarBarChanged(VSFilterViewSettings*, bool)));
+
+  filterViewSettings->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
+
+  filterVisibilityChanged(filterViewSettings, filterViewSettings->getVisible());
+  filterShowScalarBarChanged(filterViewSettings, filterViewSettings->isScalarBarVisible());
 }
 
 // -----------------------------------------------------------------------------

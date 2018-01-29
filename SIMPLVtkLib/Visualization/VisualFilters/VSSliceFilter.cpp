@@ -98,13 +98,7 @@ void VSSliceFilter::setFilter()
   m_SliceAlgorithm = vtkSmartPointer<vtkCutter>::New();
   //m_SliceAlgorithm->SetCutFunction(m_SliceWidget->getImplicitFunction());
 
-  if(nullptr != m_ParentFilter)
-  {
-    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
-  }
-
-  m_SliceAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_SliceAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
 
   //calculateOutput();
   m_ConnectedInput = false;

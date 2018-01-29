@@ -92,6 +92,12 @@ public:
   void setBounds(double* bounds) override;
 
   /**
+  * @brief Returns the output port for the filter
+  * @return
+  */
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
   * @brief Returns the output data for the filter
   */
   VTK_PTR(vtkDataSet) getOutput() override;
@@ -126,12 +132,17 @@ public:
   */
   SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
 
+protected:
+  /**
+  * @brief This method is empty as there should never be a case where a VSDataSetFilter
+  * is a child of another filter.
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
 private:
-  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer;
-
-  VTK_PTR(vtkTrivialProducer) m_TrivialProducer;
-
-  //		int m_scalarSetId;
+  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
+  VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
 };
 
 #endif /* _VSDataSetFilter_h_ */

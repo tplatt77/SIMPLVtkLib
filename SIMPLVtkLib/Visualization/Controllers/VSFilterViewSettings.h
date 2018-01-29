@@ -162,18 +162,30 @@ public slots:
   */
   void setScalarBarVisible(bool visible);
 
+  /**
+  * @brief Updates the input connection for the vtkMapper
+  * @param filter
+  */
+  void updateInputPort(VSAbstractFilter* filter);
+
 signals:
-  void visibilityChanged(bool);
-  void activeArrayIndexChanged(int);
-  void activeComponentIndexChanged(int);
-  void mapColorsChanged(bool);
-  void showScalarBarChanged(bool);
+  void visibilityChanged(VSFilterViewSettings*, bool);
+  void activeArrayIndexChanged(VSFilterViewSettings*, int);
+  void activeComponentIndexChanged(VSFilterViewSettings*, int);
+  void mapColorsChanged(VSFilterViewSettings*, bool);
+  void showScalarBarChanged(VSFilterViewSettings*, bool);
 
 protected:
   /**
   * @brief Performs initial setup commands for any actors used in the view settings
   */
   void setupActors();
+
+  /**
+  * @brief Sets the visual filter makes any Qt connections required
+  * @param filter
+  */
+  void setFilter(VSAbstractFilter* filter);
 
 private:
   VSAbstractFilter* m_Filter = nullptr;

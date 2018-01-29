@@ -104,6 +104,12 @@ public:
 
 protected slots:
   /**
+  * @brief Connect a new visual filter's VSFilterViewSettings
+  * @param filter
+  */
+  void filterAdded(VSAbstractFilter* filter);
+
+  /**
   * @brief Change filter visibility
   * @param viewSettings
   * @param filterVisible
@@ -167,7 +173,7 @@ protected slots:
   * @param viewSettings
   * @param showScalarBar
   */
-  void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar);
+  virtual void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar);
 
 protected:
   /**

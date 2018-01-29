@@ -86,16 +86,17 @@ void VSDataSetFilter::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void VSDataSetFilter::setInputData(VTK_PTR(vtkDataSet) inputData)
-//{
-//  m_dataSet = inputData;
-//  m_dataSet->ComputeBounds();
-//
-//  if(m_trivialProducer != nullptr)
-//  {
-//    m_trivialProducer->SetOutput(m_dataSet);
-//  }
-//}
+vtkAlgorithmOutput* VSDataSetFilter::getOutputPort()
+{
+  if(m_TrivialProducer)
+  {
+    return m_TrivialProducer->GetOutputPort();
+  }
+  else
+  {
+    return nullptr;
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -108,6 +109,14 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
   }
 
   return m_WrappedDataContainer->m_DataSet;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  // Do nothing
 }
 
 // -----------------------------------------------------------------------------
@@ -131,9 +140,8 @@ void VSDataSetFilter::setFilter()
   
   m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
   m_TrivialProducer->SetOutput(dataSet);
-
-  m_ParentProducer->SetInputConnection(m_TrivialProducer->GetOutputPort());
-  m_OutputProducer->SetInputConnection(m_TrivialProducer->GetOutputPort());
+  
+  emit updatedOutputPort(this);
 }
 
 // -----------------------------------------------------------------------------

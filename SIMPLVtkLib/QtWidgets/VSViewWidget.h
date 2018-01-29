@@ -47,6 +47,8 @@
 */
 class SIMPLVtkLib_EXPORT VSViewWidget : public VSAbstractViewWidget
 {
+  Q_OBJECT
+
 public:
   /**
   * @brief Constructor
@@ -65,6 +67,21 @@ protected:
   * @brief Returns the VSVisualizationWidget used
   */
   virtual VSVisualizationWidget* getVisualizationWidget() override;
+
+protected slots:
+  /**
+  * @brief Visiblity changed for filter
+  * @param viewSettings
+  * @param filterVisible
+  */
+  virtual void filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible) override;
+
+  /**
+  * @brief ScalarBar visibility changed for filter
+  * @param viewSettings
+  * @param showScalarBar
+  */
+  void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
 
 private:
   class VSInternals;

@@ -70,11 +70,6 @@ VSAbstractFilter::VSAbstractFilter()
 , QStandardItem()
 {
   setCheckable(true);
-
-  m_ParentFilter = nullptr;
-
-  m_ParentProducer = VTK_PTR(vtkTrivialProducer)::New();
-  m_OutputProducer = VTK_PTR(vtkTrivialProducer)::New();
 }
 
 // -----------------------------------------------------------------------------
@@ -117,20 +112,7 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
   {
     m_ParentFilter = parent;
     m_ParentFilter->m_Children.push_back(this);
-
-    m_ParentProducer = VTK_PTR(vtkTrivialProducer)::New();
-    m_ParentProducer->SetInputConnection(parent->getOutputPort());
-
-    m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkAlgorithmOutput) VSAbstractFilter::getOutputPort()
-{
-  return m_OutputProducer->GetOutputPort();
 }
 
 // -----------------------------------------------------------------------------
@@ -144,6 +126,8 @@ void VSAbstractFilter::addChild(VSAbstractFilter* child)
   }
 
   m_Children.push_back(child);
+
+  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -158,6 +142,8 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 
   m_Children.removeAll(child);
   child->setParentFilter(nullptr);
+
+  disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -294,4 +280,28 @@ void VSAbstractFilter::saveFile(QString fileName)
   writer->SetFileName(fileName.toStdString().c_str());
   writer->SetInputData(output);
   writer->Write();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput)
+  {
+    // Connect algorithm input and filter output
+    updateAlgorithmInput(filter);
+  }
+  else
+  {
+    // Emit only when the filter is not connected to its algorithm
+    emit updatedOutputPort(filter);
+  }
 }

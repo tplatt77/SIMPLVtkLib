@@ -116,8 +116,8 @@ public slots:
 
 signals:
   void activeViewChanged(VSViewController* activeView);
-  void filterAdded(VSAbstractFilter* filter);
-  void filterRemoved(VSAbstractFilter* filter);
+  void filterAdded(VSAbstractFilter*);
+  void filterRemoved(VSAbstractFilter*);
 
 private:
   VSViewController* m_ActiveViewController = nullptr;

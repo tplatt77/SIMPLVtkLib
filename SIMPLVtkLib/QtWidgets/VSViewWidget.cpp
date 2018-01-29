@@ -83,3 +83,37 @@ VSVisualizationWidget* VSViewWidget::getVisualizationWidget()
 
   return m_Internals->visualizationWidget;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible)
+{
+  if(nullptr == viewSettings)
+  {
+    return;
+  }
+
+  if(filterVisible)
+  {
+    getVisualizationWidget()->getRenderer()->AddActor(viewSettings->getActor());
+  }
+  else
+  {
+    getVisualizationWidget()->getRenderer()->RemoveActor(viewSettings->getActor());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar)
+{
+  if(nullptr == viewSettings)
+  {
+    return;
+  }
+
+  VTK_PTR(vtkScalarBarWidget) scalarBarWidget = viewSettings->getScalarBarWidget();
+  scalarBarWidget->SetEnabled(showScalarBar);
+}

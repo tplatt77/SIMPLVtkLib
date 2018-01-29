@@ -88,6 +88,10 @@ public:
   * @return
   */
   QVector<VSAbstractFilter*> getBaseFilters();
+
+signals:
+  void filterAdded(VSAbstractFilter* filter);
+  void filterRemoved(VSAbstractFilter* filter);
 };
 
 #endif

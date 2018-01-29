@@ -169,7 +169,7 @@ public:
   * @brief Returns the output port for the filter
   * @return
   */
-  VTK_PTR(vtkAlgorithmOutput) getOutputPort();
+  virtual vtkAlgorithmOutput* getOutputPort() = 0;
 
   /**
   * @brief Returns the output data for the filter
@@ -213,19 +213,34 @@ public:
   */
   static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
 
-protected:
-  VSAbstractFilter* m_ParentFilter;
-  QVector<VSAbstractFilter*> m_Children;
+signals:
+  void updatedOutputPort(VSAbstractFilter* filter);
 
+protected slots:
+  /**
+  * @brief Updates input connection to match the given filter.  If this filter is not
+  * connected to its own algorithm, it propogates the update signal to its children.
+  * @param filter
+  */
+  void connectToOutuput(VSAbstractFilter* filter);
+
+protected:
   /**
   * @brief Returns a pointer to the VSDataSetFilter that stores the input vtkDataSet
   * @return
   */
   VSDataSetFilter* getDataSetFilter();
+  
+  /**
+  * @brief Updates the input connection for the vtkAlgorithm if that was already setup
+  * @param filter
+  */
+  virtual void updateAlgorithmInput(VSAbstractFilter* filter) = 0;
 
   bool m_ConnectedInput = false;
-  VTK_PTR(vtkTrivialProducer) m_ParentProducer;
-  VTK_PTR(vtkTrivialProducer) m_OutputProducer;
+  VTK_PTR(vtkAlgorithmOutput) m_InputPort = nullptr;
+  VSAbstractFilter* m_ParentFilter = nullptr;
+  QVector<VSAbstractFilter*> m_Children;
 
 private:
   /**

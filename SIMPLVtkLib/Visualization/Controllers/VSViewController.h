@@ -80,6 +80,9 @@ public:
   */
   void copy(VSViewController* other);
 
+signals:
+  void filterAdded(VSAbstractFilter* filter);
+
 public slots:
   /**
   * @brief Adds a new visual filter to the VSViewController
@@ -116,6 +119,12 @@ protected:
   * @return
   */
   int getViewSettingsIndex(VSFilterViewSettings* settings);
+
+  /**
+  * @brief Connect Qt signals and slots from a given VSController
+  * @param controller
+  */
+  void connectController(VSController* controller);
 
 private:
   VSController* m_VSController;

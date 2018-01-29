@@ -37,6 +37,9 @@
 
 #include "ui_VSMainWidget.h"
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 class VSMainWidget::vsInternals : public Ui::VSMainWidget
 {
 public:
@@ -53,6 +56,10 @@ VSMainWidget::VSMainWidget(QWidget* parent)
   , m_Internals(new vsInternals())
 {
   m_Internals->setupUi(this);
+
+  VSViewController* viewController = new VSViewController(getController());
+  m_Internals->viewWidget->setViewController(viewController);
+  getController()->setActiveViewController(viewController);
 }
 
 // -----------------------------------------------------------------------------

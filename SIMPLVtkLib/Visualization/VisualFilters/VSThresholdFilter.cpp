@@ -117,20 +117,13 @@ void VSThresholdFilter::setFilter()
 
   m_ThresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
 
-  if(nullptr != m_ParentFilter)
-  {
-    m_ParentProducer->SetInputConnection(m_ParentFilter->getOutputPort());
-  }
-
-  m_ThresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
+  m_ThresholdAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
   VTK_PTR(vtkDataArray) dataArray = getWrappedDataContainer()->m_DataSet->GetCellData()->GetScalars();
 
   setThresholdScalarId(m_CurrentId);
 
   //m_ThresholdWidget->setLowerThreshold(dataArray->GetRange()[0]);
   //m_ThresholdWidget->setUpperThreshold(dataArray->GetRange()[1]);
-
-  m_OutputProducer->SetInputConnection(m_ParentProducer->GetOutputPort());
 
   m_ConnectedInput = false;
 }

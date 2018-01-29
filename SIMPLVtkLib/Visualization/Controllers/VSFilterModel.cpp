@@ -41,7 +41,6 @@
 VSFilterModel::VSFilterModel(QObject* parent)
   : QStandardItemModel(parent)
 {
-
 }
 
 // -----------------------------------------------------------------------------
@@ -58,6 +57,8 @@ void VSFilterModel::addFilter(VSAbstractFilter* filter)
   {
     appendRow(filter);
   }
+
+  emit filterAdded(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -76,6 +77,8 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
   {
     delete item;
   }
+
+  emit filterRemoved(filter);
 }
 
 // -----------------------------------------------------------------------------
