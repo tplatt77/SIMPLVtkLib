@@ -91,16 +91,28 @@ public:
   virtual VSAbstractViewWidget* clone() = 0;
 
   /**
-  * @brief Splits the view widget vertically in a QSplitter with a clone of the widget
-  * @return
+  * @brief Returns the VSVisualizationWidget used
   */
-  QSplitter* splitVertically();
+  virtual VSVisualizationWidget* getVisualizationWidget() = 0;
+
+signals:
+  void viewWidgetClosed();
+
+public slots:
+  /**
+  * @brief Splits the view widget vertically in a QSplitter with a clone of the widget
+  */
+  void splitVertically();
 
   /**
   * @brief Splits the view widget horizontally in a QSplitter with a clone of the widget
-  * @return
   */
-  QSplitter* splitHorizontally();
+  void splitHorizontally();
+
+  /**
+  * @brief If a part of a QSplitter, remove the QSplitter and reparent the remaining widget
+  */
+  void closeView();
 
 protected slots:
   /**
@@ -175,11 +187,16 @@ protected slots:
   */
   virtual void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar);
 
+  /**
+  * @brief Sets the active ViewController when the mouse is pressed inside the widget();
+  */
+  virtual void mousePressed();
+
 protected:
   /**
-  * @brief Returns the VSVisualizationWidget used
+  * @brief Check the visibility of a filter and scalar bar through VSFilterViewSettings
   */
-  virtual VSVisualizationWidget* getVisualizationWidget() = 0;
+  void checkFilterViewSetting(VSFilterViewSettings* setting);
 
   /**
   * @brief Returns a QSplitter with this widget and a clone of it

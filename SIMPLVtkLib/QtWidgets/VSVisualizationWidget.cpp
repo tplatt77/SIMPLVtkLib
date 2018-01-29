@@ -435,3 +435,13 @@ void VSVisualizationWidget::camZMinus()
     m_Renderer->GetRenderWindow()->GetInteractor()->Render();
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mousePressEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mousePressEvent(event);
+
+  emit mousePressed();
+}

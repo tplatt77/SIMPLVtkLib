@@ -38,6 +38,7 @@
 
 #include <QtWidgets/QWidget>
 
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
 #include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
@@ -64,6 +65,25 @@ public:
   * @brief Returns the VSController for the widget
   */
   VSController* getController();
+
+  /**
+  * @brief Returns the active view widget
+  * @return
+  */
+  VSAbstractViewWidget* getActiveViewWidget();
+
+  /**
+  * @brief Returns a vector of all view widgets contained in the main widget
+  * @return
+  */
+  QVector<VSAbstractViewWidget*> getAllViewWidgets();
+
+  /**
+  * @brief Returns the view widget responsible for the given VSViewController
+  * @param viewController
+  * @return
+  */
+  VSAbstractViewWidget* getViewWidget(VSViewController* viewController);
 
   /**
   * @brief Returns the VSFilterView used by the main widget. Returns nullptr if none is used
@@ -113,6 +133,11 @@ protected slots:
   virtual void activeViewChanged(VSViewController* controller);
 
   /**
+  * @brief Resets the active view widget to nullptr
+  */
+  virtual void activeViewClosed();
+
+  /**
   * @brief Changes the active visual filter
   * @param filter
   */
@@ -121,6 +146,7 @@ protected slots:
 private:
   VSController* m_Controller;
   VSAbstractFilter* m_CurrentFilter = nullptr;
+  VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
   VSInfoWidget* m_InfoWidget = nullptr;
 };

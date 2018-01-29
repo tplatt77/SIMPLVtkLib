@@ -78,6 +78,9 @@ public:
   */
   void copy(VSVisualizationWidget* other);
 
+signals:
+  void mousePressed();
+
 public slots:
   /**
   * @brief Renders the VTK context
@@ -152,6 +155,11 @@ protected:
   * @param distance
   */
   void getCameraFocalPointAndDistance(double* focalPoint, double& distance);
+
+  /**
+  * @brief overrides the mousePressEvent
+  */
+  virtual void mousePressEvent(QMouseEvent* event) override;
 
 private:
   VTK_PTR(vtkOrientationMarkerWidget) m_OrientationWidget = nullptr;

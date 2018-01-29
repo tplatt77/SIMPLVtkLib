@@ -81,6 +81,14 @@ void VSViewController::connectController(VSController* controller)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSController* VSViewController::getController()
+{
+  return m_VSController;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSViewController::createFilterSettings()
 {
   // Get all visual filters from VSController
@@ -131,6 +139,14 @@ VSFilterViewSettings* VSViewController::getViewSettings(VSAbstractFilter* filter
   }
 
   return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<VSFilterViewSettings*> VSViewController::getAllViewSettings()
+{
+  return m_FilterViewSettings;
 }
 
 // -----------------------------------------------------------------------------

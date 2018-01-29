@@ -56,6 +56,23 @@ VSViewWidget::VSViewWidget(QWidget* parent)
   , m_Internals(new VSInternals())
 {
   m_Internals->setupUi(this);
+
+  connectSlots();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::connectSlots()
+{
+  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(splitHorizontally()));
+  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(splitVertically()));
+  connect(m_Internals->closeBtn, SIGNAL(clicked()), this, SLOT(closeView()));
+
+  // Clicking any button should set the active VSViewController
+  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
+  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
+  connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
 }
 
 // -----------------------------------------------------------------------------
@@ -64,9 +81,12 @@ VSViewWidget::VSViewWidget(QWidget* parent)
 VSAbstractViewWidget* VSViewWidget::clone()
 {
   VSViewWidget* viewWidget = new VSViewWidget();
+  VSViewController* viewController = new VSViewController(this->getViewController()->getController());
+  viewController->copy(this->getViewController());
   
-  viewWidget->getViewController()->copy(this->getViewController());
   viewWidget->getVisualizationWidget()->copy(this->getVisualizationWidget());
+
+  viewWidget->setViewController(viewController);
 
   return viewWidget;
 }

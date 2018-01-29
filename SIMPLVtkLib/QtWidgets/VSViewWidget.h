@@ -62,11 +62,16 @@ public:
   */
   virtual VSAbstractViewWidget* clone() override;
 
-protected:
   /**
   * @brief Returns the VSVisualizationWidget used
   */
   virtual VSVisualizationWidget* getVisualizationWidget() override;
+
+protected:
+  /**
+  * @brief Connect Qt signals and slots
+  */
+  void connectSlots();
 
 protected slots:
   /**

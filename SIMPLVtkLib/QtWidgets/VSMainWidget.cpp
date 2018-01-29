@@ -60,6 +60,8 @@ VSMainWidget::VSMainWidget(QWidget* parent)
   VSViewController* viewController = new VSViewController(getController());
   m_Internals->viewWidget->setViewController(viewController);
   getController()->setActiveViewController(viewController);
+
+  connectSlots();
 }
 
 // -----------------------------------------------------------------------------
@@ -67,5 +69,88 @@ VSMainWidget::VSMainWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidget::connectSlots()
 {
+  connect(m_Internals->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
+  connect(m_Internals->cameraYpBtn, SIGNAL(clicked()), this, SLOT(activeCameraYPlus()));
+  connect(m_Internals->cameraZpBtn, SIGNAL(clicked()), this, SLOT(activeCameraZPlus()));
+  connect(m_Internals->cameraXmBtn, SIGNAL(clicked()), this, SLOT(activeCameraXMinus()));
+  connect(m_Internals->cameraYmBtn, SIGNAL(clicked()), this, SLOT(activeCameraYMinus()));
+  connect(m_Internals->cameraZmBtn, SIGNAL(clicked()), this, SLOT(activeCameraZMinus()));
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraXPlus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+  
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camXPlus();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraYPlus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camYPlus();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraZPlus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camZPlus();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraXMinus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camXMinus();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraYMinus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camYMinus();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::activeCameraZMinus()
+{
+  VSAbstractViewWidget* activeView = getActiveViewWidget();
+
+  if(activeView && activeView->getVisualizationWidget())
+  {
+    activeView->getVisualizationWidget()->camZMinus();
+  }
 }

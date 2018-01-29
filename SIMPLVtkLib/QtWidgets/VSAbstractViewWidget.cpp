@@ -61,6 +61,13 @@ void VSAbstractViewWidget::setViewController(VSViewController* controller)
   m_ViewController = controller;
 
   connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
+
+  // check filter and scalar bar visibility
+  std::vector<VSFilterViewSettings*> viewSettings = controller->getAllViewSettings();
+  for(auto iter = viewSettings.begin(); iter != viewSettings.end(); iter++)
+  {
+    checkFilterViewSetting(*iter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -81,10 +88,18 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
   connect(filterViewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(filterMapColorsChanged(VSFilterViewSettings*, bool)));
   connect(filterViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(filterShowScalarBarChanged(VSFilterViewSettings*, bool)));
 
-  filterViewSettings->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
+  checkFilterViewSetting(filterViewSettings);
+}
 
-  filterVisibilityChanged(filterViewSettings, filterViewSettings->getVisible());
-  filterShowScalarBarChanged(filterViewSettings, filterViewSettings->isScalarBarVisible());
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
+{
+  setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
+
+  filterVisibilityChanged(setting, setting->getVisible());
+  filterShowScalarBarChanged(setting, setting->isScalarBarVisible());
 }
 
 // -----------------------------------------------------------------------------
@@ -119,7 +134,7 @@ void VSAbstractViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSet
 
     if(viewSettings->isScalarBarVisible())
     {
-      //getVisualizationWidget()->getRenderer()->AddActor2D(viewSettings->getScalarBarWidget());
+      viewSettings->getScalarBarWidget()->SetEnabled(1);
     }
   }
   else
@@ -128,7 +143,7 @@ void VSAbstractViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSet
 
     if(viewSettings->isScalarBarVisible())
     {
-      //getVisualizationWidget()->getRenderer()->RemoveActor2D(viewSettings->getScalarBarWidget());
+      viewSettings->getScalarBarWidget()->SetEnabled(0);
     }
   }
 }
@@ -220,7 +235,7 @@ void VSAbstractViewWidget::changeFilterShowScalarBar(bool showScalarBar)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
+void VSAbstractViewWidget::mousePressed()
 {
   if(m_ViewController)
   {
@@ -231,17 +246,25 @@ void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QSplitter* VSAbstractViewWidget::splitVertically()
+void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
 {
-  return splitWidget(Qt::Vertical);
+  mousePressed();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QSplitter* VSAbstractViewWidget::splitHorizontally()
+void VSAbstractViewWidget::splitVertically()
 {
-  return splitWidget(Qt::Horizontal);
+  splitWidget(Qt::Vertical);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::splitHorizontally()
+{
+  splitWidget(Qt::Horizontal);
 }
 
 // -----------------------------------------------------------------------------
@@ -250,25 +273,117 @@ QSplitter* VSAbstractViewWidget::splitHorizontally()
 QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
 {
   QSplitter* splitter = new QSplitter();
+  splitter->setOrientation(orientation);
+
+  const int currentWidth = width();
+  const int currentHeight = height();
 
   // Replace this with the splitter in the parent layout if possible
   // Otherwise, set the splitter's parent to this widget's parent
   QWidget* parent = parentWidget();
+  QSplitter* parentSplitter = dynamic_cast<QSplitter*>(parent);
+  
   if(parent)
   {
-    if(parent->layout())
+    // If already part of a QSplitter
+    if(parentSplitter)
     {
-      parent->layout()->replaceWidget(this, splitter);
+      int index = parentSplitter->indexOf(this);
+      parentSplitter->replaceWidget(index, splitter);
     }
+    // If not already part of a QSplitter
     else
     {
-      splitter->setParent(parent);
+      if(parent->layout())
+      {
+        parent->layout()->replaceWidget(this, splitter);
+      }
+      else
+      {
+        splitter->setParent(parent);
+      }
     }
   }
 
+  VSAbstractViewWidget* cloneWidget = clone();
+  cloneWidget->getVisualizationWidget()->render();
+
   // Fill the splitter with both the view widget and a clone of it
   splitter->addWidget(this);
-  splitter->addWidget(clone());
+  splitter->addWidget(cloneWidget);
+
+  if(Qt::Horizontal == orientation)
+  {
+    int newWidth = currentWidth / 2;
+    QList<int> newSizes;
+    newSizes.append(newWidth);
+    newSizes.append(newWidth);
+    splitter->setSizes(newSizes);
+  }
+  else
+  {
+    int newHeight = currentHeight / 2;
+    QList<int> newSizes;
+    newSizes.append(newHeight);
+    newSizes.append(newHeight);
+    splitter->setSizes(newSizes);
+  }
+
+  // Set the size policy to match the current widget's
+  splitter->setSizePolicy(this->sizePolicy());
 
   return splitter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::closeView()
+{
+  emit viewWidgetClosed();
+
+  QSplitter* splitter = dynamic_cast<QSplitter*>(parentWidget());
+
+  // If parent is a QSplitter...
+  if(splitter)
+  {
+    int index = splitter->indexOf(this);
+    QWidget* other = nullptr;
+
+    if(1 == index)
+    {
+      other = splitter->widget(0);
+    }
+    else
+    {
+      other = splitter->widget(1);
+    }
+
+    QWidget* parent = splitter->parentWidget();
+    QSplitter* parentSplitter = dynamic_cast<QSplitter*>(parent);
+    // If another QSplitter...
+    if(parentSplitter)
+    {
+      int parentIndex = parentSplitter->indexOf(splitter);
+      parentSplitter->replaceWidget(parentIndex, other);
+    }
+    // If not another QSplitter..
+    else
+    {
+      if(parent->layout())
+      {
+        parent->layout()->replaceWidget(splitter, other);
+      }
+      else
+      {
+        other->setParent(parent);
+      }
+    }
+
+    splitter->deleteLater();
+  }
+  else
+  {
+    deleteLater();
+  }
 }

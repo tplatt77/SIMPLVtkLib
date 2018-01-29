@@ -64,6 +64,37 @@ protected:
   */
   virtual void connectSlots() override;
 
+protected slots:
+  /**
+  * @brief Sets the active view camera position to the X+ axis
+  */
+  void activeCameraXPlus();
+
+  /**
+  * @brief Sets the active view camera position to the Y+ axis
+  */
+  void activeCameraYPlus();
+
+  /**
+  * @brief Sets the active view camera position to the Z+ axis
+  */
+  void activeCameraZPlus();
+
+  /**
+  * @brief Sets the active view camera position to the X- axis
+  */
+  void activeCameraXMinus();
+
+  /**
+  * @brief Sets the active view camera position to the Y- axis
+  */
+  void activeCameraYMinus();
+
+  /**
+  * @brief Sets the active view camera position to the Z- axis
+  */
+  void activeCameraZMinus();
+
 private:
   class vsInternals;
   vsInternals* m_Internals;

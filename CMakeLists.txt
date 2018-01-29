@@ -69,7 +69,7 @@ cmp_IDE_GENERATED_PROPERTIES("Generated" "${${PROJECT_NAME}_Generated_HDRS}" "${
 
 
 # -- Run MOC and UIC on the necessary files
-QT5_ADD_RESOURCES( SIMPLVtkLib_Generated_RC_SRCS "${SIMPLVtkLib_SOURCE_DIR}/icons/images/Icons.qrc" "${SIMPLVtkLib_SOURCE_DIR}/fonts/fonts.qrc")
+QT5_ADD_RESOURCES( SIMPLVtkLib_Generated_RC_SRCS "${SIMPLVtkLib_SOURCE_DIR}/icons/images/Icons.qrc" "${SIMPLVtkLib_SOURCE_DIR}/fonts/fonts.qrc" "${SIMPLVtkLib_SOURCE_DIR}/Resources/VtkSIMPL.qrc")
 foreach(h ${SIMPLVtkLib_Generated_RC_SRCS})
   set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
 endforeach()

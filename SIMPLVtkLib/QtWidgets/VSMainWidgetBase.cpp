@@ -42,6 +42,7 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
   : QWidget(parent)
   , m_Controller(new VSController())
 {
+  connectSlots();
 }
 
 // -----------------------------------------------------------------------------
@@ -59,6 +60,42 @@ void VSMainWidgetBase::connectSlots()
 VSController* VSMainWidgetBase::getController()
 {
   return m_Controller;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractViewWidget* VSMainWidgetBase::getActiveViewWidget()
+{
+  return m_ActiveViewWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<VSAbstractViewWidget*> VSMainWidgetBase::getAllViewWidgets()
+{
+  return this->findChildren<VSAbstractViewWidget*>().toVector();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractViewWidget* VSMainWidgetBase::getViewWidget(VSViewController* viewController)
+{
+  if(viewController)
+  {
+    QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
+    for(auto iter = viewWidgets.begin(); iter != viewWidgets.end(); iter++)
+    {
+      if((*iter)->getViewController() == viewController)
+      {
+        return (*iter);
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -125,6 +162,21 @@ void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
 {
   // Update VSFilterViewSettings to use the new ViewController's version
   emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
+
+  disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
+  m_ActiveViewWidget = getViewWidget(controller);
+  if(m_ActiveViewWidget)
+  {
+    connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::activeViewClosed()
+{
+  m_Controller->setActiveViewController(nullptr);
 }
 
 // -----------------------------------------------------------------------------

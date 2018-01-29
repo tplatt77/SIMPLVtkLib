@@ -68,17 +68,29 @@ public:
   VSViewController(const VSViewController& copy);
 
   /**
-  * @brief returns the VSFilterViewSettings for the given visual filter
+  * @brief Returns the VSFilterViewSettings for the given visual filter
   * @param filter
   * @return
   */
   VSFilterViewSettings* getViewSettings(VSAbstractFilter* filter);
 
   /**
+  * @brief Returns a vector of VSFilterViewSettings handled by this controller
+  * @return
+  */
+  std::vector<VSFilterViewSettings*> getAllViewSettings();
+
+  /**
   * @brief Performs a deep copy based on another view controller
   * @param other
   */
   void copy(VSViewController* other);
+
+  /**
+  * @brief Returns the VSController used
+  * @return
+  */
+  VSController* getController();
 
 signals:
   void filterAdded(VSAbstractFilter* filter);
