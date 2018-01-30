@@ -238,7 +238,7 @@ protected:
   virtual void updateAlgorithmInput(VSAbstractFilter* filter) = 0;
 
   bool m_ConnectedInput = false;
-  VTK_PTR(vtkAlgorithmOutput) m_InputPort = nullptr;
+  VTK_PTR(vtkAlgorithmOutput) m_InputPort;
   VSAbstractFilter* m_ParentFilter = nullptr;
   QVector<VSAbstractFilter*> m_Children;
 
