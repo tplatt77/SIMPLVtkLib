@@ -112,7 +112,8 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
   else
   {
     m_ParentFilter = parent;
-    m_ParentFilter->m_Children.push_back(this);
+    //m_ParentFilter->m_Children.push_back(this);
+    m_ParentFilter->addChild(this);
   }
 }
 
@@ -129,6 +130,8 @@ void VSAbstractFilter::addChild(VSAbstractFilter* child)
   m_Children.push_back(child);
 
   connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
+
+  appendRow(child);
 }
 
 // -----------------------------------------------------------------------------
@@ -145,6 +148,8 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
   child->setParentFilter(nullptr);
 
   disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
+
+  removeRow(getIndexOfChild(child));
 }
 
 // -----------------------------------------------------------------------------

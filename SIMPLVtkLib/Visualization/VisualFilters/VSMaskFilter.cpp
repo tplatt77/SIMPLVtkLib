@@ -62,6 +62,7 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
+  setText(getFilterName());
 }
 
 // -----------------------------------------------------------------------------

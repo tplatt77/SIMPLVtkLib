@@ -74,6 +74,7 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
 {
   m_ThresholdAlgorithm = nullptr;
   setParentFilter(parent);
+  setText(getFilterName());
 }
 
 // -----------------------------------------------------------------------------
