@@ -60,71 +60,56 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
 {
   setText(getFilterName());
 
-  m_CropAlgorithm = nullptr;
-  setParentFilter(parent);
-
-  setFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSCropFilter::~VSCropFilter()
-{
-  m_CropAlgorithm = nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::setBounds(double* bounds)
-{
-  if(nullptr == bounds)
+  for(int i = 0; i < 3; i++)
   {
-    return;
+    m_LastVoi[i] = 0;
+    m_LastVoi[i+3] = 0;
+    m_LastSampleRate[i] = 1;
   }
 
-  //m_cropWidget->setBounds(bounds);
+  m_CropAlgorithm = nullptr;
+  setParentFilter(parent);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::setFilter()
+void VSCropFilter::createFilter()
 {
   m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
   m_CropAlgorithm->IncludeBoundaryOn();
-  //m_CropAlgorithm->SetVOI(m_cropWidget->getVOI());
-
   m_CropAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
 
-  m_ConnectedInput = false;
+  m_ConnectedInput = true;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void VSCropFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_CropAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_CropAlgorithm->GetOutputPort());
-//  }
-//
-//  int* voi = m_cropWidget->getVOI();
-//  int* sampleRate = m_cropWidget->getSampleRate();
-//
-//  m_CropAlgorithm->SetVOI(voi);
-//  m_CropAlgorithm->SetSampleRate(sampleRate);
-//  m_CropAlgorithm->GetOutput()->SetDimensions(voi[1], voi[3], voi[5]);
-//
-//  m_CropAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
+void VSCropFilter::apply(int voi[6], int sampleRate[3])
+{
+  if(nullptr == m_CropAlgorithm)
+  {
+    createFilter();
+  }
+
+  // Save the applied values for resetting Crop-Type widgets
+  m_CropAlgorithm->SetVOI(voi);
+  m_CropAlgorithm->SetSampleRate(sampleRate);
+  m_CropAlgorithm->Update();
+
+  for(int i = 0; i < 6; i++)
+  {
+    m_LastVoi[i] = voi[i];
+  }
+
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastSampleRate[i] = sampleRate[i];
+  }
+
+  emit updatedOutputPort(this);
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -137,10 +122,58 @@ const QString VSCropFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//VSAbstractWidget* VSCropFilter::getWidget()
-//{
-//  return m_cropWidget;
-//}
+vtkAlgorithmOutput* VSCropFilter::getOutputPort()
+{
+  if(m_ConnectedInput && m_CropAlgorithm)
+  {
+    return m_CropAlgorithm->GetOutputPort();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutputPort();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSCropFilter::getOutput()
+{
+  if(m_ConnectedInput && m_CropAlgorithm)
+  {
+    return m_CropAlgorithm->GetOutput();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutput();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput && m_CropAlgorithm)
+  {
+    m_CropAlgorithm->SetInputConnection(filter->getOutputPort());
+  }
+  else
+  {
+    emit updatedOutputPort(filter);
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -156,4 +189,20 @@ VSAbstractFilter::dataType_t VSCropFilter::getOutputType()
 VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
 {
   return IMAGE_DATA;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int* VSCropFilter::getVOI()
+{
+  return m_LastVoi;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int* VSCropFilter::getSampleRate()
+{
+  return m_LastSampleRate;
 }

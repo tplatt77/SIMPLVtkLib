@@ -64,7 +64,7 @@ public slots:
   * @brief Changes the filter being displayed
   * @param filter
   */
-  void setFilter(VSAbstractFilter* filter);
+  void createFilter(VSAbstractFilter* filter);
 
   /**
   * @brief Changes the VSViewController used for fetching VSFilterViewSettings

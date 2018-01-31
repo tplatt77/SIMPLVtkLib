@@ -68,6 +68,7 @@
 VSAbstractFilter::VSAbstractFilter()
 : QObject()
 , QStandardItem()
+, m_InputPort(nullptr)
 {
   setCheckable(true);
 }
@@ -88,7 +89,7 @@ VSAbstractFilter::~VSAbstractFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter* VSAbstractFilter::getParentFilter()
+VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
   return m_ParentFilter;
 }
@@ -195,7 +196,7 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter* VSAbstractFilter::getChild(int index)
+VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 {
   return m_Children.at(index);
 }
@@ -218,7 +219,7 @@ SIMPLVtkBridge::WrappedDataContainerPtr VSAbstractFilter::getWrappedDataContaine
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSAbstractFilter::getBounds()
+double* VSAbstractFilter::getBounds() const
 {
   if(nullptr == m_ParentFilter)
   {
@@ -246,13 +247,6 @@ VSDataSetFilter* VSAbstractFilter::getDataSetFilter()
   }
 
   return m_ParentFilter->getDataSetFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilter::apply()
-{
 }
 
 // -----------------------------------------------------------------------------

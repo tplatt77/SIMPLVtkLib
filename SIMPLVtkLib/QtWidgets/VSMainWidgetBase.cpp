@@ -35,6 +35,12 @@
 
 #include "VSMainWidgetBase.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -52,6 +58,9 @@ void VSMainWidgetBase::connectSlots()
 {
   connect(m_Controller, SIGNAL(activeViewChanged(VSViewController*)), 
     this, SLOT(activeViewChanged(VSViewController*)));
+
+  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+    this, SLOT(changeCurrentFilter(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -187,4 +196,139 @@ void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
   m_CurrentFilter = filter;
 
   emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createClipFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSClipFilter* filter = new VSClipFilter(parent);
+    addFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createCropFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSCropFilter* filter = new VSCropFilter(parent);
+    addFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createSliceFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSSliceFilter* filter = new VSSliceFilter(parent);
+    addFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createMaskFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSMaskFilter* filter = new VSMaskFilter(parent);
+    addFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSThresholdFilter* filter = new VSThresholdFilter(parent);
+    addFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::addFilter(VSAbstractFilter* filter, VSAbstractFilter* parent)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_Controller->getFilterModel()->addFilter(filter);
+
+  // Set parent filter to invisible for the active view
+  if(getActiveViewWidget() && parent)
+  {
+    VSViewController* viewController = getActiveViewWidget()->getViewController();
+    if(viewController)
+    {
+      VSFilterViewSettings* parentSettings = viewController->getViewSettings(parent);
+      if(parentSettings)
+      {
+        parentSettings->setVisible(false);
+        renderAllViews();
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::renderActiveView()
+{
+  if(getActiveViewWidget())
+  {
+    getActiveViewWidget()->renderView();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::renderAllViews()
+{
+  for(VSAbstractViewWidget* viewWidget : getAllViewWidgets())
+  {
+    viewWidget->renderView();
+  }
 }

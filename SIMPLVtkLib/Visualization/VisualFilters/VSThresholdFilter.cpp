@@ -74,83 +74,20 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
 {
   m_ThresholdAlgorithm = nullptr;
   setParentFilter(parent);
-
-  //VTK_PTR(vtkDataArray) dataArray = getBaseDataArray(parent->getViewScalarId());
-  //double range[2] = {dataArray->GetRange()[0], dataArray->GetRange()[1]};
-
-  //m_ThresholdWidget = new VSThresholdWidget(thresholdFunctionWidget, range, parent->getBounds(), parent->getInteractor());
-  //m_ThresholdWidget->show();
-
-  //connect(m_ThresholdWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  setFilter();
-
-  //setupScalarsComboBox();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSThresholdFilter::~VSThresholdFilter()
+void VSThresholdFilter::createFilter()
 {
-  //delete m_ThresholdWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setBounds(double* bounds)
-{
-  if(nullptr == bounds)
-  {
-    return;
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setFilter()
-{
-  m_CurrentId = 0;
-  m_LastId = m_CurrentId;
-
   m_ThresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
 
   m_ThresholdAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
   VTK_PTR(vtkDataArray) dataArray = getWrappedDataContainer()->m_DataSet->GetCellData()->GetScalars();
 
-  setThresholdScalarId(m_CurrentId);
-
-  //m_ThresholdWidget->setLowerThreshold(dataArray->GetRange()[0]);
-  //m_ThresholdWidget->setUpperThreshold(dataArray->GetRange()[1]);
-
-  m_ConnectedInput = false;
+  m_ConnectedInput = true;
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//void VSThresholdFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_ThresholdAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_ThresholdAlgorithm->GetOutputPort());
-//  }
-//
-//  vtkDataSet* input = m_ParentFilter->getOutput();
-//  input->GetCellData()->SetActiveScalars(scalarIdToName(m_CurrentId));
-//
-//  m_ThresholdAlgorithm->SetInputData(input);
-//
-//  m_ThresholdAlgorithm->ThresholdBetween(m_ThresholdWidget->getLowerBound(), m_ThresholdWidget->getUpperBound());
-//  m_ThresholdAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -163,36 +100,81 @@ const QString VSThresholdFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//VSAbstractWidget* VSThresholdFilter::getWidget()
-//{
-//  return m_ThresholdWidget;
-//}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::apply()
+void VSThresholdFilter::apply(QString arrayName, double min, double max)
 {
-  //m_ThresholdWidget->apply();
+  if(nullptr == m_ThresholdAlgorithm)
+  {
+    createFilter();
+  }
+
+  // Save the applied values for resetting Threshold-Type widgets
+  m_LastArrayName = arrayName;
+  m_LastMinValue = min;
+  m_LastMaxValue = max;
+
+  const char* arrayNameStr = arrayName.toLatin1();
+
+  m_ThresholdAlgorithm->ThresholdBetween(min, max);
+  m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayNameStr);
+  m_ThresholdAlgorithm->Update();
+
+  emit updatedOutputPort(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSThresholdFilter::setThresholdScalarId(int id)
+vtkAlgorithmOutput* VSThresholdFilter::getOutputPort()
 {
-  if(nullptr == getWrappedDataContainer())
+  if(m_ConnectedInput && m_ThresholdAlgorithm)
+  {
+    return m_ThresholdAlgorithm->GetOutputPort();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutputPort();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSThresholdFilter::getOutput()
+{
+  if(m_ConnectedInput && m_ThresholdAlgorithm)
+  {
+    return m_ThresholdAlgorithm->GetOutput();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutput();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
   {
     return;
   }
-  if(id < 0)
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput && m_ThresholdAlgorithm)
   {
-    id = 0;
+    m_ThresholdAlgorithm->SetInputConnection(filter->getOutputPort());
   }
-
-  m_CurrentId = id;
-
-  //vtkDataArray* dataArray = getBaseDataArray(id);
+  else
+  {
+    emit updatedOutputPort(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -209,4 +191,28 @@ VSAbstractFilter::dataType_t VSThresholdFilter::getOutputType()
 VSAbstractFilter::dataType_t VSThresholdFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSThresholdFilter::getLastArrayName()
+{
+  return m_LastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdFilter::getLastMinValue()
+{
+  return m_LastMinValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdFilter::getLastMaxValue()
+{
+  return m_LastMaxValue;
 }

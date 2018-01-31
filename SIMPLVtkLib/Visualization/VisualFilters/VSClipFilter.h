@@ -32,8 +32,8 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _VSClipFilter_H_
-#define _VSClipFilter_H_
+#ifndef _vsclipfilter_h_
+#define _vsclipfilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -41,6 +41,7 @@
 #include "ui_VSClipFilter.h"
 
 #include <vtkPlane.h>
+#include <vtkPlanes.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -78,37 +79,39 @@ public:
   VSClipFilter(VSAbstractFilter* parent);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSClipFilter();
-
-  /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the algorithm and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
 
   /**
-  * @brief Returns the VSAbstractWidget that goes with this filter
-  * @return
+  * @brief Applies the clip filter using a plane with the given values
+  * @param origin
+  * @param normal
+  * @param inverted
   */
-  //VSAbstractWidget* getWidget() override;
+  void apply(double origin[3], double normal[3], bool inverted = false);
 
   /**
-  * @brief Applies changes to the filter and updates the output
+  * @brief Applies the clip filter using a box with the given values
+  * @param origin
+  * @param scale
+  * @param rotation
+  * @param inverted
   */
-  void apply() override;
+  void apply(double origin[3], double scale[3], double rotation[3], bool inverted = false);
+
+  /**
+  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @return
+  */
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
+  * @brief Returns a smart pointer containing the output data from the filter
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
   * @brief Returns the ouput data type
@@ -121,29 +124,81 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-protected slots:
   /**
-  * @brief Changes the clip type
-  * @param type
-  * @param shouldRepaint
+  * @brief Returns whether or not the last applied plane was inverted
+  * @return
   */
-  void changeClipType(int type, bool shouldRepaint = true);
+  bool getLastPlaneInverted();
 
   /**
-  * @brief Sets whether or not the clip should be inverted
-  * @param state
+  * @brief Returns the origin of the last applied plane
+  * @return
   */
-  void setInsideOut(int state);
+  double* getLastPlaneOrigin();
+
+  /**
+  * @brief Returns the normal of the last applied plane
+  * @return
+  */
+  double* getLastPlaneNormal();
+
+  /**
+  * @brief Returns whether or not the last applied box was inverted
+  * @return
+  */
+  bool getLastBoxInverted();
+
+  /**
+  * @brief Returns the origin of the last applied box
+  * @return
+  */
+  double* getLastBoxOrigin();
+
+  /**
+  * @brief Returns the scale of the last applied box
+  * @return
+  */
+  double* getLastBoxScale();
+
+  /**
+  * @brief Returns the rotation of the last applied box
+  * @return
+  */
+  double* getLastBoxRotation();
+
+protected:
+  /**
+  * @brief Initializes the algorithm and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief Creates a vtkImplicitFunction for handling box-shaped clipping
+  * @param origin
+  * @param scale
+  * @param rotation
+  * @return
+  */
+  VTK_PTR(vtkPlanes) getBoxFunction(double origin[3], double scale[3], double rotation[3]);
+
+  /**
+  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  VTK_PTR(vtkPlane) m_ClipPlane;
-  VTK_PTR(vtkTableBasedClipDataSet) m_ClipAlgorithm;
+  VTK_PTR(vtkTableBasedClipDataSet) m_ClipAlgorithm = nullptr;
 
-  clipType_t m_CurrentClipType, m_LastClipType;
-  int m_LastInsideOutState;
+  clipType_t m_LastClipType;
+  bool m_LastPlaneInverted = false;
+  bool m_LastBoxInverted = false;
 
-  VSPlaneWidget* m_PlaneWidget;
-  VSBoxWidget* m_BoxWidget;
+  double m_LastPlaneOrigin[3];
+  double m_LastPlaneNormal[3];
+  double m_LastBoxOrigin[3];
+  double m_LastBoxScale[3];
+  double m_LastBoxRotation[3];
 };
 
 #endif /* _VSClipFilter_H_ */

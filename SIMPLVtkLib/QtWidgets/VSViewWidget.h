@@ -74,12 +74,6 @@ protected:
   void connectSlots();
 
 protected slots:
-  /**
-  * @brief Visiblity changed for filter
-  * @param viewSettings
-  * @param filterVisible
-  */
-  virtual void filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible) override;
 
   /**
   * @brief ScalarBar visibility changed for filter

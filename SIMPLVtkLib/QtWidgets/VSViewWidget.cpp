@@ -107,26 +107,6 @@ VSVisualizationWidget* VSViewWidget::getVisualizationWidget()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible)
-{
-  if(nullptr == viewSettings)
-  {
-    return;
-  }
-
-  if(filterVisible)
-  {
-    getVisualizationWidget()->getRenderer()->AddActor(viewSettings->getActor());
-  }
-  else
-  {
-    getVisualizationWidget()->getRenderer()->RemoveActor(viewSettings->getActor());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSViewWidget::filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar)
 {
   if(nullptr == viewSettings)

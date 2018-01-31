@@ -46,7 +46,7 @@ VSInfoWidget::VSInfoWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setFilter(VSAbstractFilter* filter)
+void VSInfoWidget::createFilter(VSAbstractFilter* filter)
 {
   m_Filter = filter;
 

@@ -94,6 +94,12 @@ public:
 
 signals:
   void filterAdded(VSAbstractFilter* filter);
+  void visibilityChanged(VSFilterViewSettings*, bool);
+  void activeArrayIndexChanged(VSFilterViewSettings*, int);
+  void activeComponentIndexChanged(VSFilterViewSettings*, int);
+  void mapColorsChanged(VSFilterViewSettings*, bool);
+  void showScalarBarChanged(VSFilterViewSettings*, bool);
+  void requiresRender();
 
 public slots:
   /**

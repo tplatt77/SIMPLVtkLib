@@ -40,13 +40,16 @@
 
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkBoxRepresentation.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
 #include <vtkImplicitPlaneRepresentation.h>
 #include <vtkImplicitPlaneWidget2.h>
+#include <vtkPlanes.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTableBasedClipDataSet.h>
+#include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
@@ -63,19 +66,22 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   m_ClipAlgorithm = nullptr;
   setParentFilter(parent);
 
-  //m_PlaneWidget = new VSPlaneWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
-  //m_BoxWidget = new VSBoxWidget(clipFunctionWidget, parent->getBounds(), parent->getInteractor());
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastPlaneOrigin[i] = 0.0;
+    m_LastPlaneNormal[i] = 0.0;
 
-  //connect(clipTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeClipType(int)));
-  //connect(insideOutCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setInsideOut(int)));
+    m_LastBoxOrigin[i] = 0.0;
+    m_LastBoxScale[i] = 1.0;
+    m_LastBoxRotation[i] = 0.0;
+  }
 
-  //connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-  //connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  setFilter();
-
-  m_LastInsideOutState = 0;
-  changeClipType(PLANE, false);
+  // Set the direction of the plane normal
+  m_LastPlaneNormal[0] = 1.0;
+  
+  m_LastClipType = clipType_t::PLANE;
+  m_LastPlaneInverted = false;
+  m_LastBoxInverted = false;
 
   setText(getFilterName());
 }
@@ -83,57 +89,12 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSClipFilter::~VSClipFilter()
-{
-  m_ClipAlgorithm = nullptr;
-  delete m_PlaneWidget;
-  delete m_BoxWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSClipFilter::setBounds(double* bounds)
-{
-  if(nullptr == bounds)
-  {
-    return;
-  }
-
-  m_PlaneWidget->setBounds(bounds);
-  m_BoxWidget->setBounds(bounds);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSClipFilter::setFilter()
+void VSClipFilter::createFilter()
 {
   m_ClipAlgorithm = vtkSmartPointer<vtkTableBasedClipDataSet>::New();
-  m_ClipAlgorithm->SetClipFunction(getWidget()->getImplicitFunction());
-
   m_ClipAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
-
-  m_ConnectedInput = false;
+  m_ConnectedInput = true;
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//void VSClipFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_ClipAlgorithm->SetInputData(m_ParentFilter->getOutput());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_ClipAlgorithm->GetOutputPort());
-//  }
-//
-//  m_ClipAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -146,70 +107,144 @@ const QString VSClipFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//VSAbstractWidget* VSClipFilter::getWidget()
-//{
-//  switch(m_CurrentClipType)
-//  {
-//  case PLANE:
-//    return m_PlaneWidget;
-//  case BOX:
-//    return m_BoxWidget;
-//  default:
-//    return m_PlaneWidget;
-//  }
-//}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSClipFilter::apply()
+VTK_PTR(vtkPlanes) VSClipFilter::getBoxFunction(double origin[3], double scale[3], double rotation[3])
 {
-  m_LastClipType = m_CurrentClipType;
-  m_LastInsideOutState = m_ClipAlgorithm->GetInsideOut();
+  VTK_NEW(vtkTransform, viewTransform);
+  VTK_NEW(vtkMatrix4x4, matrix);
+  viewTransform->SetMatrix(matrix);
 
-  VSAbstractWidget* currentWidget = getWidget();
-  currentWidget->apply();
-  m_ClipAlgorithm->SetClipFunction(currentWidget->getImplicitFunction());
+  viewTransform->RotateZ(rotation[2]);
+  viewTransform->RotateX(rotation[0]);
+  viewTransform->RotateY(rotation[1]);
+
+  viewTransform->Translate(origin);
+  viewTransform->Scale(scale);
+
+  VTK_NEW(vtkBoxRepresentation, boxRep);
+  boxRep->SetTransform(viewTransform);
+
+  vtkSmartPointer<vtkPlanes> planes = vtkSmartPointer<vtkPlanes>::New();
+  boxRep->GetPlanes(planes);
+  return planes;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilter::changeClipType(int type, bool shouldRepaint)
+void VSClipFilter::apply(double origin[3], double normal[3], bool inverted)
 {
-  m_CurrentClipType = (clipType_t)type;
-
-  switch(m_CurrentClipType)
+  if(nullptr == m_ClipAlgorithm)
   {
-  case PLANE:
-    m_PlaneWidget->show();
-    m_PlaneWidget->enable();
-
-    m_BoxWidget->hide();
-    m_BoxWidget->disable();
-    break;
-  case BOX:
-    m_PlaneWidget->hide();
-    m_PlaneWidget->disable();
-
-    m_BoxWidget->show();
-    m_BoxWidget->enable();
-    break;
-  default:
-    m_PlaneWidget->show();
-    m_PlaneWidget->enable();
-
-    m_BoxWidget->hide();
-    m_BoxWidget->disable();
+    createFilter();
   }
+
+  // Handle Plane-Type clips
+  m_LastClipType = clipType_t::PLANE;
+  m_LastPlaneInverted = inverted;
+
+  // Save the applied values for resetting Plane-Type widgets
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastPlaneOrigin[i] = origin[i];
+    m_LastPlaneNormal[i] = normal[i];
+  }
+
+  VTK_NEW(vtkPlane, plane);
+  plane->SetOrigin(origin);
+  plane->SetNormal(normal);
+
+  m_ClipAlgorithm->SetClipFunction(plane);
+  m_ClipAlgorithm->SetInsideOut(inverted);
+  m_ClipAlgorithm->Update();
+
+  emit updatedOutputPort(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilter::setInsideOut(int state)
+void VSClipFilter::apply(double origin[3], double scale[3], double rotation[3], bool inverted)
 {
-  m_ClipAlgorithm->SetInsideOut(state);
+  if(nullptr == m_ClipAlgorithm)
+  {
+    createFilter();
+  }
+
+  // Handle Box-Type clips
+  m_LastClipType = clipType_t::BOX;
+  m_LastBoxInverted = inverted;
+
+  // Save the applied values for resetting Box-Type widgets
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastBoxOrigin[i] = origin[i];
+    m_LastBoxScale[i] = scale[i];
+    m_LastBoxRotation[i] = rotation[i];
+  }
+
+  VTK_PTR(vtkPlanes) box = getBoxFunction(origin, scale, rotation);
+
+  m_ClipAlgorithm->SetClipFunction(box);
+  m_ClipAlgorithm->SetInsideOut(inverted);
+  m_ClipAlgorithm->Update();
+
+  emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkAlgorithmOutput* VSClipFilter::getOutputPort()
+{
+  if(m_ConnectedInput && m_ClipAlgorithm)
+  {
+    return m_ClipAlgorithm->GetOutputPort();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutputPort();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSClipFilter::getOutput()
+{
+  if(m_ConnectedInput && m_ClipAlgorithm)
+  {
+    return m_ClipAlgorithm->GetOutput();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutput();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput && m_ClipAlgorithm)
+  {
+    m_ClipAlgorithm->SetInputConnection(filter->getOutputPort());
+  }
+  else
+  {
+    emit updatedOutputPort(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -226,4 +261,60 @@ VSAbstractFilter::dataType_t VSClipFilter::getOutputType()
 VSAbstractFilter::dataType_t VSClipFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipFilter::getLastPlaneInverted()
+{
+  return m_LastPlaneInverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipFilter::getLastPlaneOrigin()
+{
+  return m_LastPlaneOrigin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipFilter::getLastPlaneNormal()
+{
+  return m_LastPlaneNormal;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipFilter::getLastBoxInverted()
+{
+  return m_LastBoxInverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipFilter::getLastBoxOrigin()
+{
+  return m_LastBoxOrigin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipFilter::getLastBoxScale()
+{
+  return m_LastBoxScale;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipFilter::getLastBoxRotation()
+{
+  return m_LastBoxRotation;
 }

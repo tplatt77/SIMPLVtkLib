@@ -110,6 +110,15 @@ public:
   */
   void setInfoWidget(VSInfoWidget* infoWidget);
 
+public slots:
+  void createClipFilter(VSAbstractFilter* parent = nullptr);
+  void createCropFilter(VSAbstractFilter* parent = nullptr);
+  void createSliceFilter(VSAbstractFilter* parent = nullptr);
+  void createMaskFilter(VSAbstractFilter* parent = nullptr);
+  void createThresholdFilter(VSAbstractFilter* parent = nullptr);
+  void renderActiveView();
+  void renderAllViews();
+
 signals:
   void updateFilterInfo(VSAbstractFilter* filter, VSViewController* viewController);
 
@@ -124,6 +133,13 @@ protected:
   * @return
   */
   VSAbstractFilter* getCurrentFilter();
+
+  /**
+  * @brief Performs handling adding a filter and toggling parent visibility
+  * @param filter
+  * @param parent
+  */
+  void addFilter(VSAbstractFilter* filter, VSAbstractFilter* parent);
 
 protected slots:
   /**

@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSMaskFilter_h_
-#define _VSMaskFilter_h_
+#ifndef _vsmaskfilter_h_
+#define _vsmaskfilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -65,37 +65,27 @@ public:
   VSMaskFilter(VSAbstractFilter* parent);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSMaskFilter();
-
-  /**
-  * @brief Sets the filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the algorithm and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
   * Brief Returns the filter name
   * @return
   */
   const QString getFilterName() override;
 
   /**
-  * Brief Returns the VSAbstractWidget used by the filter
-  * @return
+  * @brief Applies the mask filter on the specified array
   */
-  //VSAbstractWidget* getWidget() override;
+  void apply(QString arrayName);
 
   /**
-  * @brief Applies any changes to the filter
+  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @return
   */
-  void apply() override;
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
+  * @brief Returns a smart pointer containing the output data from the filter
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
   * @brief Returns the output data type
@@ -109,10 +99,28 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-private:
-  VTK_PTR(vtkThreshold) m_MaskAlgorithm;
+  /**
+  * @brief Returns the name of the array last applied as a mask
+  * @return
+  */
+  QString getLastArrayName();
 
-  //VSMaskWidget* m_MaskWidget;
+protected:
+  /**
+  * @brief Initializes the algorithm and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  VTK_PTR(vtkThreshold) m_MaskAlgorithm = nullptr;
+
+  QString m_LastArrayName;
 };
 
 #endif /* _VSMaskFilter_h_ */

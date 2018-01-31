@@ -175,6 +175,19 @@ void VSViewController::addFilter(VSAbstractFilter* filter)
 
   VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
 
+  connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), 
+    this, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)));
+  connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)),
+    this, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)));
+  connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)),
+    this, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)));
+  connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)),
+    this, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)));
+  connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
+    this, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)));
+  connect(viewSettings, SIGNAL(requiresRender()),
+    this, SIGNAL(requiresRender()));
+
   m_FilterViewSettings.push_back(viewSettings);
 
   emit filterAdded(filter);

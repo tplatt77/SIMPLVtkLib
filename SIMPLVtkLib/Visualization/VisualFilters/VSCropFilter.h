@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSCropFilter_h_
-#define _VSCropFilter_h_
+#ifndef _vscropfilter_h_
+#define _vscropfilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -70,37 +70,29 @@ public:
   VSCropFilter(VSAbstractFilter* parent);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSCropFilter();
-
-  /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the filter and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
 
   /**
-  * @brief Returns the VSAbstractWidget for the filter
-  * @return
+  * @brief Applies the crop filter with the given volume of interest and sample rate
+  * @param voi
+  * @param sampleRate
   */
-  //VSAbstractWidget* getWidget() override;
+  void apply(int voi[6], int sampleRate[3]);
 
   /**
-  * @brief Applies changes to the filter
+  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @return
   */
-  //void apply() override;
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
+  * @brief Returns a smart pointer containing the output data from the filter
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
   * @brief Returns the output data type
@@ -114,10 +106,35 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-private:
-  VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
+  /**
+  * @brief Return the VOI last applied to the filter
+  * @return
+  */
+  int* getVOI();
 
-  //VSCropWidget* m_cropWidget;
+  /**
+  * @brief Return the sample rate last applied to the filter
+  * @return
+  */
+  int* getSampleRate();
+
+protected:
+  /**
+  * @brief Initializes the algorithm and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  VTK_PTR(vtkExtractVOI) m_CropAlgorithm = nullptr;
+
+  int m_LastVoi[6];
+  int m_LastSampleRate[3];
 };
 
 #endif /* _VSCropFilter_h_ */

@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSAbstractFilter_h_
-#define _VSAbstractFilter_h_
+#ifndef _vsabstractfilter_h_
+#define _vsabstractfilter_h_
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Winconsistent-missing-override"
@@ -100,15 +100,10 @@ public:
   ~VSAbstractFilter();
 
   /**
-  * @brief code to setup the vtkAlgorithm for the filter
-  */
-  virtual void setFilter() = 0;
-
-  /**
   * @brief Returns the parent visual filter
   * @return
   */
-  VSAbstractFilter* getParentFilter();
+  VSAbstractFilter* getParentFilter() const;
 
   /**
   * @brief Sets the parent visual filter and sets up the input and output connections
@@ -133,7 +128,7 @@ public:
   * @param index
   * @return
   */
-  VSAbstractFilter* getChild(int index);
+  VSAbstractFilter* getChild(int index) const;
 
   /**
   * @brief Returns the index of the given child filter
@@ -155,15 +150,9 @@ public:
   virtual SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
   /**
-  * @brief Sets the bounds for the filter
-  * @param bounds
-  */
-  virtual void setBounds(double* bounds) = 0;
-
-  /**
   * @brief Returns the bounds for the filter
   */
-  virtual double* getBounds();
+  virtual double* getBounds() const;
 
   /**
   * @brief Returns the output port for the filter
@@ -183,21 +172,10 @@ public:
   virtual const QString getFilterName() = 0;
 
   /**
-  * @brief Returns the VSAbstractWidget that belongs to the filter
-  * @return
-  */
-  virtual VSAbstractWidget* getWidget() = 0;
-
-  /**
   * @brief Save the vtkDataSet output to a file
   * @param fileName
   */
   void saveFile(QString fileName);
-
-  /**
-  * @brief Apply changes to the filter
-  */
-  virtual void apply();
 
   /**
   * @brief Returns the output dataType_t value
@@ -225,6 +203,11 @@ protected slots:
   void connectToOutuput(VSAbstractFilter* filter);
 
 protected:
+  /**
+  * @brief code to setup the vtkAlgorithm for the filter
+  */
+  virtual void createFilter() = 0;
+
   /**
   * @brief Returns a pointer to the VSDataSetFilter that stores the input vtkDataSet
   * @return

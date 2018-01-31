@@ -56,7 +56,7 @@ VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrapped
 : VSAbstractFilter()
 , m_WrappedDataContainer(wrappedDataContainer)
 {
-  setFilter();
+  createFilter();
 
   setText(wrappedDataContainer->m_Name);
 }
@@ -64,23 +64,9 @@ VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrapped
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter::~VSDataSetFilter()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSDataSetFilter::getBounds()
+double* VSDataSetFilter::getBounds() const
 {
   return m_WrappedDataContainer->m_DataSet->GetBounds();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSDataSetFilter::setBounds(double* bounds)
-{
 }
 
 // -----------------------------------------------------------------------------
@@ -122,7 +108,7 @@ void VSDataSetFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSDataSetFilter::setFilter()
+void VSDataSetFilter::createFilter()
 {
   VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
   dataSet->ComputeBounds();
@@ -150,14 +136,6 @@ void VSDataSetFilter::setFilter()
 const QString VSDataSetFilter::getFilterName()
 {
   return m_WrappedDataContainer->m_Name;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractWidget* VSDataSetFilter::getWidget()
-{
-  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

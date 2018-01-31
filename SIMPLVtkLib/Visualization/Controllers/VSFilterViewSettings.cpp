@@ -43,8 +43,10 @@
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
   : QObject(nullptr)
+  , m_ShowFilter(true)
+  , m_ShowScalarBar(true)
 {
-  setFilter(filter);
+  connectFilter(filter);
   setupActors();
 }
 
@@ -59,7 +61,7 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
   , m_MapColors(copy.m_MapColors)
   , m_ShowScalarBar(copy.m_ShowScalarBar)
 {
-  setFilter(copy.m_Filter);
+  connectFilter(copy.m_Filter);
   setupActors();
 }
 
@@ -219,12 +221,13 @@ void VSFilterViewSettings::setupActors()
 void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
 {
   m_Mapper->SetInputConnection(filter->getOutputPort());
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setFilter(VSAbstractFilter* filter)
+void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
 {
   if(m_Filter)
   {

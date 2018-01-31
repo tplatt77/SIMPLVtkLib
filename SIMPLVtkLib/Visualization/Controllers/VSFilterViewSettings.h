@@ -174,6 +174,7 @@ signals:
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
   void mapColorsChanged(VSFilterViewSettings*, bool);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
+  void requiresRender();
 
 protected:
   /**
@@ -185,7 +186,7 @@ protected:
   * @brief Sets the visual filter makes any Qt connections required
   * @param filter
   */
-  void setFilter(VSAbstractFilter* filter);
+  void connectFilter(VSAbstractFilter* filter);
 
 private:
   VSAbstractFilter* m_Filter = nullptr;

@@ -32,8 +32,9 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _VSSliceFilter_H_
-#define _VSSliceFilter_H_
+
+#ifndef _vsslicefilter_h_
+#define _vsslicefilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -67,37 +68,29 @@ public:
   VSSliceFilter(VSAbstractFilter* parent);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSSliceFilter();
-
-  /**
-  * @brief Sets the filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the algorithm and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
 
   /**
-  * @brief Returns the VSAbstractWidget used by the filter
-  * @return
+  * @brief Applies the updated values to the algorithm and updates the output
+  * @param origin
+  * @param normals
   */
-  //VSAbstractWidget* getWidget() override;
+  void apply(double origin[3], double normal[3]);
 
   /**
-  * @brief Applies the updated values to the algorithm and updates the output
+  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @return
   */
-  void apply() override;
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
+  * @brief Returns a smart pointer containing the output data from the filter
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
   * @brief Returns the output data type
@@ -111,11 +104,35 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-private:
-  VTK_PTR(vtkPlane) m_SlicePlane;
-  VTK_PTR(vtkCutter) m_SliceAlgorithm;
+  /**
+  * @brief Returns the origin of the last applied slice
+  * @return
+  */
+  double* getLastOrigin();
 
-  //VSPlaneWidget* m_SliceWidget;
+  /**
+  * @brief Returns the normal of the last applied slice
+  * @return
+  */
+  double* getLastNormal();
+
+protected:
+  /**
+  * @brief Initializes the algorithm and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  VTK_PTR(vtkCutter) m_SliceAlgorithm = nullptr;
+
+  double m_LastOrigin[3];
+  double m_LastNormal[3];
 };
 
 #endif /* _VSSliceFilter_H_ */

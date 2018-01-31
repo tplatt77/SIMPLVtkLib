@@ -69,12 +69,46 @@ VSMainWidget::VSMainWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidget::connectSlots()
 {
+  // Filter Slots
+  connect(m_Internals->clipBtn, SIGNAL(clicked()), this, SLOT(createClipFilter()));
+  connect(m_Internals->sliceBtn, SIGNAL(clicked()), this, SLOT(createSliceFilter()));
+  connect(m_Internals->maskBtn, SIGNAL(clicked()), this, SLOT(createMaskFilter()));
+
+  // Camera Slots
   connect(m_Internals->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
   connect(m_Internals->cameraYpBtn, SIGNAL(clicked()), this, SLOT(activeCameraYPlus()));
   connect(m_Internals->cameraZpBtn, SIGNAL(clicked()), this, SLOT(activeCameraZPlus()));
   connect(m_Internals->cameraXmBtn, SIGNAL(clicked()), this, SLOT(activeCameraXMinus()));
   connect(m_Internals->cameraYmBtn, SIGNAL(clicked()), this, SLOT(activeCameraYMinus()));
   connect(m_Internals->cameraZmBtn, SIGNAL(clicked()), this, SLOT(activeCameraZMinus()));
+
+  connect(getController(), &VSController::filterAdded, this, [=] { renderAll(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::renderAll()
+{
+  QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
+  for(auto iter = viewWidgets.begin(); iter != viewWidgets.end(); iter++)
+  {
+    VSVisualizationWidget* visualizationWidget = (*iter)->getVisualizationWidget();
+    if(visualizationWidget)
+    {
+      // Check if this is the first time rendering an object
+      // Reset the camera if it is
+      if(false == m_HasRendered)
+      {
+        visualizationWidget->getRenderer()->ResetCamera();
+      }
+
+      // Render the VTK widget
+      visualizationWidget->render();
+    }
+  }
+
+  m_HasRendered = true;
 }
 
 // -----------------------------------------------------------------------------

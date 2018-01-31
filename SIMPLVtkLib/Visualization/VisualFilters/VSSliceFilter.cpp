@@ -60,68 +60,24 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
   m_SliceAlgorithm = nullptr;
   setParentFilter(parent);
 
-  //m_SliceWidget = new VSPlaneWidget(sliceFunctionWidget, parent->getBounds(), parent->getInteractor());
-  //m_SliceWidget->show();
+  m_LastOrigin[0] = 0.0;
+  m_LastOrigin[1] = 0.0;
+  m_LastOrigin[2] = 0.0;
 
-  //connect(m_SliceWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  setFilter();
+  m_LastNormal[0] = 1.0;
+  m_LastNormal[1] = 0.0;
+  m_LastNormal[2] = 0.0;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilter::~VSSliceFilter()
-{
-  m_SliceAlgorithm = nullptr;
-  //delete m_SliceWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::setBounds(double* bounds)
-{
-  if(nullptr == bounds)
-  {
-    return;
-  }
-
-  //m_SliceWidget->setBounds(bounds);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::setFilter()
+void VSSliceFilter::createFilter()
 {
   m_SliceAlgorithm = vtkSmartPointer<vtkCutter>::New();
-  //m_SliceAlgorithm->SetCutFunction(m_SliceWidget->getImplicitFunction());
-
   m_SliceAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
-
-  //calculateOutput();
-  m_ConnectedInput = false;
+  m_ConnectedInput = true;
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//void VSSliceFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_SliceAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_SliceAlgorithm->GetOutputPort());
-//  }
-//
-//  m_SliceAlgorithm->SetCutFunction(m_SliceWidget->getImplicitFunction());
-//  m_SliceAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -134,17 +90,84 @@ const QString VSSliceFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//VSAbstractWidget* VSSliceFilter::getWidget()
-//{
-//  return m_SliceWidget;
-//}
+void VSSliceFilter::apply(double origin[3], double normal[3])
+{
+  if(nullptr == m_SliceAlgorithm)
+  {
+    createFilter();
+  }
+
+  // Save the applied values for resetting Plane-Type widgets
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastOrigin[i] = origin[i];
+    m_LastNormal[i] = normal[i];
+  }
+
+  VTK_NEW(vtkPlane, planeWidget);
+  planeWidget->SetOrigin(origin);
+  planeWidget->SetNormal(normal);
+
+  m_SliceAlgorithm->SetCutFunction(planeWidget);
+  m_SliceAlgorithm->Update();
+
+  emit updatedOutputPort(this);
+}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilter::apply()
+vtkAlgorithmOutput* VSSliceFilter::getOutputPort()
 {
-  //m_SliceWidget->apply();
+  if(m_ConnectedInput && m_SliceAlgorithm)
+  {
+    return m_SliceAlgorithm->GetOutputPort();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutputPort();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSSliceFilter::getOutput()
+{
+  if(m_ConnectedInput && m_SliceAlgorithm)
+  {
+    return m_SliceAlgorithm->GetOutput();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutput();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput && m_SliceAlgorithm)
+  {
+    m_SliceAlgorithm->SetInputConnection(filter->getOutputPort());
+  }
+  else
+  {
+    emit updatedOutputPort(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -161,4 +184,20 @@ VSAbstractFilter::dataType_t VSSliceFilter::getOutputType()
 VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSSliceFilter::getLastOrigin()
+{
+  return m_LastOrigin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSSliceFilter::getLastNormal()
+{
+  return m_LastNormal;
 }

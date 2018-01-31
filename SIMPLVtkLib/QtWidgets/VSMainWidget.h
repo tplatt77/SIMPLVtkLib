@@ -95,9 +95,15 @@ protected slots:
   */
   void activeCameraZMinus();
 
+  /**
+  * @brief Renders all VSViewWidgets
+  */
+  void renderAll();
+
 private:
   class vsInternals;
   vsInternals* m_Internals;
+  bool m_HasRendered = false;
 };
 
 #endif

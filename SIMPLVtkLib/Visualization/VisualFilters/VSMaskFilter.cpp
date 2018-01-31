@@ -62,73 +62,17 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
-
-  //m_MaskWidget = new VSMaskWidget(maskFunctionWidget, "", parent->getBounds(), parent->getInteractor());
-  //m_MaskWidget->show();
-
-  //connect(m_MaskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  setFilter();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilter::~VSMaskFilter()
-{
-  m_MaskAlgorithm = nullptr;
-  //delete m_MaskWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskFilter::setBounds(double* bounds)
-{
-  if(nullptr == bounds)
-  {
-    return;
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskFilter::setFilter()
+void VSMaskFilter::createFilter()
 {
   m_MaskAlgorithm = VTK_PTR(vtkThreshold)::New();
-
   m_MaskAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
-
-  //m_MaskWidget->updateMaskNames(m_parentFilter->getOutput());
-  m_ConnectedInput = false;
+  m_ConnectedInput = true;
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//void VSMaskFilter::calculateOutput()
-//{
-//  if(!m_ConnectedInput && m_ParentFilter)
-//  {
-//    m_MaskAlgorithm->SetInputConnection(m_ParentProducer->GetOutputPort());
-//    m_ConnectedInput = true;
-//
-//    m_OutputProducer->SetInputConnection(m_MaskAlgorithm->GetOutputPort());
-//  }
-//
-//  vtkDataSet* input = m_ParentFilter->getOutput();
-//  int maskId = m_MaskWidget->getMaskId();
-//
-//  input->GetCellData()->SetActiveScalars(scalarIdToName(maskId));
-//
-//  m_MaskAlgorithm->SetInputData(input);
-//
-//  m_MaskAlgorithm->ThresholdByUpper(1.0);
-//  m_MaskAlgorithm->Update();
-//
-//  m_isDirty = false;
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -141,17 +85,78 @@ const QString VSMaskFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//VSAbstractWidget* VSMaskFilter::getWidget()
-//{
-//  return m_MaskWidget;
-//}
+void VSMaskFilter::apply(QString name)
+{
+  if(nullptr == m_MaskAlgorithm)
+  {
+    createFilter();
+  }
+
+  // Save the applied values for resetting Mask-Type widgets
+  m_LastArrayName = name;
+  const char* arrayName = name.toLatin1();
+
+  m_MaskAlgorithm->ThresholdByUpper(1.0);
+  m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayName);
+  m_MaskAlgorithm->Update();
+
+  emit updatedOutputPort(this);
+}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMaskFilter::apply()
+vtkAlgorithmOutput* VSMaskFilter::getOutputPort()
 {
-  //m_MaskWidget->apply();
+  if(m_ConnectedInput && m_MaskAlgorithm)
+  {
+    return m_MaskAlgorithm->GetOutputPort();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutputPort();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSMaskFilter::getOutput()
+{
+  if(m_ConnectedInput && m_MaskAlgorithm)
+  {
+    return m_MaskAlgorithm->GetOutput();
+  }
+  else if(m_ParentFilter)
+  {
+    return m_ParentFilter->getOutput();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  if(m_ConnectedInput && m_MaskAlgorithm)
+  {
+    m_MaskAlgorithm->SetInputConnection(filter->getOutputPort());
+  }
+  else
+  {
+    emit updatedOutputPort(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -168,4 +173,12 @@ VSAbstractFilter::dataType_t VSMaskFilter::getOutputType()
 VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSMaskFilter::getLastArrayName()
+{
+  return m_LastArrayName;
 }

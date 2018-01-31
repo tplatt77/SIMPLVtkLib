@@ -113,6 +113,11 @@ public slots:
   * @brief If a part of a QSplitter, remove the QSplitter and reparent the remaining widget
   */
   void closeView();
+  
+  /**
+  * @brief Renders the visualization widget
+  */
+  void renderView();
 
 protected slots:
   /**

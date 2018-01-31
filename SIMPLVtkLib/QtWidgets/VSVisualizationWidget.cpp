@@ -163,7 +163,10 @@ VTK_PTR(vtkRenderer) VSVisualizationWidget::getRenderer()
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::render()
 {
-  GetRenderWindow()->GetInteractor()->Render();
+  if(GetRenderWindow() && GetRenderWindow()->GetInteractor())
+  {
+    GetRenderWindow()->GetInteractor()->Render();
+  }
 }
 
 // -----------------------------------------------------------------------------

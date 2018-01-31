@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSDataSetFilter_h_
-#define _VSDataSetFilter_h_
+#ifndef _vsdatasetfilter_h_
+#define _vsdatasetfilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -70,26 +70,10 @@ public:
   VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSDataSetFilter();
-
-  /**
-  * @brief Initializes the trivial producer and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
-  * @brief Returns the data set bounds
+  * @brief Returns the bounds of the vtkDataSet
   * @return
   */
-  double* getBounds() override;
-
-  /**
-  * @brief Sets the filter's bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
+  double* getBounds() const;
 
   /**
   * @brief Returns the output port for the filter
@@ -107,12 +91,6 @@ public:
   * @return
   */
   const QString getFilterName() override;
-
-  /**
-  * @brief Returns the VSAbstractWidget that belongs to the filter
-  * @return
-  */
-  VSAbstractWidget* getWidget() override;
 
   /**
   * @brief Returns the output data type for the filter
@@ -133,6 +111,11 @@ public:
   SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
 
 protected:
+  /**
+  * @brief Initializes the trivial producer and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
   /**
   * @brief This method is empty as there should never be a case where a VSDataSetFilter
   * is a child of another filter.

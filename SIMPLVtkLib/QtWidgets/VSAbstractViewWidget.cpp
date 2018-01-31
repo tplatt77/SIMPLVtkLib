@@ -62,6 +62,13 @@ void VSAbstractViewWidget::setViewController(VSViewController* controller)
 
   connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
 
+  connect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
+  connect(m_ViewController, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
+  connect(m_ViewController, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterComponentIndexChanged(VSFilterViewSettings*, int)));
+  connect(m_ViewController, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(filterMapColorsChanged(VSFilterViewSettings*, bool)));
+  connect(m_ViewController, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(filterShowScalarBarChanged(VSFilterViewSettings*, bool)));
+  connect(m_ViewController, SIGNAL(requiresRender()), this, SLOT(renderView()));
+
   // check filter and scalar bar visibility
   std::vector<VSFilterViewSettings*> viewSettings = controller->getAllViewSettings();
   for(auto iter = viewSettings.begin(); iter != viewSettings.end(); iter++)
@@ -82,12 +89,6 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
     return;
   }
 
-  connect(filterViewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
-  connect(filterViewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
-  connect(filterViewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterComponentIndexChanged(VSFilterViewSettings*, int)));
-  connect(filterViewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(filterMapColorsChanged(VSFilterViewSettings*, bool)));
-  connect(filterViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(filterShowScalarBarChanged(VSFilterViewSettings*, bool)));
-
   checkFilterViewSetting(filterViewSettings);
 }
 
@@ -96,6 +97,10 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
 {
+  if(nullptr == setting)
+  {
+    return;
+  }
   setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
 
   filterVisibilityChanged(setting, setting->getVisible());
@@ -123,6 +128,11 @@ void VSAbstractViewWidget::setActiveFilterSettings(VSFilterViewSettings* setting
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSettings, bool filterVisible)
 {
+  if(nullptr == viewSettings)
+  {
+    return;
+  }
+
   if(nullptr == getVisualizationWidget())
   {
     return;
@@ -146,6 +156,8 @@ void VSAbstractViewWidget::filterVisibilityChanged(VSFilterViewSettings* viewSet
       viewSettings->getScalarBarWidget()->SetEnabled(0);
     }
   }
+
+  renderView();
 }
 
 // -----------------------------------------------------------------------------
@@ -178,6 +190,24 @@ void VSAbstractViewWidget::filterMapColorsChanged(VSFilterViewSettings* viewSett
 void VSAbstractViewWidget::filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar)
 {
   // Handle in subclasses
+
+  if(viewSettings->getVisible())
+  {
+    if(viewSettings->isScalarBarVisible())
+    {
+      viewSettings->getScalarBarWidget()->SetEnabled(1);
+    }
+    else
+    {
+      viewSettings->getScalarBarWidget()->SetEnabled(0);
+    }
+  }
+  else
+  {
+    viewSettings->getScalarBarWidget()->SetEnabled(0);
+  }
+
+  renderView();
 }
 
 // -----------------------------------------------------------------------------
@@ -385,5 +415,17 @@ void VSAbstractViewWidget::closeView()
   else
   {
     deleteLater();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::renderView()
+{
+  VSVisualizationWidget* visualizationWidget = getVisualizationWidget();
+  if(visualizationWidget)
+  {
+    visualizationWidget->render();
   }
 }

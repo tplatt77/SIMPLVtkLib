@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSThresholdFilter_h_
-#define _VSThresholdFilter_h_
+#ifndef _vsthresholdfilter_h_
+#define _vsthresholdfilter_h_
 
 #include <QtWidgets/QWidget>
 
@@ -81,36 +81,30 @@ public:
   VSThresholdFilter(VSAbstractFilter* parent);
 
   /**
-  * @brief Deconstructor
-  */
-  ~VSThresholdFilter();
-
-  /**
-  * @brief Sets the filter bounds
-  * @param bounds
-  */
-  void setBounds(double* bounds) override;
-
-  /**
-  * @brief Initializes the algorithm and connects it to the vtkMapper
-  */
-  void setFilter() override;
-
-  /**
   * @brief Returns the filter name
   * @return
   */
   const QString getFilterName() override;
 
   /**
-  * @brief Returns the VSAbstractWidget used by the filter
+  * @brief Applies a threshold over a specified array between a given min and max
+  * @param arrayName
+  * @param min
+  * @param max
   */
-  //VSAbstractWidget* getWidget() override;
+  void apply(QString arrayName, double min, double max);
 
   /**
-  * @brief Applies updated values to the filter and calculates the output
+  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @return
   */
-  void apply() override;
+  virtual vtkAlgorithmOutput* getOutputPort() override;
+
+  /**
+  * @brief Returns a smart pointer containing the output data from the filter
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
   * @brief Returns the output data type
@@ -124,20 +118,42 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-public slots:
   /**
-  * @brief Sets the array id to threshold over
-  * @param id
+  * @brief Returns the name of the array last used for thresholding
+  * @return
   */
-  void setThresholdScalarId(int id);
+  QString getLastArrayName();
+
+  /**
+  * @brief Returns the last minimum value for thresholding
+  * @return
+  */
+  double getLastMinValue();
+
+  /**
+  * @brief Returns the last maximum value for thresholding
+  * @return
+  */
+  double getLastMaxValue();
+
+protected:
+  /**
+  * @brief Initializes the algorithm and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  int m_CurrentId;
-  int m_LastId;
+  VTK_PTR(vtkThreshold) m_ThresholdAlgorithm = nullptr;
 
-  VTK_PTR(vtkThreshold) m_ThresholdAlgorithm;
-
-  //VSThresholdWidget* m_ThresholdWidget;
+  QString m_LastArrayName;
+  double m_LastMinValue = 0.0;
+  double m_LastMaxValue = 99.9;
 };
 
 #endif /* _VSThresholdFilter_h_ */
