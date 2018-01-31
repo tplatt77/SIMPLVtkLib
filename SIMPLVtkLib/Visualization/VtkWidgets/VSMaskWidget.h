@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSMaskWidget_h_
-#define _VSMaskWidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 #include "ui_VSMaskWidget.h"
@@ -72,5 +71,3 @@ protected slots:
 private:
   QString m_lastMaskName;
 };
-
-#endif

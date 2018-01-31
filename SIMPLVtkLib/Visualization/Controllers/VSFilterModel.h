@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsfiltermodel_h_
-#define _vsfiltermodel_h_
+#pragma once
 
 #include <QtGui/QStandardItemModel>
 
@@ -94,4 +93,3 @@ signals:
   void filterRemoved(VSAbstractFilter* filter);
 };
 
-#endif

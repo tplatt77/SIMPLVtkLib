@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsmaskfilter_h_
-#define _vsmaskfilter_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -122,5 +121,3 @@ private:
 
   QString m_LastArrayName;
 };
-
-#endif /* _VSMaskFilter_h_ */

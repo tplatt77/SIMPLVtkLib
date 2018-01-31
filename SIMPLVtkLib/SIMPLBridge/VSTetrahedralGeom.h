@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vtktetrahedralgeom_h_
-#define _vtktetrahedralgeom_h_
+#pragma once
 
 #include <vtkCellType.h>
 #include <vtkIdTypeArray.h>
@@ -167,5 +166,3 @@ private:
 };
 
 vtkMakeMappedUnstructuredGrid(VSTetrahedralGrid, VSTetrahedralGeom)
-
-#endif

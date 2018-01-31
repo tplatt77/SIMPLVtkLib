@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsthresholdfilter_h_
-#define _vsthresholdfilter_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -155,5 +154,3 @@ private:
   double m_LastMinValue = 0.0;
   double m_LastMaxValue = 99.9;
 };
-
-#endif /* _VSThresholdFilter_h_ */

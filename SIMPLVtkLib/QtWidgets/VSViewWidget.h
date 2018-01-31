@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsviewwidget_h_
-#define _vsviewwidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
@@ -86,5 +85,3 @@ private:
   class VSInternals;
   VSInternals* m_Internals;
 };
-
-#endif

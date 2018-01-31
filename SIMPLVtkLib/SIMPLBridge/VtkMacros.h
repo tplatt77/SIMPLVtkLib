@@ -33,13 +33,10 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vtkmacros_h_
-#define _vtkmacros_h_
+#pragma once
 
 #include <vtkSmartPointer.h>
 
 #define VTK_NEW(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #define VTK_PTR(type) vtkSmartPointer<type>
-
-#endif

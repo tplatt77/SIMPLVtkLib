@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSAbstractWidget_h_
-#define _VSAbstractWidget_h_
+#pragma once
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Winconsistent-missing-override"
@@ -92,5 +91,3 @@ private:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-
-#endif /* _VSAbstractWidget_h_  */

@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vtkedgegeom_h_
-#define _vtkedgegeom_h_
+#pragma once
 
 
 #include <vtkMappedUnstructuredGrid.h>
@@ -162,5 +161,3 @@ private:
 };
 
 vtkMakeMappedUnstructuredGrid(VSEdgeGrid, VSEdgeGeom)
-
-#endif

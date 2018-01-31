@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsmainwidgetbase_h_
-#define _vsmainwidgetbase_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -166,5 +165,3 @@ private:
   VSFilterView* m_FilterView = nullptr;
   VSInfoWidget* m_InfoWidget = nullptr;
 };
-
-#endif

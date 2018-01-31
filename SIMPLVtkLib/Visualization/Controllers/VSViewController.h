@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsviewcontroller_h_
-#define _vsviewcontroller_h_
+#pragma once
 
 #include <QtCore/QObject>
 
@@ -148,5 +147,3 @@ private:
   VSController* m_VSController;
   std::vector<VSFilterViewSettings*> m_FilterViewSettings;
 };
-
-#endif

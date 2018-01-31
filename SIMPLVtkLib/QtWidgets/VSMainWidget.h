@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsmainwidget_h_
-#define _vsmainwidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 
@@ -105,5 +104,3 @@ private:
   vsInternals* m_Internals;
   bool m_HasRendered = false;
 };
-
-#endif

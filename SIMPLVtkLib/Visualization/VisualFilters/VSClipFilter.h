@@ -32,8 +32,8 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _vsclipfilter_h_
-#define _vsclipfilter_h_
+
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -200,5 +200,3 @@ private:
   double m_LastBoxScale[3];
   double m_LastBoxRotation[3];
 };
-
-#endif /* _VSClipFilter_H_ */

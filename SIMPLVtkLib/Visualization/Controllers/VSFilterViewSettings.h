@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsfilterviewsettings_h_
-#define _vsfilterviewsettings_h_
+#pragma once
 
 #include <QtCore/QObject>
 
@@ -201,5 +200,3 @@ private:
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
   VTK_PTR(vtkScalarBarWidget) m_ScalarBarWidget = nullptr;
 };
-
-#endif

@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsdatasetfilter_h_
-#define _vsdatasetfilter_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -127,5 +126,3 @@ private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
 };
-
-#endif /* _VSDataSetFilter_h_ */

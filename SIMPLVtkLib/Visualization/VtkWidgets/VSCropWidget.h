@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSCropWidget_h_
-#define _VSCropWidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 #include "ui_VSCropWidget.h"
@@ -116,5 +115,3 @@ private:
   int* voi;
   int* sampleRate;
 };
-
-#endif

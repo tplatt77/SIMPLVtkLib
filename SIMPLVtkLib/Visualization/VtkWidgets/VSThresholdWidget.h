@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSThresholdWidget_h_
-#define _VSThresholdWidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 #include "ui_VSThresholdWidget.h"
@@ -182,5 +181,3 @@ private:
   double lastMinValue;
   double lastMaxValue;
 };
-
-#endif

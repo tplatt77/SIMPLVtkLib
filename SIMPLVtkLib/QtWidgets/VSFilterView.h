@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsfilterview_h_
-#define _vsfilterview_h_
+#pragma once
 
 #include <QtWidgets/QTreeView>
 
@@ -92,5 +91,3 @@ protected:
 private:
   VSController* m_Controller = nullptr;
 };
-
-#endif

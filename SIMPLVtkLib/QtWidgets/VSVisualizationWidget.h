@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _visualizatonwidget_h_
-#define _visualizatonwidget_h_
+#pragma once
 
 #include <QVTKOpenGLWidget.h>
 #include <vtkSmartPointer.h>
@@ -167,5 +166,3 @@ private:
 
   unsigned int m_NumRenderLayers;
 };
-
-#endif

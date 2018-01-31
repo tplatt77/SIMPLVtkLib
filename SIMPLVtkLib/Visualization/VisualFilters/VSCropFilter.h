@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vscropfilter_h_
-#define _vscropfilter_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -136,5 +135,3 @@ private:
   int m_LastVoi[6];
   int m_LastSampleRate[3];
 };
-
-#endif /* _VSCropFilter_h_ */

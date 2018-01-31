@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vtktrianglegeom_h_
-#define _vtktrianglegeom_h_
+#pragma once
 
 #include <vtkMappedUnstructuredGrid.h>
 #include <vtkIdTypeArray.h>
@@ -161,5 +160,3 @@ private:
 };
 
 vtkMakeMappedUnstructuredGrid(VtkTriangleGrid, VSTriangleGeom)
-
-#endif

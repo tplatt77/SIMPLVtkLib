@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsabstractviewwidget_h
-#define _vsabstractviewwidget_h
+#pragma once
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QSplitter>
@@ -219,5 +218,3 @@ private:
   VSViewController* m_ViewController = nullptr;
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
 };
-
-#endif

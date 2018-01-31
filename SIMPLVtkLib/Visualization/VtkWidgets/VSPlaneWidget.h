@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSPlaneWidget_h_
-#define _VSPlaneWidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 #include "ui_VSPlaneWidget.h"
@@ -171,5 +170,3 @@ private:
   vtkImplicitPlaneWidget2* planeWidget;
   vtkImplicitPlaneRepresentation* planeRep;
 };
-
-#endif

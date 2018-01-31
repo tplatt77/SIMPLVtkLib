@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsabstractfilter_h_
-#define _vsabstractfilter_h_
+#pragma once
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Winconsistent-missing-override"
@@ -241,6 +240,4 @@ private:
 
 #ifdef __clang__
 #pragma clang diagnostic pop
-#endif
-
 #endif

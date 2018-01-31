@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vsslicefilter_h_
-#define _vsslicefilter_h_
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -134,5 +133,3 @@ private:
   double m_LastOrigin[3];
   double m_LastNormal[3];
 };
-
-#endif /* _VSSliceFilter_H_ */

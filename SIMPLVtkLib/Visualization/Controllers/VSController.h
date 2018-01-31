@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _vscontroller_h_
-#define _vscontroller_h_
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QVector>
@@ -123,5 +122,3 @@ private:
   VSViewController* m_ActiveViewController = nullptr;
   VSFilterModel* m_FilterModel;
 };
-
-#endif

@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSBoxWidget_h_
-#define _VSBoxWidget_h_
+#pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 #include "ui_VSBoxWidget.h"
@@ -102,5 +101,3 @@ private:
   vtkSmartPointer<vtkBoxWidget2> boxWidget;
   vtkSmartPointer<vtkBoxRepresentation> boxRep;
 };
-
-#endif

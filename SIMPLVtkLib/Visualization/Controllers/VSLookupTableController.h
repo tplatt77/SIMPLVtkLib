@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _VSLookupTableController_h_
-#define _VSLookupTableController_h_
+#pragma once
 
 #include <vector>
 
@@ -99,5 +98,3 @@ protected:
 
   vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
 };
-
-#endif /* _VSLookupTableController_h_ */
