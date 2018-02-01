@@ -86,7 +86,16 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
 {
-  return dynamic_cast<VSAbstractFilter*>(item(index.row(), index.column()));
+  if(false == index.parent().isValid())
+  {
+    return dynamic_cast<VSAbstractFilter*>(item(index.row(), index.column()));
+  }
+  else
+  {
+    int i = index.row();
+    VSAbstractFilter* parentFilter = getFilterFromIndex(index.parent());
+    return parentFilter->getChild(i);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -94,7 +103,7 @@ VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
 // -----------------------------------------------------------------------------
 QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
 {
-  return indexFromItem(filter);
+  return filter->index();
 }
 
 // -----------------------------------------------------------------------------
@@ -116,4 +125,42 @@ QVector<VSAbstractFilter*> VSFilterModel::getBaseFilters()
   }
 
   return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
+{
+  QVector<VSAbstractFilter*> filters = getBaseFilters();
+
+  int count = filters.size();
+  for(int i = 0; i < count; i++)
+  {
+    filters.push_back(filters[i]);
+    filters.append(filters[i]->getDescendants());
+  }
+
+  return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::updateModelForView(VSViewController* viewController)
+{
+  for(VSAbstractFilter* filter : getAllFilters())
+  {
+    bool isVisible = false;
+    if(viewController)
+    {
+      VSFilterViewSettings* settings = viewController->getViewSettings(filter);
+      if(settings)
+      {
+        isVisible = settings->getVisible();
+      }
+    }
+
+    filter->setCheckState(isVisible ? Qt::Checked : Qt::Unchecked);
+  }
 }

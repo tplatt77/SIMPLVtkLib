@@ -44,6 +44,15 @@ VSFilterView::VSFilterView(QWidget* parent)
   : QTreeView(parent)
 {
   connectSlots();
+  setupGui();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::setupGui()
+{
+  setHeaderHidden(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -52,6 +61,51 @@ VSFilterView::VSFilterView(QWidget* parent)
 void VSFilterView::setController(VSController* controller)
 {
   m_Controller = controller;
+  setModel(controller->getFilterModel());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::changeViewController(VSViewController* view)
+{
+  // Disconnect from the old view controller
+  disconnect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+    this, SLOT(changedVisibility(VSFilterViewSettings*, bool)));
+
+  m_ViewController = view;
+  if(nullptr == m_Controller || nullptr == view)
+  {
+    return;
+  }
+
+  // Update filter check states to match the new view controller
+  for(VSAbstractFilter* filter : m_Controller->getAllFilters())
+  {
+    VSFilterViewSettings* settings = view->getViewSettings(filter);
+    if(nullptr == settings)
+    {
+      continue;
+    }
+
+    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
+  }
+
+  // Connect to the new view controller
+  connect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+    this, SLOT(changedVisibility(VSFilterViewSettings*, bool)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::changedVisibility(VSFilterViewSettings* filterSettings, bool visible)
+{
+  VSAbstractFilter* filter = filterSettings->getFilter();
+  if(filter)
+  {
+    filter->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +115,16 @@ void VSFilterView::itemClicked(const QModelIndex& index)
 {
   VSAbstractFilter* filter = getFilterFromIndex(index);
   emit filterClicked(filter);
+
+  if(m_ViewController)
+  {
+    VSFilterViewSettings* settings = m_ViewController->getViewSettings(filter);
+    bool checked = filter->checkState() == Qt::Checked;
+    if(settings)
+    {
+      settings->setVisible(checked);
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

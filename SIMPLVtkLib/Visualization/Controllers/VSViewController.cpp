@@ -115,7 +115,21 @@ void VSViewController::copyFilterSettings(const VSViewController& copy)
 
   for(size_t i = 0; i < count; i++)
   {
-    m_FilterViewSettings[i] = new VSFilterViewSettings(*(copySettings[i]));
+    VSFilterViewSettings* viewSettings = new VSFilterViewSettings(*(copySettings[i]));
+    m_FilterViewSettings[i] = viewSettings;
+
+    connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+      this, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)),
+      this, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)));
+    connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)),
+      this, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)));
+    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)),
+      this, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
+      this, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(requiresRender()),
+      this, SIGNAL(requiresRender()));
   }
 }
 

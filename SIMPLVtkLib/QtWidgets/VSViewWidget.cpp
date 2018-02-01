@@ -81,8 +81,7 @@ void VSViewWidget::connectSlots()
 VSAbstractViewWidget* VSViewWidget::clone()
 {
   VSViewWidget* viewWidget = new VSViewWidget();
-  VSViewController* viewController = new VSViewController(this->getViewController()->getController());
-  viewController->copy(this->getViewController());
+  VSViewController* viewController = new VSViewController(*(this->getViewController()));
   
   viewWidget->getVisualizationWidget()->copy(this->getVisualizationWidget());
 

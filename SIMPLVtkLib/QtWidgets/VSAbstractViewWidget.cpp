@@ -58,6 +58,18 @@ VSViewController* VSAbstractViewWidget::getViewController()
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::setViewController(VSViewController* controller)
 {
+  if(m_ViewController)
+  {
+    disconnect(m_ViewController, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
+
+    disconnect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewController, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
+    disconnect(m_ViewController, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterComponentIndexChanged(VSFilterViewSettings*, int)));
+    disconnect(m_ViewController, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(filterMapColorsChanged(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewController, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(filterShowScalarBarChanged(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewController, SIGNAL(requiresRender()), this, SLOT(renderView()));
+  }
+
   m_ViewController = controller;
 
   connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));

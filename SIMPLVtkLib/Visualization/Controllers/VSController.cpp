@@ -121,16 +121,7 @@ QVector<VSAbstractFilter*> VSController::getBaseFilters()
 // -----------------------------------------------------------------------------
 QVector<VSAbstractFilter*> VSController::getAllFilters()
 {
-  QVector<VSAbstractFilter*> filters = getBaseFilters();
-
-  int count = filters.size();
-  for(int i = 0; i < count; i++)
-  {
-    filters.push_back(filters[i]);
-    filters.append(filters[i]->getDescendants());
-  }
-
-  return filters;
+  return m_FilterModel->getAllFilters();
 }
 
 // -----------------------------------------------------------------------------

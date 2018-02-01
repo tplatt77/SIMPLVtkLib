@@ -71,6 +71,7 @@ VSAbstractFilter::VSAbstractFilter()
 , m_InputPort(nullptr)
 {
   setCheckable(true);
+  setCheckState(Qt::Checked);
 }
 
 // -----------------------------------------------------------------------------

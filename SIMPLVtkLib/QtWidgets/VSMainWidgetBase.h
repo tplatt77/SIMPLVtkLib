@@ -120,6 +120,7 @@ public slots:
 
 signals:
   void updateFilterInfo(VSAbstractFilter* filter, VSViewController* viewController);
+  void changedActiveView(VSViewController* viewController);
 
 protected:
   /**

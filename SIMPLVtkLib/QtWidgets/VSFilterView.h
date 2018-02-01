@@ -66,6 +66,20 @@ public:
 signals:
   void filterClicked(VSAbstractFilter* filter);
 
+public slots:
+  /**
+  * @brief Changes the view controller used for accessing VSFilterViewSettings
+  * @param view
+  */
+  void changeViewController(VSViewController* view);
+
+  /**
+  * @brief Handle changes in filter visibility for a given view
+  * @param filter
+  * @param visible
+  */
+  void changedVisibility(VSFilterViewSettings* filter, bool visible);
+
 protected slots:
   /**
   * @brief Handles mouse clicks on an item and emits a signal if the item is a
@@ -81,6 +95,11 @@ protected:
   void connectSlots();
 
   /**
+  * @brief Performs any initial setup work for the GUI
+  */
+  void setupGui();
+
+  /**
   * @brief Returns the visual filter at the given index or nullptr if no 
   * visual filter exists at that location
   * @param index
@@ -90,4 +109,5 @@ protected:
 
 private:
   VSController* m_Controller = nullptr;
+  VSViewController* m_ViewController = nullptr;
 };

@@ -123,12 +123,16 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   if(m_FilterView)
   {
     disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
+    disconnect(this, SIGNAL(changedActiveView(VSViewController*)), view, SLOT(changeViewController(VSViewController*)));
   }
 
-  view->setModel(m_Controller->getFilterModel());
+  view->setController(m_Controller);
 
   m_FilterView = view;
   connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(changeCurrentFilter(VSAbstractFilter*)));
+  connect(this, SIGNAL(changedActiveView(VSViewController*)), view, SLOT(changeViewController(VSViewController*)));
+  
+  view->changeViewController(m_ActiveViewWidget->getViewController());
 }
 
 // -----------------------------------------------------------------------------
@@ -178,6 +182,8 @@ void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
   {
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
   }
+
+  emit changedActiveView(controller);
 }
 
 // -----------------------------------------------------------------------------
