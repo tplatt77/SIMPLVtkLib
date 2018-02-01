@@ -114,6 +114,11 @@ void VSFilterView::changedVisibility(VSFilterViewSettings* filterSettings, bool 
 void VSFilterView::itemClicked(const QModelIndex& index)
 {
   VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(nullptr == filter)
+  {
+    return;
+  }
+
   emit filterClicked(filter);
 
   if(m_ViewController)

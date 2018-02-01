@@ -150,14 +150,24 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
   if(m_InfoWidget)
   {
-    disconnect(this, SIGNAL(updateFilterInfo(VSAbstractFilter*, VSViewController*)),
-      m_InfoWidget, SLOT(updateFilterInfo(VSAbstractFilter*, VSViewController*)));
+    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
+      m_InfoWidget, SLOT(setFilter(VSAbstractFilter*)));
+    connect(this, SIGNAL(changedActiveView(VSViewController*)),
+      m_InfoWidget, SLOT(setViewController(VSViewController*)));
   }
 
   m_InfoWidget = infoWidget;
 
-  connect(this, SIGNAL(updateFilterInfo(VSAbstractFilter*, VSViewController*)), 
-    infoWidget, SLOT(updateFilterInfo(VSAbstractFilter*, VSViewController*)));
+  if(m_InfoWidget)
+  {
+    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
+      infoWidget, SLOT(setFilter(VSAbstractFilter*)));
+    connect(this, SIGNAL(changedActiveView(VSViewController*)),
+      infoWidget, SLOT(setViewController(VSViewController*)));
+
+    m_InfoWidget->setFilter(m_CurrentFilter);
+    m_InfoWidget->setViewController(m_Controller->getActiveViewController());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -173,9 +183,6 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
 {
-  // Update VSFilterViewSettings to use the new ViewController's version
-  emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
-
   disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
   m_ActiveViewWidget = getViewWidget(controller);
   if(m_ActiveViewWidget)
@@ -201,7 +208,7 @@ void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
 {
   m_CurrentFilter = filter;
 
-  emit updateFilterInfo(m_CurrentFilter, m_Controller->getActiveViewController());
+  emit changedActiveFilter(m_CurrentFilter);
 }
 
 // -----------------------------------------------------------------------------

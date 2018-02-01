@@ -35,20 +35,48 @@
 
 #include "VSInfoWidget.h"
 
+#include "ui_VSInfoWidget.h"
+
+class VSInfoWidget::VSInternals : public Ui::VSInfoWidget
+{
+public:
+  VSInternals()
+  {
+  }
+};
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSInfoWidget::VSInfoWidget(QWidget* parent)
   : QWidget(parent)
+  , m_Internals(new VSInternals())
 {
+  m_Internals->setupUi(this);
+
+  setFilter(nullptr);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::createFilter(VSAbstractFilter* filter)
+void VSInfoWidget::setFilter(VSAbstractFilter* filter)
 {
   m_Filter = filter;
+
+  bool filterExists = (nullptr != filter);
+  m_Internals->applyBtn->setEnabled(filterExists);
+  m_Internals->resetBtn->setEnabled(filterExists);
+  m_Internals->deleteBtn->setEnabled(filterExists);
+
+  if(filterExists && m_ViewController)
+  {
+    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+  }
+  else
+  {
+    m_ViewSettings = nullptr;
+  }
 
   updateFilterInfo();
   updateViewSettingInfo();
@@ -60,6 +88,15 @@ void VSInfoWidget::createFilter(VSAbstractFilter* filter)
 void VSInfoWidget::setViewController(VSViewController* viewController)
 {
   m_ViewController = viewController;
+
+  if(m_ViewController)
+  {
+    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+  }
+  else
+  {
+    m_ViewSettings = nullptr;
+  }
 
   updateViewSettingInfo();
 }
@@ -77,11 +114,28 @@ void VSInfoWidget::updateFilterInfo()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateViewSettingInfo()
 {
-  if(nullptr == m_Filter || nullptr == m_ViewController)
+  if(nullptr == m_ViewSettings)
   {
-    // TODO: clear
+    // Clear
+    m_Internals->activeArrayCombo->clear();
+    m_Internals->activeComponentCombo->clear();
+
+    m_Internals->showScalarBarCheckBox->setChecked(Qt::Unchecked);
+    m_Internals->mapScalarsCheckBox->setChecked(Qt::Unchecked);
+
+    m_Internals->filterViewWidget->setEnabled(false);
     return;
   }
 
-  // TODO: display information from the filter view settings
+  m_Internals->filterViewWidget->setEnabled(true);
+
+  // TODO: Add and set the array / component combo box values
+  //m_Internals->activeArrayCombo->insertItems(m_Filter->getArrayNames());
+  //m_Internals->activeComponentCombo->insertItems(m_Filter->getComponents(m_Internals->activeArrayCombo->currentText()));
+
+  //m_Internals->activeArrayCombo->setCurrentText(m_ViewSettings->getActiveArray());
+  m_Internals->activeComponentCombo->setCurrentIndex(m_ViewSettings->getActiveComponentIndex());
+
+  m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
+  m_Internals->mapScalarsCheckBox->setChecked(m_ViewSettings->getMapColors() ? Qt::Checked : Qt::Unchecked);
 }

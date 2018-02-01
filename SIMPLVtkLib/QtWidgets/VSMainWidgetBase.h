@@ -119,8 +119,8 @@ public slots:
   void renderAllViews();
 
 signals:
-  void updateFilterInfo(VSAbstractFilter* filter, VSViewController* viewController);
   void changedActiveView(VSViewController* viewController);
+  void changedActiveFilter(VSAbstractFilter* filter);
 
 protected:
   /**
