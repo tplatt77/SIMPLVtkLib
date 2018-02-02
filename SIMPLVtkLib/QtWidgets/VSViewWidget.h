@@ -73,7 +73,6 @@ protected:
   void connectSlots();
 
 protected slots:
-
   /**
   * @brief ScalarBar visibility changed for filter
   * @param viewSettings

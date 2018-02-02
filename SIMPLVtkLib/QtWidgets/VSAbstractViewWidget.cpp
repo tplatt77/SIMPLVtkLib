@@ -185,7 +185,11 @@ void VSAbstractViewWidget::filterArrayIndexChanged(VSFilterViewSettings* viewSet
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::filterComponentIndexChanged(VSFilterViewSettings* viewSettings, int index)
 {
-  // Handle in subclasses
+  VSVisualizationWidget* visualizationWidget = getVisualizationWidget();
+  if(visualizationWidget)
+  {
+    visualizationWidget->render();
+  }
 }
 
 // -----------------------------------------------------------------------------

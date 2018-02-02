@@ -73,6 +73,11 @@ public:
   VSFilterViewSettings(const VSFilterViewSettings& copy);
 
   /**
+  * @brief Deconstructor
+  */
+  virtual ~VSFilterViewSettings();
+
+  /**
   * @brief Returns a pointer to the VSAbstractFilter
   * @return
   */
@@ -95,6 +100,9 @@ public:
   * @return
   */
   int getActiveComponentIndex();
+
+  int getNumberOfComponents(int arrayIndex);
+  int getNumberOfComponents(QString name);
 
   /**
   * @brief Returns true if the filter values are mapped to a lookup table.  Returns false otherwise
@@ -187,11 +195,23 @@ protected:
   */
   void connectFilter(VSAbstractFilter* filter);
 
+  /**
+  * @brief Returns the array at the given index
+  * @param index
+  * @return
+  */
+  vtkDataArray* getArrayAtIndex(int index);
+
+  /**
+  * @brief Updates the mapper color mode to match variable values
+  */
+  void updateColorMode();
+
 private:
   VSAbstractFilter* m_Filter = nullptr;
   bool m_ShowFilter = true;
   int m_ActiveArray = 0;
-  int m_ActiveComponent = 0;
+  int m_ActiveComponent = -1;
   bool m_MapColors = true;
   VTK_PTR(vtkMapper) m_Mapper = nullptr;
   VTK_PTR(vtkActor) m_Actor = nullptr;

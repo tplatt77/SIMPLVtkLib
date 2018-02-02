@@ -150,9 +150,9 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
   if(m_InfoWidget)
   {
-    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
+    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
       m_InfoWidget, SLOT(setFilter(VSAbstractFilter*)));
-    connect(this, SIGNAL(changedActiveView(VSViewController*)),
+    disconnect(this, SIGNAL(changedActiveView(VSViewController*)),
       m_InfoWidget, SLOT(setViewController(VSViewController*)));
   }
 

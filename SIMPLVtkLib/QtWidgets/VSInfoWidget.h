@@ -58,6 +58,9 @@ public:
   */
   VSInfoWidget(QWidget* parent = nullptr);
 
+signals:
+  void filterDeleted(VSAbstractFilter* filter);
+
 public slots:
   /**
   * @brief Changes the filter being displayed
@@ -71,7 +74,39 @@ public slots:
   */
   void setViewController(VSViewController* viewController);
 
+  /**
+  * @brief Applies the active filter with the current widget values.
+  */
+  void applyFilter();
+
+  /**
+  * @brief Resets current widget to the last applied filter values
+  */
+  void resetFilter();
+
+  /**
+  * @brief Deletes the active filter
+  */
+  void deleteFilter();
+
+protected slots:
+  /**
+  * @brief Handles the active array combo box being changed
+  * @param index
+  */
+  void updateActiveArrayIndex(int index);
+
+  /**
+  * @brief Handles the active component combo box being changed
+  * @param index
+  */
+  void updateActiveComponentIndex(int index);
+
 protected:
+  /**
+  * @brief Performs initial setup for the GUI
+  */
+  void setupGui();
   /**
   * @brief Updates the information on the visual filter
   */

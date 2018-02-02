@@ -225,6 +225,102 @@ SIMPLVtkBridge::WrappedDataContainerPtr VSAbstractFilter::getWrappedDataContaine
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QStringList VSAbstractFilter::getArrayNames()
+{
+  QStringList arrayNames;
+
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(dataSet)
+  {
+    int numArrays = dataSet->GetCellData()->GetNumberOfArrays();
+    for(int i = 0; i < numArrays; i++)
+    {
+      arrayNames.push_back(dataSet->GetCellData()->GetAbstractArray(i)->GetName());
+    }
+  }
+
+  return arrayNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSAbstractFilter::getComponentList(QString arrayName)
+{
+  QStringList componentNames;
+
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(dataSet)
+  {
+    const char* charName = arrayName.toLatin1();
+    VTK_PTR(vtkAbstractArray) array = dataSet->GetCellData()->GetAbstractArray(charName);
+    componentNames = getComponentList(array);
+  }
+
+  return componentNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSAbstractFilter::getComponentList(int arrayIndex)
+{
+  QStringList componentNames;
+
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(dataSet)
+  {
+    VTK_PTR(vtkAbstractArray) array = dataSet->GetCellData()->GetAbstractArray(arrayIndex);
+    componentNames = getComponentList(array);
+  }
+
+  return componentNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSAbstractFilter::getComponentList(vtkAbstractArray* array)
+{
+  QStringList componentNames;
+
+  if(array)
+  {
+    int numComponent = array->GetNumberOfComponents();
+    bool isCharArray = array->IsA("vtkCharArray");
+    if(isCharArray && numComponent == 3)
+    {
+      componentNames.push_back("R");
+      componentNames.push_back("G");
+      componentNames.push_back("B");
+    }
+    else if(isCharArray && numComponent == 4)
+    {
+      componentNames.push_back("R");
+      componentNames.push_back("G");
+      componentNames.push_back("B");
+      componentNames.push_back("A");
+    }
+    else
+    {
+      for(int i = 0; i < numComponent; i++)
+      {
+        componentNames.push_back("Comp_" + QString::number(i + 1));
+      }
+    }
+
+    if(numComponent > 1)
+    {
+      componentNames.push_front("Magnitude");
+    }
+  }
+
+  return componentNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 double* VSAbstractFilter::getBounds() const
 {
   if(nullptr == m_ParentFilter)

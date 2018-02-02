@@ -53,8 +53,53 @@ VSInfoWidget::VSInfoWidget(QWidget* parent)
   , m_Internals(new VSInternals())
 {
   m_Internals->setupUi(this);
+  setupGui();
 
   setFilter(nullptr);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::setupGui()
+{
+  connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)),
+    this, SLOT(updateActiveArrayIndex(int)));
+  connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)),
+    this, SLOT(updateActiveComponentIndex(int)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::applyFilter()
+{
+  if(nullptr == m_Filter)
+  {
+    return;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::resetFilter()
+{
+  if(nullptr == m_Filter)
+  {
+    return;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::deleteFilter()
+{
+  if(nullptr == m_Filter)
+  {
+    return;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -107,6 +152,14 @@ void VSInfoWidget::setViewController(VSViewController* viewController)
 void VSInfoWidget::updateFilterInfo()
 {
   // TODO: display information both about the filter
+
+  // Add and set the array / component combo box values
+  m_Internals->activeArrayCombo->clear();
+  if(m_Filter)
+  {
+    m_Internals->activeArrayCombo->addItems(m_Filter->getArrayNames());
+    m_Internals->activeArrayCombo->setCurrentIndex(0);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -114,28 +167,59 @@ void VSInfoWidget::updateFilterInfo()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateViewSettingInfo()
 {
+  // Clear the visualization settings if the current VSFilterViewSettings is null
   if(nullptr == m_ViewSettings)
   {
-    // Clear
-    m_Internals->activeArrayCombo->clear();
-    m_Internals->activeComponentCombo->clear();
+    m_Internals->activeArrayCombo->setCurrentIndex(-1);
+    m_Internals->activeComponentCombo->setCurrentIndex(-1);
 
     m_Internals->showScalarBarCheckBox->setChecked(Qt::Unchecked);
     m_Internals->mapScalarsCheckBox->setChecked(Qt::Unchecked);
 
-    m_Internals->filterViewWidget->setEnabled(false);
+    m_Internals->viewSettingsWidget->setEnabled(false);
     return;
   }
 
-  m_Internals->filterViewWidget->setEnabled(true);
+  // Apply the current filter view settings to the widget
+  m_Internals->viewSettingsWidget->setEnabled(true);
 
-  // TODO: Add and set the array / component combo box values
-  //m_Internals->activeArrayCombo->insertItems(m_Filter->getArrayNames());
-  //m_Internals->activeComponentCombo->insertItems(m_Filter->getComponents(m_Internals->activeArrayCombo->currentText()));
-
-  //m_Internals->activeArrayCombo->setCurrentText(m_ViewSettings->getActiveArray());
+  m_Internals->activeArrayCombo->setCurrentIndex(m_ViewSettings->getActiveArrayIndex());
   m_Internals->activeComponentCombo->setCurrentIndex(m_ViewSettings->getActiveComponentIndex());
 
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
   m_Internals->mapScalarsCheckBox->setChecked(m_ViewSettings->getMapColors() ? Qt::Checked : Qt::Unchecked);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::updateActiveArrayIndex(int index)
+{
+  // Set the active component combo box values
+  m_Internals->activeComponentCombo->clear();
+
+  QStringList componentList = m_Filter->getComponentList(index);
+  m_Internals->activeComponentCombo->addItems(componentList);
+  m_Internals->activeComponentCombo->setCurrentIndex(0);
+
+  if(m_ViewSettings)
+  {
+    m_ViewSettings->setActiveArrayIndex(index);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::updateActiveComponentIndex(int index)
+{
+  if(m_ViewSettings)
+  {
+    if(m_Internals->activeComponentCombo->maxCount() > 1)
+    {
+      index--;
+    }
+
+    m_ViewSettings->setActiveComponentIndex(index);
+  }
 }

@@ -44,6 +44,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
 
+#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QVector>
@@ -149,6 +150,26 @@ public:
   virtual SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
   /**
+  * @brief Returns a list of array names
+  * @return
+  */
+  QStringList getArrayNames();
+
+  /**
+  * @brief Returns a list of component names
+  * @param arrayName
+  * @return
+  */
+  QStringList getComponentList(QString arrayName);
+
+  /**
+  * @brief Returns a list of component names
+  * @param arrayIndex
+  * @return
+  */
+  QStringList getComponentList(int arrayIndex);
+
+  /**
   * @brief Returns the bounds for the filter
   */
   virtual double* getBounds() const;
@@ -218,6 +239,13 @@ protected:
   * @param filter
   */
   virtual void updateAlgorithmInput(VSAbstractFilter* filter) = 0;
+
+  /**
+  * @brief Returns a list of component names for a given vtkAbstractArray
+  * @param array
+  * @return
+  */
+  QStringList getComponentList(vtkAbstractArray* array);
 
   bool m_ConnectedInput = false;
   VTK_PTR(vtkAlgorithmOutput) m_InputPort;

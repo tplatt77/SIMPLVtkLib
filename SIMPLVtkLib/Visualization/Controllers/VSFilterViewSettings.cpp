@@ -35,8 +35,11 @@
 
 #include "VSFilterViewSettings.h"
 
+#include <vtkAbstractArray.h>
+#include <vtkCellData.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataSetMapper.h>
+#include <vtkTextProperty.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -63,6 +66,37 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 {
   connectFilter(copy.m_Filter);
   setupActors();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings::~VSFilterViewSettings()
+{
+  // Delete the mappers and actors so that they are removed from the visualization widget.
+  // If the VTK actors are not deleted but the visualization widget still exists,
+  // we lose track of the actor pointer and cannot remove it.
+  if(m_ScalarBarWidget)
+  {
+    m_ScalarBarWidget->Delete();
+  }
+  if(m_ScalarBarActor)
+  {
+    m_ScalarBarActor->Delete();
+  }
+  if(m_Actor)
+  {
+    m_Actor->Delete();
+  }
+  if(m_Mapper)
+  {
+    m_Mapper->Delete();
+  }
+  
+  if(m_LookupTable)
+  {
+    delete m_LookupTable;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -95,6 +129,26 @@ int VSFilterViewSettings::getActiveArrayIndex()
 int VSFilterViewSettings::getActiveComponentIndex()
 {
   return m_ActiveComponent;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterViewSettings::getNumberOfComponents(int arrayIndex)
+{
+  vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
+  return cellData->GetAbstractArray(arrayIndex)->GetNumberOfComponents();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
+{
+  const char* name = arrayName.toLatin1();
+
+  vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
+  return cellData->GetAbstractArray(name)->GetNumberOfComponents();
 }
 
 // -----------------------------------------------------------------------------
@@ -158,11 +212,31 @@ void VSFilterViewSettings::setVisible(bool visible)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
+{
+  vtkDataSet* dataSet = m_Mapper->GetInput();
+  if(dataSet && dataSet->GetCellData())
+  {
+    return dataSet->GetCellData()->GetArray(index);
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::setActiveArrayIndex(int index)
 {
-  m_ActiveArray = index;
+  VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(index);
+  if(dataArray)
+  {
+    m_ActiveArray = index;
 
-  emit activeArrayIndexChanged(this, m_ActiveArray);
+    emit activeArrayIndexChanged(this, m_ActiveArray);
+    setActiveComponentIndex(-1);
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -172,7 +246,75 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 {
   m_ActiveComponent = index;
 
+  VTK_PTR(vtkScalarsToColors) lookupTable = m_Mapper->GetLookupTable();
+  VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(m_ActiveArray);
+  if(nullptr == dataArray)
+  {
+    return;
+  }
+
+  int numComponents = dataArray->GetNumberOfComponents();
+  m_Mapper->ColorByArrayComponent(m_ActiveArray, index);
+  m_Mapper->SetScalarModeToDefault();
+  updateColorMode();
+
+  if(numComponents == 1)
+  {
+    double* range = dataArray->GetRange();
+    m_LookupTable->setRange(range);
+    m_ScalarBarActor->SetTitle(dataArray->GetName());
+  }
+  else if(index == -1)
+  {
+    double* range = dataArray->GetRange(-1);
+    QString dataArrayName = QString(dataArray->GetName());
+    QString componentName = dataArrayName + " Magnitude";
+
+    if(numComponents == 3)
+    {
+      //m_Mapper->SetColorModeToDirectScalars();
+      m_Mapper->SetColorModeToDefault();
+    }
+    else
+    {
+      lookupTable->SetVectorModeToMagnitude();
+    }
+
+    m_LookupTable->setRange(range);
+    m_ScalarBarActor->SetTitle(qPrintable(componentName));
+  }
+  else if(index < numComponents)
+  {
+    double* range = dataArray->GetRange(index);
+    m_LookupTable->setRange(range);
+    m_ScalarBarActor->SetTitle(dataArray->GetComponentName(index));
+  }
+
+  m_Mapper->Update();
+  
   emit activeComponentIndexChanged(this, m_ActiveComponent);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::updateColorMode()
+{
+  if(nullptr == m_Mapper)
+  {
+    return;
+  }
+
+  if(m_MapColors)
+  {
+    m_Mapper->SetColorModeToMapScalars();
+  }
+  else
+  {
+    m_Mapper->SetColorModeToDirectScalars();
+  }
+
+  m_Mapper->Update();
 }
 
 // -----------------------------------------------------------------------------
@@ -182,6 +324,7 @@ void VSFilterViewSettings::setMapColors(bool mapColors)
 {
   m_MapColors = mapColors;
 
+  updateColorMode();
   emit mapColorsChanged(this, m_MapColors);
 }
 
@@ -213,6 +356,23 @@ void VSFilterViewSettings::setupActors()
   m_ScalarBarActor->SetLookupTable(m_Mapper->GetLookupTable());
   m_ScalarBarWidget = VTK_PTR(vtkScalarBarWidget)::New();
   m_ScalarBarWidget->SetScalarBarActor(m_ScalarBarActor);
+
+  // Scalar Bar Title
+  vtkTextProperty* titleProperty = m_ScalarBarActor->GetTitleTextProperty();
+  titleProperty->SetJustificationToCentered();
+  titleProperty->SetFontSize(titleProperty->GetFontSize() * 1.5);
+
+  // Introduced in 7.1.0rc1, prevents resizing title to fill width
+#if VTK_MAJOR_VERSION > 7 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
+  m_ScalarBarActor->UnconstrainedFontSizeOn();
+#endif
+
+  m_ScalarBarActor->SetTitleRatio(0.75);
+
+  // Set Mapper to use the active array and component
+  int currentComponent = m_ActiveComponent;
+  setActiveArrayIndex(m_ActiveArray);
+  setActiveComponentIndex(currentComponent);
 }
 
 // -----------------------------------------------------------------------------
