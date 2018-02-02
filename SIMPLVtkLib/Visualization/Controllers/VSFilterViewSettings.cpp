@@ -397,5 +397,11 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
   if(filter)
   {
     connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
+
+    if(filter->getArrayNames().size() < 1)
+    {
+      setScalarBarVisible(false);
+      setMapColors(false);
+    }
   }
 }
