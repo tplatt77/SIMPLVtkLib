@@ -306,7 +306,7 @@ void VSFilterViewSettings::updateColorMode()
 
   if(m_MapColors)
   {
-    m_Mapper->SetColorModeToDefault();
+    m_Mapper->SetColorModeToMapScalars();
   }
   else
   {
