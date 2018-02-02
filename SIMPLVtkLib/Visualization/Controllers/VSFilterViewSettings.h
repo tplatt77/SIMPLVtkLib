@@ -101,7 +101,18 @@ public:
   */
   int getActiveComponentIndex();
 
+  /**
+  * @brief Returns the number of components for the given array
+  * @param arrayIndex
+  * @return
+  */
   int getNumberOfComponents(int arrayIndex);
+
+  /**
+  * @brief Returns the number of components for the given array
+  * @param arrayIndex
+  * @return
+  */
   int getNumberOfComponents(QString name);
 
   /**
