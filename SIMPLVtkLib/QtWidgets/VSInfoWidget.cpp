@@ -158,20 +158,25 @@ void VSInfoWidget::updateFilterInfo()
   // TODO: display information both about the filter
 
   // Add and set the array / component combo box values
+  m_Internals->activeArrayCombo->blockSignals(true);
   m_Internals->activeArrayCombo->clear();
+
   if(m_Filter)
   {
     m_Internals->activeArrayCombo->addItems(m_Filter->getArrayNames());
 
     if(m_ViewSettings)
     {
-      m_Internals->activeArrayCombo->setCurrentIndex(m_ViewSettings->getActiveArrayIndex());
+      int activeIndex = m_ViewSettings->getActiveArrayIndex();
+      m_Internals->activeArrayCombo->setCurrentIndex(activeIndex);
     }
     else
     {
       m_Internals->activeArrayCombo->setCurrentIndex(0);
     }
   }
+
+  m_Internals->activeArrayCombo->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
