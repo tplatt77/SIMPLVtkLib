@@ -68,6 +68,7 @@ public:
   void setColorTransferFunction(vtkColorTransferFunction* colorTransferFunction);
 
   void parseRgbJson(const QJsonObject& json);
+  void copy(const VSLookupTableController& other);
 
   void invert();
 
