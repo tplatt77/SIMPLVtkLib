@@ -76,7 +76,7 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
 void VSSliceFilter::createFilter()
 {
   m_SliceAlgorithm = vtkSmartPointer<vtkCutter>::New();
-  m_SliceAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
+  m_SliceAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
   m_ConnectedInput = true;
 }
 
@@ -124,9 +124,9 @@ vtkAlgorithmOutput* VSSliceFilter::getOutputPort()
   {
     return m_SliceAlgorithm->GetOutputPort();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutputPort();
+    return getParentFilter()->getOutputPort();
   }
 
   return nullptr;
@@ -141,9 +141,9 @@ VTK_PTR(vtkDataSet) VSSliceFilter::getOutput()
   {
     return m_SliceAlgorithm->GetOutput();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutput();
+    return getParentFilter()->getOutput();
   }
 
   return nullptr;

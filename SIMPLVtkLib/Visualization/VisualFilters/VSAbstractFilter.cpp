@@ -79,11 +79,6 @@ VSAbstractFilter::VSAbstractFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter::~VSAbstractFilter()
 {
-  while(!m_Children.isEmpty())
-  {
-    VSAbstractFilter* child = m_Children[0];
-    removeChild(child);
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -91,9 +86,9 @@ VSAbstractFilter::~VSAbstractFilter()
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::deleteFilter()
 {
-  if(m_ParentFilter)
+  if(getParentFilter())
   {
-    m_ParentFilter->removeChild(this);
+    getParentFilter()->removeChild(this);
   }
 }
 
@@ -102,7 +97,8 @@ void VSAbstractFilter::deleteFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
-  return m_ParentFilter;
+  VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(QStandardItem::parent());
+  return parentFilter;
 }
 
 // -----------------------------------------------------------------------------
@@ -110,21 +106,10 @@ VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 {
-  if(m_ParentFilter != nullptr)
+  setParent(parent);
+  if(parent)
   {
-    m_ParentFilter->removeChild(this);
-  }
-
-  if(nullptr == parent)
-  {
-    this->m_ParentFilter = nullptr;
-    return;
-  }
-  else
-  {
-    m_ParentFilter = parent;
-    //m_ParentFilter->m_Children.push_back(this);
-    m_ParentFilter->addChild(this);
+    parent->addChild(this);
   }
 }
 
@@ -133,14 +118,8 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
-  if(m_Children.contains(child))
-  {
-    return;
-  }
-
-  m_Children.push_back(child);
-
-  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
+  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), 
+    child, SLOT(connectToOutuput(VSAbstractFilter*)), Qt::UniqueConnection);
 
   appendRow(child);
 }
@@ -150,18 +129,9 @@ void VSAbstractFilter::addChild(VSAbstractFilter* child)
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 {
-  if(!m_Children.contains(child))
-  {
-    return;
-  }
-
   int row = getIndexOfChild(child);
 
-  m_Children.removeAll(child);
-  child->setParentFilter(nullptr);
-
   disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
-
   removeRow(row);
 }
 
@@ -170,12 +140,12 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getAncestor()
 {
-  if(nullptr == m_ParentFilter)
+  if(nullptr == getParentFilter())
   {
     return this;
   }
 
-  return m_ParentFilter->getAncestor();
+  return getParentFilter()->getAncestor();
 }
 
 // -----------------------------------------------------------------------------
@@ -183,15 +153,37 @@ VSAbstractFilter* VSAbstractFilter::getAncestor()
 // -----------------------------------------------------------------------------
 QVector<VSAbstractFilter*> VSAbstractFilter::getChildren() const
 {
-  return m_Children;
+  int numRows = rowCount();
+  QVector<VSAbstractFilter*> children(numRows);
+
+  for(int i = 0; i < numRows; i++)
+  {
+    children[i] = dynamic_cast<VSAbstractFilter*>(child(i));
+  }
+
+  return children;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* child) const
+int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* childFilter) const
 {
-  return m_Children.indexOf(child);
+  if(nullptr == childFilter)
+  {
+    return -1;
+  }
+
+  int numRows = rowCount();
+  for(int i = 0; i < numRows; i++)
+  {
+    if(childFilter == dynamic_cast<VSAbstractFilter*>(child(i)))
+    {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -200,12 +192,12 @@ int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* child) const
 QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 {
   QVector<VSAbstractFilter*> descendants;
+  QVector<VSAbstractFilter*> children = getChildren();
 
-  int count = m_Children.size();
-  for(int i = 0; i < count; i++)
+  for(VSAbstractFilter* filter : children)
   {
-    descendants.push_back(m_Children[i]);
-    descendants.append(m_Children[i]->getDescendants());
+    descendants.push_back(filter);
+    descendants.append(filter->getDescendants());
   }
 
   return descendants;
@@ -216,7 +208,12 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 {
-  return m_Children.at(index);
+  if(index < 0 || index >= rowCount())
+  {
+    return nullptr;
+  }
+
+  return getChildren()[index];
 }
 
 // -----------------------------------------------------------------------------
@@ -335,12 +332,12 @@ QStringList VSAbstractFilter::getComponentList(vtkAbstractArray* array)
 // -----------------------------------------------------------------------------
 double* VSAbstractFilter::getBounds() const
 {
-  if(nullptr == m_ParentFilter)
+  if(nullptr == getParentFilter())
   {
     return nullptr;
   }
 
-  return m_ParentFilter->getBounds();
+  return getParentFilter()->getBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -355,12 +352,12 @@ VSDataSetFilter* VSAbstractFilter::getDataSetFilter()
     return cast;
   }
 
-  if(nullptr == m_ParentFilter)
+  if(nullptr == getParentFilter())
   {
     return nullptr;
   }
 
-  return m_ParentFilter->getDataSetFilter();
+  return getParentFilter()->getDataSetFilter();
 }
 
 // -----------------------------------------------------------------------------
