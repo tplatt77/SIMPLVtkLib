@@ -464,12 +464,15 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
 {
-  m_ShowFilter = copy->m_ShowFilter;
-  m_ActiveArray = copy->m_ActiveArray;
-  m_ActiveComponent = copy->m_ActiveComponent;
-  m_MapColors = copy->m_MapColors;
-  m_ShowScalarBar = copy->m_ShowScalarBar;
-  m_Alpha = copy->m_Alpha;
+  vtkRenderWindowInteractor* iren = copy->m_ScalarBarWidget->GetInteractor();
+  m_ScalarBarWidget->SetInteractor(iren);
+
+  setVisible(copy->m_ShowFilter);
+  setActiveArrayIndex(copy->m_ActiveArray);
+  setActiveComponentIndex(copy->m_ActiveComponent);
+  setMapColors(copy->m_MapColors);
+  setScalarBarVisible(copy->m_ShowScalarBar);
+  setAlpha(copy->m_Alpha);
 
   m_LookupTable->copy(*(copy->m_LookupTable));
 

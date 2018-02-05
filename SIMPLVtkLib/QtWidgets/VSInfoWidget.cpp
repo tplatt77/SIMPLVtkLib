@@ -210,8 +210,19 @@ void VSInfoWidget::updateViewSettingInfo()
   // Apply the current filter view settings to the widget
   m_Internals->viewSettingsWidget->setEnabled(true);
 
-  m_Internals->activeArrayCombo->setCurrentIndex(m_ViewSettings->getActiveArrayIndex());
-  m_Internals->activeComponentCombo->setCurrentIndex(m_ViewSettings->getActiveComponentIndex());
+  int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
+  int activeComponentIndex = m_ViewSettings->getActiveComponentIndex() + 1;
+
+  // Array
+  m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex);
+  updateActiveArrayIndex(activeArrayIndex);
+
+  // Components
+  int numComponents = m_ViewSettings->getNumberOfComponents(activeArrayIndex);
+  if(numComponents > 1)
+  {
+    m_Internals->activeComponentCombo->setCurrentIndex(activeComponentIndex);
+  }
 
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
   m_Internals->mapScalarsCheckBox->setChecked(m_ViewSettings->getMapColors() ? Qt::Checked : Qt::Unchecked);
@@ -223,6 +234,12 @@ void VSInfoWidget::updateViewSettingInfo()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateActiveArrayIndex(int index)
 {
+  int componentIndex = 0;
+  if(m_ViewSettings && m_ViewSettings->getActiveArrayIndex() == index)
+  {
+    componentIndex = m_ViewSettings->getActiveComponentIndex();
+  }
+
   // Set the active component combo box values
   m_Internals->activeComponentCombo->clear();
 
@@ -232,8 +249,13 @@ void VSInfoWidget::updateActiveArrayIndex(int index)
   
   if(multiComponents)
   {
+    m_Internals->activeComponentCombo->setEnabled(true);
     m_Internals->activeComponentCombo->addItems(componentList);
-    m_Internals->activeComponentCombo->setCurrentIndex(0);
+    m_Internals->activeComponentCombo->setCurrentIndex(componentIndex);
+  }
+  else
+  {
+    m_Internals->activeComponentCombo->setEnabled(false);
   }
 
   if(m_ViewSettings)
