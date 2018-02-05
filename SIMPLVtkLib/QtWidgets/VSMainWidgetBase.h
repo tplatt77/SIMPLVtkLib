@@ -196,6 +196,11 @@ protected slots:
   */
   virtual void changeCurrentFilter(VSAbstractFilter* filter);
 
+  /**
+  * @brief
+  */
+  virtual void deleteFilter(VSAbstractFilter* filter);
+
 private:
   VSController* m_Controller;
   VSAbstractFilter* m_CurrentFilter = nullptr;

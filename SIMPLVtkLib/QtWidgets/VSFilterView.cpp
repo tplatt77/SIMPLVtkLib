@@ -60,8 +60,25 @@ void VSFilterView::setupGui()
 // -----------------------------------------------------------------------------
 void VSFilterView::setController(VSController* controller)
 {
+  disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+    this, SLOT(insertFilter(VSAbstractFilter*)));
+
   m_Controller = controller;
   setModel(controller->getFilterModel());
+
+  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+    this, SLOT(insertFilter(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::insertFilter(VSAbstractFilter* filter)
+{
+  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+
+  QModelIndex index = filterModel->getIndexFromFilter(filter);
+  expand(index);
 }
 
 // -----------------------------------------------------------------------------

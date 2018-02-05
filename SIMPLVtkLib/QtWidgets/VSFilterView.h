@@ -88,6 +88,12 @@ protected slots:
   */
   void itemClicked(const QModelIndex& index);
 
+  /**
+  * @brief Handles a new filter being inserted and automatically expands it
+  * @param filter
+  */
+  void insertFilter(VSAbstractFilter* filter);
+
 protected:
   /**
   * @brief Connect Qt signals and slots

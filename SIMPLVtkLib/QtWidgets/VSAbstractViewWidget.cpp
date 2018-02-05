@@ -61,6 +61,7 @@ void VSAbstractViewWidget::setViewController(VSViewController* controller)
   if(m_ViewController)
   {
     disconnect(m_ViewController, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
+    disconnect(m_ViewController, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
 
     disconnect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
     disconnect(m_ViewController, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
@@ -73,6 +74,7 @@ void VSAbstractViewWidget::setViewController(VSViewController* controller)
   m_ViewController = controller;
 
   connect(controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
+  connect(controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
 
   connect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(filterVisibilityChanged(VSFilterViewSettings*, bool)));
   connect(m_ViewController, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(filterArrayIndexChanged(VSFilterViewSettings*, int)));
@@ -102,6 +104,21 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
   }
 
   checkFilterViewSetting(filterViewSettings);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::filterRemoved(VSAbstractFilter* filter)
+{
+  VSFilterViewSettings* filterViewSettings = m_ViewController->getViewSettings(filter);
+
+  if(nullptr == filterViewSettings)
+  {
+    return;
+  }
+
+  filterVisibilityChanged(filterViewSettings, false);
 }
 
 // -----------------------------------------------------------------------------

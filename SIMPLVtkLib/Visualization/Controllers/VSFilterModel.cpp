@@ -71,14 +71,20 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
     return;
   }
 
-  QModelIndex index = getIndexFromFilter(filter);
-  QStandardItem* item = takeItem(index.row(), index.column());
-  if(item)
+  emit filterRemoved(filter);
+
+  if(filter->getParentFilter())
   {
-    delete item;
+    filter->deleteFilter();
+  }
+  else
+  {
+    QModelIndex index = getIndexFromFilter(filter);
+    removeRow(index.row());
   }
 
-  emit filterRemoved(filter);
+  //filter->deleteLater();
+  submit();
 }
 
 // -----------------------------------------------------------------------------

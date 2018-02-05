@@ -234,12 +234,15 @@ void VSViewController::removeFilter(VSAbstractFilter* filter)
   if(viewSettings)
   {
     // Stop rendering the filter
-    viewSettings->setVisible(false);
-    viewSettings->setScalarBarVisible(false);
+    //viewSettings->setVisible(false);
+    //viewSettings->setScalarBarVisible(false);
     
     // Remove the FilterViewSetting from the controller
     int index = getViewSettingsIndex(viewSettings);
-    m_FilterViewSettings.erase(m_FilterViewSettings.begin() + index);
+    if(index >= 0)
+    {
+      m_FilterViewSettings.erase(m_FilterViewSettings.begin() + index);
+    }
 
     // Delete the FilterViewSetting
     viewSettings->deleteLater();

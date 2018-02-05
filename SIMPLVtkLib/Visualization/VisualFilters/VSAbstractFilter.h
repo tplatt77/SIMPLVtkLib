@@ -100,6 +100,11 @@ public:
   ~VSAbstractFilter();
 
   /**
+  * @brief Deletes the item and removes it from the model
+  */
+  virtual void deleteFilter();
+
+  /**
   * @brief Returns the parent visual filter
   * @return
   */

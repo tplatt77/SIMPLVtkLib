@@ -79,11 +79,21 @@ VSAbstractFilter::VSAbstractFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter::~VSAbstractFilter()
 {
-  while(m_Children.count() > 0)
+  while(!m_Children.isEmpty())
   {
     VSAbstractFilter* child = m_Children[0];
     removeChild(child);
-    delete child;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::deleteFilter()
+{
+  if(m_ParentFilter)
+  {
+    m_ParentFilter->removeChild(this);
   }
 }
 
@@ -145,12 +155,14 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
     return;
   }
 
+  int row = getIndexOfChild(child);
+
   m_Children.removeAll(child);
   child->setParentFilter(nullptr);
 
   disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
 
-  removeRow(getIndexOfChild(child));
+  removeRow(row);
 }
 
 // -----------------------------------------------------------------------------

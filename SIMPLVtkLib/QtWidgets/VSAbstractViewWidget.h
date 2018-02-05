@@ -131,6 +131,12 @@ protected slots:
   void filterAdded(VSAbstractFilter* filter);
 
   /**
+  * @brief Removes the filter from the view
+  * @param filter
+  */
+  void filterRemoved(VSAbstractFilter* filter);
+
+  /**
   * @brief Change filter visibility
   * @param viewSettings
   * @param filterVisible

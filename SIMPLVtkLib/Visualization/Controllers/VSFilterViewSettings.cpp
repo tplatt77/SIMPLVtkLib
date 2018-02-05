@@ -76,30 +76,10 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::~VSFilterViewSettings()
 {
-  // Delete the mappers and actors so that they are removed from the visualization widget.
-  // If the VTK actors are not deleted but the visualization widget still exists,
-  // we lose track of the actor pointer and cannot remove it.
-  if(m_ScalarBarWidget)
-  {
-    m_ScalarBarWidget->Delete();
-  }
-  if(m_ScalarBarActor)
-  {
-    m_ScalarBarActor->Delete();
-  }
-  if(m_Actor)
-  {
-    m_Actor->Delete();
-  }
-  if(m_Mapper)
-  {
-    m_Mapper->Delete();
-  }
-  
-  if(m_LookupTable)
-  {
-    delete m_LookupTable;
-  }
+  //if(m_LookupTable)
+  //{
+  //  delete m_LookupTable;
+  //}
 }
 
 // -----------------------------------------------------------------------------

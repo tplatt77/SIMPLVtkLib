@@ -154,6 +154,8 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
       m_InfoWidget, SLOT(setFilter(VSAbstractFilter*)));
     disconnect(this, SIGNAL(changedActiveView(VSViewController*)),
       m_InfoWidget, SLOT(setViewController(VSViewController*)));
+    disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
+      this, SLOT(deleteFilter(VSAbstractFilter*)));
   }
 
   m_InfoWidget = infoWidget;
@@ -164,6 +166,8 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
       infoWidget, SLOT(setFilter(VSAbstractFilter*)));
     connect(this, SIGNAL(changedActiveView(VSViewController*)),
       infoWidget, SLOT(setViewController(VSViewController*)));
+    connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
+      this, SLOT(deleteFilter(VSAbstractFilter*)));
 
     m_InfoWidget->setFilter(m_CurrentFilter);
     m_InfoWidget->setViewController(m_Controller->getActiveViewController());
@@ -209,6 +213,32 @@ void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
   m_CurrentFilter = filter;
 
   emit changedActiveFilter(m_CurrentFilter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
+  for(VSAbstractViewWidget* widget : viewWidgets)
+  {
+    VSFilterViewSettings* viewSettings = widget->getViewController()->getViewSettings(filter);
+    viewSettings->setVisible(false);
+    viewSettings->setScalarBarVisible(false);
+  }
+
+  if(m_CurrentFilter == filter || filter->getDescendants().contains(m_CurrentFilter))
+  {
+    changeCurrentFilter(filter->getParentFilter());
+  }
+
+  m_Controller->getFilterModel()->removeFilter(filter);
 }
 
 // -----------------------------------------------------------------------------

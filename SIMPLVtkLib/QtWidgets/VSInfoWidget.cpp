@@ -81,6 +81,13 @@ void VSInfoWidget::setupGui()
     this, SLOT(selectPresetColors()));
   connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)),
     this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
+
+  connect(m_Internals->applyBtn, SIGNAL(clicked()),
+    this, SLOT(applyFilter()));
+  connect(m_Internals->resetBtn, SIGNAL(clicked()),
+    this, SLOT(resetFilter()));
+  connect(m_Internals->deleteBtn, SIGNAL(clicked()),
+    this, SLOT(deleteFilter()));
 }
 
 // -----------------------------------------------------------------------------
@@ -114,6 +121,8 @@ void VSInfoWidget::deleteFilter()
   {
     return;
   }
+
+  emit filterDeleted(m_Filter);
 }
 
 // -----------------------------------------------------------------------------
