@@ -98,12 +98,12 @@ public:
 protected:
   void update();
 
-  std::vector<RgbPos_t> m_baseRgbPosVector;
-  std::vector<RgbPos_t> m_rgbPosVector;
-  static std::vector<RgbPos_t> m_defaultRgbPosVector;
+  std::vector<RgbPos_t> m_BaseRgbPosVector;
+  std::vector<RgbPos_t> m_RgbPosVector;
+  static std::vector<RgbPos_t> m_DefaultRgbPosVector;
 
-  double* m_range;
-  double* m_baseRange;
+  double* m_Range;
+  double* m_BaseRange;
 
-  vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
+  vtkSmartPointer<vtkColorTransferFunction> m_ColorTransferFunction;
 };
