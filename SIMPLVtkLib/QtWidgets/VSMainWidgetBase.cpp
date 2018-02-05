@@ -233,7 +233,13 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     viewSettings->setScalarBarVisible(false);
   }
 
-  if(m_CurrentFilter == filter || filter->getDescendants().contains(m_CurrentFilter))
+  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  for(VSAbstractFilter* child : childFilters)
+  {
+    deleteFilter(child);
+  }
+
+  if(m_CurrentFilter == filter)
   {
     changeCurrentFilter(filter->getParentFilter());
   }
