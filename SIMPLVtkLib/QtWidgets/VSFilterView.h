@@ -37,6 +37,7 @@
 
 #include <QtWidgets/QTreeView>
 
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -71,14 +72,14 @@ public slots:
   * @brief Changes the view controller used for accessing VSFilterViewSettings
   * @param view
   */
-  void changeViewController(VSViewController* view);
+  void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
   * @brief Handle changes in filter visibility for a given view
   * @param filter
   * @param visible
   */
-  void changedVisibility(VSFilterViewSettings* filter, bool visible);
+  void setFilterVisibility(VSFilterViewSettings* filter, bool visible);
 
 protected slots:
   /**
@@ -115,5 +116,5 @@ protected:
 
 private:
   VSController* m_Controller = nullptr;
-  VSViewController* m_ViewController = nullptr;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
 };

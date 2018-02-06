@@ -37,7 +37,7 @@
 
 #include <QtGui/QStandardItemModel>
 
-#include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -103,6 +103,6 @@ public slots:
   * @brief Updates the model to reflect the view settings found in a given view controller
   * @param viewController
   */
-  void updateModelForView(VSViewController* viewController);
+  void updateModelForView(VSFilterViewSettings::Container viewSettings);
 };
 

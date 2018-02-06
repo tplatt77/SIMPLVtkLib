@@ -153,20 +153,11 @@ QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::updateModelForView(VSViewController* viewController)
+void VSFilterModel::updateModelForView(VSFilterViewSettings::Container viewSettings)
 {
-  for(VSAbstractFilter* filter : getAllFilters())
+  for(VSFilterViewSettings* settings : viewSettings)
   {
-    bool isVisible = false;
-    if(viewController)
-    {
-      VSFilterViewSettings* settings = viewController->getViewSettings(filter);
-      if(settings)
-      {
-        isVisible = settings->getVisible();
-      }
-    }
-
-    filter->setCheckState(isVisible ? Qt::Checked : Qt::Unchecked);
+    VSAbstractFilter* filter = settings->getFilter();
+    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
   }
 }

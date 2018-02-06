@@ -94,27 +94,6 @@ void VSController::importData(DataContainer::Pointer dc)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSViewController* VSController::getActiveViewController()
-{
-  return m_ActiveViewController;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::setActiveViewController(VSViewController* activeView)
-{
-  if(m_ActiveViewController != activeView)
-  {
-    m_ActiveViewController = activeView;
-
-    emit activeViewChanged(m_ActiveViewController);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QVector<VSAbstractFilter*> VSController::getBaseFilters()
 {
   return m_FilterModel->getBaseFilters();

@@ -137,9 +137,9 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter)
   m_Internals->resetBtn->setEnabled(filterExists);
   m_Internals->deleteBtn->setEnabled(filterExists);
 
-  if(filterExists && m_ViewController)
+  if(filterExists && m_ViewWidget)
   {
-    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+    m_ViewSettings = m_ViewWidget->getFilterViewSettings(m_Filter);
   }
   else
   {
@@ -153,13 +153,13 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setViewController(VSViewController* viewController)
+void VSInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
-  m_ViewController = viewController;
+  m_ViewWidget = viewWidget;
 
-  if(m_ViewController)
+  if(m_ViewWidget)
   {
-    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+    m_ViewSettings = m_ViewWidget->getFilterViewSettings(m_Filter);
   }
   else
   {

@@ -57,9 +57,10 @@ VSMainWidget::VSMainWidget(QWidget* parent)
 {
   m_Internals->setupUi(this);
 
-  VSViewController* viewController = new VSViewController(getController());
-  m_Internals->viewWidget->setViewController(viewController);
-  getController()->setActiveViewController(viewController);
+  VSAbstractViewWidget* viewWidget = m_Internals->viewWidget;
+  viewWidget->setController(getController());
+  connectViewWidget(viewWidget);
+  setActiveView(viewWidget);
 
   connectSlots();
 }

@@ -56,11 +56,20 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(activeViewChanged(VSViewController*)), 
-    this, SLOT(activeViewChanged(VSViewController*)));
-
   connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
-    this, SLOT(changeCurrentFilter(VSAbstractFilter*)));
+    this, SLOT(setCurrentFilter(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::connectViewWidget(VSAbstractViewWidget* viewWidget)
+{
+  connect(viewWidget, SIGNAL(viewWidgetCreated(VSAbstractViewWidget*)),
+    this, SLOT(connectViewWidget(VSAbstractViewWidget*)));
+
+  connect(viewWidget, SIGNAL(markActive(VSAbstractViewWidget*)),
+    this, SLOT(setActiveView(VSAbstractViewWidget*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -90,26 +99,6 @@ QVector<VSAbstractViewWidget*> VSMainWidgetBase::getAllViewWidgets()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractViewWidget* VSMainWidgetBase::getViewWidget(VSViewController* viewController)
-{
-  if(viewController)
-  {
-    QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
-    for(auto iter = viewWidgets.begin(); iter != viewWidgets.end(); iter++)
-    {
-      if((*iter)->getViewController() == viewController)
-      {
-        return (*iter);
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 VSFilterView* VSMainWidgetBase::getFilterView()
 {
   return m_FilterView;
@@ -123,16 +112,16 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   if(m_FilterView)
   {
     disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSViewController*)), view, SLOT(changeViewController(VSViewController*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(changeViewWidget(VSAbstractViewWidget*)));
   }
 
   view->setController(m_Controller);
 
   m_FilterView = view;
-  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(changeCurrentFilter(VSAbstractFilter*)));
-  connect(this, SIGNAL(changedActiveView(VSViewController*)), view, SLOT(changeViewController(VSViewController*)));
+  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
+  connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(changeViewWidget(VSAbstractViewWidget*)));
   
-  view->changeViewController(m_ActiveViewWidget->getViewController());
+  view->setViewWidget(m_ActiveViewWidget);
 }
 
 // -----------------------------------------------------------------------------
@@ -152,8 +141,8 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
   {
     disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
       m_InfoWidget, SLOT(setFilter(VSAbstractFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSViewController*)),
-      m_InfoWidget, SLOT(setViewController(VSViewController*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)),
+      m_InfoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
     disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
       this, SLOT(deleteFilter(VSAbstractFilter*)));
   }
@@ -164,13 +153,13 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
   {
     connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*)),
       infoWidget, SLOT(setFilter(VSAbstractFilter*)));
-    connect(this, SIGNAL(changedActiveView(VSViewController*)),
-      infoWidget, SLOT(setViewController(VSViewController*)));
+    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)),
+      infoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
     connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
       this, SLOT(deleteFilter(VSAbstractFilter*)));
 
     m_InfoWidget->setFilter(m_CurrentFilter);
-    m_InfoWidget->setViewController(m_Controller->getActiveViewController());
+    m_InfoWidget->setViewWidget(getActiveViewWidget());
   }
 }
 
@@ -185,16 +174,43 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
+void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 {
-  disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-  m_ActiveViewWidget = getViewWidget(controller);
+  // Disconnect the old active view widget
+  if(m_ActiveViewWidget)
+  {
+    disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
+    disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+  }
+
+  m_ActiveViewWidget = viewWidget;
+
+  // Connect the new active view widget
   if(m_ActiveViewWidget)
   {
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
+    connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+
+    // Update filter check states to match the current view widget
+    getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
   }
 
-  emit changedActiveView(controller);
+  emit changedActiveView(viewWidget);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
+{
+  if(nullptr == m_ActiveViewWidget)
+  {
+    return;
+  }
+
+  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
 
 // -----------------------------------------------------------------------------
@@ -202,13 +218,13 @@ void VSMainWidgetBase::activeViewChanged(VSViewController* controller)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::activeViewClosed()
 {
-  m_Controller->setActiveViewController(nullptr);
+  setActiveView(nullptr);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::changeCurrentFilter(VSAbstractFilter* filter)
+void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
   m_CurrentFilter = filter;
 
@@ -228,7 +244,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
   QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
   for(VSAbstractViewWidget* widget : viewWidgets)
   {
-    VSFilterViewSettings* viewSettings = widget->getViewController()->getViewSettings(filter);
+    VSFilterViewSettings* viewSettings = widget->getFilterViewSettings(filter);
     viewSettings->setVisible(false);
     viewSettings->setScalarBarVisible(false);
   }
@@ -241,7 +257,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
 
   if(m_CurrentFilter == filter)
   {
-    changeCurrentFilter(filter->getParentFilter());
+    setCurrentFilter(filter->getParentFilter());
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
@@ -260,7 +276,7 @@ void VSMainWidgetBase::createClipFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSClipFilter* filter = new VSClipFilter(parent);
-    addFilter(filter, parent);
+    finishAddingFilter(filter, parent);
   }
 }
 
@@ -277,7 +293,7 @@ void VSMainWidgetBase::createCropFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSCropFilter* filter = new VSCropFilter(parent);
-    addFilter(filter, parent);
+    finishAddingFilter(filter, parent);
   }
 }
 
@@ -294,7 +310,7 @@ void VSMainWidgetBase::createSliceFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSSliceFilter* filter = new VSSliceFilter(parent);
-    addFilter(filter, parent);
+    finishAddingFilter(filter, parent);
   }
 }
 
@@ -311,7 +327,7 @@ void VSMainWidgetBase::createMaskFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSMaskFilter* filter = new VSMaskFilter(parent);
-    addFilter(filter, parent);
+    finishAddingFilter(filter, parent);
   }
 }
 
@@ -328,14 +344,14 @@ void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSThresholdFilter* filter = new VSThresholdFilter(parent);
-    addFilter(filter, parent);
+    finishAddingFilter(filter, parent);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::addFilter(VSAbstractFilter* filter, VSAbstractFilter* parent)
+void VSMainWidgetBase::finishAddingFilter(VSAbstractFilter* filter, VSAbstractFilter* parent)
 {
   if(nullptr == filter)
   {
@@ -347,15 +363,11 @@ void VSMainWidgetBase::addFilter(VSAbstractFilter* filter, VSAbstractFilter* par
   // Set parent filter to invisible for the active view
   if(getActiveViewWidget() && parent)
   {
-    VSViewController* viewController = getActiveViewWidget()->getViewController();
-    if(viewController)
+    VSFilterViewSettings* parentSettings = getActiveViewWidget()->getFilterViewSettings(parent);
+    if(parentSettings)
     {
-      VSFilterViewSettings* parentSettings = viewController->getViewSettings(parent);
-      if(parentSettings)
-      {
-        parentSettings->setVisible(false);
-        renderAllViews();
-      }
+      parentSettings->setVisible(false);
+      renderAllViews();
     }
   }
 }
