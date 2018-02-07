@@ -42,7 +42,7 @@
 
 #include <limits>
 
-std::vector<VSLookupTableController::RgbPos_t> VSLookupTableController::m_defaultRgbPosVector = {VSLookupTableController::RgbPos_t{0, 0.231373, 0.298039, 0.752941},
+std::vector<VSLookupTableController::RgbPos_t> VSLookupTableController::m_DefaultRgbPosVector = {VSLookupTableController::RgbPos_t{0, 0.231373, 0.298039, 0.752941},
                                                                                                    VSLookupTableController::RgbPos_t{0.5, 0.865003, 0.865003, 0.865003},
                                                                                                    VSLookupTableController::RgbPos_t{1, 0.705882, 0.0156863, 0.14902}};
 
@@ -52,13 +52,13 @@ std::vector<VSLookupTableController::RgbPos_t> VSLookupTableController::m_defaul
 VSLookupTableController::VSLookupTableController()
 {
   createColorTransferFunction();
-  m_range = new double[2];
-  m_range[0] = 0.0;
-  m_range[1] = 1.0;
+  m_Range = new double[2];
+  m_Range[0] = 0.0;
+  m_Range[1] = 1.0;
 
-  m_baseRange = new double[2];
-  m_baseRange[0] = 0.0;
-  m_baseRange[1] = 1.0;
+  m_BaseRange = new double[2];
+  m_BaseRange[0] = 0.0;
+  m_BaseRange[1] = 1.0;
 
   update();
 }
@@ -68,9 +68,9 @@ VSLookupTableController::VSLookupTableController()
 // -----------------------------------------------------------------------------
 VSLookupTableController::~VSLookupTableController()
 {
-  m_colorTransferFunction->Delete();
-  delete[] m_range;
-  delete[] m_baseRange;
+  m_ColorTransferFunction->Delete();
+  delete[] m_Range;
+  delete[] m_BaseRange;
 }
 
 // -----------------------------------------------------------------------------
@@ -78,16 +78,16 @@ VSLookupTableController::~VSLookupTableController()
 // -----------------------------------------------------------------------------
 void VSLookupTableController::createColorTransferFunction()
 {
-  m_colorTransferFunction = vtkSmartPointer<vtkColorTransferFunction>::New();
-  m_colorTransferFunction->SetColorSpaceToDiverging();
-  m_rgbPosVector.clear();
+  m_ColorTransferFunction = vtkSmartPointer<vtkColorTransferFunction>::New();
+  m_ColorTransferFunction->SetColorSpaceToDiverging();
+  m_RgbPosVector.clear();
 
-  m_rgbPosVector = std::vector<RgbPos_t>(m_defaultRgbPosVector.size());
-  m_baseRgbPosVector = std::vector<RgbPos_t>(m_defaultRgbPosVector.size());
-  for(int i = 0; i < m_defaultRgbPosVector.size(); i++)
+  m_RgbPosVector = std::vector<RgbPos_t>(m_DefaultRgbPosVector.size());
+  m_BaseRgbPosVector = std::vector<RgbPos_t>(m_DefaultRgbPosVector.size());
+  for(int i = 0; i < m_DefaultRgbPosVector.size(); i++)
   {
-    m_rgbPosVector[i] = m_defaultRgbPosVector[i];
-    m_baseRgbPosVector[i] = m_defaultRgbPosVector[i];
+    m_RgbPosVector[i] = m_DefaultRgbPosVector[i];
+    m_BaseRgbPosVector[i] = m_DefaultRgbPosVector[i];
   }
 }
 
@@ -96,7 +96,7 @@ void VSLookupTableController::createColorTransferFunction()
 // -----------------------------------------------------------------------------
 vtkSmartPointer<vtkColorTransferFunction> VSLookupTableController::getColorTransferFunction()
 {
-  return m_colorTransferFunction;
+  return m_ColorTransferFunction;
 }
 
 // -----------------------------------------------------------------------------
@@ -112,10 +112,10 @@ void VSLookupTableController::parseRgbJson(const QJsonObject& presetObj)
   double minValue = std::numeric_limits<double>::max();
   double maxValue = std::numeric_limits<double>::min();
 
-  m_rgbPosVector.clear();
-  m_baseRgbPosVector.clear();
+  m_RgbPosVector.resize(numColors);
+  m_BaseRgbPosVector.resize(numColors);
 
-  m_colorTransferFunction->RemoveAllPoints();
+  m_ColorTransferFunction->RemoveAllPoints();
   for(int i = 0; i < numColors; i++)
   {
     RgbPos_t pos;
@@ -134,22 +134,22 @@ void VSLookupTableController::parseRgbJson(const QJsonObject& presetObj)
       maxValue = pos.x;
     }
 
-    m_rgbPosVector.push_back(pos);
-    m_baseRgbPosVector.push_back(pos);
+    m_RgbPosVector[i] = pos;
+    m_BaseRgbPosVector[i] = pos;
 
-    m_colorTransferFunction->AddRGBPoint(pos.x, pos.r, pos.g, pos.b);
+    m_ColorTransferFunction->AddRGBPoint(pos.x, pos.r, pos.g, pos.b);
   }
 
-  double minRange = m_range[0];
-  double maxRange = m_range[1];
+  double minRange = m_Range[0];
+  double maxRange = m_Range[1];
 
-  m_range[0] = minValue;
-  m_range[1] = maxValue;
+  m_Range[0] = minValue;
+  m_Range[1] = maxValue;
 
-  m_baseRange[0] = minValue;
-  m_baseRange[1] = maxValue;
+  m_BaseRange[0] = minValue;
+  m_BaseRange[1] = maxValue;
 
-  m_colorTransferFunction->SetColorSpaceToRGB();
+  m_ColorTransferFunction->SetColorSpaceToRGB();
 
   setRange(minRange, maxRange);
 }
@@ -159,38 +159,38 @@ void VSLookupTableController::parseRgbJson(const QJsonObject& presetObj)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::copy(const VSLookupTableController& other)
 {
-  m_rgbPosVector.clear();
-  m_baseRgbPosVector.clear();
+  m_RgbPosVector.clear();
+  m_BaseRgbPosVector.clear();
 
-  m_colorTransferFunction->RemoveAllPoints();
+  m_ColorTransferFunction->RemoveAllPoints();
 
-  size_t count = other.m_rgbPosVector.size();
-  m_rgbPosVector.resize(count);
+  size_t count = other.m_RgbPosVector.size();
+  m_RgbPosVector.resize(count);
   for(size_t i = 0; i < count; i++)
   {
-    m_rgbPosVector[i] = other.m_rgbPosVector[i];
-    RgbPos_t pos = m_rgbPosVector[i];
+    m_RgbPosVector[i] = other.m_RgbPosVector[i];
+    RgbPos_t pos = m_RgbPosVector[i];
 
-    m_colorTransferFunction->AddRGBPoint(pos.x, pos.r, pos.g, pos.b);
+    m_ColorTransferFunction->AddRGBPoint(pos.x, pos.r, pos.g, pos.b);
   }
 
-  count = other.m_baseRgbPosVector.size();
-  m_baseRgbPosVector.resize(count);
+  count = other.m_BaseRgbPosVector.size();
+  m_BaseRgbPosVector.resize(count);
   for(size_t i = 0; i < count; i++)
   {
-    m_baseRgbPosVector[i] = other.m_baseRgbPosVector[i];
+    m_BaseRgbPosVector[i] = other.m_BaseRgbPosVector[i];
   }
 
-  int colorSpace = other.m_colorTransferFunction->GetColorSpace();
-  m_colorTransferFunction->SetColorSpace(colorSpace);
+  int colorSpace = other.m_ColorTransferFunction->GetColorSpace();
+  m_ColorTransferFunction->SetColorSpace(colorSpace);
 
-  m_range[0] = other.m_range[0];
-  m_range[1] = other.m_range[1];
+  m_Range[0] = other.m_Range[0];
+  m_Range[1] = other.m_Range[1];
 
-  m_baseRange[0] = other.m_baseRange[0];
-  m_baseRange[1] = other.m_baseRange[1];
+  m_BaseRange[0] = other.m_BaseRange[0];
+  m_BaseRange[1] = other.m_BaseRange[1];
 
-  setRange(m_range[0], m_range[1]);
+  setRange(m_Range[0], m_Range[1]);
 }
 
 // -----------------------------------------------------------------------------
@@ -198,22 +198,22 @@ void VSLookupTableController::copy(const VSLookupTableController& other)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::invert()
 {
-  double minRange = m_range[0];
-  double maxRange = m_range[1];
+  double minRange = m_Range[0];
+  double maxRange = m_Range[1];
 
   normalizePositions();
 
-  size_t size = m_rgbPosVector.size();
+  size_t size = m_RgbPosVector.size();
   std::vector<RgbPos_t> newVector(size);
 
   for(size_t i = 0; i < size; i++)
   {
-    newVector[i] = m_rgbPosVector[size - i - 1];
+    newVector[i] = m_RgbPosVector[size - i - 1];
     newVector[i].x = 1.0 - newVector[i].x;
   }
 
-  m_rgbPosVector = newVector;
-  m_baseRgbPosVector = newVector;
+  m_RgbPosVector = newVector;
+  m_BaseRgbPosVector = newVector;
 
   setRange(minRange, maxRange);
   update();
@@ -224,18 +224,18 @@ void VSLookupTableController::invert()
 // -----------------------------------------------------------------------------
 void VSLookupTableController::normalizePositions()
 {
-  double rangeLength = m_baseRange[1] - m_baseRange[0];
+  double rangeLength = m_BaseRange[1] - m_BaseRange[0];
 
-  for(int i = 0; i < m_baseRgbPosVector.size(); i++)
+  for(int i = 0; i < m_BaseRgbPosVector.size(); i++)
   {
-    RgbPos_t pos = m_baseRgbPosVector[i];
-    pos.x = (pos.x - m_baseRange[0]) / rangeLength;
-    m_rgbPosVector[i] = pos;
-    m_baseRgbPosVector[i] = pos;
+    RgbPos_t pos = m_BaseRgbPosVector[i];
+    pos.x = (pos.x - m_BaseRange[0]) / rangeLength;
+    m_RgbPosVector[i] = pos;
+    m_BaseRgbPosVector[i] = pos;
   }
 
-  m_range[0] = 0.0;
-  m_range[1] = 1.0;
+  m_Range[0] = 0.0;
+  m_Range[1] = 1.0;
 }
 
 // -----------------------------------------------------------------------------
@@ -243,8 +243,8 @@ void VSLookupTableController::normalizePositions()
 // -----------------------------------------------------------------------------
 void VSLookupTableController::setColorTransferFunction(vtkColorTransferFunction* colorTransferFunction)
 {
-  m_colorTransferFunction = colorTransferFunction;
-  m_rgbPosVector.clear();
+  m_ColorTransferFunction = colorTransferFunction;
+  m_RgbPosVector.clear();
 
   double val[6];
   for(int i = 0; colorTransferFunction->GetNodeValue(i, val) != -1; i++)
@@ -256,7 +256,7 @@ void VSLookupTableController::setColorTransferFunction(vtkColorTransferFunction*
     pos.g = val[2];
     pos.b = val[3];
 
-    m_rgbPosVector.push_back(pos);
+    m_RgbPosVector.push_back(pos);
   }
 
   update();
@@ -267,7 +267,7 @@ void VSLookupTableController::setColorTransferFunction(vtkColorTransferFunction*
 // -----------------------------------------------------------------------------
 double* VSLookupTableController::getRange()
 {
-  return m_range;
+  return m_Range;
 }
 
 // -----------------------------------------------------------------------------
@@ -288,15 +288,15 @@ void VSLookupTableController::setRange(double min, double max)
   double rangeLength = max - min;
 
   // skew points to fit new range
-  for(int i = 0; i < m_rgbPosVector.size(); i++)
+  for(int i = 0; i < m_RgbPosVector.size(); i++)
   {
-    RgbPos_t pos = m_baseRgbPosVector[i];
+    RgbPos_t pos = m_BaseRgbPosVector[i];
     pos.x = pos.x * rangeLength + min;
-    m_rgbPosVector[i] = pos;
+    m_RgbPosVector[i] = pos;
   }
 
-  m_range[0] = min;
-  m_range[1] = max;
+  m_Range[0] = min;
+  m_Range[1] = max;
 
   update();
 }
@@ -336,7 +336,7 @@ void VSLookupTableController::addRgbPoint(double x, double rgb[3])
 // -----------------------------------------------------------------------------
 void VSLookupTableController::addRgbPoint(VSLookupTableController::RgbPos_t rgbPos)
 {
-  m_rgbPosVector.push_back(rgbPos);
+  m_RgbPosVector.push_back(rgbPos);
   update();
 }
 
@@ -345,7 +345,7 @@ void VSLookupTableController::addRgbPoint(VSLookupTableController::RgbPos_t rgbP
 // -----------------------------------------------------------------------------
 int VSLookupTableController::getNumberOfRgbPoints()
 {
-  return (int)m_rgbPosVector.size();
+  return (int)m_RgbPosVector.size();
 }
 
 // -----------------------------------------------------------------------------
@@ -355,9 +355,9 @@ double* VSLookupTableController::getRgbColor(int index)
 {
   double* color = new double[3];
 
-  if(index < m_rgbPosVector.size() && index >= 0)
+  if(index < m_RgbPosVector.size() && index >= 0)
   {
-    RgbPos_t rgb = m_rgbPosVector[index];
+    RgbPos_t rgb = m_RgbPosVector[index];
 
     color[0] = rgb.r;
     color[1] = rgb.g;
@@ -378,12 +378,12 @@ double* VSLookupTableController::getRgbColor(int index)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::setColor(int index, double r, double g, double b)
 {
-  if(index >= m_rgbPosVector.size() || index < 0)
+  if(index >= m_RgbPosVector.size() || index < 0)
   {
     return;
   }
 
-  RgbPos_t rgbPos = m_rgbPosVector[index];
+  RgbPos_t rgbPos = m_RgbPosVector[index];
   rgbPos.r = r;
   rgbPos.g = g;
   rgbPos.b = b;
@@ -396,12 +396,12 @@ void VSLookupTableController::setColor(int index, double r, double g, double b)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::setColor(int index, double rgb[3])
 {
-  if(index >= m_rgbPosVector.size() || index < 0)
+  if(index >= m_RgbPosVector.size() || index < 0)
   {
     return;
   }
 
-  RgbPos_t rgbPos = m_rgbPosVector[index];
+  RgbPos_t rgbPos = m_RgbPosVector[index];
   rgbPos.r = rgb[0];
   rgbPos.g = rgb[1];
   rgbPos.b = rgb[2];
@@ -414,12 +414,12 @@ void VSLookupTableController::setColor(int index, double rgb[3])
 // -----------------------------------------------------------------------------
 double VSLookupTableController::getRgbPosition(int index)
 {
-  if(index >= m_rgbPosVector.size() || index < 0)
+  if(index >= m_RgbPosVector.size() || index < 0)
   {
     return 0;
   }
 
-  return m_rgbPosVector[index].x;
+  return m_RgbPosVector[index].x;
 }
 
 // -----------------------------------------------------------------------------
@@ -427,12 +427,12 @@ double VSLookupTableController::getRgbPosition(int index)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::setRgbPositon(int index, double x)
 {
-  if(index >= m_rgbPosVector.size() || index < 0)
+  if(index >= m_RgbPosVector.size() || index < 0)
   {
     return;
   }
 
-  m_rgbPosVector[index].x = x;
+  m_RgbPosVector[index].x = x;
   update();
 }
 
@@ -441,12 +441,12 @@ void VSLookupTableController::setRgbPositon(int index, double x)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::removeRgbPoint(int index)
 {
-  if(index >= m_rgbPosVector.size() || index < 0)
+  if(index >= m_RgbPosVector.size() || index < 0)
   {
     return;
   }
 
-  m_rgbPosVector.erase(m_rgbPosVector.begin() + index);
+  m_RgbPosVector.erase(m_RgbPosVector.begin() + index);
   update();
 }
 
@@ -455,21 +455,21 @@ void VSLookupTableController::removeRgbPoint(int index)
 // -----------------------------------------------------------------------------
 void VSLookupTableController::update()
 {
-  if(nullptr == m_colorTransferFunction)
+  if(nullptr == m_ColorTransferFunction)
   {
     return;
   }
 
-  m_colorTransferFunction->RemoveAllPoints();
+  m_ColorTransferFunction->RemoveAllPoints();
 
-  for(int i = 0; i < m_rgbPosVector.size(); i++)
+  for(int i = 0; i < m_RgbPosVector.size(); i++)
   {
-    RgbPos_t colorPos = m_rgbPosVector[i];
+    RgbPos_t colorPos = m_RgbPosVector[i];
 
-    m_colorTransferFunction->AddRGBPoint(colorPos.x, colorPos.r, colorPos.g, colorPos.b);
+    m_ColorTransferFunction->AddRGBPoint(colorPos.x, colorPos.r, colorPos.g, colorPos.b);
   }
 
-  m_colorTransferFunction->Build();
+  m_ColorTransferFunction->Build();
 }
 
 // -----------------------------------------------------------------------------
@@ -482,31 +482,31 @@ bool VSLookupTableController::equals(VSLookupTableController* other)
     return false;
   }
 
-  if(other->m_rgbPosVector.size() != m_rgbPosVector.size())
+  if(other->m_RgbPosVector.size() != m_RgbPosVector.size())
   {
     return false;
   }
 
-  if(other->m_range[0] != m_range[0] || other->m_range[1] != m_range[1])
+  if(other->m_Range[0] != m_Range[0] || other->m_Range[1] != m_Range[1])
   {
     return false;
   }
 
-  for(int i = 0; i < m_rgbPosVector.size(); i++)
+  for(int i = 0; i < m_RgbPosVector.size(); i++)
   {
-    if(m_rgbPosVector[i].x != other->m_rgbPosVector[i].x)
+    if(m_RgbPosVector[i].x != other->m_RgbPosVector[i].x)
     {
       return false;
     }
-    if(m_rgbPosVector[i].r != other->m_rgbPosVector[i].r)
+    if(m_RgbPosVector[i].r != other->m_RgbPosVector[i].r)
     {
       return false;
     }
-    if(m_rgbPosVector[i].g != other->m_rgbPosVector[i].g)
+    if(m_RgbPosVector[i].g != other->m_RgbPosVector[i].g)
     {
       return false;
     }
-    if(m_rgbPosVector[i].b != other->m_rgbPosVector[i].b)
+    if(m_RgbPosVector[i].b != other->m_RgbPosVector[i].b)
     {
       return false;
     }

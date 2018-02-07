@@ -63,6 +63,22 @@ VSViewWidget::VSViewWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSViewWidget::VSViewWidget(const VSViewWidget& other)
+  : VSAbstractViewWidget(nullptr)
+  , m_Internals(new VSInternals())
+{
+  m_Internals->setupUi(this);
+
+  setController(other.getController());
+  getVisualizationWidget()->copy(other.getVisualizationWidget());
+  copyFilters(other.getAllFilterViewSettings());
+
+  connectSlots();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSViewWidget::connectSlots()
 {
   connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(splitHorizontally()));
@@ -80,20 +96,14 @@ void VSViewWidget::connectSlots()
 // -----------------------------------------------------------------------------
 VSAbstractViewWidget* VSViewWidget::clone()
 {
-  VSViewWidget* viewWidget = new VSViewWidget();
-  VSViewController* viewController = new VSViewController(*(this->getViewController()));
-  
-  viewWidget->getVisualizationWidget()->copy(this->getVisualizationWidget());
-
-  viewWidget->setViewController(viewController);
-
+  VSViewWidget* viewWidget = new VSViewWidget(*(this));
   return viewWidget;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSVisualizationWidget* VSViewWidget::getVisualizationWidget()
+VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
 {
   if(nullptr == m_Internals)
   {
@@ -106,7 +116,7 @@ VSVisualizationWidget* VSViewWidget::getVisualizationWidget()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar)
+void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
 {
   if(nullptr == viewSettings)
   {

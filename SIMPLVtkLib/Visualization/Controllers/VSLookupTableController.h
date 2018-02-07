@@ -60,50 +60,164 @@ public:
     double x, r, g, b;
   };
 
+  /**
+  * @brief Constructor
+  */
   VSLookupTableController();
-  ~VSLookupTableController();
 
+  /**
+  * @brief Deconstructor
+  */
+  virtual ~VSLookupTableController();
+
+  /**
+  * @brief Create the color transfer function
+  */
   void createColorTransferFunction();
+
+  /**
+  * @brief Returns the color transfer function
+  * @return
+  */
   vtkSmartPointer<vtkColorTransferFunction> getColorTransferFunction();
+
+  /**
+  * @brief Sets the color transfer function
+  * @param colorTransferFunction
+  */
   void setColorTransferFunction(vtkColorTransferFunction* colorTransferFunction);
 
+  /**
+  * @brief Parse the given QJsonObject for RGB values and placement in the color transfer function
+  * @param json
+  */
   void parseRgbJson(const QJsonObject& json);
+
+  /**
+  * @brief Copies the values from another VSLookupTableController
+  * @param other
+  */
   void copy(const VSLookupTableController& other);
 
+  /**
+  * @brief Inverts the placement values for colors in the lookup table
+  */
   void invert();
 
+  /**
+  * @brief normalizes the placement of colors in the RGB array so that the range becomes [0, 1]
+  */
   void normalizePositions();
 
+  /**
+  * @brief Returns the placement range for values in the lookup table
+  * @return
+  */
   double* getRange();
+
+  /**
+  * @brief Sets the range to a new set of values
+  * @param range
+  */
   void setRange(double range[2]);
+
+  /**
+  * @brief Sets the range to a new set of values
+  * @param min
+  * @param max
+  */
   void setRange(double min, double max);
 
+  /**
+  * @brief Adds a point to the lookup table
+  * @param x
+  * @param r
+  * @param g
+  * @param b
+  */
   void addRgbPoint(double x, double r, double g, double b);
+
+  /**
+  * @brief Adds a point to the lookup table
+  * @param x
+  * @param rgb
+  */
   void addRgbPoint(double x, double rgb[3]);
+  
+  /**
+  * @brief Adds a point to the lookup table
+  * @param rgbPos
+  */
   void addRgbPoint(RgbPos_t rgbPos);
 
+  /**
+  * @brief Returns the number of specified color points in the table
+  * @return
+  */
   int getNumberOfRgbPoints();
 
+  /**
+  * @brief Returns the rgb color at the given index
+  * @param index
+  * @return
+  */
   double* getRgbColor(int index);
+
+  /**
+  * @brief Sets the color at the given index
+  * @param index
+  * @param r
+  * @param g
+  * @param b
+  */
   void setColor(int index, double r, double g, double b);
+
+  /**
+  * @brief Sets the color at the given index
+  * @param index
+  * @param rgb
+  */
   void setColor(int index, double rgb[3]);
 
+  /**
+  * @brief Returns the position of the item at the given index
+  * @param index
+  * @return
+  */
   double getRgbPosition(int index);
+
+  /**
+  * @brief Sets the position of the item at the given index
+  * @param index
+  * @param x
+  */
   void setRgbPositon(int index, double x);
 
+  /**
+  * @brief Removes the color at the given index
+  * @param index
+  */
   void removeRgbPoint(int index);
 
+  /**
+  * @brief Returns true if both VSLookupTableControllers are identical, otherwise returns false.
+  * @param other
+  * @return
+  */
   bool equals(VSLookupTableController* other);
 
 protected:
+  /**
+  * @brief Updates the color transfer function with the latest values
+  */
   void update();
 
-  std::vector<RgbPos_t> m_baseRgbPosVector;
-  std::vector<RgbPos_t> m_rgbPosVector;
-  static std::vector<RgbPos_t> m_defaultRgbPosVector;
+  std::vector<RgbPos_t> m_BaseRgbPosVector;
+  std::vector<RgbPos_t> m_RgbPosVector;
+  static std::vector<RgbPos_t> m_DefaultRgbPosVector;
 
-  double* m_range;
-  double* m_baseRange;
+  double* m_Range;
+  double* m_BaseRange;
 
-  vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
+  vtkSmartPointer<vtkColorTransferFunction> m_ColorTransferFunction;
 };

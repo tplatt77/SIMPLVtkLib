@@ -56,6 +56,11 @@ public:
   VSViewWidget(QWidget* parent = nullptr);
 
   /**
+  * @brief Copy constructor
+  */
+  VSViewWidget(const VSViewWidget& other);
+
+  /**
   * @brief Clones the widget and its view controller
   * @return
   */
@@ -64,7 +69,7 @@ public:
   /**
   * @brief Returns the VSVisualizationWidget used
   */
-  virtual VSVisualizationWidget* getVisualizationWidget() override;
+  virtual VSVisualizationWidget* getVisualizationWidget() const override;
 
 protected:
   /**
@@ -78,7 +83,7 @@ protected slots:
   * @param viewSettings
   * @param showScalarBar
   */
-  void filterShowScalarBarChanged(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
+  void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
 
 private:
   class VSInternals;

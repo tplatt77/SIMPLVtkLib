@@ -76,30 +76,10 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::~VSFilterViewSettings()
 {
-  // Delete the mappers and actors so that they are removed from the visualization widget.
-  // If the VTK actors are not deleted but the visualization widget still exists,
-  // we lose track of the actor pointer and cannot remove it.
-  if(m_ScalarBarWidget)
-  {
-    m_ScalarBarWidget->Delete();
-  }
-  if(m_ScalarBarActor)
-  {
-    m_ScalarBarActor->Delete();
-  }
-  if(m_Actor)
-  {
-    m_Actor->Delete();
-  }
-  if(m_Mapper)
-  {
-    m_Mapper->Delete();
-  }
-  
-  if(m_LookupTable)
-  {
-    delete m_LookupTable;
-  }
+  //if(m_LookupTable)
+  //{
+  //  delete m_LookupTable;
+  //}
 }
 
 // -----------------------------------------------------------------------------
@@ -464,12 +444,15 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
 {
-  m_ShowFilter = copy->m_ShowFilter;
-  m_ActiveArray = copy->m_ActiveArray;
-  m_ActiveComponent = copy->m_ActiveComponent;
-  m_MapColors = copy->m_MapColors;
-  m_ShowScalarBar = copy->m_ShowScalarBar;
-  m_Alpha = copy->m_Alpha;
+  vtkRenderWindowInteractor* iren = copy->m_ScalarBarWidget->GetInteractor();
+  m_ScalarBarWidget->SetInteractor(iren);
+
+  setVisible(copy->m_ShowFilter);
+  setActiveArrayIndex(copy->m_ActiveArray);
+  setActiveComponentIndex(copy->m_ActiveComponent);
+  setMapColors(copy->m_MapColors);
+  setScalarBarVisible(copy->m_ShowScalarBar);
+  setAlpha(copy->m_Alpha);
 
   m_LookupTable->copy(*(copy->m_LookupTable));
 

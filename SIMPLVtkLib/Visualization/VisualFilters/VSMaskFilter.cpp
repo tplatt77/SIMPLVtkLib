@@ -71,7 +71,7 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 void VSMaskFilter::createFilter()
 {
   m_MaskAlgorithm = VTK_PTR(vtkThreshold)::New();
-  m_MaskAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
+  m_MaskAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
   m_ConnectedInput = true;
 }
 
@@ -113,9 +113,9 @@ vtkAlgorithmOutput* VSMaskFilter::getOutputPort()
   {
     return m_MaskAlgorithm->GetOutputPort();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutputPort();
+    return getParentFilter()->getOutputPort();
   }
 
   return nullptr;
@@ -130,9 +130,9 @@ VTK_PTR(vtkDataSet) VSMaskFilter::getOutput()
   {
     return m_MaskAlgorithm->GetOutput();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutput();
+    return getParentFilter()->getOutput();
   }
 
   return nullptr;

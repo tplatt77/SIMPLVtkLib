@@ -42,7 +42,6 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -83,12 +82,6 @@ public:
   void importData(DataContainer::Pointer dc);
 
   /**
-  * @brief Returns the active VSViewController
-  * @return
-  */
-  VSViewController* getActiveViewController();
-
-  /**
   * @brief Returns a vector of top-level data filters
   * @return
   */
@@ -106,20 +99,11 @@ public:
   */
   VSFilterModel* getFilterModel();
 
-public slots:
-  /**
-  * @brief Sets the active VSViewController
-  * @param activeView
-  */
-  void setActiveViewController(VSViewController* activeView);
-
 signals:
-  void activeViewChanged(VSViewController* activeView);
   void filterAdded(VSAbstractFilter*);
   void filterRemoved(VSAbstractFilter*);
   void dataImported();
 
 private:
-  VSViewController* m_ActiveViewController = nullptr;
   VSFilterModel* m_FilterModel;
 };

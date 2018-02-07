@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <QtCore/QObject>
 
 #include <vtkActor.h>
@@ -60,6 +62,8 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
   Q_OBJECT
 
 public:
+  using Container = std::vector<VSFilterViewSettings*>;
+
   /**
   * @brief Constructor
   * @param filter

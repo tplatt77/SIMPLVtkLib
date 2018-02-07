@@ -71,14 +71,20 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
     return;
   }
 
-  QModelIndex index = getIndexFromFilter(filter);
-  QStandardItem* item = takeItem(index.row(), index.column());
-  if(item)
+  emit filterRemoved(filter);
+
+  if(filter->getParentFilter())
   {
-    delete item;
+    filter->deleteFilter();
+  }
+  else
+  {
+    QModelIndex index = getIndexFromFilter(filter);
+    removeRow(index.row());
   }
 
-  emit filterRemoved(filter);
+  //filter->deleteLater();
+  submit();
 }
 
 // -----------------------------------------------------------------------------
@@ -147,20 +153,11 @@ QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::updateModelForView(VSViewController* viewController)
+void VSFilterModel::updateModelForView(VSFilterViewSettings::Container viewSettings)
 {
-  for(VSAbstractFilter* filter : getAllFilters())
+  for(VSFilterViewSettings* settings : viewSettings)
   {
-    bool isVisible = false;
-    if(viewController)
-    {
-      VSFilterViewSettings* settings = viewController->getViewSettings(filter);
-      if(settings)
-      {
-        isVisible = settings->getVisible();
-      }
-    }
-
-    filter->setCheckState(isVisible ? Qt::Checked : Qt::Unchecked);
+    VSAbstractFilter* filter = settings->getFilter();
+    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
   }
 }

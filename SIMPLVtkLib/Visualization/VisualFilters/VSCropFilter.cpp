@@ -80,7 +80,7 @@ void VSCropFilter::createFilter()
 {
   m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
   m_CropAlgorithm->IncludeBoundaryOn();
-  m_CropAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
+  m_CropAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
 
   m_ConnectedInput = true;
 }
@@ -130,9 +130,9 @@ vtkAlgorithmOutput* VSCropFilter::getOutputPort()
   {
     return m_CropAlgorithm->GetOutputPort();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutputPort();
+    return getParentFilter()->getOutputPort();
   }
 
   return nullptr;
@@ -147,9 +147,9 @@ VTK_PTR(vtkDataSet) VSCropFilter::getOutput()
   {
     return m_CropAlgorithm->GetOutput();
   }
-  else if(m_ParentFilter)
+  else if(getParentFilter())
   {
-    return m_ParentFilter->getOutput();
+    return getParentFilter()->getOutput();
   }
 
   return nullptr;

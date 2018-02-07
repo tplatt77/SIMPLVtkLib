@@ -78,13 +78,6 @@ public:
   QVector<VSAbstractViewWidget*> getAllViewWidgets();
 
   /**
-  * @brief Returns the view widget responsible for the given VSViewController
-  * @param viewController
-  * @return
-  */
-  VSAbstractViewWidget* getViewWidget(VSViewController* viewController);
-
-  /**
   * @brief Returns the VSFilterView used by the main widget. Returns nullptr if none is used
   * @return
   */
@@ -156,7 +149,7 @@ public slots:
   void renderAllViews();
 
 signals:
-  void changedActiveView(VSViewController* viewController);
+  void changedActiveView(VSAbstractViewWidget* viewWidget);
   void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
 
 protected:
@@ -176,14 +169,14 @@ protected:
   * @param filter
   * @param parent
   */
-  void addFilter(VSAbstractFilter* filter, VSAbstractFilter* parent);
+  void finishAddingFilter(VSAbstractFilter* filter, VSAbstractFilter* parent);
 
 protected slots:
   /**
-  * @brief Notifies change in the active VSViewController
-  * @param controller
+  * @brief Notifies change in the active VSAbstractViewWidget
+  * @param viewWidget
   */
-  virtual void activeViewChanged(VSViewController* controller);
+  virtual void setActiveView(VSAbstractViewWidget* viewWidget);
 
   /**
   * @brief Resets the active view widget to nullptr
@@ -194,7 +187,24 @@ protected slots:
   * @brief Changes the active visual filter
   * @param filter
   */
-  virtual void changeCurrentFilter(VSAbstractFilter* filter);
+  virtual void setCurrentFilter(VSAbstractFilter* filter);
+
+  /**
+  * @brief
+  */
+  virtual void deleteFilter(VSAbstractFilter* filter);
+
+  /**
+  * @brief Connects a new VSAbstractViewWidget to the main widget
+  */
+  virtual void connectViewWidget(VSAbstractViewWidget* viewWidget);
+
+  /**
+  * @brief Handles changes in the active filter view's visibility
+  * @param viewSettings
+  * @param visible
+  */
+  virtual void setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible);
 
   /**
    * @brief

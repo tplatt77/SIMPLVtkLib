@@ -70,6 +70,7 @@ VSInfoWidget::VSInfoWidget(QWidget* parent)
 {
   m_Internals->setupUi(this);
   setupGui();
+  setFilter(nullptr, nullptr);
 }
 
 // -----------------------------------------------------------------------------
@@ -95,10 +96,13 @@ void VSInfoWidget::setupGui()
     this, SLOT(selectPresetColors()));
   connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)),
     this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
-  connect(m_Internals->applyBtn, SIGNAL(pressed()),
+
+  connect(m_Internals->applyBtn, SIGNAL(clicked()),
     this, SLOT(applyFilter()));
-  connect(m_Internals->resetBtn, SIGNAL(pressed()),
+  connect(m_Internals->resetBtn, SIGNAL(clicked()),
     this, SLOT(resetFilter()));
+  connect(m_Internals->deleteBtn, SIGNAL(clicked()),
+    this, SLOT(deleteFilter()));
 }
 
 // -----------------------------------------------------------------------------
@@ -136,6 +140,8 @@ void VSInfoWidget::deleteFilter()
   {
     return;
   }
+
+  emit filterDeleted(m_Filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -147,7 +153,6 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   {
     m_Internals->gridLayout_4->removeWidget(m_FilterWidget);
     m_FilterWidget = nullptr;
-    adjustSize();
   }
 
   m_Filter = filter;
@@ -158,9 +163,9 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   m_Internals->resetBtn->setEnabled(filterExists);
   m_Internals->deleteBtn->setEnabled(filterExists);
 
-  if(filterExists && m_ViewController)
+  if(filterExists && m_ViewWidget)
   {
-    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+    m_ViewSettings = m_ViewWidget->getFilterViewSettings(m_Filter);
   }
   else
   {
@@ -170,23 +175,23 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   if (filterWidget != nullptr)
   {
     m_Internals->gridLayout_4->addWidget(filterWidget);
-    adjustSize();
   }
 
   updateFilterInfo();
   updateViewSettingInfo();
+  adjustSize();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setViewController(VSViewController* viewController)
+void VSInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
-  m_ViewController = viewController;
+  m_ViewWidget = viewWidget;
 
-  if(m_ViewController)
+  if(m_ViewWidget)
   {
-    m_ViewSettings = m_ViewController->getViewSettings(m_Filter);
+    m_ViewSettings = m_ViewWidget->getFilterViewSettings(m_Filter);
   }
   else
   {
@@ -201,8 +206,6 @@ void VSInfoWidget::setViewController(VSViewController* viewController)
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateFilterInfo()
 {
-  // TODO: display information both about the filter
-
   // Add and set the array / component combo box values
   m_Internals->activeArrayCombo->blockSignals(true);
   m_Internals->activeArrayCombo->clear();
@@ -246,8 +249,19 @@ void VSInfoWidget::updateViewSettingInfo()
   // Apply the current filter view settings to the widget
   m_Internals->viewSettingsWidget->setEnabled(true);
 
-  m_Internals->activeArrayCombo->setCurrentIndex(m_ViewSettings->getActiveArrayIndex());
-  m_Internals->activeComponentCombo->setCurrentIndex(m_ViewSettings->getActiveComponentIndex());
+  int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
+  int activeComponentIndex = m_ViewSettings->getActiveComponentIndex() + 1;
+
+  // Array
+  m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex);
+  updateActiveArrayIndex(activeArrayIndex);
+
+  // Components
+  int numComponents = m_ViewSettings->getNumberOfComponents(activeArrayIndex);
+  if(numComponents > 1)
+  {
+    m_Internals->activeComponentCombo->setCurrentIndex(activeComponentIndex);
+  }
 
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
   m_Internals->mapScalarsCheckBox->setChecked(m_ViewSettings->getMapColors() ? Qt::Checked : Qt::Unchecked);
@@ -259,6 +273,12 @@ void VSInfoWidget::updateViewSettingInfo()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateActiveArrayIndex(int index)
 {
+  int componentIndex = 0;
+  if(m_ViewSettings && m_ViewSettings->getActiveArrayIndex() == index)
+  {
+    componentIndex = m_ViewSettings->getActiveComponentIndex();
+  }
+
   // Set the active component combo box values
   m_Internals->activeComponentCombo->clear();
 
@@ -268,8 +288,13 @@ void VSInfoWidget::updateActiveArrayIndex(int index)
   
   if(multiComponents)
   {
+    m_Internals->activeComponentCombo->setEnabled(true);
     m_Internals->activeComponentCombo->addItems(componentList);
-    m_Internals->activeComponentCombo->setCurrentIndex(0);
+    m_Internals->activeComponentCombo->setCurrentIndex(componentIndex);
+  }
+  else
+  {
+    m_Internals->activeComponentCombo->setEnabled(false);
   }
 
   if(m_ViewSettings)

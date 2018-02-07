@@ -60,46 +60,51 @@ void VSFilterView::setupGui()
 // -----------------------------------------------------------------------------
 void VSFilterView::setController(VSController* controller)
 {
+  disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+    this, SLOT(insertFilter(VSAbstractFilter*)));
+
   m_Controller = controller;
   setModel(controller->getFilterModel());
+
+  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+    this, SLOT(insertFilter(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterView::changeViewController(VSViewController* view)
+void VSFilterView::insertFilter(VSAbstractFilter* filter)
+{
+  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+
+  QModelIndex index = filterModel->getIndexFromFilter(filter);
+  expand(index);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
   // Disconnect from the old view controller
-  disconnect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
-    this, SLOT(changedVisibility(VSFilterViewSettings*, bool)));
+  disconnect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+    this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
 
-  m_ViewController = view;
-  if(nullptr == m_Controller || nullptr == view)
+  m_ViewWidget = viewWidget;
+  if(nullptr == m_Controller || nullptr == m_ViewWidget)
   {
     return;
   }
 
-  // Update filter check states to match the new view controller
-  for(VSAbstractFilter* filter : m_Controller->getAllFilters())
-  {
-    VSFilterViewSettings* settings = view->getViewSettings(filter);
-    if(nullptr == settings)
-    {
-      continue;
-    }
-
-    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
-  }
-
   // Connect to the new view controller
-  connect(m_ViewController, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
-    this, SLOT(changedVisibility(VSFilterViewSettings*, bool)));
+  connect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+    this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterView::changedVisibility(VSFilterViewSettings* filterSettings, bool visible)
+void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, bool visible)
 {
   VSAbstractFilter* filter = filterSettings->getFilter();
   if(filter)
@@ -121,9 +126,9 @@ void VSFilterView::itemClicked(const QModelIndex& index)
 
   emit filterClicked(filter);
 
-  if(m_ViewController)
+  if(m_ViewWidget)
   {
-    VSFilterViewSettings* settings = m_ViewController->getViewSettings(filter);
+    VSFilterViewSettings* settings = m_ViewWidget->getFilterViewSettings(filter);
     bool checked = filter->checkState() == Qt::Checked;
     if(settings)
     {

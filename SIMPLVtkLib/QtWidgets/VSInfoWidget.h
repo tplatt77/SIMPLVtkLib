@@ -39,7 +39,7 @@
 
 #include "SVWidgetsLib/Dialogs/ColorPresetsDialog.h"
 
-#include "SIMPLVtkLib/Visualization/Controllers/VSViewController.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -78,7 +78,7 @@ public slots:
   * @brief Changes the VSViewController used for fetching VSFilterViewSettings
   * @param viewController
   */
-  void setViewController(VSViewController* viewController);
+  void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
   * @brief Applies the active filter with the current widget values.
@@ -163,8 +163,8 @@ private:
   VSInternals* m_Internals;
 
   VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
   VSAbstractFilterWidget* m_FilterWidget = nullptr;
-  VSViewController* m_ViewController = nullptr;
   VSFilterViewSettings* m_ViewSettings = nullptr;
   ColorPresetsDialog* m_presetsDialog = nullptr;
 };

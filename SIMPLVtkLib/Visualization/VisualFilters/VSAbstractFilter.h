@@ -101,6 +101,11 @@ public:
   ~VSAbstractFilter();
 
   /**
+  * @brief Deletes the item and removes it from the model
+  */
+  virtual void deleteFilter();
+
+  /**
   * @brief Returns the parent visual filter
   * @return
   */
@@ -250,8 +255,6 @@ protected:
 
   bool m_ConnectedInput = false;
   VTK_PTR(vtkAlgorithmOutput) m_InputPort;
-  VSAbstractFilter* m_ParentFilter = nullptr;
-  QVector<VSAbstractFilter*> m_Children;
 
 private:
   /**
