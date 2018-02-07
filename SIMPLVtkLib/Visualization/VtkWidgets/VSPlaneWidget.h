@@ -108,12 +108,6 @@ public:
   void setOrigin(double x, double y, double z) override;
 
   /**
-  * @brief Returns the vtkImplicitFunction used by the widget
-  * @return
-  */
-  vtkSmartPointer<vtkImplicitFunction> getImplicitFunction() override;
-
-  /**
   * @brief Enables the plane widget
   */
   void enable() override;
@@ -124,21 +118,15 @@ public:
   void disable() override;
 
   /**
-  * @brief Copies the origin and normal values to the spin boxes
-  */
-  void apply() override;
-
-  /**
-  * @brief Resets the VTK plane to the last used normal and origin before 
-  * resetting the input widgets.
-  */
-  void reset() override;
-
-  /**
   * @brief Updates the origin and normal values based on the VTK plane widget 
   * before applying those values to the input widgets.
   */
   void updateSpinBoxes();
+
+  /**
+  * @brief Updates the VTK plane
+  */
+  void updatePlaneWidget();
 
 public slots:
   /**
@@ -157,13 +145,7 @@ protected:
   */
   void updateOrigin() override;
 
-  /**
-  * @brief Updates the VTK plane for the implicit function
-  */
-  void updatePlaneWidget();
-
 private:
-  double normal[3];
 
   vtkSmartPointer<vtkPlane> usePlane;
   vtkSmartPointer<vtkPlane> viewPlane;

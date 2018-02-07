@@ -35,54 +35,54 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
+
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "ui_VSDataSetFilterWidget.h"
+
 #include <vtkSmartPointer.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class vtkTrivialProducer;
+class vtkAlgorithmOutput;
+class VSDataSetFilter;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+* @class VSDataSetFilterWidget VSDataSetFilterWidget.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilterWidget.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
+class SIMPLVtkLib_EXPORT VSDataSetFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+  /**
+  * @brief Constuctor
+  * @param parentWidget
+  * @param dataSetStruct
+  */
+  VSDataSetFilterWidget(VSDataSetFilter* filter, QWidget *widget = nullptr);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSDataSetFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
-
-  virtual void enable() = 0;
-  virtual void disable() = 0;
-
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+  * @brief Sets the filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
 private:
-};
+  class vsInternals;
+  vsInternals*                        m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSDataSetFilter*                    m_DataSetFilter;
+};

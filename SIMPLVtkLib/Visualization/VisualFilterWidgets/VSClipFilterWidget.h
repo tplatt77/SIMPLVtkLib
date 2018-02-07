@@ -35,54 +35,79 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+
+#include "Visualization/VisualFilters/VSClipFilter.h"
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+
+#include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class vtkClipDataSet;
+class vtkTableBasedClipDataSet;
+class vtkImplicitPlaneWidget2;
+class VSPlaneWidget;
+class VSBoxWidget;
+class QVTKInteractor;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+ * @class VSClipFilterWidget VSClipFilterWidget.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSClipFilterWidget.h
+ * @brief This class is used to create a clip filter over a set of data.
+ * This class can be chained with itself or other classes inheriting from 
+ * VSAbstractFilter to be more specific about the data being visualized.
+ * VSClipFilterWidget can use both plan and box clip types as well as inverting
+ * the clip applied.
+ */
+class SIMPLVtkLib_EXPORT VSClipFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+    /**
+   * @brief VSClipFilterWidget
+   * @param filter
+   * @param interactor
+   * @param widget
+   */
+  VSClipFilterWidget(VSClipFilter *filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSClipFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Sets the visualization filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  void apply() override;
 
-signals:
-  void modified();
+  /**
+   * @brief reset
+   */
+  void reset() override;
 
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+protected slots:
+  /**
+   * @brief changeClipType
+   * @param clipType
+   */
+  void changeClipType(const QString &clipType);
 
 private:
-};
+  class vsInternals;
+  vsInternals*                        m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSClipFilter*                       m_ClipFilter;
+
+  VSPlaneWidget*                      m_PlaneWidget;
+  VSBoxWidget*                        m_BoxWidget;
+};

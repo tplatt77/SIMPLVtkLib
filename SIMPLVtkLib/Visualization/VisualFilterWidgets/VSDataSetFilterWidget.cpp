@@ -33,56 +33,57 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSDataSetFilterWidget.h"
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
+#include <vtkAlgorithmOutput.h>
+#include <vtkCellData.h>
+#include <vtkDataArray.h>
+#include <vtkDataSet.h>
+#include <vtkDataSetMapper.h>
+#include <vtkLookupTable.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkScalarBarActor.h>
+#include <vtkTrivialProducer.h>
+#include <vtkUnstructuredGridAlgorithm.h>
 
-#include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "ui_VSDataSetFilterWidget.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
-
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+class VSDataSetFilterWidget::vsInternals : public Ui::VSDataSetFilterWidget
 {
-  Q_OBJECT
-
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
-
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
-
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
-
-  virtual void enable() = 0;
-  virtual void disable() = 0;
-
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
-
-private:
+  vsInternals()
+  {
+  }
 };
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSDataSetFilterWidget::VSDataSetFilterWidget(VSDataSetFilter *filter, QWidget* widget)
+: VSAbstractFilterWidget(widget)
+, m_Internals(new vsInternals())
+, m_DataSetFilter(filter)
+{
+  m_Internals->setupUi(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSDataSetFilterWidget::~VSDataSetFilterWidget()
+{
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilterWidget::setBounds(double* bounds)
+{
+
+}

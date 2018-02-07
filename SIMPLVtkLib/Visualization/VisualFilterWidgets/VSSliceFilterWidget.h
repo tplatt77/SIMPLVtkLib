@@ -35,54 +35,64 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+
+#include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class vtkCutter;
+class vtkImplicitPlaneWidget2;
+class VSPlaneWidget;
+class VSSliceFilter;
+class QVTKInteractor;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+ * @class VSSliceFilterWidget VSSliceFilterWidget.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilterWidget.h
+ * @brief This class controls the slice filter and, as with other classes 
+ * inheriting from VSAbstractFilter, can be chained together to further 
+ * specify what part of the volume should be rendered.
+ */
+class SIMPLVtkLib_EXPORT VSSliceFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+  /**
+  * @brief Constructor
+  * @param parentWidget
+  * @param parent
+  */
+  VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSSliceFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Sets the filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  void apply() override;
 
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+   * @brief reset
+   */
+  void reset() override;
 
 private:
-};
+  class vsInternals;
+  vsInternals*                    m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSSliceFilter*                  m_SliceFilter;
+  VSPlaneWidget*                  m_SliceWidget;
+};
