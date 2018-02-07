@@ -35,54 +35,61 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class vtkThreshold;
+class VSMaskFilter;
+class VSMaskWidget;
+class QVTKInteractor;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+ * @class VSMaskFilterWidget VSMaskFilterWidget.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilterWidget.h
+ * @brief This class handles the masking process for vtkDataSets based on any 
+ * numeric or boolean array.  Numeric values greater than or equal to 1 are 
+ * visible whereas values less than 1 are hidden.
+ */
+class SIMPLVtkLib_EXPORT VSMaskFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+  /**
+  * @brief Constructor
+  * @param parentWidget
+  * @param parent
+  */
+  VSMaskFilterWidget(VSMaskFilter* filter, QVTKInteractor* interactor, QWidget* parent);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSMaskFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Sets the filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  void apply() override;
 
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+   * @brief reset
+   */
+  void reset() override;
 
 private:
-};
+  class vsInternals;
+  vsInternals*                                  m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSMaskFilter*                                 m_MaskFilter = nullptr;
+  VSMaskWidget*                                 m_MaskWidget = nullptr;
+};

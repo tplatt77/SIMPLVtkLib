@@ -53,12 +53,13 @@
 // -----------------------------------------------------------------------------
 VSMaskWidget::VSMaskWidget(QWidget* parent, QString mask, double bounds[6], vtkRenderWindowInteractor* iren)
 : VSAbstractWidget(parent, bounds, iren)
-, m_lastMaskName(mask)
 {
   setupUi(this);
 
   // adjust the vtkWidget when values are changed
   connect(maskComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentMaskChanged(int)));
+
+  setMaskName(mask);
 }
 
 // -----------------------------------------------------------------------------
@@ -92,7 +93,6 @@ void VSMaskWidget::updateMaskNames(vtkDataSet* inputData)
 // -----------------------------------------------------------------------------
 void VSMaskWidget::setMaskName(QString mask)
 {
-  m_lastMaskName = maskComboBox->currentText();
   maskComboBox->setCurrentText(mask);
   emit modified();
 }
@@ -130,31 +130,7 @@ void VSMaskWidget::disable()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMaskWidget::apply()
-{
-  m_lastMaskName = maskComboBox->currentText();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskWidget::reset()
-{
-  maskComboBox->setCurrentText(m_lastMaskName);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSMaskWidget::currentMaskChanged(int index)
 {
   emit modified();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkSmartPointer<vtkImplicitFunction> VSMaskWidget::getImplicitFunction()
-{
-  return nullptr;
 }

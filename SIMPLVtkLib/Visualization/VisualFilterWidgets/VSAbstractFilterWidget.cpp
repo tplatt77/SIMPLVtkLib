@@ -33,56 +33,35 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSAbstractFilterWidget.h"
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
-#include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
-
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterWidget::VSAbstractFilterWidget(QWidget* parent)
+: QWidget()
 {
-  Q_OBJECT
 
-public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+}
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterWidget::~VSAbstractFilterWidget()
+{
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+}
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilterWidget::apply()
+{
+}
 
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
-
-private:
-};
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilterWidget::reset()
+{
+}

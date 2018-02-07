@@ -35,54 +35,76 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class vtkThreshold;
+class vtkImageData;
+class vtkDataSet;
+class vtkUnstructuredGrid;
+class vtkImplicitDataSet;
+class vtkExtractGeometry;
+class vtkExtractUnstructuredGrid;
+class VSThresholdWidget;
+class VSDataSetFilter;
+class vtkExtractSelectedThresholds;
+class vtkSelection;
+class vtkSelectionNode;
+class vtkTrivialProducer;
+class vtkPointData;
+class vtkCelldata;
+class vtkMergeFilter;
+class VSThresholdFilter;
+class QVTKInteractor;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+ * @class VSThresholdFilterWidget VSThresholdFilterWidget.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilterWidget.h
+ * @brief This class handles the thresholding over a given range for a 
+ * specified array. This array does not have to match the data array being 
+ * visualized and is set separately within the filter. As this class inherits
+ * from VSAbstractFilter, it can be chained with other filters to further
+ * specify what part of the volume should be visualized.
+ */
+class SIMPLVtkLib_EXPORT VSThresholdFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+  /**
+  * @brief Consructor
+  * @param parentWidget
+  * @param parent
+  */
+  VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSThresholdFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Sets the filter bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  void apply() override;
 
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+   * @brief reset
+   */
+  void reset() override;
 
 private:
-};
+  class vsInternals;
+  vsInternals*                            m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSThresholdFilter*                      m_ThresholdFilter;
+};

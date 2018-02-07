@@ -60,14 +60,9 @@ public:
   void enable() override;
   void disable() override;
 
-  void apply() override;
-  void reset() override;
-
-  vtkSmartPointer<vtkImplicitFunction> getImplicitFunction() override;
-
 protected slots:
   void currentMaskChanged(int index);
 
 private:
-  QString m_lastMaskName;
+
 };

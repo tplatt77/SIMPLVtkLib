@@ -33,178 +33,93 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSCropFilter.h"
+#include "VSSliceFilterWidget.h"
 
-#include <QString>
+#include <QtCore/QString>
 
-#include <vtkActor.h>
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkCutter.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkUnstructuredGrid.h>
+#include <vtkImplicitPlaneRepresentation.h>
+#include <vtkImplicitPlaneWidget2.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
+#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSCropWidget.h"
-#include <vtkExtractVOI.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
-#include <vtkRenderWindowInteractor.h>
+#include "ui_VSSliceFilterWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
-: VSAbstractFilter()
+class VSSliceFilterWidget::vsInternals : public Ui::VSSliceFilterWidget
 {
-  m_CropAlgorithm = nullptr;
-  setText(getFilterName());
-
-  for(int i = 0; i < 3; i++)
+public:
+  vsInternals()
   {
-    m_LastVoi[i] = 0;
-    m_LastVoi[i+3] = 0;
-    m_LastSampleRate[i] = 1;
   }
+};
 
-  m_CropAlgorithm = nullptr;
-  setParentFilter(parent);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor *interactor, QWidget* parent)
+: VSAbstractFilterWidget(parent)
+, m_Internals(new vsInternals())
+, m_SliceFilter(filter)
+{
+  m_Internals->setupUi(this);
+
+  m_SliceWidget = new VSPlaneWidget(this, m_SliceFilter->getBounds(), interactor);
+  m_SliceWidget->show();
+
+  connect(m_SliceWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::createFilter()
+VSSliceFilterWidget::~VSSliceFilterWidget()
 {
-  m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
-  m_CropAlgorithm->IncludeBoundaryOn();
-  m_CropAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
-
-  m_ConnectedInput = true;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::apply(int voi[6], int sampleRate[3])
+void VSSliceFilterWidget::setBounds(double* bounds)
 {
-  if(nullptr == m_CropAlgorithm)
-  {
-    createFilter();
-  }
-
-  // Save the applied values for resetting Crop-Type widgets
-  m_CropAlgorithm->SetVOI(voi);
-  m_CropAlgorithm->SetSampleRate(sampleRate);
-  m_CropAlgorithm->Update();
-
-  for(int i = 0; i < 6; i++)
-  {
-    m_LastVoi[i] = voi[i];
-  }
-
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastSampleRate[i] = sampleRate[i];
-  }
-
-  emit updatedOutputPort(this);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString VSCropFilter::getFilterName()
-{
-  return "Crop";
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSCropFilter::getOutputPort()
-{
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    return m_CropAlgorithm->GetOutputPort();
-  }
-  else if(m_ParentFilter)
-  {
-    return m_ParentFilter->getOutputPort();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSCropFilter::getOutput()
-{
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    return m_CropAlgorithm->GetOutput();
-  }
-  else if(m_ParentFilter)
-  {
-    return m_ParentFilter->getOutput();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  if(nullptr == filter)
+  if(nullptr == bounds)
   {
     return;
   }
 
-  m_InputPort = filter->getOutputPort();
-
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    m_CropAlgorithm->SetInputConnection(filter->getOutputPort());
-  }
-  else
-  {
-    emit updatedOutputPort(filter);
-  }
+  m_SliceWidget->setBounds(bounds);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getOutputType()
+void VSSliceFilterWidget::apply()
 {
-  return IMAGE_DATA;
+  double origin[3];
+  double normals[3];
+
+  m_SliceWidget->getOrigin(origin);
+  m_SliceWidget->getNormals(normals);
+
+  m_SliceFilter->apply(origin, normals);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
+void VSSliceFilterWidget::reset()
 {
-  return IMAGE_DATA;
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int* VSCropFilter::getVOI()
-{
-  return m_LastVoi;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int* VSCropFilter::getSampleRate()
-{
-  return m_LastSampleRate;
 }

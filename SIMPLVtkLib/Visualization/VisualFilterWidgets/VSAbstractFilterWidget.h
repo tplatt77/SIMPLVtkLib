@@ -40,47 +40,48 @@
 #endif
 
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
-
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+* @class VSAbstractFilterWidget VSAbstractFilterWidget.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilterWidget.h
+* @brief This is the base class for all visual filter widgets in SIMPLVtkLib.
+* Classes that inherit from this are widgets for the filters that handle various
+* vtk algorithms for filtering out parts of the vtkDataSet input into the top-level
+* VSDataSetFilter.  Filters can be chained together to be more specific about what
+* kind of data should be shown by pushing the output of a filter as the input for
+* each of its child filters.
+*/
+class SIMPLVtkLib_EXPORT VSAbstractFilterWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSAbstractFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  virtual void apply();
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
-
-signals:
-  void modified();
+  /**
+  * @brief Resets the filter
+  */
+  virtual void reset();
 
 protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+  * @brief Constructor
+  */
+  VSAbstractFilterWidget(QWidget *parent = nullptr);
 
 private:
+
 };
 
 #ifdef __clang__

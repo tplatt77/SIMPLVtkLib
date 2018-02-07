@@ -33,178 +33,89 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSCropFilter.h"
+#include "VSMaskFilterWidget.h"
 
 #include <QString>
 
 #include <vtkActor.h>
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
 #include <vtkImageData.h>
+#include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSCropWidget.h"
-#include <vtkExtractVOI.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSMaskWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
 
 #include <vtkRenderWindowInteractor.h>
 
+#include "ui_VSMaskFilterWidget.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
-: VSAbstractFilter()
+class VSMaskFilterWidget::vsInternals : public Ui::VSMaskFilterWidget
 {
-  m_CropAlgorithm = nullptr;
-  setText(getFilterName());
-
-  for(int i = 0; i < 3; i++)
+public:
+  vsInternals()
   {
-    m_LastVoi[i] = 0;
-    m_LastVoi[i+3] = 0;
-    m_LastSampleRate[i] = 1;
   }
+};
 
-  m_CropAlgorithm = nullptr;
-  setParentFilter(parent);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter *filter, QVTKInteractor* interactor, QWidget *parent)
+: VSAbstractFilterWidget(parent)
+, m_Internals(new vsInternals())
+, m_MaskFilter(filter)
+{
+  m_Internals->setupUi(this);
+
+  m_MaskWidget = new VSMaskWidget(this, "", m_MaskFilter->getBounds(), interactor);
+  m_MaskWidget->show();
+
+  connect(m_MaskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::createFilter()
+VSMaskFilterWidget::~VSMaskFilterWidget()
 {
-  m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
-  m_CropAlgorithm->IncludeBoundaryOn();
-  m_CropAlgorithm->SetInputConnection(m_ParentFilter->getOutputPort());
-
-  m_ConnectedInput = true;
+  delete m_MaskWidget;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSCropFilter::apply(int voi[6], int sampleRate[3])
+void VSMaskFilterWidget::setBounds(double* bounds)
 {
-  if(nullptr == m_CropAlgorithm)
-  {
-    createFilter();
-  }
-
-  // Save the applied values for resetting Crop-Type widgets
-  m_CropAlgorithm->SetVOI(voi);
-  m_CropAlgorithm->SetSampleRate(sampleRate);
-  m_CropAlgorithm->Update();
-
-  for(int i = 0; i < 6; i++)
-  {
-    m_LastVoi[i] = voi[i];
-  }
-
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastSampleRate[i] = sampleRate[i];
-  }
-
-  emit updatedOutputPort(this);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString VSCropFilter::getFilterName()
-{
-  return "Crop";
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSCropFilter::getOutputPort()
-{
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    return m_CropAlgorithm->GetOutputPort();
-  }
-  else if(m_ParentFilter)
-  {
-    return m_ParentFilter->getOutputPort();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSCropFilter::getOutput()
-{
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    return m_CropAlgorithm->GetOutput();
-  }
-  else if(m_ParentFilter)
-  {
-    return m_ParentFilter->getOutput();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  if(nullptr == filter)
+  if(nullptr == bounds)
   {
     return;
   }
-
-  m_InputPort = filter->getOutputPort();
-
-  if(m_ConnectedInput && m_CropAlgorithm)
-  {
-    m_CropAlgorithm->SetInputConnection(filter->getOutputPort());
-  }
-  else
-  {
-    emit updatedOutputPort(filter);
-  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getOutputType()
+void VSMaskFilterWidget::apply()
 {
-  return IMAGE_DATA;
+  m_MaskFilter->apply(m_MaskWidget->getMaskName());
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
+void VSMaskFilterWidget::reset()
 {
-  return IMAGE_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int* VSCropFilter::getVOI()
-{
-  return m_LastVoi;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int* VSCropFilter::getSampleRate()
-{
-  return m_LastSampleRate;
+  m_MaskWidget->setMaskName(m_MaskFilter->getLastArrayName());
 }

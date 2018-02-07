@@ -35,54 +35,66 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #include <QtWidgets/QWidget>
-#include <vector>
-#include <vtkSmartPointer.h>
+
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "ui_VSCropFilterWidget.h"
+
+#include <vtkBox.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
+class VSCropFilter;
+class VSCropWidget;
+class QVTKInteractor;
 
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+/**
+ * @class VSCropFilterWidget VSCropFilterWidget.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilterWidget.h
+ * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
+ * and Z bounds. This class can be chained with other VSAbstractFilters to
+ * further specify the data allowed to be visualized. This filter requires 
+ * the incoming data type to be a vtkImageData, thus restricting it to following 
+ * VSDataSetFilters.
+ */
+class SIMPLVtkLib_EXPORT VSCropFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
+  /**
+  * @brief Constructor
+  * @param parentWidget
+  * @param parent
+  */
+  VSCropFilterWidget(VSCropFilter* filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
 
-  void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
+  /**
+  * @brief Deconstructor
+  */
+  ~VSCropFilterWidget();
 
-  void setBounds(double bounds[6]);
-  virtual void setOrigin(double origin[3]);
-  virtual void setOrigin(double x, double y, double z);
+  /**
+  * @brief Sets the visualization filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  /**
+  * @brief Applies changes to the filter and updates the output
+  */
+  void apply() override;
 
-signals:
-  void modified();
-
-protected:
-  virtual void updateBounds();
-  virtual void updateOrigin();
-
-  double bounds[6];
-  double origin[3];
-
-  const double MIN_SIZE = 6.0;
-
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
+  /**
+   * @brief reset
+   */
+  void reset() override;
 
 private:
-};
+  class vsInternals;
+  vsInternals*                    m_Internals;
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+  VSCropFilter*                   m_CropFilter;
+
+  VSCropWidget*                   m_CropWidget;
+};
