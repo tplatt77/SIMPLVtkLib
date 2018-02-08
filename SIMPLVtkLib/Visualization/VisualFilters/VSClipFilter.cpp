@@ -125,12 +125,13 @@ VTK_PTR(vtkPlanes) VSClipFilter::getBoxFunction(double origin[3], double scale[3
   VTK_NEW(vtkMatrix4x4, matrix);
   viewTransform->SetMatrix(matrix);
 
+  viewTransform->Scale(scale);
+
   viewTransform->RotateZ(rotation[2]);
-  viewTransform->RotateX(rotation[0]);
   viewTransform->RotateY(rotation[1]);
+  viewTransform->RotateX(rotation[0]);
 
   viewTransform->Translate(origin);
-  viewTransform->Scale(scale);
 
   VTK_NEW(vtkBoxRepresentation, boxRep);
   boxRep->SetTransform(viewTransform);

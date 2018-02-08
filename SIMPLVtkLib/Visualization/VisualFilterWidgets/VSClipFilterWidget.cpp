@@ -196,9 +196,7 @@ void VSClipFilterWidget::reset()
     double* rotation = m_ClipFilter->getLastBoxRotation();
     bool inverted = m_ClipFilter->getLastBoxInverted();
 
-    m_BoxWidget->setScale(scale);
-    m_BoxWidget->setOrigin(origin);
-    m_BoxWidget->setRotation(rotation);
+    m_BoxWidget->setValues(rotation, origin, scale);
     m_Internals->insideOutCheckBox->setChecked(inverted);
     m_BoxWidget->updateBoxWidget();
   }

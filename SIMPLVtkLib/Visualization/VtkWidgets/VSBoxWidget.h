@@ -76,6 +76,8 @@ public:
 
   void updateBoxWidget();
 
+  void setValues(double rotation[3], double translation[3], double scale[3]);
+
 public slots:
 
   void spinBoxValueChanged();
