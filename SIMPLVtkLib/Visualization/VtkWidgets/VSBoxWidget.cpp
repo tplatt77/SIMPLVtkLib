@@ -91,25 +91,22 @@ VSBoxWidget::VSBoxWidget(QWidget* parent, double bounds[6], vtkRenderWindowInter
 {
   setupUi(this);
 
-  viewTransform = vtkSmartPointer<vtkTransform>::New();
-  useTransform = vtkSmartPointer<vtkTransform>::New();
-
-  viewPlanes = vtkSmartPointer<vtkPlanes>::New();
+  m_ViewTransform = vtkSmartPointer<vtkTransform>::New();
 
   vtkSmartPointer<vtkBoxCallback> myCallback = vtkSmartPointer<vtkBoxCallback>::New();
-  myCallback->transform = viewTransform;
+  myCallback->transform = m_ViewTransform;
   myCallback->qtBoxWidget = this;
 
   // Implicit Plane Widget
-  boxRep = vtkSmartPointer<vtkBoxRepresentation>::New();
-  boxRep->SetPlaceFactor(1.25);
-  boxRep->PlaceWidget(bounds);
-  boxRep->SetTransform(viewTransform);
+  m_BoxRep = vtkSmartPointer<vtkBoxRepresentation>::New();
+  m_BoxRep->SetPlaceFactor(1.25);
+  m_BoxRep->PlaceWidget(bounds);
+  m_BoxRep->SetTransform(m_ViewTransform);
 
-  boxWidget = vtkSmartPointer<vtkBoxWidget2>::New();
-  boxWidget->SetInteractor(iren);
-  boxWidget->SetRepresentation(boxRep);
-  boxWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
+  m_BoxWidget = vtkSmartPointer<vtkBoxWidget2>::New();
+  m_BoxWidget->SetInteractor(iren);
+  m_BoxWidget->SetRepresentation(m_BoxRep);
+  m_BoxWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
   updateSpinBoxes();
 
@@ -132,7 +129,7 @@ VSBoxWidget::VSBoxWidget(QWidget* parent, double bounds[6], vtkRenderWindowInter
 // -----------------------------------------------------------------------------
 VSBoxWidget::~VSBoxWidget()
 {
-  boxWidget->EnabledOff();
+  m_BoxWidget->EnabledOff();
 }
 
 // -----------------------------------------------------------------------------
@@ -162,7 +159,7 @@ void VSBoxWidget::setOrigin(double origin[3])
 {
   VSAbstractWidget::setOrigin(origin);
 
-  viewTransform->Translate(origin);
+  m_ViewTransform->Translate(origin);
 
   translationXSpinBox->setValue(origin[0]);
   translationYSpinBox->setValue(origin[1]);
@@ -203,9 +200,9 @@ void VSBoxWidget::setRotation(double x, double y, double z)
 // -----------------------------------------------------------------------------
 void VSBoxWidget::updateBounds()
 {
-  boxWidget->EnabledOff();
-  boxWidget->GetRepresentation()->PlaceWidget(bounds);
-  boxWidget->EnabledOn();
+  m_BoxWidget->EnabledOff();
+  m_BoxWidget->GetRepresentation()->PlaceWidget(bounds);
+  m_BoxWidget->EnabledOn();
 }
 
 // -----------------------------------------------------------------------------
@@ -220,7 +217,7 @@ void VSBoxWidget::updateOrigin()
 // -----------------------------------------------------------------------------
 void VSBoxWidget::enable()
 {
-  boxWidget->EnabledOn();
+  m_BoxWidget->EnabledOn();
 }
 
 // -----------------------------------------------------------------------------
@@ -228,7 +225,7 @@ void VSBoxWidget::enable()
 // -----------------------------------------------------------------------------
 void VSBoxWidget::disable()
 {
-  boxWidget->EnabledOff();
+  m_BoxWidget->EnabledOff();
 }
 
 // -----------------------------------------------------------------------------
@@ -239,7 +236,7 @@ void VSBoxWidget::updateSpinBoxes()
   double scale[3];
   double rotation[3];
 
-  vtkMatrix4x4* matrix = viewTransform->GetMatrix();
+  vtkMatrix4x4* matrix = m_ViewTransform->GetMatrix();
 
   getTranslation(origin);
   getScale(scale);
@@ -277,7 +274,7 @@ void VSBoxWidget::spinBoxValueChanged()
   rotation[1] = rotationYSpinBox->value();
   rotation[2] = rotationZSpinBox->value();
 
-  setMatrix(origin, scale, rotation);
+  setValues(origin, rotation, scale);
 
   updateBoxWidget();
   emit modified();
@@ -288,7 +285,8 @@ void VSBoxWidget::spinBoxValueChanged()
 // -----------------------------------------------------------------------------
 void VSBoxWidget::updateBoxWidget()
 {
-  boxRep->SetTransform(viewTransform);
+  m_ViewTransform->Update();
+  m_BoxRep->SetTransform(m_ViewTransform);
 
   m_renderWindowInteractor->Render();
 }
@@ -298,13 +296,7 @@ void VSBoxWidget::updateBoxWidget()
 // -----------------------------------------------------------------------------
 void VSBoxWidget::getTranslation(double translation[3])
 {
-  viewTransform->GetPosition(translation);
-
-  //vtkMatrix4x4* matrix = viewTransform->GetMatrix();
-
-  //translation[0] = matrix->GetElement(0, 3);
-  //translation[1] = matrix->GetElement(1, 3);
-  //translation[2] = matrix->GetElement(2, 3);
+  m_ViewTransform->GetPosition(translation);
 }
 
 // -----------------------------------------------------------------------------
@@ -312,25 +304,7 @@ void VSBoxWidget::getTranslation(double translation[3])
 // -----------------------------------------------------------------------------
 void VSBoxWidget::getScale(double scale[3])
 {
-  viewTransform->GetScale(scale);
-
-  //vtkMatrix4x4* matrix = viewTransform->GetMatrix();
-  //// scale[i] = sqrt(x^2 + y^2 + z^2)
-
-  //double var00 = matrix->GetElement(0, 0);
-  //double var01 = matrix->GetElement(0, 1);
-  //double var02 = matrix->GetElement(0, 2);
-  //scale[0] = sqrt(std::pow(var00, 2) + std::pow(var01, 2) + std::pow(var02, 2));
-
-  //double var10 = matrix->GetElement(1, 0);
-  //double var11 = matrix->GetElement(1, 1);
-  //double var12 = matrix->GetElement(1, 2);
-  //scale[1] = sqrt(std::pow(var10, 2) + std::pow(var11, 2) + std::pow(var12, 2));
-
-  //double var20 = matrix->GetElement(2, 0);
-  //double var21 = matrix->GetElement(2, 1);
-  //double var22 = matrix->GetElement(2, 2);
-  //scale[2] = sqrt(std::pow(var20, 2) + std::pow(var21, 2) + std::pow(var22, 2));
+  m_ViewTransform->GetScale(scale);
 }
 
 // -----------------------------------------------------------------------------
@@ -338,44 +312,51 @@ void VSBoxWidget::getScale(double scale[3])
 // -----------------------------------------------------------------------------
 void VSBoxWidget::getRotation(double rotation[3])
 {
-  viewTransform->GetOrientation(rotation);
+  m_ViewTransform->GetOrientation(rotation);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::setMatrix(double position[3], double scale[3], double rotation[3])
+VTK_PTR(vtkTransform) VSBoxWidget::getTransform()
 {
-  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
-  viewTransform->SetMatrix(matrix);
-
-  viewTransform->Scale(scale);
-
-  viewTransform->RotateZ(rotation[2]);
-  viewTransform->RotateY(rotation[1]);
-  viewTransform->RotateX(rotation[0]);
-
-  viewTransform->Translate(position);
+  VTK_NEW(vtkTransform, transform);
+  m_BoxRep->GetTransform(transform);
+  return transform;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::setValues(double rotation[3], double translation[3], double scale[3])
+void VSBoxWidget::setTransform(VTK_PTR(vtkTransform) transform)
 {
-  scaleXSpinBox->setValue(scale[0]);
-  scaleYSpinBox->setValue(scale[1]);
-  scaleZSpinBox->setValue(scale[2]);
+  m_BoxRep->SetTransform(transform);
+  m_ViewTransform->DeepCopy(transform);
+}
 
-  rotationXSpinBox->setValue(rotation[0]);
-  rotationYSpinBox->setValue(rotation[1]);
-  rotationZSpinBox->setValue(rotation[2]);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkPlanes) VSBoxWidget::getPlanes()
+{
+  VTK_NEW(vtkPlanes, planes);
+  m_BoxRep->GetPlanes(planes);
+  return planes;
+}
 
-  translationXSpinBox->setValue(translation[0]);
-  translationYSpinBox->setValue(translation[1]);
-  translationZSpinBox->setValue(translation[2]);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSBoxWidget::setValues(double position[3], double rotation[3], double scale[3])
+{
+  VTK_NEW(vtkMatrix4x4, matrix);
 
-  setMatrix(translation, scale, rotation);
+  m_ViewTransform->Scale(scale);
+  m_ViewTransform->RotateZ(rotation[2]);
+  m_ViewTransform->RotateY(rotation[1]);
+  m_ViewTransform->RotateX(rotation[0]);
+  m_ViewTransform->Translate(position);
+
+  m_ViewTransform->SetMatrix(matrix);
   updateBoxWidget();
 }
-
