@@ -122,7 +122,7 @@ signals:
   void visibilityChanged(VSFilterViewSettings*, bool);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
-  void mapColorsChanged(VSFilterViewSettings*, bool);
+  void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void requiresRender();
@@ -187,9 +187,9 @@ protected slots:
 
   /**
   * @brief Change the active filter's color map setting
-  * @param mapColors
+  * @param mapColorState
   */
-  void changeFilterMapColors(bool mapColors);
+  void changeFilterMapColors(Qt::CheckState mapColorState);
 
   /**
   * @brief Change the active filter's scalar bar visibility
@@ -216,7 +216,7 @@ protected slots:
   * @param viewSettings
   * @param mapColors
   */
-  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, bool mapColors);
+  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, int mapColorState);
 
   /**
   * @brief ScalarBar visibility changed for filter

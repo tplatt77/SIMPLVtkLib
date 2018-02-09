@@ -69,14 +69,21 @@ void VSAbstractViewWidget::copyFilters(VSFilterViewSettings::Container filters)
     VSFilterViewSettings* viewSettings = new VSFilterViewSettings(*(filters[i]));
     m_FilterViewSettings[i] = viewSettings;
 
-    connect(viewSettings, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
-    connect(viewSettings, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
+    connect(viewSettings, SIGNAL(filterAdded(VSAbstractFilter*)), 
+      this, SLOT(filterAdded(VSAbstractFilter*)));
+    connect(viewSettings, SIGNAL(filterRemoved(VSAbstractFilter*)), 
+      this, SLOT(filterRemoved(VSAbstractFilter*)));
     
-    connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), 
+      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), 
+      this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
+    connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), 
+      this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
+    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), 
+      this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
+    connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), 
+      this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
     connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
 
     checkFilterViewSetting(viewSettings);
@@ -120,8 +127,8 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
     this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
   connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), 
     this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-  connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), 
-    this, SLOT(setFilterMapColors(VSFilterViewSettings*, bool)));
+  connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)),
+    this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
   connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), 
     this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
   connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
@@ -303,7 +310,7 @@ void VSAbstractViewWidget::setFilterComponentIndex(VSFilterViewSettings* viewSet
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, bool mapColors)
+void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, int mapColorState)
 {
   renderView();
 }
@@ -357,11 +364,11 @@ void VSAbstractViewWidget::changeFilterComponentIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterMapColors(bool mapColors)
+void VSAbstractViewWidget::changeFilterMapColors(Qt::CheckState mapColorState)
 {
   if(m_ActiveFilterSettings)
   {
-    m_ActiveFilterSettings->setMapColors(mapColors);
+    m_ActiveFilterSettings->setMapColors(mapColorState);
   }
 }
 
@@ -597,8 +604,8 @@ void VSAbstractViewWidget::setController(VSController* controller)
       this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
     connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), 
       this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, bool)), 
-      this, SLOT(setFilterMapColors(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)),
+      this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
     connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), 
       this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
     connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
