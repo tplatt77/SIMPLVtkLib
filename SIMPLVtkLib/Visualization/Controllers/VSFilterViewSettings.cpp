@@ -137,7 +137,7 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::getMapColors()
+Qt::CheckState VSFilterViewSettings::getMapColors()
 {
   return m_MapColors;
 }
@@ -230,9 +230,9 @@ void VSFilterViewSettings::setActiveArrayIndex(int index)
   emit activeArrayIndexChanged(this, m_ActiveArray);
   setActiveComponentIndex(-1);
 
-  if(isColorArray(dataArray))
+  if(isColorArray(dataArray) && m_MapColors == Qt::Checked)
   {
-    setMapColors(false);
+    setMapColors(Qt::CheckState::PartiallyChecked);
   }
 }
 
@@ -329,8 +329,9 @@ void VSFilterViewSettings::updateColorMode()
   }
 
   vtkDataArray* dataArray = getDataArray();
+  bool unmapColorArray = isColorArray(dataArray) && (m_ActiveComponent == -1);
 
-  if(m_MapColors && !isColorArray(dataArray))
+  if(m_MapColors && !unmapColorArray)
   {
     m_Mapper->SetColorModeToMapScalars();
   }
@@ -345,12 +346,13 @@ void VSFilterViewSettings::updateColorMode()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setMapColors(bool mapColors)
+void VSFilterViewSettings::setMapColors(Qt::CheckState mapColorState)
 {
-  m_MapColors = mapColors;
+  m_MapColors = mapColorState;
 
   updateColorMode();
   emit mapColorsChanged(this, m_MapColors);
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
@@ -469,7 +471,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     if(filter->getArrayNames().size() < 1)
     {
       setScalarBarVisible(false);
-      setMapColors(false);
+      setMapColors(Qt::Unchecked);
     }
   }
 }
