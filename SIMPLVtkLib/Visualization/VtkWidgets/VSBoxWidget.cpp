@@ -350,13 +350,13 @@ VTK_PTR(vtkPlanes) VSBoxWidget::getPlanes()
 void VSBoxWidget::setValues(double position[3], double rotation[3], double scale[3])
 {
   VTK_NEW(vtkMatrix4x4, matrix);
+  m_ViewTransform->SetMatrix(matrix);
 
   m_ViewTransform->Scale(scale);
-  m_ViewTransform->RotateZ(rotation[2]);
-  m_ViewTransform->RotateY(rotation[1]);
-  m_ViewTransform->RotateX(rotation[0]);
   m_ViewTransform->Translate(position);
+  m_ViewTransform->RotateZ(rotation[2]);
+  m_ViewTransform->RotateX(rotation[0]);
+  m_ViewTransform->RotateY(rotation[1]);
 
-  m_ViewTransform->SetMatrix(matrix);
   updateBoxWidget();
 }
