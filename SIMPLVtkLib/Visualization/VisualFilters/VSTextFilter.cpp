@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2015 BlueQuartz Software, LLC
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,103 +33,45 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSController.h"
+#include "VSTextFilter.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSController::VSController(QObject* parent)
-  : QObject(parent)
-  , m_FilterModel(new VSFilterModel())
-{
-  connect(m_FilterModel, SIGNAL(filterAdded(VSAbstractFilter*)), this, SIGNAL(filterAdded(VSAbstractFilter*)));
-  connect(m_FilterModel, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SIGNAL(filterRemoved(VSAbstractFilter*)));
-}
+#include <vtkAlgorithmOutput.h>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSController::~VSController()
+VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text)
+  : VSAbstractFilter()
+  , m_Text(text)
 {
-  delete m_FilterModel;
-}
+  setParentFilter(parent);
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::importData(QString textLabel, DataContainerArray::Pointer dca)
-{
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
-
-  VSTextFilter* textFilter = new VSTextFilter(nullptr, textLabel);
-  m_FilterModel->addFilter(textFilter);
-
-  // Add VSDataSetFilter for each DataContainer with relevant data
-  size_t count = wrappedData.size();
-  for(size_t i = 0; i < count; i++)
-  {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
-    filter->setParentFilter(textFilter);
-    m_FilterModel->addFilter(filter);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::importData(DataContainerArray::Pointer dca)
-{
-  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
+  setCheckState(Qt::Unchecked);
+  setCheckable(false);
+  setEditable(false);
   
-  // Add VSDataSetFilter for each DataContainer with relevant data
-  size_t count = wrappedData.size();
-  for(size_t i = 0; i < count; i++)
-  {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
-    m_FilterModel->addFilter(filter);
-  }
-
-  emit dataImported();
+  setText(getFilterName());
+  QFont itemFont = font();
+  itemFont.setItalic(true);
+  setFont(itemFont);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(DataContainer::Pointer dc)
+const QString VSTextFilter::getFilterName()
 {
-  SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
-
-  // Add VSDataSetFilter if the DataContainer contains relevant data for rendering
-  if(wrappedData)
-  {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData);
-    m_FilterModel->addFilter(filter);
-  }
-
-  emit dataImported();
+  return m_Text;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter* VSController::getBaseTextFilter(QString text)
+vtkAlgorithmOutput* VSTextFilter::getOutputPort()
 {
-  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
-  int count = baseFilters.size();
-
-  for(int i = 0; i < count; i++)
+  if(getParentFilter())
   {
-    VSTextFilter* filter = dynamic_cast<VSTextFilter*>(baseFilters[i]);
-    if(filter)
-    {
-      if(filter->getFilterName().compare(text) == 0)
-      {
-        return filter;
-      }
-    }
+    return getParentFilter()->getOutputPort();
   }
 
   return nullptr;
@@ -138,23 +80,56 @@ VSTextFilter* VSController::getBaseTextFilter(QString text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSController::getBaseFilters()
+VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
 {
-  return m_FilterModel->getBaseFilters();
+  if(getParentFilter())
+  {
+    return getParentFilter()->getOutput();
+  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSController::getAllFilters()
+VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
 {
-  return m_FilterModel->getAllFilters();
+  // Return the parent's output type if a parent exists
+  if(getParentFilter())
+  {
+    return getParentFilter()->getOutputType();
+  }
+
+  return ANY_DATA_SET;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterModel* VSController::getFilterModel()
+VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
 {
-  return m_FilterModel;
+  return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::createFilter()
+{
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  m_InputPort = filter->getOutputPort();
+
+  emit updatedOutputPort(filter);
 }
