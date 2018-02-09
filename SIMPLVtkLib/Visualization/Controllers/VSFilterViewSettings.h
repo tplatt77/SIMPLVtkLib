@@ -252,6 +252,18 @@ protected:
   */
   void updateColorMode();
 
+  /**
+  * @brief Returns true if the given array is a 3-Component color array
+  * @param array
+  * @return
+  */
+  bool isColorArray(vtkDataArray* array);
+
+  /**
+  * @brief Returns the current vtkDataArray specified by the given array index
+  */
+  vtkDataArray* getDataArray();
+
 private:
   VSAbstractFilter* m_Filter = nullptr;
   bool m_ShowFilter = true;

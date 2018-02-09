@@ -228,7 +228,12 @@ void VSFilterViewSettings::setActiveArrayIndex(int index)
   m_ActiveArray = index;
 
   emit activeArrayIndexChanged(this, m_ActiveArray);
-  setActiveComponentIndex(-1); 
+  setActiveComponentIndex(-1);
+
+  if(isColorArray(dataArray))
+  {
+    setMapColors(false);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -268,8 +273,6 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
     QString dataArrayName = QString(dataArray->GetName());
     QString componentName = dataArrayName + " Magnitude";
 
-    //lookupTable->SetVectorModeToMagnitude();
-  
     m_LookupTable->setRange(range);
     m_ScalarBarActor->SetTitle(qPrintable(componentName));
   }
@@ -288,6 +291,36 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+vtkDataArray* VSFilterViewSettings::getDataArray()
+{
+  if(nullptr == m_Filter->getOutput())
+  {
+    return nullptr;
+  }
+
+  return getArrayAtIndex(m_ActiveArray);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray)
+{
+  if(dataArray->GetNumberOfComponents() == 3)
+  {
+    QString dataType = dataArray->GetDataTypeAsString();
+    if(dataType.compare("unsigned char") == 0)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::updateColorMode()
 {
   if(nullptr == m_Mapper)
@@ -295,7 +328,9 @@ void VSFilterViewSettings::updateColorMode()
     return;
   }
 
-  if(m_MapColors)
+  vtkDataArray* dataArray = getDataArray();
+
+  if(m_MapColors && !isColorArray(dataArray))
   {
     m_Mapper->SetColorModeToMapScalars();
   }
