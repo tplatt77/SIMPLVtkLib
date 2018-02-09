@@ -60,14 +60,25 @@ void VSFilterView::setupGui()
 // -----------------------------------------------------------------------------
 void VSFilterView::setController(VSController* controller)
 {
-  disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
-    this, SLOT(insertFilter(VSAbstractFilter*)));
+  if(selectionModel())
+  {
+    disconnect(selectionModel(), SIGNAL(currentItemChanged(const QModelIndex&, const QModelIndex&)),
+      this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));
+  }
+
+  if(m_Controller)
+  {
+    disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
+      this, SLOT(insertFilter(VSAbstractFilter*)));
+  }
 
   m_Controller = controller;
   setModel(controller->getFilterModel());
 
   connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
     this, SLOT(insertFilter(VSAbstractFilter*)));
+  connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+    this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));
 }
 
 // -----------------------------------------------------------------------------
@@ -119,14 +130,7 @@ void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, boo
 void VSFilterView::itemClicked(const QModelIndex& index)
 {
   VSAbstractFilter* filter = getFilterFromIndex(index);
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  emit filterClicked(filter);
-
-  if(m_ViewWidget)
+  if(m_ViewWidget && filter)
   {
     VSFilterViewSettings* settings = m_ViewWidget->getFilterViewSettings(filter);
     bool checked = filter->checkState() == Qt::Checked;
@@ -135,6 +139,20 @@ void VSFilterView::itemClicked(const QModelIndex& index)
       settings->setVisible(checked);
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex& previous)
+{
+  VSAbstractFilter* filter = getFilterFromIndex(current);
+  if(nullptr == filter)
+  {
+    return;
+  }
+
+  emit filterClicked(filter);
 }
 
 // -----------------------------------------------------------------------------

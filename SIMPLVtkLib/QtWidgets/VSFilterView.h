@@ -90,6 +90,13 @@ protected slots:
   void itemClicked(const QModelIndex& index);
 
   /**
+  * @brief Handles changes in the current item
+  * @param current
+  * @param previous
+  */
+  void setCurrentItem(const QModelIndex& current, const QModelIndex& previous);
+
+  /**
   * @brief Handles a new filter being inserted and automatically expands it
   * @param filter
   */
