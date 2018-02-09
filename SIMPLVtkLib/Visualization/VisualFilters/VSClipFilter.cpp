@@ -44,6 +44,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
+#include <vtkImplicitDataSet.h>
 #include <vtkImplicitPlaneRepresentation.h>
 #include <vtkImplicitPlaneWidget2.h>
 #include <vtkPlanes.h>
@@ -74,11 +75,9 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   {
     m_LastPlaneOrigin[i] = 0.0;
     m_LastPlaneNormal[i] = 0.0;
-
-    m_LastBoxOrigin[i] = 0.0;
-    m_LastBoxScale[i] = 1.0;
-    m_LastBoxRotation[i] = 0.0;
   }
+
+  m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
 
   // Set the direction of the plane normal
   m_LastPlaneNormal[0] = 1.0;
@@ -119,30 +118,6 @@ const QString VSClipFilter::getFilterName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkPlanes) VSClipFilter::getBoxFunction(double origin[3], double scale[3], double rotation[3])
-{
-  VTK_NEW(vtkTransform, viewTransform);
-  VTK_NEW(vtkMatrix4x4, matrix);
-  viewTransform->SetMatrix(matrix);
-
-  viewTransform->RotateZ(rotation[2]);
-  viewTransform->RotateX(rotation[0]);
-  viewTransform->RotateY(rotation[1]);
-
-  viewTransform->Translate(origin);
-  viewTransform->Scale(scale);
-
-  VTK_NEW(vtkBoxRepresentation, boxRep);
-  boxRep->SetTransform(viewTransform);
-
-  vtkSmartPointer<vtkPlanes> planes = vtkSmartPointer<vtkPlanes>::New();
-  boxRep->GetPlanes(planes);
-  return planes;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSClipFilter::apply(double origin[3], double normal[3], bool inverted)
 {
   if(nullptr == m_ClipAlgorithm)
@@ -175,8 +150,13 @@ void VSClipFilter::apply(double origin[3], double normal[3], bool inverted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilter::apply(double origin[3], double scale[3], double rotation[3], bool inverted)
+void VSClipFilter::apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transform, bool inverted)
 {
+  if(nullptr == planes)
+  {
+    return;
+  }
+
   if(nullptr == m_ClipAlgorithm)
   {
     createFilter();
@@ -185,18 +165,9 @@ void VSClipFilter::apply(double origin[3], double scale[3], double rotation[3], 
   // Handle Box-Type clips
   m_LastClipType = ClipType::BOX;
   m_LastBoxInverted = inverted;
+  m_LastBoxTransform = transform;
 
-  // Save the applied values for resetting Box-Type widgets
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastBoxOrigin[i] = origin[i];
-    m_LastBoxScale[i] = scale[i];
-    m_LastBoxRotation[i] = rotation[i];
-  }
-
-  VTK_PTR(vtkPlanes) box = getBoxFunction(origin, scale, rotation);
-
-  m_ClipAlgorithm->SetClipFunction(box);
+  m_ClipAlgorithm->SetClipFunction(planes);
   m_ClipAlgorithm->SetInsideOut(inverted);
   m_ClipAlgorithm->Update();
 
@@ -310,25 +281,9 @@ bool VSClipFilter::getLastBoxInverted()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSClipFilter::getLastBoxOrigin()
+VTK_PTR(vtkTransform) VSClipFilter::getLastBoxTransform() 
 {
-  return m_LastBoxOrigin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSClipFilter::getLastBoxScale()
-{
-  return m_LastBoxScale;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSClipFilter::getLastBoxRotation()
-{
-  return m_LastBoxRotation;
+  return m_LastBoxTransform;
 }
 
 // -----------------------------------------------------------------------------

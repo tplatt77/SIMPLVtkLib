@@ -107,7 +107,6 @@ private:
   vsInternals*                        m_Internals;
 
   VSClipFilter*                       m_ClipFilter;
-
   VSPlaneWidget*                      m_PlaneWidget;
   VSBoxWidget*                        m_BoxWidget;
 };
