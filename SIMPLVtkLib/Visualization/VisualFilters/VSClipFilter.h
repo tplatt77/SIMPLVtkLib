@@ -97,6 +97,12 @@ public:
   const QString getFilterName() override;
 
   /**
+  * @brief Returns the tooltip to use for the filter
+  * @return
+  */
+  virtual QString getToolTip() const override;
+
+  /**
   * @brief Applies the clip filter using a plane with the given values
   * @param origin
   * @param normal

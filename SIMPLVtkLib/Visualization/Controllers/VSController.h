@@ -73,7 +73,7 @@ public:
   * as top-level VisualFilters
   * @param dca
   */
-  void importData(QString textLabel, DataContainerArray::Pointer dca);
+  void importData(QString textLabel, QString tooltip, DataContainerArray::Pointer dca);
 
   /**
   * @brief Import data from a DataContainerArray and add any relevant DataContainers

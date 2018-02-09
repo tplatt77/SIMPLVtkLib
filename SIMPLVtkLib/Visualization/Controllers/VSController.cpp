@@ -60,11 +60,11 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(QString textLabel, DataContainerArray::Pointer dca)
+void VSController::importData(QString textLabel, QString tooltip, DataContainerArray::Pointer dca)
 {
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
 
-  VSTextFilter* textFilter = new VSTextFilter(nullptr, textLabel);
+  VSTextFilter* textFilter = new VSTextFilter(nullptr, textLabel, tooltip);
   m_FilterModel->addFilter(textFilter);
 
   // Add VSDataSetFilter for each DataContainer with relevant data

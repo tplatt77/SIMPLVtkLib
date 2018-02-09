@@ -60,6 +60,7 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
   m_SliceAlgorithm = nullptr;
   setParentFilter(parent);
   setText(getFilterName());
+  setToolTip(getToolTip());
 
   m_LastOrigin[0] = 0.0;
   m_LastOrigin[1] = 0.0;
@@ -86,6 +87,14 @@ void VSSliceFilter::createFilter()
 const QString VSSliceFilter::getFilterName()
 {
   return "Slice";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSSliceFilter::getToolTip() const
+{
+  return "Slice Filter";
 }
 
 // -----------------------------------------------------------------------------

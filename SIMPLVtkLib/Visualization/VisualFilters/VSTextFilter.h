@@ -54,13 +54,18 @@ public:
   * @param parent
   * @param text
   */
-  VSTextFilter(VSAbstractFilter* parent, QString text);
+  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
 
   /**
   * @brief Returns the filter's name
   * @return
   */
   const QString getFilterName() override;
+
+  /**
+  * @brief Returns the filter's tooltip
+  */
+  QString getToolTip() const override;
 
   /**
   * @brief Returns the output port to be used by vtkMappers and subsequent filters
@@ -99,4 +104,5 @@ protected:
 
 private:
   QString m_Text;
+  QString m_ToolTip;
 };

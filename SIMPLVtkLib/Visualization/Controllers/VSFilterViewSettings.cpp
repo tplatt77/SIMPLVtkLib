@@ -355,6 +355,11 @@ vtkDataArray* VSFilterViewSettings::getDataArray()
 // -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray)
 {
+  if(nullptr == dataArray)
+  {
+    return false;
+  }
+
   if(dataArray->GetNumberOfComponents() == 3)
   {
     QString dataType = dataArray->GetDataTypeAsString();

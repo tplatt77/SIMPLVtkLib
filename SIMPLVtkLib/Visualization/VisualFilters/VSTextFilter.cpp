@@ -40,9 +40,10 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text)
+VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip)
   : VSAbstractFilter()
   , m_Text(text)
+  , m_ToolTip(toolTip)
 {
   setParentFilter(parent);
 
@@ -51,6 +52,7 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text)
   setEditable(false);
   
   setText(getFilterName());
+  setToolTip(toolTip);
   QFont itemFont = font();
   itemFont.setItalic(true);
   setFont(itemFont);
@@ -62,6 +64,14 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text)
 const QString VSTextFilter::getFilterName()
 {
   return m_Text;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSTextFilter::getToolTip() const
+{
+  return m_ToolTip;
 }
 
 // -----------------------------------------------------------------------------

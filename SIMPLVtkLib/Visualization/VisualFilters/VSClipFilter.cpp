@@ -87,6 +87,7 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   m_LastBoxInverted = false;
 
   setText(getFilterName());
+  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
@@ -113,6 +114,14 @@ void VSClipFilter::createFilter()
 const QString VSClipFilter::getFilterName()
 {
   return "Clip";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSClipFilter::getToolTip() const
+{
+  return "Clip Filter";
 }
 
 // -----------------------------------------------------------------------------
