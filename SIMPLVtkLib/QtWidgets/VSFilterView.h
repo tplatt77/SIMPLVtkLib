@@ -81,6 +81,13 @@ public slots:
   */
   void setFilterVisibility(VSFilterViewSettings* filter, bool visible);
 
+  /**
+  * @brief Handles changing the active filter through other widgets or controls
+  * @param filter
+  * @param widget
+  */
+  void setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget);
+
 protected slots:
   /**
   * @brief Handles mouse clicks on an item and emits a signal if the item is a

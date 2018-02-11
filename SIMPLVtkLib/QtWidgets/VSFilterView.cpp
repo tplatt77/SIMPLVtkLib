@@ -127,6 +127,32 @@ void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, boo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterView::setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget)
+{
+  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+  if(nullptr == filterModel)
+  {
+    return;
+  }
+  if(nullptr == selectionModel())
+  {
+    return;
+  }
+
+  QModelIndex currentIndex = selectionModel()->currentIndex();
+  QModelIndex newIndex = filterModel->getIndexFromFilter(filter);
+
+  // Do not update the selection if there is no change
+  if(newIndex != currentIndex)
+  {
+    QFlags<QItemSelectionModel::SelectionFlag> flags = QItemSelectionModel::ClearAndSelect;
+    selectionModel()->setCurrentIndex(newIndex, flags);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterView::itemClicked(const QModelIndex& index)
 {
   VSAbstractFilter* filter = getFilterFromIndex(index);
