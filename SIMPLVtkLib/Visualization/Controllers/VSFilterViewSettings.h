@@ -228,6 +228,9 @@ signals:
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void requiresRender();
 
+protected slots:
+  void setOrigin(double* origin);
+
 protected:
   /**
   * @brief Performs initial setup commands for any actors used in the view settings

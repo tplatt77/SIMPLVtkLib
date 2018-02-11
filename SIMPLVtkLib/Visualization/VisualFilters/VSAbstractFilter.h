@@ -217,8 +217,27 @@ public:
   */
   static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
 
+  /**
+  * @brief Returns the object's global origin
+  * @return
+  */
+  double* getOrigin();
+
+  /**
+  * @brief Returns the object's local origin
+  * @return
+  */
+  double* getLocalOrigin();
+
+  /**
+  * @brief Sets the object's local origin
+  * @param origin
+  */
+  void setOrigin(double origin[3]);
+
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
+  void updatedOrigin(double* origin);
 
 protected slots:
   /**
@@ -268,6 +287,8 @@ private:
   * @param child
   */
   void removeChild(VSAbstractFilter* child);
+
+  double m_Origin[3];
 };
 
 #ifdef __clang__

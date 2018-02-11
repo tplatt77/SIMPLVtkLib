@@ -417,6 +417,7 @@ void VSFilterViewSettings::setupActors()
 
   m_Actor = VTK_PTR(vtkActor)::New();
   m_Actor->SetMapper(m_Mapper);
+  m_Actor->SetPosition(m_Filter->getOrigin());
 
   m_LookupTable = new VSLookupTableController();
   m_Mapper->SetLookupTable(m_LookupTable->getColorTransferFunction());
@@ -461,12 +462,14 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
   if(m_Filter)
   {
     disconnect(m_Filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
+    disconnect(filter, SIGNAL(updatedOrigin(double*)), this, SLOT(setOrigin(double*)));
   }
 
   m_Filter = filter;
   if(filter)
   {
     connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
+    connect(filter, SIGNAL(updatedOrigin(double*)), this, SLOT(setOrigin(double*)));
 
     if(filter->getArrayNames().size() < 1)
     {
@@ -494,4 +497,17 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   m_LookupTable->copy(*(copy->m_LookupTable));
 
   emit requiresRender();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setOrigin(double* origin)
+{
+  if(nullptr == m_Actor)
+  {
+    return;
+  }
+
+  m_Actor->SetPosition(origin);
 }

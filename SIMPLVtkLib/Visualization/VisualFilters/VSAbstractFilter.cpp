@@ -72,6 +72,11 @@ VSAbstractFilter::VSAbstractFilter()
 {
   setCheckable(true);
   setCheckState(Qt::Checked);
+  
+  for(int i = 0; i < 3; i++)
+  {
+    m_Origin[i] = 0.0;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -409,4 +414,47 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
     // Emit only when the filter is not connected to its algorithm
     emit updatedOutputPort(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSAbstractFilter::getOrigin()
+{
+  // Return local origin
+  if(nullptr == getParentFilter())
+  {
+    return m_Origin;
+  }
+
+  // Return local origin + parent origin
+  double origin[3];
+  double* parentOrigin = getParentFilter()->getOrigin();
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = parentOrigin[i] + m_Origin[i];
+  }
+
+  return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSAbstractFilter::getLocalOrigin()
+{
+  return m_Origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setOrigin(double origin[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m_Origin[i] = origin[i];
+  }
+
+  emit updatedOrigin(m_Origin);
 }
