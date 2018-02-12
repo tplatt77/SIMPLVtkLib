@@ -506,7 +506,7 @@ void VSFilterViewSettings::setupActors()
   if(m_Filter->getTransform())
   {
     m_Actor->SetPosition(m_Filter->getTransform()->getPosition());
-    //m_Actor->SetOrientation(m_Filter->getTransform()->getRotation());
+    m_Actor->SetOrientation(m_Filter->getTransform()->getRotation());
     m_Actor->SetScale(m_Filter->getTransform()->getScale());
   }
 
@@ -640,6 +640,7 @@ void VSFilterViewSettings::setPosition(double* position)
   }
 
   m_Actor->SetPosition(position);
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
@@ -653,6 +654,7 @@ void VSFilterViewSettings::setRotation(double* rotation)
   }
 
   m_Actor->SetOrientation(rotation);
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
@@ -666,4 +668,5 @@ void VSFilterViewSettings::setScale(double* scale)
   }
 
   m_Actor->SetScale(scale);
+  emit requiresRender();
 }

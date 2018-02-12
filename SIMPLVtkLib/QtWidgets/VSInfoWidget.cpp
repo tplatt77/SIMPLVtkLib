@@ -187,9 +187,18 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
     m_Internals->gridLayout_4->addWidget(filterWidget);
   }
 
+  if(filterExists)
+  {
+    m_Internals->transformWidget->setTransform(filter->getTransform());
+  }
+  else
+  {
+    m_Internals->transformWidget->setTransform(nullptr);
+  }
+
   updateFilterInfo();
   updateViewSettingInfo();
-  adjustSize();
+  m_Internals->viewSettingsWidget->adjustSize();
 }
 
 // -----------------------------------------------------------------------------

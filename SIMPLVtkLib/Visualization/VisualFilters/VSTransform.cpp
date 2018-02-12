@@ -35,6 +35,8 @@
 
 #include "VSTransform.h"
 
+#include <cmath>
+
 #include <vtkTransform.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
@@ -48,9 +50,15 @@ VSTransform::VSTransform(VSTransform* parent)
   for(int i = 0; i < 3; i++)
   {
     m_Position[i] = 0.0;
-    //m_Rotation[i] = 0.0;
+    m_Rotation[i] = 0.0;
     m_Scale[i] = 1.0;
   }
+
+  m_Rotation[0] = 45.0;
+
+  connect(this, &VSTransform::emitPosition, this, [=] { emit updatedPosition(getPosition()); });
+  connect(this, &VSTransform::emitRotation, this, [=] { emit updatedRotation(getRotation()); });
+  connect(this, &VSTransform::emitScale, this, [=] { emit updatedScale(getScale()); });
 }
 
 // -----------------------------------------------------------------------------
@@ -58,11 +66,25 @@ VSTransform::VSTransform(VSTransform* parent)
 // -----------------------------------------------------------------------------
 void VSTransform::setParent(VSTransform* parent)
 {
+  if(m_Parent)
+  {
+    disconnect(m_Parent, SIGNAL(emitPosition()), this, SIGNAL(emitPosition()));
+    disconnect(m_Parent, SIGNAL(emitRotation()), this, SIGNAL(emitRotation()));
+    disconnect(m_Parent, SIGNAL(emitScale()), this, SIGNAL(emitScale()));
+  }
+
   m_Parent = parent;
 
-  emit updatedPosition(getPosition());
-  //emit updatedRotation(getRotation());
-  emit updatedScale(getScale());
+  if(parent)
+  {
+    connect(m_Parent, SIGNAL(emitPosition()), this, SIGNAL(emitPosition()));
+    connect(m_Parent, SIGNAL(emitRotation()), this, SIGNAL(emitRotation()));
+    connect(m_Parent, SIGNAL(emitScale()), this, SIGNAL(emitScale()));
+  }
+
+  emit emitPosition();
+  emit emitRotation();
+  emit emitScale();
 }
 
 // -----------------------------------------------------------------------------
@@ -83,7 +105,7 @@ double* VSTransform::getPosition()
     return getLocalPosition();
   }
 
-  double position[3];
+  double* position = new double[3];
   double* parentPosition = m_Parent->getPosition();
   for(int i = 0; i < 3; i++)
   {
@@ -98,51 +120,71 @@ double* VSTransform::getPosition()
 // -----------------------------------------------------------------------------
 double* VSTransform::getLocalPosition()
 {
-  return m_Position;
+  double* position = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    position[i] = m_Position[i];
+  }
+
+  return position;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//double* VSTransform::rotateEulerAngles(double start[3], double rotation[3])
-//{
-//  VTK_NEW(vtkTransform, transform);
-//  transform->RotateZ(start[2]);
-//  transform->RotateY(start[1]);
-//  transform->RotateX(start[0]);
+double* VSTransform::rotateEulerAngles(double start[3], double rotation[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    if(abs(rotation[i]) < 0.0001)
+    {
+      rotation[i] = 0.0;
+    }
+  }
+
+  VTK_NEW(vtkTransform, transform);
+  transform->RotateZ(start[2]);
+  transform->RotateY(start[1]);
+  transform->RotateX(start[0]);
+
+  transform->RotateZ(rotation[2]);
+  transform->RotateY(rotation[1]);
+  transform->RotateX(rotation[0]);
+
+  double* finalRotation = new double[3];
+  transform->GetOrientation(finalRotation);
+  return finalRotation;
+}
+
+// -----------------------------------------------------------------------------
 //
-//  transform->RotateZ(rotation[2]);
-//  transform->RotateY(rotation[1]);
-//  transform->RotateX(rotation[0]);
+// -----------------------------------------------------------------------------
+double* VSTransform::getRotation()
+{
+  if(nullptr == m_Parent)
+  {
+    return getLocalRotation();
+  }
+
+  double* parentRotation = m_Parent->getRotation();
+  double* rotation = rotateEulerAngles(m_Rotation, parentRotation);
+
+  return rotation;
+}
+
+// -----------------------------------------------------------------------------
 //
-//  double finalRotation[3];
-//  transform->GetOrientation(finalRotation);
-//  return finalRotation;
-//}
-//
-//// -----------------------------------------------------------------------------
-////
-//// -----------------------------------------------------------------------------
-//double* VSTransform::getRotation()
-//{
-//  if(nullptr == m_Parent)
-//  {
-//    return getLocalRotation();
-//  }
-//
-//  double* parentRotation = m_Parent->getRotation();
-//  double* rotation = rotateEulerAngles(m_Rotation, parentRotation);
-//
-//  return rotation;
-//}
-//
-//// -----------------------------------------------------------------------------
-////
-//// -----------------------------------------------------------------------------
-//double* VSTransform::getLocalRotation()
-//{
-//  return m_Rotation;
-//}
+// -----------------------------------------------------------------------------
+double* VSTransform::getLocalRotation()
+{
+  double* rotation = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    rotation[i] = m_Rotation[i];
+  }
+
+  return rotation;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -154,7 +196,7 @@ double* VSTransform::getScale()
     return getLocalScale();
   }
 
-  double scale[3];
+  double* scale = new double[3];
   double* parentScale = m_Parent->getScale();
   for(int i = 0; i < 3; i++)
   {
@@ -169,34 +211,40 @@ double* VSTransform::getScale()
 // -----------------------------------------------------------------------------
 double* VSTransform::getLocalScale()
 {
-  return m_Scale;
+  double* scale = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    scale[i] = m_Scale[i];
+  }
+
+  return scale;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransform::setPositon(double position[3])
+void VSTransform::setPosition(double position[3])
 {
   for(int i = 0; i < 3; i++)
   {
     m_Position[i] = position[i];
   }
 
-  emit updatedPosition(getPosition());
+  emit emitPosition();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void VSTransform::setRotation(double rotation[3])
-//{
-//  for(int i = 0; i < 3; i++)
-//  {
-//    m_Rotation[i] = rotation[i];
-//  }
-//
-//  emit updatedRotation(getRotation());
-//}
+void VSTransform::setRotation(double rotation[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m_Rotation[i] = rotation[i];
+  }
+
+  emit emitRotation();
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -208,5 +256,5 @@ void VSTransform::setScale(double scale[3])
     m_Scale[i] = scale[i];
   }
 
-  emit updatedScale(getScale());
+  emit emitScale();
 }

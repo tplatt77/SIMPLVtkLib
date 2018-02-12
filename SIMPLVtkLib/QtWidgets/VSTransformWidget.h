@@ -35,110 +35,57 @@
 
 #pragma once
 
-#include <QtCore/QObject>
+#include <QtWidgets/QWidget>
 
-/**
-* @class VSTransform VSTransform.h SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h
-* @brief This class stores the local coordinates for placing an object in 3D 
-* space including local values for position, rotation, and scale. Global values
-* are found by applying the local value to the parent's global value.
-*/
-class VSTransform : public QObject
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
+
+class VSTransformWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  /**
-  * @brief Constructor
-  */
-  VSTransform(VSTransform* parent = nullptr);
+  VSTransformWidget(QWidget* parent);
 
-  /**
-  * @brief Sets the parent transform
-  * @param parent
-  */
-  void setParent(VSTransform* parent);
-
-  /**
-  * @brief Returns the parent transform
-  * @return
-  */
-  VSTransform* getParent();
-
-  /**
-  * @brief Returns the transform's global position in 3D space
-  * @return
-  */
-  double* getPosition();
-
-  /**
-  * @brief Returns the transform's local position in 3D space
-  * @return
-  */
-  double* getLocalPosition();
+  VSTransform* getTransform();
+  void setTransform(VSTransform* transform);
   
+protected slots:
   /**
-  * @brief Returns the transform's global Euler rotation
-  * @return
+  * @brief Updates the translation spin boxes to match the transformation's local values
   */
-  double* getRotation();
+  void translationSpinBoxesChanged();
 
   /**
-  * @brief Returns the transform's local Euler rotation
-  * @return
+  * @brief Updates the rotation spin boxes to match the transformation's local values
   */
-  double* getLocalRotation();
+  void rotationSpinBoxesChanged();
 
   /**
-  * @brief Returns the transform's global scale
-  * @return
+  * @brief Updates the scale spin boxes to match the transformation's local values
   */
-  double* getScale();
+  void scaleSpinBoxesChanged();
 
   /**
-  * @brief Returns the transform's local scale
-  * @return
+  * @brief Updates the translation labels to match the transformation's global values
   */
-  double* getLocalScale();
+  void updateTranslationLabels(double* position);
 
   /**
-  * @brief Sets the transform's local position
-  * @param position
+  * @brief Updates the rotation labels to match the transformation's global values
   */
-  void setPosition(double position[3]);
+  void updateRotationLabels(double* rotation);
 
   /**
-  * @brief Sets the transform's local Euler rotation
-  * @param rotation
+  * @brief Updates the scale labels to match the transformation's global values
   */
-  void setRotation(double rotation[3]);
-
-  /**
-  * @brief Sets the transform's local scale
-  * @param scale
-  */
-  void setScale(double scale[3]);
-
-signals:
-  void updatedPosition(double* position);
-  void updatedRotation(double* rotation);
-  void updatedScale(double* scale);
-  void emitPosition();
-  void emitRotation();
-  void emitScale();
+  void updateScaleLabels(double* scale);
 
 protected:
-  /**
-  * @brief Return the Euler angles found from rotating one set of Euler angles by another
-  * @param start
-  * @param rotation
-  */
-  double* rotateEulerAngles(double start[3], double rotation[3]);
+  void setupGui();
 
 private:
-  VSTransform* m_Parent = nullptr;
+  class VSInternals;
+  VSInternals* m_Internals;
 
-  double m_Position[3];
-  double m_Rotation[3];
-  double m_Scale[3];
+  VSTransform* m_Transform = nullptr;
 };

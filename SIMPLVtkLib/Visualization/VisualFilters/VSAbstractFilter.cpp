@@ -111,10 +111,15 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
   if(parent)
   {
     parent->addChild(this);
-  }
 
-  // Sets the transform's parent as well
-  m_Transform->setParent(parent->getTransform());
+    // Sets the transform's parent as well
+    m_Transform->setParent(parent->getTransform());
+  }
+  else
+  {
+    // Sets the transform's parent to nullptr
+    m_Transform->setParent(nullptr);
+  }
 }
 
 // -----------------------------------------------------------------------------
