@@ -54,8 +54,6 @@ VSTransform::VSTransform(VSTransform* parent)
     m_Scale[i] = 1.0;
   }
 
-  m_Rotation[0] = 45.0;
-
   connect(this, &VSTransform::emitPosition, this, [=] { emit updatedPosition(getPosition()); });
   connect(this, &VSTransform::emitRotation, this, [=] { emit updatedRotation(getRotation()); });
   connect(this, &VSTransform::emitScale, this, [=] { emit updatedScale(getScale()); });
