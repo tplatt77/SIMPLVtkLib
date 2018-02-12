@@ -37,6 +37,8 @@
 
 #include <QtWidgets/QLayout>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -135,7 +137,7 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
 
   m_FilterViewSettings.push_back(viewSettings);
 
-  if(filter->getParentFilter())
+  if(filter->getParentFilter() && filter->getParentFilter()->getOutput())
   {
     VSFilterViewSettings* parentSettings = getFilterViewSettings(filter->getParentFilter());
     if(parentSettings)
@@ -145,6 +147,11 @@ void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter)
   }
 
   checkFilterViewSetting(viewSettings);
+
+  if(dynamic_cast<VSDataSetFilter*>(filter))
+  {
+    getVisualizationWidget()->resetCamera();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -187,6 +194,11 @@ void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
   {
     return;
   }
+  else if(nullptr == setting->getScalarBarWidget())
+  {
+    return;
+  }
+
   setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
 
   setFilterVisibility(setting, setting->getVisible());
@@ -259,6 +271,10 @@ int VSAbstractViewWidget::getViewSettingsIndex(VSFilterViewSettings* settings)
 void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible)
 {
   if(nullptr == viewSettings)
+  {
+    return;
+  }
+  if(false == viewSettings->isValid())
   {
     return;
   }

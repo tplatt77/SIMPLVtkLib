@@ -35,37 +35,26 @@
 
 #pragma once
 
-#include <QtWidgets/QWidget>
-
-#include "VSAbstractFilter.h"
-
-#include <vtkBox.h>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 /**
- * @class VSCropFilter VSCropFilter.h 
- * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h
- * @brief This class is a visibility filter that crops a vtkDataSet to X, Y, 
- * and Z bounds. This class can be chained with other VSAbstractFilters to
- * further specify the data allowed to be visualized. This filter requires 
- * the incoming data type to be a vtkImageData, thus restricting it to following 
- * VSDataSetFilters.
- */
-class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
+* @class VSTextFilter VSTextFilter.h 
+* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
+* @brief This class is used for nothing more than giving its children some sort 
+* of text label.  This filter does not create any data or modify incoming data 
+* in any way.
+*/
+class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
 public:
   /**
   * @brief Constructor
-  * @param parentWidget
   * @param parent
+  * @param text
   */
-  VSCropFilter(VSAbstractFilter* parent);
+  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
 
   /**
   * @brief Returns the filter's name
@@ -74,17 +63,9 @@ public:
   const QString getFilterName() override;
 
   /**
-  * @brief Returns the tooltip to use for the filter
-  * @return
+  * @brief Returns the filter's tooltip
   */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Applies the crop filter with the given volume of interest and sample rate
-  * @param voi
-  * @param sampleRate
-  */
-  void apply(int voi[6], int sampleRate[3]);
+  QString getToolTip() const override;
 
   /**
   * @brief Returns the output port to be used by vtkMappers and subsequent filters
@@ -99,44 +80,29 @@ public:
   virtual VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
-  * @brief Returns the output data type
+  * @brief Returns the ouput data type
   * @return
   */
   dataType_t getOutputType() override;
 
   /**
   * @brief Returns the required incoming data type
-  * @return
   */
   static dataType_t getRequiredInputType();
 
-  /**
-  * @brief Return the VOI last applied to the filter
-  * @return
-  */
-  int* getVOI();
-
-  /**
-  * @brief Return the sample rate last applied to the filter
-  * @return
-  */
-  int* getSampleRate();
-
 protected:
   /**
-  * @brief Initializes the algorithm and connects it to the vtkMapper
+  * @brief createFilter() not required by VSTextFilter
   */
   void createFilter() override;
 
   /**
-  * @brief This method updates the input port and connects it to the vtkAlgorithm if it exists
+  * @brief Updates the input port
   * @param filter
   */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
-
-  int m_LastVoi[6];
-  int m_LastSampleRate[3];
+  QString m_Text;
+  QString m_ToolTip;
 };

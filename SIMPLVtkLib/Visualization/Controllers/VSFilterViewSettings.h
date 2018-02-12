@@ -88,6 +88,12 @@ public:
   VSAbstractFilter* getFilter();
 
   /**
+  * @brief Returns true if the VSFilterViewSettings can be displayed and false otherwise
+  * @return
+  */
+  bool isValid();
+
+  /**
   * @brief Returns true if the filter is displayed in for this view.  Returns false otherwise
   * @return
   */

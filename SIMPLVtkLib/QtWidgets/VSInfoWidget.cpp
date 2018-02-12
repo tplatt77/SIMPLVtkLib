@@ -159,10 +159,6 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   m_FilterWidget = filterWidget;
 
   bool filterExists = (nullptr != filter);
-  m_Internals->applyBtn->setEnabled(filterExists);
-  m_Internals->resetBtn->setEnabled(filterExists);
-  m_Internals->deleteBtn->setEnabled(filterExists);
-
   if(filterExists && m_ViewWidget)
   {
     connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filter));
@@ -172,7 +168,21 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
     connectFilterViewSettings(nullptr);
   }
 
-  if (filterWidget != nullptr)
+  // Check if VSFilterSettings exist and are valid
+  bool viewSettingsValid;
+  if(m_ViewSettings && m_ViewSettings->isValid())
+  {
+    viewSettingsValid = filterExists;
+  }
+  else
+  {
+    viewSettingsValid = false;
+  }
+  m_Internals->applyBtn->setEnabled(viewSettingsValid);
+  m_Internals->resetBtn->setEnabled(viewSettingsValid);
+  m_Internals->deleteBtn->setEnabled(viewSettingsValid);
+
+  if(filterWidget != nullptr)
   {
     m_Internals->gridLayout_4->addWidget(filterWidget);
   }
@@ -283,7 +293,8 @@ void VSInfoWidget::updateViewSettingInfo()
   }
 
   // Apply the current filter view settings to the widget
-  m_Internals->viewSettingsWidget->setEnabled(true);
+  bool validSettings = m_ViewSettings && m_ViewSettings->isValid();
+  m_Internals->viewSettingsWidget->setEnabled(validSettings);
 
   int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
   int activeComponentIndex = m_ViewSettings->getActiveComponentIndex() + 1;

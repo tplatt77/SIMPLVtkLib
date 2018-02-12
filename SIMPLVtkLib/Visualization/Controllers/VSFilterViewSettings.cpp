@@ -68,7 +68,11 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 {
   connectFilter(copy.m_Filter);
   setupActors();
-  m_LookupTable->copy(*(copy.m_LookupTable));
+
+  if(copy.m_LookupTable)
+  {
+    m_LookupTable->copy(*(copy.m_LookupTable));
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -76,10 +80,6 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::~VSFilterViewSettings()
 {
-  //if(m_LookupTable)
-  //{
-  //  delete m_LookupTable;
-  //}
 }
 
 // -----------------------------------------------------------------------------
@@ -88,6 +88,15 @@ VSFilterViewSettings::~VSFilterViewSettings()
 VSAbstractFilter* VSFilterViewSettings::getFilter()
 {
   return m_Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isValid()
+{
+  bool valid = m_Mapper && m_Actor && m_ScalarBarWidget;
+  return valid;
 }
 
 // -----------------------------------------------------------------------------
@@ -119,8 +128,18 @@ int VSFilterViewSettings::getActiveComponentIndex()
 // -----------------------------------------------------------------------------
 int VSFilterViewSettings::getNumberOfComponents(int arrayIndex)
 {
+  if(nullptr == m_Filter->getOutput())
+  {
+    return -1;
+  }
+
   vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
-  return cellData->GetAbstractArray(arrayIndex)->GetNumberOfComponents();
+  vtkAbstractArray* array = cellData->GetAbstractArray(arrayIndex);
+  if(array)
+  {
+    return array->GetNumberOfComponents();
+  }
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -128,10 +147,20 @@ int VSFilterViewSettings::getNumberOfComponents(int arrayIndex)
 // -----------------------------------------------------------------------------
 int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
 {
+  if(nullptr == m_Filter->getOutput())
+  {
+    return -1;
+  }
+
   const char* name = arrayName.toLatin1();
 
   vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
-  return cellData->GetAbstractArray(name)->GetNumberOfComponents();
+  vtkAbstractArray* array = cellData->GetAbstractArray(name);
+  if(array)
+  {
+    return array->GetNumberOfComponents();
+  }
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -195,6 +224,11 @@ void VSFilterViewSettings::hide()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setVisible(bool visible)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_ShowFilter = visible;
 
   emit visibilityChanged(this, m_ShowFilter);
@@ -205,6 +239,11 @@ void VSFilterViewSettings::setVisible(bool visible)
 // -----------------------------------------------------------------------------
 vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 {
+  if(false == isValid())
+  {
+    return nullptr;
+  }
+
   vtkDataSet* dataSet = m_Mapper->GetInput();
   if(dataSet && dataSet->GetCellData())
   {
@@ -219,6 +258,11 @@ vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setActiveArrayIndex(int index)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(index);
   if(nullptr == dataArray)
   {
@@ -241,6 +285,11 @@ void VSFilterViewSettings::setActiveArrayIndex(int index)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setActiveComponentIndex(int index)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_ActiveComponent = index;
 
   VTK_PTR(vtkScalarsToColors) lookupTable = m_Mapper->GetLookupTable();
@@ -306,6 +355,11 @@ vtkDataArray* VSFilterViewSettings::getDataArray()
 // -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray)
 {
+  if(nullptr == dataArray)
+  {
+    return false;
+  }
+
   if(dataArray->GetNumberOfComponents() == 3)
   {
     QString dataType = dataArray->GetDataTypeAsString();
@@ -323,7 +377,7 @@ bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::updateColorMode()
 {
-  if(nullptr == m_Mapper)
+  if(false == isValid())
   {
     return;
   }
@@ -348,6 +402,11 @@ void VSFilterViewSettings::updateColorMode()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setMapColors(Qt::CheckState mapColorState)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_MapColors = mapColorState;
 
   updateColorMode();
@@ -360,6 +419,11 @@ void VSFilterViewSettings::setMapColors(Qt::CheckState mapColorState)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setAlpha(double alpha)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   if(alpha < 0.0)
   {
     alpha = 0.0;
@@ -384,6 +448,11 @@ void VSFilterViewSettings::setAlpha(double alpha)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::invertScalarBar()
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_LookupTable->invert();
   emit requiresRender();
 }
@@ -393,6 +462,11 @@ void VSFilterViewSettings::invertScalarBar()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::loadPresetColors(const QJsonObject& colors)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_LookupTable->parseRgbJson(colors);
   emit requiresRender();
 }
@@ -402,6 +476,11 @@ void VSFilterViewSettings::loadPresetColors(const QJsonObject& colors)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setScalarBarVisible(bool visible)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_ShowScalarBar = visible;
 
   emit showScalarBarChanged(this, m_ShowScalarBar);
@@ -412,6 +491,13 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setupActors()
 {
+  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+  if(nullptr == outputData)
+  {
+    m_ShowFilter = false;
+    return;
+  }
+
   m_Mapper = VTK_PTR(vtkDataSetMapper)::New();
   m_Mapper->SetInputConnection(m_Filter->getOutputPort());
 
@@ -439,9 +525,17 @@ void VSFilterViewSettings::setupActors()
   m_ScalarBarActor->SetTitleRatio(0.75);
 
   // Set Mapper to use the active array and component
-  int currentComponent = m_ActiveComponent;
-  setActiveArrayIndex(m_ActiveArray);
-  setActiveComponentIndex(currentComponent);
+  if(outputData->GetCellData()->GetNumberOfArrays() > 0)
+  {
+    int currentComponent = m_ActiveComponent;
+    setActiveArrayIndex(m_ActiveArray);
+    setActiveComponentIndex(m_ActiveComponent);
+  }
+  else
+  {
+    setMapColors(Qt::Unchecked);
+    setScalarBarVisible(false);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -449,6 +543,11 @@ void VSFilterViewSettings::setupActors()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
 {
+  if(false == isValid())
+  {
+    return;
+  }
+
   m_Mapper->SetInputConnection(filter->getOutputPort());
   emit requiresRender();
 }
@@ -481,8 +580,17 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
 {
-  vtkRenderWindowInteractor* iren = copy->m_ScalarBarWidget->GetInteractor();
-  m_ScalarBarWidget->SetInteractor(iren);
+  if((nullptr == copy) || (false == copy->isValid()))
+  {
+    return;
+  }
+
+  bool hasUi = copy->getScalarBarWidget();
+  if(hasUi)
+  {
+    vtkRenderWindowInteractor* iren = copy->m_ScalarBarWidget->GetInteractor();
+    m_ScalarBarWidget->SetInteractor(iren);
+  }
 
   setVisible(copy->m_ShowFilter);
   setActiveArrayIndex(copy->m_ActiveArray);
@@ -491,7 +599,10 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setScalarBarVisible(copy->m_ShowScalarBar);
   setAlpha(copy->m_Alpha);
 
-  m_LookupTable->copy(*(copy->m_LookupTable));
+  if(hasUi)
+  {
+    m_LookupTable->copy(*(copy->m_LookupTable));
+  }
 
   emit requiresRender();
 }
