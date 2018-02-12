@@ -151,7 +151,8 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 {
   if (m_FilterWidget != nullptr)
   {
-    m_Internals->gridLayout_4->removeWidget(m_FilterWidget);
+    m_Internals->filterWidgetLayout->removeWidget(m_FilterWidget);
+    m_FilterWidget->hide();
     m_FilterWidget = nullptr;
   }
 
@@ -180,11 +181,12 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   }
   m_Internals->applyBtn->setEnabled(viewSettingsValid);
   m_Internals->resetBtn->setEnabled(viewSettingsValid);
-  m_Internals->deleteBtn->setEnabled(viewSettingsValid);
+  m_Internals->deleteBtn->setEnabled(filterExists);
 
   if(filterWidget != nullptr)
   {
-    m_Internals->gridLayout_4->addWidget(filterWidget);
+    m_Internals->filterWidgetLayout->addWidget(filterWidget);
+    filterWidget->show();
   }
 
   if(filterExists)

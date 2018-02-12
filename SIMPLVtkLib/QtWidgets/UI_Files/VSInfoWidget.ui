@@ -334,7 +334,7 @@
            <height>0</height>
           </size>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4">
+         <layout class="QGridLayout" name="filterWidgetLayout">
           <property name="leftMargin">
            <number>0</number>
           </property>
