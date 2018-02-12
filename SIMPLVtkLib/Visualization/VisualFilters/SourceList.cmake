@@ -7,6 +7,7 @@ set(VSVisualFilters
   VSSliceFilter
   VSCropFilter
   VSThresholdFilter
+  VSTransform
 )
 
 # --------------------------------------------------------------------

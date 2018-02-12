@@ -76,10 +76,6 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::~VSFilterViewSettings()
 {
-  //if(m_LookupTable)
-  //{
-  //  delete m_LookupTable;
-  //}
 }
 
 // -----------------------------------------------------------------------------
@@ -417,7 +413,12 @@ void VSFilterViewSettings::setupActors()
 
   m_Actor = VTK_PTR(vtkActor)::New();
   m_Actor->SetMapper(m_Mapper);
-  m_Actor->SetPosition(m_Filter->getOrigin());
+  if(m_Filter->getTransform())
+  {
+    m_Actor->SetPosition(m_Filter->getTransform()->getPosition());
+    //m_Actor->SetOrientation(m_Filter->getTransform()->getRotation());
+    m_Actor->SetScale(m_Filter->getTransform()->getScale());
+  }
 
   m_LookupTable = new VSLookupTableController();
   m_Mapper->SetLookupTable(m_LookupTable->getColorTransferFunction());
@@ -462,19 +463,33 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
   if(m_Filter)
   {
     disconnect(m_Filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
-    disconnect(filter, SIGNAL(updatedOrigin(double*)), this, SLOT(setOrigin(double*)));
+
+    VSTransform* transform = m_Filter->getTransform();
+    if(transform)
+    {
+      connect(transform, SIGNAL(updatedPosition(double*)), this, SLOT(setPosition(double*)));
+      connect(transform, SIGNAL(updatedRotation(double*)), this, SLOT(setRotation(double*)));
+      connect(transform, SIGNAL(updatedScale(double*)), this, SLOT(setScale(double*)));
+    }
   }
 
   m_Filter = filter;
   if(filter)
   {
     connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
-    connect(filter, SIGNAL(updatedOrigin(double*)), this, SLOT(setOrigin(double*)));
 
     if(filter->getArrayNames().size() < 1)
     {
       setScalarBarVisible(false);
       setMapColors(Qt::Unchecked);
+    }
+
+    VSTransform* transform = filter->getTransform();
+    if(transform)
+    {
+      connect(transform, SIGNAL(updatedPosition(double*)), this, SLOT(setPosition(double*)));
+      connect(transform, SIGNAL(updatedRotation(double*)), this, SLOT(setRotation(double*)));
+      connect(transform, SIGNAL(updatedScale(double*)), this, SLOT(setScale(double*)));
     }
   }
 }
@@ -502,12 +517,38 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setOrigin(double* origin)
+void VSFilterViewSettings::setPosition(double* position)
 {
   if(nullptr == m_Actor)
   {
     return;
   }
 
-  m_Actor->SetPosition(origin);
+  m_Actor->SetPosition(position);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setRotation(double* rotation)
+{
+  if(nullptr == m_Actor)
+  {
+    return;
+  }
+
+  m_Actor->SetOrientation(rotation);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setScale(double* scale)
+{
+  if(nullptr == m_Actor)
+  {
+    return;
+  }
+
+  m_Actor->SetScale(scale);
 }

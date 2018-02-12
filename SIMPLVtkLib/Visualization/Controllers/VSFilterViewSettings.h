@@ -229,7 +229,23 @@ signals:
   void requiresRender();
 
 protected slots:
-  void setOrigin(double* origin);
+  /**
+  * @brief Sets the actor's position
+  * @param position
+  */
+  void setPosition(double* position);
+
+  /**
+  * @brief Sets the actor's orientation
+  * @param rotation
+  */
+  void setRotation(double* rotation);
+  
+  /**
+  * @brief Sets the actor's scale
+  * @param scale
+  */
+  void setScale(double* scale);
 
 protected:
   /**
