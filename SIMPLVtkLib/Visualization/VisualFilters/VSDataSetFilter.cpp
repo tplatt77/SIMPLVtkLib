@@ -59,6 +59,7 @@ VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrapped
   createFilter();
 
   setText(wrappedDataContainer->m_Name);
+  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
@@ -134,6 +135,14 @@ void VSDataSetFilter::createFilter()
 //
 // -----------------------------------------------------------------------------
 const QString VSDataSetFilter::getFilterName()
+{
+  return m_WrappedDataContainer->m_Name;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSDataSetFilter::getToolTip() const
 {
   return m_WrappedDataContainer->m_Name;
 }

@@ -91,6 +91,12 @@ public:
   const QString getFilterName() override;
 
   /**
+  * @brief Returns the tooltip to use for the filter
+  * @return
+  */
+  virtual QString getToolTip() const override;
+
+  /**
   * @brief Returns the output data type for the filter
   * @return
   */
