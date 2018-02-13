@@ -41,8 +41,15 @@
 
 #include <memory>
 
+#include <vtkAlgorithm.h>
+#include <vtkAlgorithmOutput.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkDataArray.h>
+#include <vtkDataSet.h>
 #include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
+#include <vtkTransformFilter.h>
+#include <vtkUnstructuredGridAlgorithm.h>
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -55,15 +62,6 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class QString;
-class vtkAlgorithm;
-class vtkUnstructuredGridAlgorithm;
-class vtkAlgorithmOutput;
-class vtkColorTransferFunction;
-class vtkDataObject;
-class vtkDataSet;
-class vtkDataArray;
 
 class VSAbstractFilterWidget;
 class VSAbstractWidget;
@@ -193,6 +191,18 @@ public:
   virtual VTK_PTR(vtkDataSet) getOutput() = 0;
 
   /**
+  * @brief Returns the output port for the transformed filtered data
+  * @return
+  */
+  virtual vtkAlgorithmOutput* getTransformedOutputPort();
+
+  /**
+  * @brief Returns the transformed output data
+  * @return
+  */
+  virtual VTK_PTR(vtkDataSet) getTransformedOutput();
+
+  /**
   * @brief Returns the filter name
   * @return
   */
@@ -232,6 +242,7 @@ public:
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
+  void transformChanged();
 
 protected slots:
   /**
@@ -240,12 +251,27 @@ protected slots:
   * @param filter
   */
   void connectToOutuput(VSAbstractFilter* filter);
+  
+  /**
+  * @brief Updates the transform used by the transform filter
+  */
+  void updateTransformFilter();
 
 protected:
   /**
   * @brief code to setup the vtkAlgorithm for the filter
   */
   virtual void createFilter() = 0;
+
+  /**
+  * @brief Creates the vtkTransformFilter for output
+  */
+  void createTransformFilter();
+
+  /**
+  * @brief Returns the vtkTransformFilter used
+  */
+  VTK_PTR(vtkTransformFilter) getTransformFilter();
 
   /**
   * @brief Returns a pointer to the VSDataSetFilter that stores the input vtkDataSet
@@ -283,6 +309,7 @@ private:
   void removeChild(VSAbstractFilter* child);
 
   std::shared_ptr<VSTransform> m_Transform;
+  VTK_PTR(vtkTransformFilter) m_TransformFilter;
 };
 
 #ifdef __clang__

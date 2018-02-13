@@ -137,6 +137,7 @@ signals:
   void emitPosition();
   void emitRotation();
   void emitScale();
+  void valuesChanged();
 
 protected:
   /**

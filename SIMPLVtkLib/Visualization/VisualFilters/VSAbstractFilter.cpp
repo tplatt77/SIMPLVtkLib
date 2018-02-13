@@ -35,15 +35,8 @@
 
 #include "VSAbstractFilter.h"
 
-#include <QString>
-
 #include <vtkActor.h>
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
 #include <vtkImageData.h>
 #include <vtkLookupTable.h>
@@ -53,7 +46,6 @@
 #include <vtkScalarBarActor.h>
 #include <vtkScalarBarWidget.h>
 #include <vtkTextProperty.h>
-#include <vtkUnstructuredGridAlgorithm.h>
 
 #include <vtkGenericDataObjectWriter.h>
 
@@ -418,6 +410,12 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
     // Emit only when the filter is not connected to its algorithm
     emit updatedOutputPort(filter);
   }
+
+  // Update the transform filter's input port if the filter exists
+  if(m_TransformFilter)
+  {
+    m_TransformFilter->SetInputConnection(getOutputPort());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -426,4 +424,82 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
 VSTransform* VSAbstractFilter::getTransform()
 {
   return m_Transform.get();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkAlgorithmOutput* VSAbstractFilter::getTransformedOutputPort()
+{
+  if(nullptr == m_TransformFilter)
+  {
+    createTransformFilter();
+  }
+
+  return m_TransformFilter->GetOutputPort();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSAbstractFilter::getTransformedOutput()
+{
+  if(nullptr == m_TransformFilter)
+  {
+    createTransformFilter();
+  }
+
+  return m_TransformFilter->GetOutput();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::createTransformFilter()
+{
+  m_TransformFilter = VTK_PTR(vtkTransformFilter)::New();
+  
+  if(m_Transform)
+  {
+    m_TransformFilter->SetTransform(m_Transform->getVtkTransform());
+    connect(m_Transform.get(), SIGNAL(valuesChanged()),
+      this, SLOT(updateTransformFilter()));
+  }
+  else
+  {
+    VTK_NEW(vtkTransform, transform);
+    m_TransformFilter->SetTransform(transform);
+  }
+  
+  m_TransformFilter->SetInputConnection(getOutputPort());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransformFilter) VSAbstractFilter::getTransformFilter()
+{
+  if(nullptr == m_TransformFilter)
+  {
+    createTransformFilter();
+  }
+
+  return m_TransformFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::updateTransformFilter()
+{
+  if(nullptr == m_TransformFilter)
+  {
+    createTransformFilter();
+  }
+
+  if(getTransform())
+  {
+    m_TransformFilter->SetTransform(getTransform()->getVtkTransform());
+    emit transformChanged();
+  }
 }

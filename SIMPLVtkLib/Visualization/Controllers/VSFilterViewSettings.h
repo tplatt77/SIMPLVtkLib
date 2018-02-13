@@ -234,25 +234,6 @@ signals:
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void requiresRender();
 
-protected slots:
-  /**
-  * @brief Sets the actor's position
-  * @param position
-  */
-  void setPosition(double* position);
-
-  /**
-  * @brief Sets the actor's orientation
-  * @param rotation
-  */
-  void setRotation(double* rotation);
-  
-  /**
-  * @brief Sets the actor's scale
-  * @param scale
-  */
-  void setScale(double* scale);
-
 protected:
   /**
   * @brief Performs initial setup commands for any actors used in the view settings
