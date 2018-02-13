@@ -37,10 +37,6 @@
 
 #include <cmath>
 
-#include <vtkTransform.h>
-
-#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -103,13 +99,9 @@ double* VSTransform::getPosition()
     return getLocalPosition();
   }
 
+  VTK_PTR(vtkTransform) transform = getVtkTransform();
   double* position = new double[3];
-  double* parentPosition = m_Parent->getPosition();
-  for(int i = 0; i < 3; i++)
-  {
-    position[i] = m_Position[i] + parentPosition[i];
-  }
-
+  transform->GetPosition(position);
   return position;
 }
 
@@ -130,28 +122,32 @@ double* VSTransform::getLocalPosition()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSTransform::rotateEulerAngles(double start[3], double rotation[3])
+VTK_PTR(vtkMatrix4x4) VSTransform::getRotationMatrix()
 {
-  for(int i = 0; i < 3; i++)
+  VTK_NEW(vtkTransform, transform);
+
+  if(m_Parent)
   {
-    if(abs(rotation[i]) < 0.0001)
-    {
-      rotation[i] = 0.0;
-    }
+    transform->SetMatrix(m_Parent->getRotationMatrix());
   }
 
-  VTK_NEW(vtkTransform, transform);
-  transform->RotateZ(start[2]);
-  transform->RotateY(start[1]);
-  transform->RotateX(start[0]);
+  double* rotation = getLocalRotation();
+  // Only rotate if there is a value to rotate by
+  if(abs(rotation[2]) >= 0.0001)
+  {
+    transform->RotateZ(rotation[2]);
+  }
+  if(abs(rotation[1]) >= 0.0001)
+  {
+    transform->RotateY(rotation[1]);
+  }
+  if(abs(rotation[0]) >= 0.0001)
+  {
+    transform->RotateX(rotation[0]);
+  }
 
-  transform->RotateZ(rotation[2]);
-  transform->RotateY(rotation[1]);
-  transform->RotateX(rotation[0]);
-
-  double* finalRotation = new double[3];
-  transform->GetOrientation(finalRotation);
-  return finalRotation;
+  delete[] rotation;
+  return transform->GetMatrix();
 }
 
 // -----------------------------------------------------------------------------
@@ -164,8 +160,17 @@ double* VSTransform::getRotation()
     return getLocalRotation();
   }
 
-  double* parentRotation = m_Parent->getRotation();
-  double* rotation = rotateEulerAngles(m_Rotation, parentRotation);
+  VTK_PTR(vtkTransform) transform = getVtkTransform();
+  double* rotation = new double[3];
+  transform->GetOrientation(rotation);
+
+  for(int i = 0; i < 3; i++)
+  {
+    if(abs(rotation[i]) < 0.0001)
+    {
+      rotation[i] = 0.0;
+    }
+  }
 
   return rotation;
 }
@@ -194,13 +199,10 @@ double* VSTransform::getScale()
     return getLocalScale();
   }
 
-  double* scale = new double[3];
-  double* parentScale = m_Parent->getScale();
-  for(int i = 0; i < 3; i++)
-  {
-    scale[i] = m_Scale[i] * parentScale[i];
-  }
 
+  VTK_PTR(vtkTransform) transform = getVtkTransform();
+  double* scale = new double[3];
+  transform->GetScale(scale);
   return scale;
 }
 
@@ -216,6 +218,48 @@ double* VSTransform::getLocalScale()
   }
 
   return scale;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransform) VSTransform::getVtkTransform()
+{
+  VTK_PTR(vtkTransform) transform = VTK_PTR(vtkTransform)::New();
+
+  if(m_Parent)
+  {
+    transform = m_Parent->getVtkTransform();
+  }
+
+  // Rotation
+  double* rotation = getLocalRotation();
+  // Only rotate if there is a value to rotate by
+  if(abs(rotation[2]) >= 0.0001)
+  {
+    transform->RotateZ(rotation[2]);
+  }
+  if(abs(rotation[1]) >= 0.0001)
+  {
+    transform->RotateY(rotation[1]);
+  }
+  if(abs(rotation[0]) >= 0.0001)
+  {
+    transform->RotateX(rotation[0]);
+  }
+  delete[] rotation;
+
+  // Scale
+  double* scale = getLocalScale();
+  transform->Scale(scale);
+  delete[] scale;
+
+  // Translate
+  double* position = getLocalPosition();
+  transform->Translate(position);
+  delete[] position;
+  
+  return transform;
 }
 
 // -----------------------------------------------------------------------------

@@ -37,6 +37,11 @@
 
 #include <QtCore/QObject>
 
+#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
+
 /**
 * @class VSTransform VSTransform.h SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h
 * @brief This class stores the local coordinates for placing an object in 3D 
@@ -119,6 +124,12 @@ public:
   */
   void setScale(double scale[3]);
 
+  /**
+  * @brief Returns the vtkTransform describing the global position, rotation, and scale.
+  * @return
+  */
+  VTK_PTR(vtkTransform) getVtkTransform();
+
 signals:
   void updatedPosition(double* position);
   void updatedRotation(double* rotation);
@@ -129,11 +140,10 @@ signals:
 
 protected:
   /**
-  * @brief Return the Euler angles found from rotating one set of Euler angles by another
-  * @param start
-  * @param rotation
+  * @brief Returns the rotation matrix for the current global rotation.
+  * @return
   */
-  double* rotateEulerAngles(double start[3], double rotation[3]);
+  VTK_PTR(vtkMatrix4x4) getRotationMatrix();
 
 private:
   VSTransform* m_Parent = nullptr;
