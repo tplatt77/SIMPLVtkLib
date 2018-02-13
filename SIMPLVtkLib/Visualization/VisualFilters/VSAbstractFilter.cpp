@@ -65,6 +65,9 @@ VSAbstractFilter::VSAbstractFilter()
 {
   setCheckable(true);
   setCheckState(Qt::Checked);
+
+  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), 
+    this, SLOT(connectTransformFilter(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -410,7 +413,13 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
     // Emit only when the filter is not connected to its algorithm
     emit updatedOutputPort(filter);
   }
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::connectTransformFilter(VSAbstractFilter* filter)
+{
   // Update the transform filter's input port if the filter exists
   if(m_TransformFilter)
   {

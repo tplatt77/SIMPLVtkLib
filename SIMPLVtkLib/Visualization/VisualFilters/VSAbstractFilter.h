@@ -252,6 +252,8 @@ protected slots:
   */
   void connectToOutuput(VSAbstractFilter* filter);
   
+  void connectTransformFilter(VSAbstractFilter* filter);
+
   /**
   * @brief Updates the transform used by the transform filter
   */
