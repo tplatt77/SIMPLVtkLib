@@ -37,88 +37,97 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSClipFilter.h"
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "VSAbstractFilter.h"
 
-#include <vtkPlane.h>
+#include <vtkSmartPointer.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
-class QVTKInteractor;
+class vtkTrivialProducer;
+class vtkAlgorithmOutput;
 
 /**
- * @class VSClipFilterWidget VSClipFilterWidget.h
- * SIMPLVtkLib/Visualization/VisualFilters/VSClipFilterWidget.h
- * @brief This class is used to create a clip filter over a set of data.
- * This class can be chained with itself or other classes inheriting from 
- * VSAbstractFilter to be more specific about the data being visualized.
- * VSClipFilterWidget can use both plan and box clip types as well as inverting
- * the clip applied.
- */
-class SIMPLVtkLib_EXPORT VSClipFilterWidget : public VSAbstractFilterWidget
+* @class VSSIMPLDataContainerFilter VSSIMPLDataContainerFilter.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
+class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
 public:
-    /**
-   * @brief VSClipFilterWidget
-   * @param filter
-   * @param interactor
-   * @param widget
-   */
-  VSClipFilterWidget(VSClipFilter *filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
-
   /**
-  * @brief Deconstructor
+  * @brief Constuctor
+  * @param parentWidget
+  * @param dataSetStruct
   */
-  ~VSClipFilterWidget();
+  VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
 
   /**
-  * @brief Sets the visualization filter's bounds
-  * @param bounds
+  * @brief Returns the bounds of the vtkDataSet
+  * @return
   */
-  void setBounds(double* bounds);
+  double* getBounds() const;
 
   /**
-  * @brief Applies changes to the filter and updates the output
+  * @brief Returns the output port for the filter
+  * @return
   */
-  void apply() override;
+  virtual vtkAlgorithmOutput* getOutputPort() override;
 
   /**
-   * @brief reset
-   */
-  void reset() override;
+  * @brief Returns the output data for the filter
+  */
+  VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
-   * @brief Sets whether the filter widget should render drawings in the visualization window
-   * @param enabled
-   */
-  void setDrawingEnabled(bool enabled) override;
+  * @brief Returns the filter's name
+  * @return
+  */
+  const QString getFilterName() override;
+    
+  /**
+  * @brief Returns the tooltip to use for the filter
+  * @return
+  */
+  virtual QString getToolTip() const override;
 
   /**
-   * @brief setInteractor
-   * @param interactor
-   */
-  void setInteractor(QVTKInteractor* interactor) override;
+  * @brief Returns the output data type for the filter
+  * @return
+  */
+  dataType_t getOutputType() override;
 
-protected slots:
   /**
-   * @brief changeClipType
-   * @param clipType
-   */
-  void changeClipType(const QString &clipType);
+  * @brief Returns the required input data type
+  * @return
+  */
+  static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns the VtkDataSetStruct_t used by the filter
+  * @return
+  */
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
+
+protected:
+  /**
+  * @brief Initializes the trivial producer and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method is empty as there should never be a case where a VSSIMPLDataContainerFilter
+  * is a child of another filter.
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  class vsInternals;
-  vsInternals*                        m_Internals;
-
-  VSClipFilter*                       m_ClipFilter;
-  VSPlaneWidget*                      m_PlaneWidget;
-  VSBoxWidget*                        m_BoxWidget;
+  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
+  VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
 };

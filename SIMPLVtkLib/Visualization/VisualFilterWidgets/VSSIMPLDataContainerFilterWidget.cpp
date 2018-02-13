@@ -33,35 +33,14 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSMaskFilterWidget.h"
+#include "VSSIMPLDataContainerFilterWidget.h"
 
-#include <QString>
-
-#include <vtkActor.h>
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkThreshold.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSMaskWidget.h"
-#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-
-#include <vtkRenderWindowInteractor.h>
-
-#include "ui_VSMaskFilterWidget.h"
+#include "ui_VSSIMPLDataContainerFilterWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-class VSMaskFilterWidget::vsInternals : public Ui::VSMaskFilterWidget
+class VSSIMPLDataContainerFilterWidget::vsInternals : public Ui::VSSIMPLDataContainerFilterWidget
 {
 public:
   vsInternals()
@@ -72,50 +51,25 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter *filter, QVTKInteractor* interactor, QWidget *parent)
-: VSAbstractFilterWidget(parent)
+VSSIMPLDataContainerFilterWidget::VSSIMPLDataContainerFilterWidget(VSSIMPLDataContainerFilter *filter, QWidget* widget)
+: VSAbstractFilterWidget(widget)
 , m_Internals(new vsInternals())
-, m_MaskFilter(filter)
+, m_DataContainerFilter(filter)
 {
   m_Internals->setupUi(this);
-
-  m_MaskWidget = new VSMaskWidget(this, "", m_MaskFilter->getBounds(), interactor);
-  m_MaskWidget->show();
-
-  connect(m_MaskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilterWidget::~VSMaskFilterWidget()
+VSSIMPLDataContainerFilterWidget::~VSSIMPLDataContainerFilterWidget()
 {
-  delete m_MaskWidget;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMaskFilterWidget::setBounds(double* bounds)
+void VSSIMPLDataContainerFilterWidget::setBounds(double* bounds)
 {
-  if(nullptr == bounds)
-  {
-    return;
-  }
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskFilterWidget::apply()
-{
-  m_MaskFilter->apply(m_MaskWidget->getMaskName());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMaskFilterWidget::reset()
-{
-  m_MaskWidget->setMaskName(m_MaskFilter->getLastArrayName());
 }

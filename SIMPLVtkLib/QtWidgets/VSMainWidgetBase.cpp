@@ -37,6 +37,7 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
@@ -44,6 +45,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
@@ -63,8 +65,6 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
-    this, SLOT(setCurrentFilter(VSAbstractFilter*)));
   connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)), 
     this, SLOT(filterAdded(VSAbstractFilter*)));
   connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), 
@@ -192,21 +192,38 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter)
 {
+  QVTKInteractor* interactor = nullptr;
+  VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
+  if (activeViewWidget != nullptr)
+  {
+    VSVisualizationWidget* vizWidget = activeViewWidget->getVisualizationWidget();
+    if (vizWidget != nullptr)
+    {
+      interactor = vizWidget->GetInteractor();
+    }
+  }
+
+
   VSAbstractFilterWidget* fw = nullptr;
   if (dynamic_cast<VSClipFilter*>(filter) != nullptr)
   {
     VSClipFilter* vsFilter = dynamic_cast<VSClipFilter*>(filter);
-    fw = new VSClipFilterWidget(vsFilter, getActiveViewWidget()->getVisualizationWidget()->GetInteractor(), this);
+    fw = new VSClipFilterWidget(vsFilter, interactor, this);
   }
   else if (dynamic_cast<VSCropFilter*>(filter) != nullptr)
   {
     VSCropFilter* vsFilter = dynamic_cast<VSCropFilter*>(filter);
-    fw = new VSCropFilterWidget(vsFilter, getActiveViewWidget()->getVisualizationWidget()->GetInteractor(), this);
+    fw = new VSCropFilterWidget(vsFilter, interactor, this);
   }
   else if (dynamic_cast<VSMaskFilter*>(filter) != nullptr)
   {
     VSMaskFilter* vsFilter = dynamic_cast<VSMaskFilter*>(filter);
-    fw = new VSMaskFilterWidget(vsFilter, getActiveViewWidget()->getVisualizationWidget()->GetInteractor(), this);
+    fw = new VSMaskFilterWidget(vsFilter, interactor, this);
+  }
+  else if (dynamic_cast<VSSIMPLDataContainerFilter*>(filter) != nullptr)
+  {
+    VSSIMPLDataContainerFilter* vsFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+    fw = new VSSIMPLDataContainerFilterWidget(vsFilter, this);
   }
   else if (dynamic_cast<VSDataSetFilter*>(filter) != nullptr)
   {
@@ -216,20 +233,18 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter)
   else if (dynamic_cast<VSSliceFilter*>(filter) != nullptr)
   {
     VSSliceFilter* vsFilter = dynamic_cast<VSSliceFilter*>(filter);
-    fw = new VSSliceFilterWidget(vsFilter, getActiveViewWidget()->getVisualizationWidget()->GetInteractor(), this);
+    fw = new VSSliceFilterWidget(vsFilter, interactor, this);
   }
   else if (dynamic_cast<VSThresholdFilter*>(filter) != nullptr)
   {
     VSThresholdFilter* vsFilter = dynamic_cast<VSThresholdFilter*>(filter);
-    fw = new VSThresholdFilterWidget(vsFilter, getActiveViewWidget()->getVisualizationWidget()->GetInteractor(), this);
+    fw = new VSThresholdFilterWidget(vsFilter, interactor, this);
   }
 
   if (fw != nullptr)
   {
     m_FilterToFilterWidgetMap.insert(filter, fw);
   }
-
-  setCurrentFilter(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -251,6 +266,8 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
   // Disconnect the old active view widget
   if(m_ActiveViewWidget)
   {
+    m_ActiveViewWidget->setActive(false);
+
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
     disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
       this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
@@ -261,12 +278,21 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
   // Connect the new active view widget
   if(m_ActiveViewWidget)
   {
+    m_ActiveViewWidget->setActive(true);
+
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
     connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
       this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
 
     // Update filter check states to match the current view widget
     getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
+
+    VSAbstractFilterWidget* fw;
+    foreach(fw, m_FilterToFilterWidgetMap.values())
+    {
+      fw->setDrawingEnabled(false);
+      fw->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
+    }
   }
 
   emit changedActiveView(viewWidget);

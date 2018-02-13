@@ -170,6 +170,8 @@ public:
   */
   void updateBoxWidget();
 
+  void setInteractor(vtkRenderWindowInteractor* interactor) override;
+
 public slots:
   /**
   * @brief Updates the box widget from the spin box values

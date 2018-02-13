@@ -36,6 +36,7 @@
 #include "VSController.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
 // -----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(QString textLabel, QString tooltip, DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(QString textLabel, QString tooltip, DataContainerArray::Pointer dca)
 {
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
 
@@ -71,7 +72,7 @@ void VSController::importData(QString textLabel, QString tooltip, DataContainerA
   size_t count = wrappedData.size();
   for(size_t i = 0; i < count; i++)
   {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
+    VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedData[i]);
     filter->setParentFilter(textFilter);
     m_FilterModel->addFilter(filter);
   }
@@ -80,15 +81,15 @@ void VSController::importData(QString textLabel, QString tooltip, DataContainerA
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(DataContainerArray::Pointer dca)
 {
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
   
-  // Add VSDataSetFilter for each DataContainer with relevant data
+  // Add VSSIMPLDataContainerFilter for each DataContainer with relevant data
   size_t count = wrappedData.size();
   for(size_t i = 0; i < count; i++)
   {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData[i]);
+    VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedData[i]);
     m_FilterModel->addFilter(filter);
   }
 
@@ -98,16 +99,32 @@ void VSController::importData(DataContainerArray::Pointer dca)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importData(DataContainer::Pointer dc)
+void VSController::importDataContainer(DataContainer::Pointer dc)
 {
   SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
 
-  // Add VSDataSetFilter if the DataContainer contains relevant data for rendering
+  // Add VSSIMPLDataContainerFilter if the DataContainer contains relevant data for rendering
   if(wrappedData)
   {
-    VSDataSetFilter* filter = new VSDataSetFilter(wrappedData);
+    VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedData);
     m_FilterModel->addFilter(filter);
   }
+
+  emit dataImported();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::importData(const QString &filePath)
+{
+  if (VSDataSetFilter::ContainsValidData(filePath) == false)
+  {
+    return;
+  }
+
+  VSDataSetFilter* filter = new VSDataSetFilter(filePath);
+  m_FilterModel->addFilter(filter);
 
   emit dataImported();
 }

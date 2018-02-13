@@ -128,6 +128,12 @@ protected:
   */
   VSAbstractFilter* getFilterFromIndex(const QModelIndex& index);
 
+  /**
+   * @brief mousePressEvent
+   * @param event
+   */
+  void mousePressEvent(QMouseEvent* event) override;
+
 private:
   VSController* m_Controller = nullptr;
   VSAbstractViewWidget* m_ViewWidget = nullptr;

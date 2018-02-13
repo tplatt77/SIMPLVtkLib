@@ -98,8 +98,11 @@ void VSFilterView::insertFilter(VSAbstractFilter* filter)
 void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
   // Disconnect from the old view controller
-  disconnect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
-    this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+  if (m_ViewWidget)
+  {
+    disconnect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
+      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+  }
 
   m_ViewWidget = viewWidget;
   if(nullptr == m_Controller || nullptr == m_ViewWidget)
@@ -187,6 +190,18 @@ void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex&
 void VSFilterView::connectSlots()
 {
   connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterView::mousePressEvent(QMouseEvent* event)
+{
+  clearSelection();
+
+  emit filterClicked(nullptr);
+
+  QTreeView::mousePressEvent(event);
 }
 
 // -----------------------------------------------------------------------------

@@ -35,90 +35,45 @@
 
 #pragma once
 
-#include <QtWidgets/QWidget>
-
-#include "Visualization/VisualFilters/VSClipFilter.h"
 #include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
-#include <vtkPlane.h>
-
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
-class QVTKInteractor;
+class VSSIMPLDataContainerFilter;
 
 /**
- * @class VSClipFilterWidget VSClipFilterWidget.h
- * SIMPLVtkLib/Visualization/VisualFilters/VSClipFilterWidget.h
- * @brief This class is used to create a clip filter over a set of data.
- * This class can be chained with itself or other classes inheriting from 
- * VSAbstractFilter to be more specific about the data being visualized.
- * VSClipFilterWidget can use both plan and box clip types as well as inverting
- * the clip applied.
- */
-class SIMPLVtkLib_EXPORT VSClipFilterWidget : public VSAbstractFilterWidget
+* @class VSSIMPLDataContainerFilterWidget VSSIMPLDataContainerFilterWidget.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilterWidget.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
+class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilterWidget : public VSAbstractFilterWidget
 {
   Q_OBJECT
 
 public:
-    /**
-   * @brief VSClipFilterWidget
-   * @param filter
-   * @param interactor
-   * @param widget
-   */
-  VSClipFilterWidget(VSClipFilter *filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
+  /**
+  * @brief Constuctor
+  * @param parentWidget
+  * @param dataSetStruct
+  */
+  VSSIMPLDataContainerFilterWidget(VSSIMPLDataContainerFilter* filter, QWidget *widget = nullptr);
 
   /**
   * @brief Deconstructor
   */
-  ~VSClipFilterWidget();
+  ~VSSIMPLDataContainerFilterWidget();
 
   /**
-  * @brief Sets the visualization filter's bounds
+  * @brief Sets the filter's bounds
   * @param bounds
   */
   void setBounds(double* bounds);
 
-  /**
-  * @brief Applies changes to the filter and updates the output
-  */
-  void apply() override;
-
-  /**
-   * @brief reset
-   */
-  void reset() override;
-
-  /**
-   * @brief Sets whether the filter widget should render drawings in the visualization window
-   * @param enabled
-   */
-  void setDrawingEnabled(bool enabled) override;
-
-  /**
-   * @brief setInteractor
-   * @param interactor
-   */
-  void setInteractor(QVTKInteractor* interactor) override;
-
-protected slots:
-  /**
-   * @brief changeClipType
-   * @param clipType
-   */
-  void changeClipType(const QString &clipType);
-
 private:
   class vsInternals;
-  vsInternals*                        m_Internals;
+  vsInternals*                                    m_Internals;
 
-  VSClipFilter*                       m_ClipFilter;
-  VSPlaneWidget*                      m_PlaneWidget;
-  VSBoxWidget*                        m_BoxWidget;
+  VSSIMPLDataContainerFilter*                     m_DataContainerFilter;
 };

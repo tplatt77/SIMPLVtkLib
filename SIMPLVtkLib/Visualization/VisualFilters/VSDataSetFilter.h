@@ -60,12 +60,11 @@ class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractFilter
   Q_OBJECT
 
 public:
-  /**
-  * @brief Constuctor
-  * @param parentWidget
-  * @param dataSetStruct
-  */
-  VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
+    /**
+   * @brief Constructor
+   * @param filePath
+   */
+  VSDataSetFilter(const QString &filePath);
 
   /**
   * @brief Returns the bounds of the vtkDataSet
@@ -109,10 +108,11 @@ public:
   static dataType_t getRequiredInputType();
 
   /**
-  * @brief Returns the VtkDataSetStruct_t used by the filter
-  * @return
-  */
-  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
+   * @brief ContainsValidData
+   * @param filePath
+   * @return
+   */
+  static bool ContainsValidData(const QString &filePath);
 
 protected:
   /**
@@ -128,6 +128,12 @@ protected:
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
+  QString m_FilePath;
+  VTK_PTR(vtkDataSet) m_DataSet = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
+
+  /**
+   * @brief readImage
+   */
+  void readImage();
 };

@@ -39,14 +39,14 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
@@ -103,6 +103,10 @@ void VSInfoWidget::setupGui()
     this, SLOT(resetFilter()));
   connect(m_Internals->deleteBtn, SIGNAL(clicked()),
     this, SLOT(deleteFilter()));
+
+  m_Internals->applyBtn->setDisabled(true);
+  m_Internals->resetBtn->setDisabled(true);
+  m_Internals->deleteBtn->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -151,6 +155,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 {
   if (m_FilterWidget != nullptr)
   {
+    m_FilterWidget->setDrawingEnabled(false);
     m_Internals->gridLayout_4->removeWidget(m_FilterWidget);
     m_FilterWidget = nullptr;
   }
@@ -182,9 +187,10 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   m_Internals->resetBtn->setEnabled(viewSettingsValid);
   m_Internals->deleteBtn->setEnabled(viewSettingsValid);
 
-  if(filterWidget != nullptr)
+  if (m_FilterWidget != nullptr)
   {
-    m_Internals->gridLayout_4->addWidget(filterWidget);
+    m_Internals->gridLayout_4->addWidget(m_FilterWidget);
+    m_FilterWidget->setDrawingEnabled(true);
   }
 
   updateFilterInfo();
@@ -242,6 +248,11 @@ void VSInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
   else
   {
     connectFilterViewSettings(nullptr);
+  }
+
+  if (m_FilterWidget)
+  {
+    m_FilterWidget->setDrawingEnabled(true);
   }
 
   updateViewSettingInfo();

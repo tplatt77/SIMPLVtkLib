@@ -51,7 +51,7 @@
 #include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
@@ -191,5 +191,36 @@ void VSClipFilterWidget::reset()
     m_BoxWidget->setTransform(transform);
     m_Internals->insideOutCheckBox->setChecked(inverted);
     m_BoxWidget->updateBoxWidget();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilterWidget::setInteractor(QVTKInteractor* interactor)
+{
+  if (m_PlaneWidget)
+  {
+    m_PlaneWidget->setInteractor(interactor);
+  }
+
+  if (m_BoxWidget)
+  {
+    m_BoxWidget->setInteractor(interactor);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilterWidget::setDrawingEnabled(bool enabled)
+{
+  if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
+  {
+    (enabled) ? m_PlaneWidget->enable() : m_PlaneWidget->disable();
+  }
+  else
+  {
+    (enabled) ? m_BoxWidget->enable() : m_BoxWidget->disable();
   }
 }

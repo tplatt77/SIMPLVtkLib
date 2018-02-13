@@ -33,181 +33,140 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSSliceFilter.h"
+#include "VSSIMPLDataContainerFilter.h"
 
-#include <QtCore/QString>
-
-#include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
-#include <vtkCutter.h>
+#include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
+#include <vtkLookupTable.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkScalarBarActor.h>
+#include <vtkTrivialProducer.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
+VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
 : VSAbstractFilter()
+, m_WrappedDataContainer(wrappedDataContainer)
 {
-  m_SliceAlgorithm = nullptr;
-  setParentFilter(parent);
-  setText(getFilterName());
+  createFilter();
+
+  setText(wrappedDataContainer->m_Name);
   setToolTip(getToolTip());
-
-  m_LastOrigin[0] = 0.0;
-  m_LastOrigin[1] = 0.0;
-  m_LastOrigin[2] = 0.0;
-
-  m_LastNormal[0] = 1.0;
-  m_LastNormal[1] = 0.0;
-  m_LastNormal[2] = 0.0;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilter::createFilter()
+double* VSSIMPLDataContainerFilter::getBounds() const
 {
-  m_SliceAlgorithm = vtkSmartPointer<vtkCutter>::New();
-  m_SliceAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
-  m_ConnectedInput = true;
+  return m_WrappedDataContainer->m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSSliceFilter::getFilterName()
+vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 {
-  return "Slice";
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString VSSliceFilter::getToolTip() const
-{
-  return "Slice Filter";
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::apply(double origin[3], double normal[3])
-{
-  if(nullptr == m_SliceAlgorithm)
+  if(m_TrivialProducer)
   {
-    createFilter();
+    return m_TrivialProducer->GetOutputPort();
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
+{
+  if(nullptr == m_WrappedDataContainer)
+  {
+    return nullptr;
   }
 
-  // Save the applied values for resetting Plane-Type widgets
-  for(int i = 0; i < 3; i++)
+  return m_WrappedDataContainer->m_DataSet;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  // Do nothing
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::createFilter()
+{
+  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  dataSet->ComputeBounds();
+  
+  vtkCellData* cellData = dataSet->GetCellData();
+  if(cellData)
   {
-    m_LastOrigin[i] = origin[i];
-    m_LastNormal[i] = normal[i];
+    vtkDataArray* dataArray = cellData->GetArray(0);
+    if(dataArray)
+    {
+      char* name = dataArray->GetName();
+      cellData->SetActiveScalars(name);
+    }
   }
-
-  VTK_NEW(vtkPlane, planeWidget);
-  planeWidget->SetOrigin(origin);
-  planeWidget->SetNormal(normal);
-
-  m_SliceAlgorithm->SetCutFunction(planeWidget);
-  m_SliceAlgorithm->Update();
-
+  
+  m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
+  m_TrivialProducer->SetOutput(dataSet);
+  
   emit updatedOutputPort(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSSliceFilter::getOutputPort()
+const QString VSSIMPLDataContainerFilter::getFilterName()
 {
-  if(m_ConnectedInput && m_SliceAlgorithm)
-  {
-    return m_SliceAlgorithm->GetOutputPort();
-  }
-  else if(getParentFilter())
-  {
-    return getParentFilter()->getOutputPort();
-  }
-
-  return nullptr;
+  return m_WrappedDataContainer->m_Name;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSSliceFilter::getOutput()
+QString VSSIMPLDataContainerFilter::getToolTip() const
 {
-  if(m_ConnectedInput && m_SliceAlgorithm)
-  {
-    return m_SliceAlgorithm->GetOutput();
-  }
-  else if(getParentFilter())
-  {
-    return getParentFilter()->getOutput();
-  }
-
-  return nullptr;
+  return m_WrappedDataContainer->m_Name;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
 {
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  m_InputPort = filter->getOutputPort();
-
-  if(m_ConnectedInput && m_SliceAlgorithm)
-  {
-    m_SliceAlgorithm->SetInputConnection(filter->getOutputPort());
-  }
-  else
-  {
-    emit updatedOutputPort(filter);
-  }
+  return m_WrappedDataContainer;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getOutputType()
+VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getOutputType()
 {
-  return POLY_DATA;
+  return IMAGE_DATA;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSSliceFilter::getLastOrigin()
-{
-  return m_LastOrigin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSSliceFilter::getLastNormal()
-{
-  return m_LastNormal;
 }
