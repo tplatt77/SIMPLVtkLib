@@ -289,9 +289,11 @@ void VSTransformWidget::updateTranslationLabels(double* position)
     return;
   }
 
-  QString value1 = QString::number(position[0], 'g', 3);
-  QString value2 = QString::number(position[1], 'g', 3);
-  QString value3 = QString::number(position[2], 'g', 3);
+  QLocale locale = QLocale::system();
+
+  QString value1 = locale.toString(position[0]);
+  QString value2 = locale.toString(position[1]);
+  QString value3 = locale.toString(position[2]);
 
   m_Internals->posXLabel->setText(value1);
   m_Internals->posYLabel->setText(value2);
@@ -308,9 +310,11 @@ void VSTransformWidget::updateRotationLabels(double* rotation)
     return;
   }
 
-  QString value1 = QString::number(rotation[0], 'g', 3);
-  QString value2 = QString::number(rotation[1], 'g', 3);
-  QString value3 = QString::number(rotation[2], 'g', 3);
+  QLocale locale = QLocale::system();
+
+  QString value1 = locale.toString(rotation[0]);
+  QString value2 = locale.toString(rotation[1]);
+  QString value3 = locale.toString(rotation[2]);
 
   m_Internals->rotXLabel->setText(value1);
   m_Internals->rotYLabel->setText(value2);
@@ -327,9 +331,11 @@ void VSTransformWidget::updateScaleLabels(double* scale)
     return;
   }
 
-  QString value1 = QString::number(scale[0], 'g', 3);
-  QString value2 = QString::number(scale[1], 'g', 3);
-  QString value3 = QString::number(scale[2], 'g', 3);
+  QLocale locale = QLocale::system();
+
+  QString value1 = locale.toString(scale[0]);
+  QString value2 = locale.toString(scale[1]);
+  QString value3 = locale.toString(scale[2]);
 
   m_Internals->scaleXLabel->setText(value1);
   m_Internals->scaleYLabel->setText(value2);
