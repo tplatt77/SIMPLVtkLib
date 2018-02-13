@@ -512,3 +512,16 @@ void VSAbstractFilter::updateTransformFilter()
     emit transformChanged();
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSAbstractFilter::getTransformBounds()
+{
+  if(nullptr == m_TransformFilter)
+  {
+    return getBounds();
+  }
+
+  return m_TransformFilter->GetOutput()->GetBounds();
+}

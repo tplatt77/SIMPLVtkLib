@@ -180,6 +180,12 @@ public:
   virtual double* getBounds() const;
 
   /**
+  * @brief Returns the bounds from the vtkTransformFilter
+  * @return
+  */
+  virtual double* getTransformBounds();
+
+  /**
   * @brief Returns the output port for the filter
   * @return
   */
