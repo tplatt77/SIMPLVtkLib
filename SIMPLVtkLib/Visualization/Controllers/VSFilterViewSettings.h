@@ -98,7 +98,7 @@ public:
   * @brief Returns true if the filter is displayed in for this view.  Returns false otherwise
   * @return
   */
-  bool getVisible();
+  bool isVisible();
 
   /**
   * @brief Returns the active array index used to render the filter

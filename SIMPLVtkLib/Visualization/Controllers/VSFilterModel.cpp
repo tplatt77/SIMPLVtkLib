@@ -164,6 +164,6 @@ void VSFilterModel::updateModelForView(VSFilterViewSettings::Map viewSettings)
   {
     VSFilterViewSettings* settings = iter->second;
     VSAbstractFilter* filter = settings->getFilter();
-    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
+    filter->setCheckState(settings->isVisible() ? Qt::Checked : Qt::Unchecked);
   }
 }
