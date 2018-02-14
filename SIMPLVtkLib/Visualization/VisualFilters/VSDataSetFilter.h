@@ -136,4 +136,9 @@ private:
    * @brief readImage
    */
   void readImage();
+
+  /**
+   * @brief readVTKFile
+   */
+  void readVTKFile();
 };
