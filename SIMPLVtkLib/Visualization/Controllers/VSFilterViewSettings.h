@@ -36,6 +36,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include <QtCore/QObject>
 
@@ -62,7 +63,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
   Q_OBJECT
 
 public:
-  using Container = std::vector<VSFilterViewSettings*>;
+  using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
 
   /**
   * @brief Constructor

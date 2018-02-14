@@ -101,8 +101,8 @@ signals:
 public slots:
   /**
   * @brief Updates the model to reflect the view settings found in a given view controller
-  * @param viewController
+  * @param viewSettings
   */
-  void updateModelForView(VSFilterViewSettings::Container viewSettings);
+  void updateModelForView(VSFilterViewSettings::Map viewSettings);
 };
 

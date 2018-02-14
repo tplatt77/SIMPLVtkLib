@@ -84,13 +84,13 @@ public:
   * @brief Returns the VSFilterViewSettings for the given filter.
   * @param filter
   */
-  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter) const;
+  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the container of VSFilterViewSettings
   * @return
   */
-  VSFilterViewSettings::Container getAllFilterViewSettings() const;
+  VSFilterViewSettings::Map getAllFilterViewSettings() const;
 
   /**
   * @brief Returns the VSController used by this widget
@@ -246,7 +246,14 @@ protected:
   * @brief Copies the filters and sets up connections
   * @param filters
   */
-  void copyFilters(VSFilterViewSettings::Container filters);
+  void copyFilters(VSFilterViewSettings::Map filters);
+
+  /**
+  * @brief Creates a new VSFilterViewSetting for the given filter.
+  * @param filter
+  * @return
+  */
+  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the index of the given VSFilterViewSetting
@@ -274,6 +281,6 @@ protected:
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  VSFilterViewSettings::Container m_FilterViewSettings;
+  VSFilterViewSettings::Map m_FilterViewSettings;
   VSController* m_Controller = nullptr;
 };
