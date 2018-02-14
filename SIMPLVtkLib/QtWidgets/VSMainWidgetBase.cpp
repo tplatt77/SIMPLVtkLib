@@ -263,6 +263,12 @@ void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 {
+  // Do nothing if the active view is not changed
+  if(viewWidget == m_ActiveViewWidget)
+  {
+    return;
+  }
+
   // Disconnect the old active view widget
   if(m_ActiveViewWidget)
   {
