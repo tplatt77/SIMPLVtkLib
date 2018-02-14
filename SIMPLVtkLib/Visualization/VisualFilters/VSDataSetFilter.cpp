@@ -38,10 +38,19 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QMimeDatabase>
 
+#include <vtkPolyData.h>
 #include <vtkImageData.h>
+#include <vtkRectilinearGrid.h>
+#include <vtkStructuredGrid.h>
 #include <vtkJPEGReader.h>
 #include <vtkPNGReader.h>
 #include <vtkTIFFReader.h>
+#include <vtkGenericDataObjectReader.h>
+#include <vtkRectilinearGridReader.h>
+#include <vtkStructuredPointsReader.h>
+#include <vtkStructuredGridReader.h>
+#include <vtkUnstructuredGridReader.h>
+#include <vtkPolyDataReader.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -107,12 +116,18 @@ void VSDataSetFilter::createFilter()
 
   QMimeDatabase db;
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
+  QString mimeName = mimeType.name();
 
   setText(fi.fileName());
 
   if (mimeType.name().startsWith("image/"))
   {
     readImage();
+  }
+  else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr"
+           || ext == "vts" || ext == "vtu")
+  {
+    readVTKFile();
   }
 
   if (m_DataSet != nullptr)
@@ -134,11 +149,10 @@ void VSDataSetFilter::readImage()
   QMimeDatabase db;
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
 
-  char* filePathPtr = m_FilePath.toLatin1().data();
   if (mimeType.inherits("image/jpeg"))
   {
     VTK_NEW(vtkJPEGReader, imageReader);
-    imageReader->SetFileName(filePathPtr);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
     imageReader->Update();
 
     m_DataSet = imageReader->GetOutput();
@@ -146,7 +160,7 @@ void VSDataSetFilter::readImage()
   else if (mimeType.inherits("image/png"))
   {
     VTK_NEW(vtkPNGReader, imageReader);
-    imageReader->SetFileName(filePathPtr);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
     imageReader->Update();
 
     m_DataSet = imageReader->GetOutput();
@@ -154,10 +168,68 @@ void VSDataSetFilter::readImage()
   else if (mimeType.inherits("image/tiff"))
   {
     VTK_NEW(vtkTIFFReader, imageReader);
-    imageReader->SetFileName(filePathPtr);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
     imageReader->Update();
 
     m_DataSet = imageReader->GetOutput();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::readVTKFile()
+{
+  QFileInfo fi(m_FilePath);
+  QString ext = fi.completeSuffix().toLower();
+
+  if (ext == "vtk")
+  {
+    VTK_NEW(vtkGenericDataObjectReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkDataSet::SafeDownCast(vtkReader->GetOutput());
+  }
+  else if (ext == "vti")
+  {
+    VTK_NEW(vtkImageReader2, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtp")
+  {
+    VTK_NEW(vtkPolyDataReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtr")
+  {
+    VTK_NEW(vtkRectilinearGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vts")
+  {
+    VTK_NEW(vtkStructuredGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtu")
+  {
+    VTK_NEW(vtkStructuredGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
   }
 }
 

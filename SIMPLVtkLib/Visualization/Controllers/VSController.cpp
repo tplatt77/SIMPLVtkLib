@@ -118,11 +118,6 @@ void VSController::importDataContainer(DataContainer::Pointer dc)
 // -----------------------------------------------------------------------------
 void VSController::importData(const QString &filePath)
 {
-  if (VSDataSetFilter::ContainsValidData(filePath) == false)
-  {
-    return;
-  }
-
   VSDataSetFilter* filter = new VSDataSetFilter(filePath);
   m_FilterModel->addFilter(filter);
 
