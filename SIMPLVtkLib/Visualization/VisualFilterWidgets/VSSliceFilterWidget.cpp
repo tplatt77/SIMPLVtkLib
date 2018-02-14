@@ -121,5 +121,12 @@ void VSSliceFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSSliceFilterWidget::reset()
 {
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilterWidget::setDrawingEnabled(bool enabled)
+{
+  (enabled) ? m_SliceWidget->enable() : m_SliceWidget->disable();
 }

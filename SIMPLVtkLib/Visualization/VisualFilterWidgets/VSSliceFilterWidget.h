@@ -89,6 +89,12 @@ public:
    */
   void reset() override;
 
+  /**
+  * @brief Sets whether the filter widget should render drawings in the visualization window
+  * @param enabled
+  */
+  void setDrawingEnabled(bool enabled) override;
+
 private:
   class vsInternals;
   vsInternals*                    m_Internals;
