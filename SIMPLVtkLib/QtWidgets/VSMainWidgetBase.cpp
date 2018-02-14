@@ -332,8 +332,19 @@ void VSMainWidgetBase::activeViewClosed()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
+  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+  if(filterWidget)
+  {
+    filterWidget->setDrawingEnabled(false);
+  }
+
   m_CurrentFilter = filter;
-  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(filter);
+  filterWidget = m_FilterToFilterWidgetMap.value(filter);
+
+  if(filterWidget)
+  {
+    filterWidget->setDrawingEnabled(true);
+  }
 
   emit changedActiveFilter(m_CurrentFilter, filterWidget);
 }
