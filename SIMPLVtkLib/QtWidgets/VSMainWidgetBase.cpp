@@ -362,8 +362,16 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
   for(VSAbstractViewWidget* widget : viewWidgets)
   {
     VSFilterViewSettings* viewSettings = widget->getFilterViewSettings(filter);
+    bool visible = viewSettings->isVisible();
     viewSettings->setVisible(false);
     viewSettings->setScalarBarVisible(false);
+
+    VSFilterViewSettings* parentSettings = widget->getFilterViewSettings(filter->getParentFilter());
+    if(parentSettings)
+    {
+      bool parentVisible = parentSettings->isVisible();
+      parentSettings->setVisible(visible || parentVisible);
+    }
   }
 
   QVector<VSAbstractFilter*> childFilters = filter->getChildren();
