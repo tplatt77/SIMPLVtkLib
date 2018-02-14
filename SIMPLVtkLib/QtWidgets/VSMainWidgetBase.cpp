@@ -298,7 +298,6 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
     {
-      fw->setDrawingEnabled(false);
       fw->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
     }
   }
@@ -335,7 +334,7 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
   VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
   if(filterWidget)
   {
-    filterWidget->setDrawingEnabled(false);
+    filterWidget->setRenderingEnabled(false);
   }
 
   m_CurrentFilter = filter;
@@ -343,7 +342,7 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 
   if(filterWidget)
   {
-    filterWidget->setDrawingEnabled(true);
+    filterWidget->setRenderingEnabled(true);
   }
 
   emit changedActiveFilter(m_CurrentFilter, filterWidget);

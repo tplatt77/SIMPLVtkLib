@@ -93,7 +93,13 @@ public:
   * @brief Sets whether the filter widget should render drawings in the visualization window
   * @param enabled
   */
-  void setDrawingEnabled(bool enabled) override;
+  void setRenderingEnabled(bool enabled) override;
+
+  /**
+  * @brief setInteractor
+  * @param interactor
+  */
+  void setInteractor(QVTKInteractor* interactor) override;
 
 private:
   class vsInternals;
