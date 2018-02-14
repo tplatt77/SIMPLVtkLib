@@ -185,7 +185,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   }
   m_Internals->applyBtn->setEnabled(viewSettingsValid);
   m_Internals->resetBtn->setEnabled(viewSettingsValid);
-  m_Internals->deleteBtn->setEnabled(viewSettingsValid);
+  m_Internals->deleteBtn->setEnabled(filterExists);
 
   if (m_FilterWidget != nullptr)
   {
