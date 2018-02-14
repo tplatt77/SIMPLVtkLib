@@ -123,7 +123,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   if(m_FilterView)
   {
     disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(changeViewWidget(VSAbstractViewWidget*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
     disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
       view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
   }

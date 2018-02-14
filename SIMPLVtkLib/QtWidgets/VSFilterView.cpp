@@ -53,6 +53,7 @@ VSFilterView::VSFilterView(QWidget* parent)
 void VSFilterView::setupGui()
 {
   setHeaderHidden(true);
+  setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 // -----------------------------------------------------------------------------
@@ -190,18 +191,6 @@ void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex&
 void VSFilterView::connectSlots()
 {
   connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::mousePressEvent(QMouseEvent* event)
-{
-  clearSelection();
-
-  emit filterClicked(nullptr);
-
-  QTreeView::mousePressEvent(event);
 }
 
 // -----------------------------------------------------------------------------
