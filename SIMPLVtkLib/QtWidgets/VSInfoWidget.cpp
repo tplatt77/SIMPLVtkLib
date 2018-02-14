@@ -195,7 +195,20 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 
   updateFilterInfo();
   updateViewSettingInfo();
-  adjustSize();
+
+  // Update widget size
+  QSize preferredSize = sizeHint();
+  int newWidth;
+  if(parentWidget())
+  {
+    newWidth = std::min(width(), parentWidget()->width());
+  }
+  else
+  {
+    newWidth = width();
+  }
+  preferredSize.setWidth(width());
+  resize(preferredSize);
 }
 
 // -----------------------------------------------------------------------------
