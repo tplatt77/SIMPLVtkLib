@@ -1,65 +1,65 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSDataSetFilter.h"
 
-#include <vtkAlgorithmOutput.h>
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkLookupTable.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkScalarBarActor.h>
-#include <vtkTrivialProducer.h>
-#include <vtkUnstructuredGridAlgorithm.h>
+#include <QtCore/QFileInfo>
+#include <QtCore/QMimeDatabase>
 
-#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
+#include <vtkPolyData.h>
+#include <vtkImageData.h>
+#include <vtkRectilinearGrid.h>
+#include <vtkStructuredGrid.h>
+#include <vtkJPEGReader.h>
+#include <vtkPNGReader.h>
+#include <vtkTIFFReader.h>
+#include <vtkGenericDataObjectReader.h>
+#include <vtkRectilinearGridReader.h>
+#include <vtkStructuredPointsReader.h>
+#include <vtkStructuredGridReader.h>
+#include <vtkUnstructuredGridReader.h>
+#include <vtkPolyDataReader.h>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
-: VSAbstractFilter()
-, m_WrappedDataContainer(wrappedDataContainer)
+VSDataSetFilter::VSDataSetFilter(const QString &filePath)
+  : VSAbstractFilter()
+  , m_FilePath(filePath)
 {
   createFilter();
-
-  setText(wrappedDataContainer->m_Name);
-  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ VSDataSetFilter::VSDataSetFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrapped
 // -----------------------------------------------------------------------------
 double* VSDataSetFilter::getBounds() const
 {
-  return m_WrappedDataContainer->m_DataSet->GetBounds();
+  return m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -90,12 +90,12 @@ vtkAlgorithmOutput* VSDataSetFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
 {
-  if(nullptr == m_WrappedDataContainer)
+  if(nullptr == m_DataSet)
   {
     return nullptr;
   }
 
-  return m_WrappedDataContainer->m_DataSet;
+  return m_DataSet;
 }
 
 // -----------------------------------------------------------------------------
@@ -111,24 +111,146 @@ void VSDataSetFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSDataSetFilter::createFilter()
 {
-  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
-  dataSet->ComputeBounds();
-  
-  vtkCellData* cellData = dataSet->GetCellData();
-  if(cellData)
+  QFileInfo fi(m_FilePath);
+  QString ext = fi.completeSuffix().toLower();
+
+  QMimeDatabase db;
+  QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
+  QString mimeName = mimeType.name();
+
+  setText(fi.fileName());
+
+  if (mimeType.name().startsWith("image/"))
   {
-    vtkDataArray* dataArray = cellData->GetArray(0);
-    if(dataArray)
-    {
-      char* name = dataArray->GetName();
-      cellData->SetActiveScalars(name);
-    }
+    readImage();
   }
-  
-  m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
-  m_TrivialProducer->SetOutput(dataSet);
-  
-  emit updatedOutputPort(this);
+  else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr"
+           || ext == "vts" || ext == "vtu")
+  {
+    readVTKFile();
+  }
+
+  if (m_DataSet != nullptr)
+  {
+    m_DataSet->ComputeBounds();
+
+    m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
+    m_TrivialProducer->SetOutput(m_DataSet);
+
+    emit updatedOutputPort(this);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::readImage()
+{
+  QMimeDatabase db;
+  QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
+
+  if (mimeType.inherits("image/jpeg"))
+  {
+    VTK_NEW(vtkJPEGReader, imageReader);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
+    imageReader->Update();
+
+    m_DataSet = imageReader->GetOutput();
+  }
+  else if (mimeType.inherits("image/png"))
+  {
+    VTK_NEW(vtkPNGReader, imageReader);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
+    imageReader->Update();
+
+    m_DataSet = imageReader->GetOutput();
+  }
+  else if (mimeType.inherits("image/tiff"))
+  {
+    VTK_NEW(vtkTIFFReader, imageReader);
+    imageReader->SetFileName(m_FilePath.toLatin1().data());
+    imageReader->Update();
+
+    m_DataSet = imageReader->GetOutput();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::readVTKFile()
+{
+  QFileInfo fi(m_FilePath);
+  QString ext = fi.completeSuffix().toLower();
+
+  if (ext == "vtk")
+  {
+    VTK_NEW(vtkGenericDataObjectReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkDataSet::SafeDownCast(vtkReader->GetOutput());
+  }
+  else if (ext == "vti")
+  {
+    VTK_NEW(vtkImageReader2, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtp")
+  {
+    VTK_NEW(vtkPolyDataReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtr")
+  {
+    VTK_NEW(vtkRectilinearGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vts")
+  {
+    VTK_NEW(vtkStructuredGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+  else if (ext == "vtu")
+  {
+    VTK_NEW(vtkStructuredGridReader, vtkReader);
+    vtkReader->SetFileName(m_FilePath.toLatin1().data());
+    vtkReader->Update();
+
+    m_DataSet = vtkReader->GetOutput();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSDataSetFilter::ContainsValidData(const QString &filePath)
+{
+  QFileInfo fi(filePath);
+  QString ext = fi.completeSuffix().toLower();
+
+  QMimeDatabase db;
+  QMimeType mimeType = db.mimeTypeForFile(filePath, QMimeDatabase::MatchContent);
+
+  if (mimeType.inherits("image/jpeg") || mimeType.inherits("image/png") ||
+      mimeType.inherits("image/tiff") || ext == "dream3d" || ext == "vtk" || ext == "stl")
+  {
+    return true;
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -136,7 +258,7 @@ void VSDataSetFilter::createFilter()
 // -----------------------------------------------------------------------------
 const QString VSDataSetFilter::getFilterName()
 {
-  return m_WrappedDataContainer->m_Name;
+  return text();
 }
 
 // -----------------------------------------------------------------------------
@@ -144,15 +266,7 @@ const QString VSDataSetFilter::getFilterName()
 // -----------------------------------------------------------------------------
 QString VSDataSetFilter::getToolTip() const
 {
-  return m_WrappedDataContainer->m_Name;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-SIMPLVtkBridge::WrappedDataContainerPtr VSDataSetFilter::getWrappedDataContainer()
-{
-  return m_WrappedDataContainer;
+  return "Dataset Filter";
 }
 
 // -----------------------------------------------------------------------------
@@ -170,3 +284,4 @@ VSAbstractFilter::dataType_t VSDataSetFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
 }
+

@@ -37,74 +37,97 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "VSAbstractFilter.h"
+
+#include <vtkSmartPointer.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkThreshold;
-class vtkImageData;
-class vtkDataSet;
-class vtkUnstructuredGrid;
-class vtkImplicitDataSet;
-class vtkExtractGeometry;
-class vtkExtractUnstructuredGrid;
-class VSThresholdWidget;
-class VSSIMPLDataContainerFilter;
-class vtkExtractSelectedThresholds;
-class vtkSelection;
-class vtkSelectionNode;
 class vtkTrivialProducer;
-class vtkPointData;
-class vtkCelldata;
-class vtkMergeFilter;
-class VSThresholdFilter;
-class QVTKInteractor;
+class vtkAlgorithmOutput;
 
 /**
- * @class VSThresholdFilterWidget VSThresholdFilterWidget.h
- * SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilterWidget.h
- * @brief This class handles the thresholding over a given range for a 
- * specified array. This array does not have to match the data array being 
- * visualized and is set separately within the filter. As this class inherits
- * from VSAbstractFilter, it can be chained with other filters to further
- * specify what part of the volume should be visualized.
- */
-class SIMPLVtkLib_EXPORT VSThresholdFilterWidget : public VSAbstractFilterWidget
+* @class VSSIMPLDataContainerFilter VSSIMPLDataContainerFilter.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
+class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
 public:
   /**
-  * @brief Consructor
+  * @brief Constuctor
   * @param parentWidget
-  * @param parent
+  * @param dataSetStruct
   */
-  VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
+  VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
 
   /**
-  * @brief Deconstructor
+  * @brief Returns the bounds of the vtkDataSet
+  * @return
   */
-  ~VSThresholdFilterWidget();
+  double* getBounds() const;
 
   /**
-  * @brief Sets the filter bounds
-  * @param bounds
+  * @brief Returns the output port for the filter
+  * @return
   */
-  void setBounds(double* bounds);
+  virtual vtkAlgorithmOutput* getOutputPort() override;
 
   /**
-  * @brief Applies changes to the filter and updates the output
+  * @brief Returns the output data for the filter
   */
-  void apply() override;
+  VTK_PTR(vtkDataSet) getOutput() override;
 
   /**
-   * @brief reset
-   */
-  void reset() override;
+  * @brief Returns the filter's name
+  * @return
+  */
+  const QString getFilterName() override;
+    
+  /**
+  * @brief Returns the tooltip to use for the filter
+  * @return
+  */
+  virtual QString getToolTip() const override;
+
+  /**
+  * @brief Returns the output data type for the filter
+  * @return
+  */
+  dataType_t getOutputType() override;
+
+  /**
+  * @brief Returns the required input data type
+  * @return
+  */
+  static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns the VtkDataSetStruct_t used by the filter
+  * @return
+  */
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
+
+protected:
+  /**
+  * @brief Initializes the trivial producer and connects it to the vtkMapper
+  */
+  void createFilter() override;
+
+  /**
+  * @brief This method is empty as there should never be a case where a VSSIMPLDataContainerFilter
+  * is a child of another filter.
+  * @param filter
+  */
+  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
-  class vsInternals;
-  vsInternals*                            m_Internals;
-
-  VSThresholdFilter*                      m_ThresholdFilter;
+  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
+  VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
 };

@@ -5,6 +5,7 @@ set(VSVisualFilters
   VSCropFilter
   VSDataSetFilter
   VSMaskFilter
+  VSSIMPLDataContainerFilter
   VSSliceFilter
   VSTextFilter
   VSThresholdFilter

@@ -33,59 +33,47 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSAbstractFilterWidget.h"
+#pragma once
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilterWidget::VSAbstractFilterWidget(QWidget* parent)
-: QWidget(parent)
+#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class VSSIMPLDataContainerFilter;
+
+/**
+* @class VSSIMPLDataContainerFilterWidget VSSIMPLDataContainerFilterWidget.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilterWidget.h
+* @brief This class stores a WrappedDataContainerPtr and provides an output port
+* for other filters to connect to for converting SIMPLib DataContainers to something 
+* VTK can render.
+*/
+class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilterWidget : public VSAbstractFilterWidget
 {
+  Q_OBJECT
 
-}
+public:
+  /**
+  * @brief Constuctor
+  * @param parentWidget
+  * @param dataSetStruct
+  */
+  VSSIMPLDataContainerFilterWidget(VSSIMPLDataContainerFilter* filter, QWidget *widget = nullptr);
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilterWidget::~VSAbstractFilterWidget()
-{
+  /**
+  * @brief Deconstructor
+  */
+  ~VSSIMPLDataContainerFilterWidget();
 
-}
+  /**
+  * @brief Sets the filter's bounds
+  * @param bounds
+  */
+  void setBounds(double* bounds);
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::apply()
-{
-}
+private:
+  class vsInternals;
+  vsInternals*                                    m_Internals;
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::reset()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setInteractor(QVTKInteractor* interactor)
-{
-  Q_UNUSED(interactor)
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setRenderingEnabled(bool enabled)
-{
-  m_RenderingEnabled = enabled;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilterWidget::getRenderingEnabled()
-{
-  return m_RenderingEnabled;
-}
+  VSSIMPLDataContainerFilter*                     m_DataContainerFilter;
+};

@@ -102,7 +102,7 @@ bool VSFilterViewSettings::isValid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::getVisible()
+bool VSFilterViewSettings::isVisible()
 {
   return m_ShowFilter;
 }

@@ -109,6 +109,11 @@ VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
 // -----------------------------------------------------------------------------
 QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
 {
+  if (filter == nullptr)
+  {
+    return QModelIndex();
+  }
+
   return filter->index();
 }
 
@@ -153,11 +158,12 @@ QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::updateModelForView(VSFilterViewSettings::Container viewSettings)
+void VSFilterModel::updateModelForView(VSFilterViewSettings::Map viewSettings)
 {
-  for(VSFilterViewSettings* settings : viewSettings)
+  for(auto iter = viewSettings.begin(); iter != viewSettings.end(); iter++)
   {
+    VSFilterViewSettings* settings = iter->second;
     VSAbstractFilter* filter = settings->getFilter();
-    filter->setCheckState(settings->getVisible() ? Qt::Checked : Qt::Unchecked);
+    filter->setCheckState(settings->isVisible() ? Qt::Checked : Qt::Unchecked);
   }
 }

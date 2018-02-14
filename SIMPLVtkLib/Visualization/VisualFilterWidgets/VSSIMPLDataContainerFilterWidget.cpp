@@ -33,59 +33,43 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSAbstractFilterWidget.h"
+#include "VSSIMPLDataContainerFilterWidget.h"
+
+#include "ui_VSSIMPLDataContainerFilterWidget.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilterWidget::VSAbstractFilterWidget(QWidget* parent)
-: QWidget(parent)
+class VSSIMPLDataContainerFilterWidget::vsInternals : public Ui::VSSIMPLDataContainerFilterWidget
 {
+public:
+  vsInternals()
+  {
+  }
+};
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSIMPLDataContainerFilterWidget::VSSIMPLDataContainerFilterWidget(VSSIMPLDataContainerFilter *filter, QWidget* widget)
+: VSAbstractFilterWidget(widget)
+, m_Internals(new vsInternals())
+, m_DataContainerFilter(filter)
+{
+  m_Internals->setupUi(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilterWidget::~VSAbstractFilterWidget()
-{
-
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::apply()
+VSSIMPLDataContainerFilterWidget::~VSSIMPLDataContainerFilterWidget()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::reset()
+void VSSIMPLDataContainerFilterWidget::setBounds(double* bounds)
 {
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setInteractor(QVTKInteractor* interactor)
-{
-  Q_UNUSED(interactor)
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setRenderingEnabled(bool enabled)
-{
-  m_RenderingEnabled = enabled;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSAbstractFilterWidget::getRenderingEnabled()
-{
-  return m_RenderingEnabled;
 }

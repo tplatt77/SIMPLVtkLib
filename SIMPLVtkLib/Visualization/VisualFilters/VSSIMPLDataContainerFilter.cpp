@@ -33,59 +33,140 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSAbstractFilterWidget.h"
+#include "VSSIMPLDataContainerFilter.h"
+
+#include <vtkAlgorithmOutput.h>
+#include <vtkCellData.h>
+#include <vtkDataArray.h>
+#include <vtkDataSet.h>
+#include <vtkDataSetMapper.h>
+#include <vtkLookupTable.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkScalarBarActor.h>
+#include <vtkTrivialProducer.h>
+#include <vtkUnstructuredGridAlgorithm.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilterWidget::VSAbstractFilterWidget(QWidget* parent)
-: QWidget(parent)
+VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
+: VSAbstractFilter()
+, m_WrappedDataContainer(wrappedDataContainer)
 {
+  createFilter();
 
+  setText(wrappedDataContainer->m_Name);
+  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilterWidget::~VSAbstractFilterWidget()
+double* VSSIMPLDataContainerFilter::getBounds() const
 {
-
+  return m_WrappedDataContainer->m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::apply()
+vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 {
+  if(m_TrivialProducer)
+  {
+    return m_TrivialProducer->GetOutputPort();
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::reset()
+VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
 {
+  if(nullptr == m_WrappedDataContainer)
+  {
+    return nullptr;
+  }
+
+  return m_WrappedDataContainer->m_DataSet;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSSIMPLDataContainerFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 {
-  Q_UNUSED(interactor)
+  // Do nothing
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setRenderingEnabled(bool enabled)
+void VSSIMPLDataContainerFilter::createFilter()
 {
-  m_RenderingEnabled = enabled;
+  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  dataSet->ComputeBounds();
+  
+  vtkCellData* cellData = dataSet->GetCellData();
+  if(cellData)
+  {
+    vtkDataArray* dataArray = cellData->GetArray(0);
+    if(dataArray)
+    {
+      char* name = dataArray->GetName();
+      cellData->SetActiveScalars(name);
+    }
+  }
+  
+  m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
+  m_TrivialProducer->SetOutput(dataSet);
+  
+  emit updatedOutputPort(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSAbstractFilterWidget::getRenderingEnabled()
+const QString VSSIMPLDataContainerFilter::getFilterName()
 {
-  return m_RenderingEnabled;
+  return m_WrappedDataContainer->m_Name;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSSIMPLDataContainerFilter::getToolTip() const
+{
+  return m_WrappedDataContainer->m_Name;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
+{
+  return m_WrappedDataContainer;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getOutputType()
+{
+  return IMAGE_DATA;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getRequiredInputType()
+{
+  return ANY_DATA_SET;
 }

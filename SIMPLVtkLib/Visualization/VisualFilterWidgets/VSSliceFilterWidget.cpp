@@ -49,7 +49,7 @@
 #include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
@@ -121,5 +121,26 @@ void VSSliceFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSSliceFilterWidget::reset()
 {
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilterWidget::setRenderingEnabled(bool enabled)
+{
+  VSAbstractFilterWidget::setRenderingEnabled(enabled);
+
+  (enabled) ? m_SliceWidget->enable() : m_SliceWidget->disable();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilterWidget::setInteractor(QVTKInteractor* interactor)
+{
+  bool rendered = getRenderingEnabled();
+
+  setRenderingEnabled(false);
+  m_SliceWidget->setInteractor(interactor);
+  setRenderingEnabled(rendered);
 }

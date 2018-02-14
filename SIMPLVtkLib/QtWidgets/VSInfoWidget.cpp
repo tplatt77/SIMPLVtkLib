@@ -39,14 +39,14 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
@@ -103,6 +103,10 @@ void VSInfoWidget::setupGui()
     this, SLOT(resetFilter()));
   connect(m_Internals->deleteBtn, SIGNAL(clicked()),
     this, SLOT(deleteFilter()));
+
+  m_Internals->applyBtn->setDisabled(true);
+  m_Internals->resetBtn->setDisabled(true);
+  m_Internals->deleteBtn->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -183,7 +187,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   m_Internals->resetBtn->setEnabled(viewSettingsValid);
   m_Internals->deleteBtn->setEnabled(filterExists);
 
-  if(filterWidget != nullptr)
+  if (m_FilterWidget != nullptr)
   {
     m_Internals->filterWidgetLayout->addWidget(filterWidget);
     filterWidget->show();
@@ -200,7 +204,21 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 
   updateFilterInfo();
   updateViewSettingInfo();
-  m_Internals->viewSettingsWidget->adjustSize();
+
+// Update widget size
+  QWidget* widgetResized = m_Internals->viewSettingsWidget;
+  QSize preferredSize = widgetResized->sizeHint();
+  int newWidth;
+  if(widgetResized->parentWidget())
+  {
+    newWidth = std::min(widgetResized->width(), widgetResized->parentWidget()->width());
+  }
+  else
+  {
+    newWidth = widgetResized->width();
+  }
+  preferredSize.setWidth(newWidth);
+  m_Internals->viewSettingsWidget->resize(preferredSize);
 }
 
 // -----------------------------------------------------------------------------

@@ -37,7 +37,7 @@
 
 #include <vector>
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QSplitter>
 
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
@@ -51,7 +51,7 @@
 * @brief This abstract class applies the VSViewController and VSFilterViewSettings to
 * a VSVisualizationWidget.
 */
-class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QFrame
 {
   Q_OBJECT
 
@@ -60,7 +60,7 @@ public:
   * @brief Constructor
   * @param parent
   */
-  VSAbstractViewWidget(QWidget* parent = nullptr);
+  VSAbstractViewWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
   /**
   * @brief Copy constructor
@@ -84,13 +84,13 @@ public:
   * @brief Returns the VSFilterViewSettings for the given filter.
   * @param filter
   */
-  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter) const;
+  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the container of VSFilterViewSettings
   * @return
   */
-  VSFilterViewSettings::Container getAllFilterViewSettings() const;
+  VSFilterViewSettings::Map getAllFilterViewSettings() const;
 
   /**
   * @brief Returns the VSController used by this widget
@@ -103,6 +103,12 @@ public:
   * @param controller
   */
   void setController(VSController* controller);
+
+  /**
+   * @brief setActive
+   * @param active
+   */
+  virtual void setActive(bool active);
 
   /**
   * @brief Clones the widget and its view controller
@@ -240,7 +246,14 @@ protected:
   * @brief Copies the filters and sets up connections
   * @param filters
   */
-  void copyFilters(VSFilterViewSettings::Container filters);
+  void copyFilters(VSFilterViewSettings::Map filters);
+
+  /**
+  * @brief Creates a new VSFilterViewSetting for the given filter.
+  * @param filter
+  * @return
+  */
+  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the index of the given VSFilterViewSetting
@@ -268,6 +281,6 @@ protected:
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  VSFilterViewSettings::Container m_FilterViewSettings;
+  VSFilterViewSettings::Map m_FilterViewSettings;
   VSController* m_Controller = nullptr;
 };
