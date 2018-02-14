@@ -123,7 +123,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   if(m_FilterView)
   {
     disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(changeViewWidget(VSAbstractViewWidget*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
     disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
       view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
   }
@@ -245,6 +245,8 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter)
   {
     m_FilterToFilterWidgetMap.insert(filter, fw);
   }
+
+  setCurrentFilter(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -263,6 +265,12 @@ void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 {
+  // Do nothing if the active view is not changed
+  if(viewWidget == m_ActiveViewWidget)
+  {
+    return;
+  }
+
   // Disconnect the old active view widget
   if(m_ActiveViewWidget)
   {
@@ -290,7 +298,6 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
     {
-      fw->setDrawingEnabled(false);
       fw->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
     }
   }
@@ -324,8 +331,19 @@ void VSMainWidgetBase::activeViewClosed()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
+  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+  if(filterWidget)
+  {
+    filterWidget->setRenderingEnabled(false);
+  }
+
   m_CurrentFilter = filter;
-  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(filter);
+  filterWidget = m_FilterToFilterWidgetMap.value(filter);
+
+  if(filterWidget)
+  {
+    filterWidget->setRenderingEnabled(true);
+  }
 
   emit changedActiveFilter(m_CurrentFilter, filterWidget);
 }

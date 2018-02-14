@@ -77,7 +77,15 @@ void VSAbstractFilterWidget::setInteractor(QVTKInteractor* interactor)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setDrawingEnabled(bool enabled)
+void VSAbstractFilterWidget::setRenderingEnabled(bool enabled)
 {
-  Q_UNUSED(enabled)
+  m_RenderingEnabled = enabled;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilterWidget::getRenderingEnabled()
+{
+  return m_RenderingEnabled;
 }

@@ -121,5 +121,26 @@ void VSSliceFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSSliceFilterWidget::reset()
 {
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilterWidget::setRenderingEnabled(bool enabled)
+{
+  VSAbstractFilterWidget::setRenderingEnabled(enabled);
+
+  (enabled) ? m_SliceWidget->enable() : m_SliceWidget->disable();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilterWidget::setInteractor(QVTKInteractor* interactor)
+{
+  bool rendered = getRenderingEnabled();
+
+  setRenderingEnabled(false);
+  m_SliceWidget->setInteractor(interactor);
+  setRenderingEnabled(rendered);
 }

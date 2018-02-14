@@ -199,6 +199,9 @@ void VSClipFilterWidget::reset()
 // -----------------------------------------------------------------------------
 void VSClipFilterWidget::setInteractor(QVTKInteractor* interactor)
 {
+  bool rendered = getRenderingEnabled();
+  setRenderingEnabled(false);
+
   if (m_PlaneWidget)
   {
     m_PlaneWidget->setInteractor(interactor);
@@ -208,13 +211,17 @@ void VSClipFilterWidget::setInteractor(QVTKInteractor* interactor)
   {
     m_BoxWidget->setInteractor(interactor);
   }
+
+  setRenderingEnabled(rendered);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilterWidget::setDrawingEnabled(bool enabled)
+void VSClipFilterWidget::setRenderingEnabled(bool enabled)
 {
+  VSAbstractFilterWidget::setRenderingEnabled(enabled);
+
   if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
   {
     (enabled) ? m_PlaneWidget->enable() : m_PlaneWidget->disable();

@@ -77,10 +77,15 @@ public:
   virtual void reset();
 
   /**
-   * @brief Sets whether the filter widget should render drawings in the visualization window
+   * @brief Sets whether the filter widget should render its vtkWidget in the visualization window
    * @param enabled
    */
-  virtual void setDrawingEnabled(bool enabled);
+  virtual void setRenderingEnabled(bool enabled);
+
+  /**
+  * @brief Returns whether the filter widget is rendered
+  */
+  bool getRenderingEnabled();
 
   /**
    * @brief setInteractor
@@ -95,7 +100,7 @@ protected:
   VSAbstractFilterWidget(QWidget *parent = nullptr);
 
 private:
-
+  bool m_RenderingEnabled = true;
 };
 
 #ifdef __clang__
