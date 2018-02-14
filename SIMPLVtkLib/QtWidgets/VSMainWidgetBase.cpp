@@ -245,6 +245,8 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter)
   {
     m_FilterToFilterWidgetMap.insert(filter, fw);
   }
+
+  setCurrentFilter(filter);
 }
 
 // -----------------------------------------------------------------------------
