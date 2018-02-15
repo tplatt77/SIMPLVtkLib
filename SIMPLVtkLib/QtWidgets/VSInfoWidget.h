@@ -144,6 +144,12 @@ protected slots:
   void alphaSliderMoved(int value);
 
   /**
+  * @brief Slot for handling changes in the VSColorButton used for selecting the VSFilterViewSetting's solid color
+  * @param color
+  */
+  void colorButtonChanged(QColor color);
+
+  /**
   * @brief Listens for the active VSFilterViewSettings active array index to change
   * @param settings
   * @param index
@@ -177,6 +183,13 @@ protected slots:
   * @param show
   */
   void listenScalarBar(VSFilterViewSettings* settings, bool show);
+
+  /**
+  * @brief Listens for the active VSFilterViewSettings solid color to change
+  * @param settings
+  * @param color
+  */
+  void listenSolidColor(VSFilterViewSettings* settings, double* color);
 
 protected:
   /**

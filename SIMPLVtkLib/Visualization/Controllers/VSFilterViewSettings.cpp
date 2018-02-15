@@ -263,6 +263,17 @@ void VSFilterViewSettings::setActiveArrayIndex(int index)
     return;
   }
 
+  // Draw a solid color if index is -1
+  if(index == -1)
+  {
+    m_Mapper->SelectColorArray(-1);
+    m_ActiveArray = -1;
+
+    emit activeArrayIndexChanged(this, m_ActiveArray);
+    emit requiresRender();
+    return;
+  }
+
   VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(index);
   if(nullptr == dataArray)
   {
@@ -571,8 +582,38 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     {
       setScalarBarVisible(false);
       setMapColors(Qt::Unchecked);
+      m_ActiveArray = -1;
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSFilterViewSettings::getSolidColor()
+{
+  if(false == isValid())
+  {
+    return nullptr;
+  }
+
+  return m_Actor->GetProperty()->GetColor();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setSolidColor(double color[3])
+{
+  if(false == isValid())
+  {
+    return;
+  }
+
+  m_Actor->GetProperty()->SetColor(color);
+
+  emit solidColorChanged(this, color);
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
@@ -598,6 +639,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setMapColors(copy->m_MapColors);
   setScalarBarVisible(copy->m_ShowScalarBar);
   setAlpha(copy->m_Alpha);
+  setSolidColor(copy->getSolidColor());
 
   if(hasUi)
   {

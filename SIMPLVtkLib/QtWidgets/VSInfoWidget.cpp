@@ -104,9 +104,15 @@ void VSInfoWidget::setupGui()
   connect(m_Internals->deleteBtn, SIGNAL(clicked()),
     this, SLOT(deleteFilter()));
 
+  connect(m_Internals->colorBtn, SIGNAL(changedColor(QColor)),
+    this, SLOT(colorButtonChanged(QColor)));
+
   m_Internals->applyBtn->setDisabled(true);
   m_Internals->resetBtn->setDisabled(true);
   m_Internals->deleteBtn->setDisabled(true);
+
+  m_Internals->colorBtn->hide();
+  m_Internals->colorLabel->hide();
 }
 
 // -----------------------------------------------------------------------------
@@ -155,7 +161,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 {
   if (m_FilterWidget != nullptr)
   {
-    m_Internals->gridLayout_4->removeWidget(m_FilterWidget);
+    m_Internals->filterWidgetLayout->removeWidget(m_FilterWidget);
     m_FilterWidget->hide();
     m_FilterWidget = nullptr;
   }
@@ -178,6 +184,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   if(m_ViewSettings && m_ViewSettings->isValid())
   {
     viewSettingsValid = filterExists;
+    listenSolidColor(m_ViewSettings, m_ViewSettings->getSolidColor());
   }
   else
   {
@@ -189,7 +196,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
 
   if (m_FilterWidget != nullptr)
   {
-    m_Internals->gridLayout_4->addWidget(m_FilterWidget);
+    m_Internals->filterWidgetLayout->addWidget(m_FilterWidget);
     m_FilterWidget->show();
   }
 
@@ -228,6 +235,8 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
       this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
     disconnect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
       this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
+    disconnect(settings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)),
+      this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
   }
 
   m_ViewSettings = settings;
@@ -277,16 +286,18 @@ void VSInfoWidget::updateFilterInfo()
 
   if(m_Filter)
   {
-    m_Internals->activeArrayCombo->addItems(m_Filter->getArrayNames());
+    QStringList arrayNames = m_Filter->getArrayNames();
+    arrayNames.prepend("Solid Color");
+    m_Internals->activeArrayCombo->addItems(arrayNames);
 
     if(m_ViewSettings)
     {
       int activeIndex = m_ViewSettings->getActiveArrayIndex();
-      m_Internals->activeArrayCombo->setCurrentIndex(activeIndex);
+      m_Internals->activeArrayCombo->setCurrentIndex(activeIndex + 1);
     }
     else
     {
-      m_Internals->activeArrayCombo->setCurrentIndex(0);
+      m_Internals->activeArrayCombo->setCurrentIndex(-1);
     }
   }
 
@@ -319,8 +330,8 @@ void VSInfoWidget::updateViewSettingInfo()
   int activeComponentIndex = m_ViewSettings->getActiveComponentIndex() + 1;
 
   // Array
-  m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex);
-  updateActiveArrayIndex(activeArrayIndex);
+  m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex + 1);
+  updateActiveArrayIndex(activeArrayIndex + 1);
 
   // Components
   int numComponents = m_ViewSettings->getNumberOfComponents(activeArrayIndex);
@@ -339,6 +350,14 @@ void VSInfoWidget::updateViewSettingInfo()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::updateActiveArrayIndex(int index)
 {
+  index--;
+
+  bool isColor = index == -1;
+  m_Internals->colorBtn->setVisible(isColor);
+  m_Internals->colorLabel->setVisible(isColor);
+  m_Internals->componentLabel->setVisible(!isColor);
+  m_Internals->activeComponentCombo->setVisible(!isColor);
+
   int componentIndex = 0;
   if(m_ViewSettings && m_ViewSettings->getActiveArrayIndex() == index)
   {
@@ -467,9 +486,27 @@ void VSInfoWidget::alphaSliderMoved(int value)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSInfoWidget::colorButtonChanged(QColor color)
+{
+  if(nullptr == m_ViewSettings)
+  {
+    return;
+  }
+
+  double colorArray[3];
+  colorArray[0] = color.redF();
+  colorArray[1] = color.greenF();
+  colorArray[2] = color.blueF();
+
+  m_ViewSettings->setSolidColor(colorArray);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInfoWidget::listenArrayIndex(VSFilterViewSettings* settings, int index)
 {
-  m_Internals->activeArrayCombo->setCurrentIndex(index);
+  m_Internals->activeArrayCombo->setCurrentIndex(index + 1);
 }
 
 // -----------------------------------------------------------------------------
@@ -502,4 +539,15 @@ void VSInfoWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
 void VSInfoWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
 {
   m_Internals->showScalarBarCheckBox->setChecked(show);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* color)
+{
+  QColor newColor = QColor::fromRgbF(color[0], color[1], color[2]);
+  m_Internals->colorBtn->blockSignals(true);
+  m_Internals->colorBtn->setColor(newColor);
+  m_Internals->colorBtn->blockSignals(false);
 }
