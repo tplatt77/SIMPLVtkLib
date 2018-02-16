@@ -39,6 +39,7 @@
 #include <map>
 
 #include <QtCore/QObject>
+#include <QtGui/QColor>
 
 #include <vtkActor.h>
 #include <vtkMapper.h>
@@ -156,6 +157,12 @@ public:
   VTK_PTR(vtkScalarBarWidget) getScalarBarWidget();
 
   /**
+  * @brief Returns the color used when no scalar data exists as a double*
+  * @return
+  */
+  double* getSolidColor();
+
+  /**
   * @brief Copies another VSFilterViewSettings for everything but the active filter
   * @param filter
   */
@@ -221,6 +228,12 @@ public slots:
   void setScalarBarVisible(bool visible);
 
   /**
+  * @brief Sets the color to use when there are no scalar values to map
+  * @param color
+  */
+  void setSolidColor(double color[3]);
+
+  /**
   * @brief Updates the input connection for the vtkMapper
   * @param filter
   */
@@ -228,6 +241,7 @@ public slots:
 
 signals:
   void visibilityChanged(VSFilterViewSettings*, bool);
+  void solidColorChanged(VSFilterViewSettings*, double*);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
   void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
