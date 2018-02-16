@@ -158,6 +158,8 @@ void VSPlaneWidget::setNormals(double normals[3])
   normalXSpinBox->setValue(normals[0]);
   normalYSpinBox->setValue(normals[1]);
   normalZSpinBox->setValue(normals[2]);
+
+  drawPlaneOn();
 }
 
 // -----------------------------------------------------------------------------
@@ -181,6 +183,8 @@ void VSPlaneWidget::setOrigin(double origin[3])
   originXSpinBox->setValue(origin[0]);
   originYSpinBox->setValue(origin[1]);
   originZSpinBox->setValue(origin[2]);
+
+  drawPlaneOn();
 }
 
 // -----------------------------------------------------------------------------
@@ -230,9 +234,35 @@ void VSPlaneWidget::disable()
 {
   m_PlaneWidget->EnabledOff();
 
-  if (m_renderWindowInteractor)
+  if(getInteractor())
   {
-    m_renderWindowInteractor->Render();
+    getInteractor()->Render();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::drawPlaneOn()
+{
+  m_PlaneRep->DrawPlaneOn();
+
+  if(getInteractor())
+  {
+    getInteractor()->Render();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::drawPlaneOff()
+{
+  m_PlaneRep->DrawPlaneOff();
+  
+  if(getInteractor())
+  {
+    getInteractor()->Render();
   }
 }
 

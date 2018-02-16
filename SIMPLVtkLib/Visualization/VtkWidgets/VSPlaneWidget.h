@@ -124,6 +124,16 @@ public:
   void disable() override;
 
   /**
+  * @brief Enables rendering the plane internals
+  */
+  void drawPlaneOn();
+
+  /**
+  * @brief Disables rendering the plane internals
+  */
+  void drawPlaneOff();
+
+  /**
   * @brief Updates the origin and normal values based on the VTK plane widget 
   * before applying those values to the input widgets.
   */
