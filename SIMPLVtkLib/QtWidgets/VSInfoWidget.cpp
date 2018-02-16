@@ -343,6 +343,13 @@ void VSInfoWidget::updateViewSettingInfo()
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
   m_Internals->mapScalarsCheckBox->setCheckState(m_ViewSettings->getMapColors());
   m_Internals->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
+
+  if(m_ViewSettings->isValid())
+  {
+    double* solidColor = m_ViewSettings->getSolidColor();
+    QColor newColor = QColor::fromRgbF(solidColor[0], solidColor[1], solidColor[2]);
+    m_Internals->colorBtn->setColor(newColor, false);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -547,7 +554,5 @@ void VSInfoWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
 void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* color)
 {
   QColor newColor = QColor::fromRgbF(color[0], color[1], color[2]);
-  m_Internals->colorBtn->blockSignals(true);
-  m_Internals->colorBtn->setColor(newColor);
-  m_Internals->colorBtn->blockSignals(false);
+  m_Internals->colorBtn->setColor(newColor, false);
 }
