@@ -59,11 +59,14 @@ QColor VSColorButton::getColor()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorButton::setColor(QColor color)
+void VSColorButton::setColor(QColor color, bool emitSignal)
 {
   setStyleSheet("VSColorButton{ background-color:" + color.name() + "; }");
 
-  emit changedColor(color);
+  if(emitSignal)
+  {
+    emit changedColor(color);
+  }
 }
 
 // -----------------------------------------------------------------------------

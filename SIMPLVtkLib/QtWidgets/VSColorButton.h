@@ -58,7 +58,7 @@ public slots:
   * @brief Sets the color
   * @param color
   */
-  void setColor(QColor color);
+  void setColor(QColor color, bool emitSignal = true);
 
   /**
   * @brief Opens the color dialog to pick a color
