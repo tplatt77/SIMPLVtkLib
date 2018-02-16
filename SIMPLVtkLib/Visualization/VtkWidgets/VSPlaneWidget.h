@@ -153,8 +153,8 @@ protected:
 
 private:
 
-  vtkSmartPointer<vtkPlane> usePlane;
-  vtkSmartPointer<vtkPlane> viewPlane;
-  vtkImplicitPlaneWidget2* planeWidget;
-  vtkImplicitPlaneRepresentation* planeRep;
+  vtkSmartPointer<vtkPlane> m_UsePlane;
+  vtkSmartPointer<vtkPlane> m_ViewPlane;
+  vtkImplicitPlaneWidget2* m_PlaneWidget;
+  vtkImplicitPlaneRepresentation* m_PlaneRep;
 };

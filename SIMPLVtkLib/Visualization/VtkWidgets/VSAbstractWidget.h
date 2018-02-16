@@ -48,41 +48,113 @@
 class vtkRenderWindowInteractor;
 class vtkImplicitFunction;
 
+/**
+* @class VSAbstractWidget VSAbstractWidget.h 
+* SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h
+* @brief This is the base class for combined Qt/vtk widget representations.
+* Subclasses will be displayed in the GUI as a subclass of QWidget and may 
+* display a representation of the stored data through a vtkWidget in the the 
+* given vtkRenderWindowInteractor.
+*/
 class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
 {
   Q_OBJECT
 
 public:
+  /**
+  * @brief Constructor
+  * @param parent
+  * @param bounds
+  * @param iren
+  */
   VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
-  ~VSAbstractWidget();
 
+  /**
+  * @brief Copies the vtkWidget bounds
+  * @param bounds
+  */
   void getBounds(double bounds[6]);
-  void getOrigin(double origin[3]);
 
+  /**
+  * @brief Returns the vtkWidget bounds
+  * @return
+  */
+  double* getBounds();
+
+  /**
+  * @brief Copies the vtkWidget origin
+  * @param origin
+  */
+  void getOrigin(double origin[3]);
+  
+  /**
+  * @brief Returns the vtkWidget origin
+  * @return
+  */
+  double* getOrigin();
+
+  /**
+  * @brief Sets the bounds
+  * @param bounds
+  */
   void setBounds(double bounds[6]);
+
+  /**
+  * @brief Sets the origin
+  * @param origin
+  */
   virtual void setOrigin(double origin[3]);
+
+  /**
+  * @brief Sets the origin
+  * @param x
+  * @param y
+  * @param z
+  */
   virtual void setOrigin(double x, double y, double z);
 
+  /**
+  * @brief Enables the vtkWidget
+  */
   virtual void enable() = 0;
+
+  /**
+  * @brief Disables the vtkWidget
+  */
   virtual void disable() = 0;
 
+  /**
+  * @brief Returns the vtkRenderWindowInteractor 
+  * @return
+  */
+  vtkRenderWindowInteractor* getInteractor();
+
+  /**
+  * @brief Sets the vtkRenderWindowInteractor to render to
+  * @param interactor
+  */
   virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
 signals:
   void modified();
 
 protected:
+  /**
+  * @brief Updates the widget bounds
+  */
   virtual void updateBounds();
-  virtual void updateOrigin();
 
-  double bounds[6];
-  double origin[3];
+  /**
+  * @brief Updates the widget origin
+  */
+  virtual void updateOrigin();
 
   const double MIN_SIZE = 6.0;
 
-  vtkRenderWindowInteractor* m_renderWindowInteractor;
-
 private:
+  vtkRenderWindowInteractor * m_RenderWindowInteractor;
+  double m_Bounds[6];
+  double m_Origin[3];
 };
 
 #ifdef __clang__
