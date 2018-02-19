@@ -153,6 +153,7 @@ void VSClipFilterWidget::apply()
     double origin[3];
     m_PlaneWidget->getNormals(normals);
     m_PlaneWidget->getOrigin(origin);
+    m_PlaneWidget->drawPlaneOff();
 
     m_ClipFilter->apply(origin, normals, m_Internals->insideOutCheckBox->isChecked());
   }
@@ -182,6 +183,7 @@ void VSClipFilterWidget::reset()
     m_PlaneWidget->setOrigin(origin);
     m_Internals->insideOutCheckBox->setChecked(inverted);
     m_PlaneWidget->updatePlaneWidget();
+    m_PlaneWidget->drawPlaneOff();
   }
   else if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::BoxClipTypeString)
   {

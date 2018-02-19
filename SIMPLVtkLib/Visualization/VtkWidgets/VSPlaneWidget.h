@@ -124,6 +124,16 @@ public:
   void disable() override;
 
   /**
+  * @brief Enables rendering the plane internals
+  */
+  void drawPlaneOn();
+
+  /**
+  * @brief Disables rendering the plane internals
+  */
+  void drawPlaneOff();
+
+  /**
   * @brief Updates the origin and normal values based on the VTK plane widget 
   * before applying those values to the input widgets.
   */
@@ -153,8 +163,8 @@ protected:
 
 private:
 
-  vtkSmartPointer<vtkPlane> usePlane;
-  vtkSmartPointer<vtkPlane> viewPlane;
-  vtkImplicitPlaneWidget2* planeWidget;
-  vtkImplicitPlaneRepresentation* planeRep;
+  vtkSmartPointer<vtkPlane> m_UsePlane;
+  vtkSmartPointer<vtkPlane> m_ViewPlane;
+  vtkImplicitPlaneWidget2* m_PlaneWidget;
+  vtkImplicitPlaneRepresentation* m_PlaneRep;
 };
