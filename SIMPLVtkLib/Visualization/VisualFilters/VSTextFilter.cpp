@@ -42,20 +42,12 @@
 // -----------------------------------------------------------------------------
 VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip)
   : VSAbstractFilter()
-  , m_Text(text)
-  , m_ToolTip(toolTip)
 {
   setParentFilter(parent);
 
-  setCheckState(Qt::Unchecked);
-  setCheckable(false);
-  setEditable(false);
-  
-  setText(getFilterName());
+  setText(text);
   setToolTip(toolTip);
-  QFont itemFont = font();
-  itemFont.setItalic(true);
-  setFont(itemFont);
+  setItalic();
 }
 
 // -----------------------------------------------------------------------------
@@ -63,7 +55,7 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolT
 // -----------------------------------------------------------------------------
 const QString VSTextFilter::getFilterName()
 {
-  return m_Text;
+  return text();
 }
 
 // -----------------------------------------------------------------------------
@@ -71,7 +63,37 @@ const QString VSTextFilter::getFilterName()
 // -----------------------------------------------------------------------------
 QString VSTextFilter::getToolTip() const
 {
-  return m_ToolTip;
+  return toolTip();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::setItalic(bool italic)
+{
+  QFont itemFont = font();
+  itemFont.setItalic(italic);
+  setFont(itemFont);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::setBold(bool bold)
+{
+  QFont itemFont = font();
+  itemFont.setBold(bold);
+  setFont(itemFont);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::setUnderline(bool underline)
+{
+  QFont itemFont = font();
+  itemFont.setUnderline(underline);
+  setFont(itemFont);
 }
 
 // -----------------------------------------------------------------------------

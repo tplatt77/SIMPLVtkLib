@@ -35,88 +35,40 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
 /**
-* @class VSTextFilter VSTextFilter.h 
-* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
-* @brief This class is used for nothing more than giving its children some sort 
-* of text label.  This filter does not create any data or modify incoming data 
-* in any way.
+* @class VSFileNameFilter VSFileNameFilter.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h
+* @brief This class handles the file path and contains additional settings in 
+* addition to VSTextFilter's for displaying the file information in the filter 
+* model. The file path and file name can always be retrieved even if the text
+* and tool tip are changed.
 */
-class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
+class SIMPLVtkLib_EXPORT VSFileNameFilter : public VSTextFilter
 {
   Q_OBJECT
 
 public:
   /**
   * @brief Constructor
-  * @param parent
-  * @param text
+  * @param parentFilter
+  * @param filePath
   */
-  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
+  VSFileNameFilter(QString filePath);
 
   /**
-  * @brief Returns the filter's name
+  * @brief Returns the stored file path
   * @return
   */
-  virtual const QString getFilterName() override;
+  QString getFilePath();
 
   /**
-  * @brief Returns the filter's tooltip
-  */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Sets whether or not the font is italic
-  * @param italic
-  */
-  void setItalic(bool italic = true);
-
-  /**
-  * @brief Sets whether or not the font is bold
-  * @param bold
-  */
-  void setBold(bool bold = true);
-
-  /**
-  * @brief Sets whether or not the font is underlined
-  * @param underline
-  */
-  void setUnderline(bool underline = true);
-
-  /**
-  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @brief Returns the file name
   * @return
   */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
+  QString getFileName();
 
-  /**
-  * @brief Returns a smart pointer containing the output data from the filter
-  * @return
-  */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
-
-  /**
-  * @brief Returns the ouput data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  */
-  static dataType_t getRequiredInputType();
-
-protected:
-  /**
-  * @brief createFilter() not required by VSTextFilter
-  */
-  void createFilter() override;
-
-  /**
-  * @brief Updates the input port
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+private:
+  QString m_FilePath;
 };
