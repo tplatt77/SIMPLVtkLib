@@ -170,6 +170,10 @@ public:
   */
   void updateBoxWidget();
 
+  /**
+  * @brief Sets the current vtkRenderWindowInteractor
+  * @param interactor
+  */
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
 public slots:
