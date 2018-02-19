@@ -33,81 +33,49 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSAbstractDataFilter.h"
 
-#include <QtWidgets/QWidget>
-
-#include <vtkSmartPointer.h>
-
-#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkTrivialProducer;
-class vtkAlgorithmOutput;
-
-/**
-* @class VSSIMPLDataContainerFilter VSSIMPLDataContainerFilter.h
-* SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h
-* @brief This class stores a WrappedDataContainerPtr and provides an output port
-* for other filters to connect to for converting SIMPLib DataContainers to something 
-* VTK can render.
-*/
-class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilter : public VSAbstractDataFilter
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractDataFilter::VSAbstractDataFilter()
+  : VSAbstractFilter()
 {
-  Q_OBJECT
+}
 
-public:
-  /**
-  * @brief Constuctor
-  * @param parentWidget
-  * @param dataSetStruct
-  */
-  VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getRequiredInputType()
+{
+  return ANY_DATA_SET;
+}
 
-  /**
-  * @brief Returns the bounds of the vtkDataSet
-  * @return
-  */
-  double* getBounds() const;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractDataFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  // Do nothing
+}
 
-  /**
-  * @brief Returns the output port for the filter
-  * @return
-  */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
-
-  /**
-  * @brief Returns the output data for the filter
-  */
-  VTK_PTR(vtkDataSet) getOutput() override;
-
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
-  const QString getFilterName() override;
-    
-  /**
-  * @brief Returns the tooltip to use for the filter
-  * @return
-  */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Returns the VtkDataSetStruct_t used by the filter
-  * @return
-  */
-  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
-
-protected:
-  /**
-  * @brief Initializes the trivial producer and connects it to the vtkMapper
-  */
-  void createFilter() override;
-
-private:
-  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
-  VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
-};
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
+{
+  switch(getOutput()->GetDataObjectType())
+  {
+  case VTK_STRUCTURED_GRID:
+  case VTK_RECTILINEAR_GRID:
+    return dataType_t::IMAGE_DATA;
+  case VTK_STRUCTURED_POINTS:
+    return dataType_t::POINT_DATA;
+  case VTK_UNSTRUCTURED_GRID:
+    return dataType_t::UNSTRUCTURED_GRID;
+  case VTK_POLY_DATA:
+    return dataType_t::POLY_DATA;
+  default:
+    return dataType_t::INVALID_DATA;
+  }
+}
