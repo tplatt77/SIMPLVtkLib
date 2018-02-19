@@ -57,6 +57,7 @@ VSSIMPLDataContainerFilterWidget::VSSIMPLDataContainerFilterWidget(VSSIMPLDataCo
 , m_DataContainerFilter(filter)
 {
   m_Internals->setupUi(this);
+  cancelChanges();
 }
 
 // -----------------------------------------------------------------------------

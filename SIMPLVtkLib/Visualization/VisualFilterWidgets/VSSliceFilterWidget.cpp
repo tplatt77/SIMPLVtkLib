@@ -107,6 +107,8 @@ void VSSliceFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSSliceFilterWidget::apply()
 {
+  VSAbstractFilterWidget::apply();
+
   double origin[3];
   double normals[3];
 
@@ -129,6 +131,8 @@ void VSSliceFilterWidget::reset()
   m_SliceWidget->setOrigin(origin);
   m_SliceWidget->updatePlaneWidget();
   m_SliceWidget->drawPlaneOff();
+
+  cancelChanges();
 }
 
 // -----------------------------------------------------------------------------

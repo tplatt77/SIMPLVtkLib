@@ -204,6 +204,11 @@ protected slots:
   */
   void listenSolidColor(VSFilterViewSettings* settings, double* color);
 
+  /**
+  * @brief Enables the Apply and Reset buttons when the current filter widget has changes waiting
+  */
+  void changesWaiting();
+
 protected:
   /**
   * @brief Performs initial setup for the GUI
