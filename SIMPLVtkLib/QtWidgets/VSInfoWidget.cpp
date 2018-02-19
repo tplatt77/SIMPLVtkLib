@@ -128,6 +128,10 @@ void VSInfoWidget::applyFilter()
   }
 
   m_FilterWidget->apply();
+
+  bool hasChanges = m_FilterWidget->hasChanges();
+  m_Internals->applyBtn->setEnabled(hasChanges);
+  m_Internals->resetBtn->setEnabled(hasChanges);
 }
 
 // -----------------------------------------------------------------------------
@@ -141,6 +145,10 @@ void VSInfoWidget::resetFilter()
   }
 
   m_FilterWidget->reset();
+
+  bool hasChanges = m_FilterWidget->hasChanges();
+  m_Internals->applyBtn->setEnabled(hasChanges);
+  m_Internals->resetBtn->setEnabled(hasChanges);
 }
 
 // -----------------------------------------------------------------------------
@@ -161,11 +169,13 @@ void VSInfoWidget::deleteFilter()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
 {
-  if (m_FilterWidget != nullptr)
+  if(m_FilterWidget != nullptr)
   {
     m_Internals->filterWidgetLayout->removeWidget(m_FilterWidget);
     m_FilterWidget->hide();
     m_FilterWidget = nullptr;
+    
+    disconnect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
   }
 
   m_Filter = filter;
@@ -192,15 +202,24 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   {
     viewSettingsValid = false;
   }
-  m_Internals->applyBtn->setEnabled(viewSettingsValid);
-  m_Internals->resetBtn->setEnabled(viewSettingsValid);
-  m_Internals->deleteBtn->setEnabled(filterExists);
-
-  if (m_FilterWidget != nullptr)
+  
+  if(m_FilterWidget != nullptr)
   {
     m_Internals->filterWidgetLayout->addWidget(m_FilterWidget);
     m_FilterWidget->show();
+
+    connect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
+    bool hasChanges = m_FilterWidget->hasChanges();
+    m_Internals->applyBtn->setEnabled(hasChanges);
+    m_Internals->resetBtn->setEnabled(hasChanges);
   }
+  else
+  {
+    m_Internals->applyBtn->setEnabled(false);
+    m_Internals->resetBtn->setEnabled(false);
+  }
+
+  m_Internals->deleteBtn->setEnabled(filterExists);
 
   updateFilterInfo();
   updateViewSettingInfo();
@@ -587,4 +606,13 @@ void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* colo
 {
   QColor newColor = QColor::fromRgbF(color[0], color[1], color[2]);
   m_Internals->colorBtn->setColor(newColor, false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::changesWaiting()
+{
+  m_Internals->applyBtn->setEnabled(true);
+  m_Internals->resetBtn->setEnabled(true);
 }

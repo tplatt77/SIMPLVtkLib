@@ -88,8 +88,9 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, QVTKInteractor* int
 
   connect(m_Internals->clipTypeComboBox, SIGNAL(currentTextChanged(const QString &)), this, SLOT(changeClipType(const QString &)));
 
-//  connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-//  connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  connect(m_Internals->insideOutCheckBox, SIGNAL(clicked()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
@@ -140,6 +141,8 @@ void VSClipFilterWidget::changeClipType(const QString &clipType)
     m_Internals->gridLayout->addWidget(m_BoxWidget);
     m_BoxWidget->updateBoxWidget();
   }
+
+  changesWaiting();
 }
 
 // -----------------------------------------------------------------------------
@@ -147,6 +150,8 @@ void VSClipFilterWidget::changeClipType(const QString &clipType)
 // -----------------------------------------------------------------------------
 void VSClipFilterWidget::apply()
 {
+  VSAbstractFilterWidget::apply();
+
   if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
   {
     double normals[3];
@@ -173,27 +178,37 @@ void VSClipFilterWidget::reset()
   QString clipTypeString = m_ClipFilter->getLastClipTypeString();
   m_Internals->clipTypeComboBox->setCurrentText(clipTypeString);
 
-  if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
+  // Set the inverted variable based on the last applied clip type
+  if(m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
+  {
+    bool inverted = m_ClipFilter->getLastPlaneInverted();
+    m_Internals->insideOutCheckBox->setChecked(inverted);
+  }
+  else if(m_Internals->clipTypeComboBox->currentText() == VSClipFilter::BoxClipTypeString)
+  {
+    bool inverted = m_ClipFilter->getLastBoxInverted();
+    m_Internals->insideOutCheckBox->setChecked(inverted);
+  }
+  
+  // Reset Plane Type
   {
     double* origin = m_ClipFilter->getLastPlaneOrigin();
     double* normals = m_ClipFilter->getLastPlaneNormal();
-    bool inverted = m_ClipFilter->getLastPlaneInverted();
-
+    
     m_PlaneWidget->setNormals(normals);
     m_PlaneWidget->setOrigin(origin);
-    m_Internals->insideOutCheckBox->setChecked(inverted);
     m_PlaneWidget->updatePlaneWidget();
     m_PlaneWidget->drawPlaneOff();
   }
-  else if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::BoxClipTypeString)
+  
+  // Reset Box Type
   {
-    bool inverted = m_ClipFilter->getLastBoxInverted();
     VTK_PTR(vtkTransform) transform = m_ClipFilter->getLastBoxTransform();
-
     m_BoxWidget->setTransform(transform);
-    m_Internals->insideOutCheckBox->setChecked(inverted);
     m_BoxWidget->updateBoxWidget();
   }
+
+  cancelChanges();
 }
 
 // -----------------------------------------------------------------------------

@@ -140,6 +140,8 @@ void VSBoxWidget::setScale(double scale[3])
   scaleXSpinBox->setValue(scale[0]);
   scaleYSpinBox->setValue(scale[1]);
   scaleZSpinBox->setValue(scale[2]);
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -164,6 +166,8 @@ void VSBoxWidget::setOrigin(double origin[3])
   translationXSpinBox->setValue(origin[0]);
   translationYSpinBox->setValue(origin[1]);
   translationZSpinBox->setValue(origin[2]);
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -183,6 +187,8 @@ void VSBoxWidget::setRotation(double rotation[3])
   rotationXSpinBox->setValue(rotation[0]);
   rotationYSpinBox->setValue(rotation[1]);
   rotationZSpinBox->setValue(rotation[2]);
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -371,6 +377,8 @@ void VSBoxWidget::setValues(double position[3], double rotation[3], double scale
   m_ViewTransform->RotateY(rotation[1]);
 
   updateBoxWidget();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------

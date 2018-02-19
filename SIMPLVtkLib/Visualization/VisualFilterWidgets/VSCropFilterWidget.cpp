@@ -107,6 +107,8 @@ void VSCropFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSCropFilterWidget::apply()
 {
+  VSAbstractFilterWidget::apply();
+
   int* voi = m_CropWidget->getVOI();
   int* sampleRate = m_CropWidget->getSampleRate();
 
@@ -123,4 +125,6 @@ void VSCropFilterWidget::reset()
 
   m_CropWidget->setVOI(voi);
   m_CropWidget->setSampleRate(sampleRate);
+
+  cancelChanges();
 }

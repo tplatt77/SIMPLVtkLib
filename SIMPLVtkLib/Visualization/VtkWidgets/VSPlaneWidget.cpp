@@ -160,6 +160,8 @@ void VSPlaneWidget::setNormals(double normals[3])
   normalZSpinBox->setValue(normals[2]);
 
   drawPlaneOn();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -185,6 +187,8 @@ void VSPlaneWidget::setOrigin(double origin[3])
   originZSpinBox->setValue(origin[2]);
 
   drawPlaneOn();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------

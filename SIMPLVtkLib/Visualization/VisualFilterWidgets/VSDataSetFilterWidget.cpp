@@ -57,6 +57,7 @@ VSDataSetFilterWidget::VSDataSetFilterWidget(VSDataSetFilter* filter, QWidget* w
 , m_DataSetFilter(filter)
 {
   m_Internals->setupUi(this);
+  cancelChanges();
 }
 
 // -----------------------------------------------------------------------------

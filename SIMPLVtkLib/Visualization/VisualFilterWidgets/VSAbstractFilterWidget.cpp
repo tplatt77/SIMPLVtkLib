@@ -57,6 +57,7 @@ VSAbstractFilterWidget::~VSAbstractFilterWidget()
 // -----------------------------------------------------------------------------
 void VSAbstractFilterWidget::apply()
 {
+  m_ChangesWaiting = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -64,6 +65,7 @@ void VSAbstractFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSAbstractFilterWidget::reset()
 {
+  m_ChangesWaiting = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -88,4 +90,34 @@ void VSAbstractFilterWidget::setRenderingEnabled(bool enabled)
 bool VSAbstractFilterWidget::getRenderingEnabled()
 {
   return m_RenderingEnabled;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilterWidget::hasChanges()
+{
+  return m_ChangesWaiting;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilterWidget::changesWaiting()
+{
+  if(m_ChangesWaiting)
+  {
+    return;
+  }
+  
+  m_ChangesWaiting = true;
+  emit changesMade();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilterWidget::cancelChanges()
+{
+  m_ChangesWaiting = false;
 }
