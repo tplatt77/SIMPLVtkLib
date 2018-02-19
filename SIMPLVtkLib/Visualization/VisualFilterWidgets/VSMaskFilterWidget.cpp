@@ -109,6 +109,8 @@ void VSMaskFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSMaskFilterWidget::apply()
 {
+  VSAbstractFilterWidget::apply();
+
   m_MaskFilter->apply(m_MaskWidget->getMaskName());
 }
 
@@ -118,4 +120,6 @@ void VSMaskFilterWidget::apply()
 void VSMaskFilterWidget::reset()
 {
   m_MaskWidget->setMaskName(m_MaskFilter->getLastArrayName());
+
+  cancelChanges();
 }

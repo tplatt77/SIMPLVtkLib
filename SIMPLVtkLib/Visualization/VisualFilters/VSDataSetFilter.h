@@ -37,11 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
-#include "VSAbstractFilter.h"
-
 #include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -55,12 +54,12 @@ class vtkAlgorithmOutput;
 * for other filters to connect to for converting SIMPLib DataContainers to something 
 * VTK can render.
 */
-class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractFilter
+class SIMPLVtkLib_EXPORT VSDataSetFilter : public VSAbstractDataFilter
 {
   Q_OBJECT
 
 public:
-    /**
+  /**
    * @brief Constructor
    * @param filePath
    */
@@ -96,36 +95,16 @@ public:
   virtual QString getToolTip() const override;
 
   /**
-  * @brief Returns the output data type for the filter
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
   * @brief Returns the required input data type
   * @return
   */
-  static dataType_t getRequiredInputType();
-
-  /**
-   * @brief ContainsValidData
-   * @param filePath
-   * @return
-   */
-  static bool ContainsValidData(const QString &filePath);
+  //static dataType_t getRequiredInputType();
 
 protected:
   /**
   * @brief Initializes the trivial producer and connects it to the vtkMapper
   */
   void createFilter() override;
-
-  /**
-  * @brief This method is empty as there should never be a case where a VSDataSetFilter
-  * is a child of another filter.
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
   QString m_FilePath;
@@ -141,4 +120,9 @@ private:
    * @brief readVTKFile
    */
   void readVTKFile();
+
+  /**
+   * @brief readSTLFile
+   */
+  void readSTLFile();
 };

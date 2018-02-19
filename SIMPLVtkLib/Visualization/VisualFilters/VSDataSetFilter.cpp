@@ -51,12 +51,13 @@
 #include <vtkStructuredGridReader.h>
 #include <vtkUnstructuredGridReader.h>
 #include <vtkPolyDataReader.h>
+#include <vtkSTLReader.h>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSDataSetFilter::VSDataSetFilter(const QString &filePath)
-  : VSAbstractFilter()
+  : VSAbstractDataFilter()
   , m_FilePath(filePath)
 {
   createFilter();
@@ -101,14 +102,6 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSDataSetFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  // Do nothing
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSDataSetFilter::createFilter()
 {
   QFileInfo fi(m_FilePath);
@@ -117,8 +110,6 @@ void VSDataSetFilter::createFilter()
   QMimeDatabase db;
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
   QString mimeName = mimeType.name();
-
-  setText(fi.fileName());
 
   if (mimeType.name().startsWith("image/"))
   {
@@ -129,15 +120,43 @@ void VSDataSetFilter::createFilter()
   {
     readVTKFile();
   }
-
-  if (m_DataSet != nullptr)
+  else if (ext == "stl")
   {
+    readSTLFile();
+  }
+
+  if(m_DataSet != nullptr)
+  {
+    dataType_t outputType = getOutputType();
+    switch(outputType)
+    {
+    case dataType_t::IMAGE_DATA:
+      setText("Image Data");
+      break;
+    case dataType_t::POINT_DATA:
+      setText("Point Data");
+      break;
+    case dataType_t::POLY_DATA:
+      setText("Poly Data");
+      break;
+    case dataType_t::UNSTRUCTURED_GRID:
+      setText("Unstructured Grid Data");
+      break;
+    default:
+      setText("Other Data");
+      break;
+    }
+
     m_DataSet->ComputeBounds();
 
     m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
     m_TrivialProducer->SetOutput(m_DataSet);
 
     emit updatedOutputPort(this);
+  }
+  else
+  {
+    setText("Invalid Import File");
   }
 }
 
@@ -236,21 +255,13 @@ void VSDataSetFilter::readVTKFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSDataSetFilter::ContainsValidData(const QString &filePath)
+void VSDataSetFilter::readSTLFile()
 {
-  QFileInfo fi(filePath);
-  QString ext = fi.completeSuffix().toLower();
+  VTK_NEW(vtkSTLReader, reader);
+  reader->SetFileName(m_FilePath.toLatin1().data());
+  reader->Update();
 
-  QMimeDatabase db;
-  QMimeType mimeType = db.mimeTypeForFile(filePath, QMimeDatabase::MatchContent);
-
-  if (mimeType.inherits("image/jpeg") || mimeType.inherits("image/png") ||
-      mimeType.inherits("image/tiff") || ext == "dream3d" || ext == "vtk" || ext == "stl")
-  {
-    return true;
-  }
-
-  return false;
+  m_DataSet = reader->GetOutput();
 }
 
 // -----------------------------------------------------------------------------
@@ -266,22 +277,5 @@ const QString VSDataSetFilter::getFilterName()
 // -----------------------------------------------------------------------------
 QString VSDataSetFilter::getToolTip() const
 {
-  return "Dataset Filter";
+  return "DataSet Filter";
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSDataSetFilter::getOutputType()
-{
-  return IMAGE_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSDataSetFilter::getRequiredInputType()
-{
-  return ANY_DATA_SET;
-}
-

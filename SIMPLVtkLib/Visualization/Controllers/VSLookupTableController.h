@@ -200,6 +200,18 @@ public:
   void removeRgbPoint(int index);
 
   /**
+  * @brief Sets the color to use for NAN values
+  * @param color
+  */
+  void setNANColor(double color[3]);
+
+  /**
+  * @brief Returns the color used for NAN values
+  * @return
+  */
+  double* getNANColor();
+
+  /**
   * @brief Returns true if both VSLookupTableControllers are identical, otherwise returns false.
   * @param other
   * @return

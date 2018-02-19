@@ -33,90 +33,49 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSAbstractDataFilter.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
-
-/**
-* @class VSTextFilter VSTextFilter.h 
-* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
-* @brief This class is used for nothing more than giving its children some sort 
-* of text label.  This filter does not create any data or modify incoming data 
-* in any way.
-*/
-class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractDataFilter::VSAbstractDataFilter()
+  : VSAbstractFilter()
 {
-  Q_OBJECT
+}
 
-public:
-  /**
-  * @brief Constructor
-  * @param parent
-  * @param text
-  */
-  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getRequiredInputType()
+{
+  return ANY_DATA_SET;
+}
 
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
-  virtual const QString getFilterName() override;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractDataFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+{
+  // Do nothing
+}
 
-  /**
-  * @brief Returns the filter's tooltip
-  */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Sets whether or not the font is italic
-  * @param italic
-  */
-  void setItalic(bool italic = true);
-
-  /**
-  * @brief Sets whether or not the font is bold
-  * @param bold
-  */
-  void setBold(bool bold = true);
-
-  /**
-  * @brief Sets whether or not the font is underlined
-  * @param underline
-  */
-  void setUnderline(bool underline = true);
-
-  /**
-  * @brief Returns the output port to be used by vtkMappers and subsequent filters
-  * @return
-  */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
-
-  /**
-  * @brief Returns a smart pointer containing the output data from the filter
-  * @return
-  */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
-
-  /**
-  * @brief Returns the ouput data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  */
-  static dataType_t getRequiredInputType();
-
-protected:
-  /**
-  * @brief createFilter() not required by VSTextFilter
-  */
-  void createFilter() override;
-
-  /**
-  * @brief Updates the input port
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
-};
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
+{
+  switch(getOutput()->GetDataObjectType())
+  {
+  case VTK_STRUCTURED_GRID:
+  case VTK_RECTILINEAR_GRID:
+    return dataType_t::IMAGE_DATA;
+  case VTK_STRUCTURED_POINTS:
+    return dataType_t::POINT_DATA;
+  case VTK_UNSTRUCTURED_GRID:
+    return dataType_t::UNSTRUCTURED_GRID;
+  case VTK_POLY_DATA:
+    return dataType_t::POLY_DATA;
+  default:
+    return dataType_t::INVALID_DATA;
+  }
+}

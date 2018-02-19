@@ -53,7 +53,7 @@
 //
 // -----------------------------------------------------------------------------
 VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
-: VSAbstractFilter()
+: VSAbstractDataFilter()
 , m_WrappedDataContainer(wrappedDataContainer)
 {
   createFilter();
@@ -96,14 +96,6 @@ VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
   }
 
   return m_WrappedDataContainer->m_DataSet;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSIMPLDataContainerFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  // Do nothing
 }
 
 // -----------------------------------------------------------------------------
@@ -153,20 +145,4 @@ QString VSSIMPLDataContainerFilter::getToolTip() const
 SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
 {
   return m_WrappedDataContainer;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getOutputType()
-{
-  return IMAGE_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSIMPLDataContainerFilter::getRequiredInputType()
-{
-  return ANY_DATA_SET;
 }

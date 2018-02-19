@@ -35,16 +35,9 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include <QtWidgets/QPushButton>
 
-/**
-* @class VSTextFilter VSTextFilter.h 
-* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
-* @brief This class is used for nothing more than giving its children some sort 
-* of text label.  This filter does not create any data or modify incoming data 
-* in any way.
-*/
-class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
+class VSColorButton : public QPushButton
 {
   Q_OBJECT
 
@@ -52,71 +45,29 @@ public:
   /**
   * @brief Constructor
   * @param parent
-  * @param text
   */
-  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
+  VSColorButton(QWidget* parent);
 
   /**
-  * @brief Returns the filter's name
-  * @return
+  * @brief Returns the current color
   */
-  virtual const QString getFilterName() override;
+  QColor getColor();
+
+public slots:
+  /**
+  * @brief Sets the color
+  * @param color
+  */
+  void setColor(QColor color, bool emitSignal = true);
 
   /**
-  * @brief Returns the filter's tooltip
+  * @brief Opens the color dialog to pick a color
   */
-  virtual QString getToolTip() const override;
+  void openColorDialog();
 
-  /**
-  * @brief Sets whether or not the font is italic
-  * @param italic
-  */
-  void setItalic(bool italic = true);
+signals:
+  void changedColor(QColor newColor);
 
-  /**
-  * @brief Sets whether or not the font is bold
-  * @param bold
-  */
-  void setBold(bool bold = true);
-
-  /**
-  * @brief Sets whether or not the font is underlined
-  * @param underline
-  */
-  void setUnderline(bool underline = true);
-
-  /**
-  * @brief Returns the output port to be used by vtkMappers and subsequent filters
-  * @return
-  */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
-
-  /**
-  * @brief Returns a smart pointer containing the output data from the filter
-  * @return
-  */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
-
-  /**
-  * @brief Returns the ouput data type
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required incoming data type
-  */
-  static dataType_t getRequiredInputType();
-
-protected:
-  /**
-  * @brief createFilter() not required by VSTextFilter
-  */
-  void createFilter() override;
-
-  /**
-  * @brief Updates the input port
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+private:
+  QColor m_Color;
 };

@@ -60,6 +60,9 @@ VSLookupTableController::VSLookupTableController()
   m_BaseRange[0] = 0.0;
   m_BaseRange[1] = 1.0;
 
+  double nan[3] = { 0.5, 0.75, 0.0 };
+  setNANColor(nan);
+
   update();
 }
 
@@ -468,7 +471,12 @@ void VSLookupTableController::update()
 
     m_ColorTransferFunction->AddRGBPoint(colorPos.x, colorPos.r, colorPos.g, colorPos.b);
   }
-
+  
+  double nan[3] = { 0.5, 0.75, 0.0 };
+  setNANColor(nan);
+  m_ColorTransferFunction->SetBelowRangeColor(nan);
+  m_ColorTransferFunction->SetAboveRangeColor(nan);
+  m_ColorTransferFunction->SetNanColor(nan);
   m_ColorTransferFunction->Build();
 }
 
@@ -513,4 +521,20 @@ bool VSLookupTableController::equals(VSLookupTableController* other)
   }
 
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSLookupTableController::setNANColor(double color[3])
+{
+  m_ColorTransferFunction->SetNanColor(color);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSLookupTableController::getNANColor()
+{
+  return m_ColorTransferFunction->GetNanColor();
 }

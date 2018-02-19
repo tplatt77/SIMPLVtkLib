@@ -93,14 +93,35 @@ public:
    */
   virtual void setInteractor(QVTKInteractor* interactor);
 
+  /**
+  * @brief Returns true if there are unapplied changes waiting and false otherwise
+  * @return
+  */
+  bool hasChanges();
+
+signals:
+  void changesMade();
+
 protected:
   /**
   * @brief Constructor
   */
   VSAbstractFilterWidget(QWidget *parent = nullptr);
 
+  /**
+  * @brief Sets the internal unapplied changes variable to false
+  */
+  void cancelChanges();
+
+protected slots:
+  /**
+  * @brief Emits a signal alerting that changes were made and sets the internal boolean variable
+  */
+  void changesWaiting();
+
 private:
   bool m_RenderingEnabled = true;
+  bool m_ChangesWaiting = true;
 };
 
 #ifdef __clang__

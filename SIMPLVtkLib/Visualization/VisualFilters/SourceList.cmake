@@ -1,9 +1,11 @@
 
 set(VSVisualFilters
+  VSAbstractDataFilter
   VSAbstractFilter
   VSClipFilter
   VSCropFilter
   VSDataSetFilter
+  VSFileNameFilter
   VSMaskFilter
   VSSIMPLDataContainerFilter
   VSSliceFilter

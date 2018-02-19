@@ -38,84 +38,37 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 /**
-* @class VSTextFilter VSTextFilter.h 
-* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
-* @brief This class is used for nothing more than giving its children some sort 
-* of text label.  This filter does not create any data or modify incoming data 
-* in any way.
+* @class VSAbstractDataFilter VSAbstractDataFilter.h 
+* SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h
+* @brief This is the base class for classes that import data into the project.
+* Its primary purpose is to have a common ancestor and handle required methods
+* from VSAbstractFilter that are not used or have differing applications between
+* data filters.
 */
-class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
+class SIMPLVtkLib_EXPORT VSAbstractDataFilter : public VSAbstractFilter
 {
-  Q_OBJECT
-
 public:
   /**
   * @brief Constructor
-  * @param parent
-  * @param text
   */
-  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
+  VSAbstractDataFilter();
 
   /**
-  * @brief Returns the filter's name
+  * @brief Returns the required input data type
   * @return
   */
-  virtual const QString getFilterName() override;
+  static dataType_t getRequiredInputType();
 
   /**
-  * @brief Returns the filter's tooltip
-  */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Sets whether or not the font is italic
-  * @param italic
-  */
-  void setItalic(bool italic = true);
-
-  /**
-  * @brief Sets whether or not the font is bold
-  * @param bold
-  */
-  void setBold(bool bold = true);
-
-  /**
-  * @brief Sets whether or not the font is underlined
-  * @param underline
-  */
-  void setUnderline(bool underline = true);
-
-  /**
-  * @brief Returns the output port to be used by vtkMappers and subsequent filters
-  * @return
-  */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
-
-  /**
-  * @brief Returns a smart pointer containing the output data from the filter
-  * @return
-  */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
-
-  /**
-  * @brief Returns the ouput data type
+  * @brief Returns the output data type for the filter
   * @return
   */
   dataType_t getOutputType() override;
 
-  /**
-  * @brief Returns the required incoming data type
-  */
-  static dataType_t getRequiredInputType();
-
 protected:
   /**
-  * @brief createFilter() not required by VSTextFilter
-  */
-  void createFilter() override;
-
-  /**
-  * @brief Updates the input port
+  * @brief This method is empty as there should never be a case where a VSAbstractDataFilter
+  * takes input from another filter.
   * @param filter
   */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;

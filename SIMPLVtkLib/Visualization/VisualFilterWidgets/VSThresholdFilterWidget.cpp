@@ -124,6 +124,9 @@ void VSThresholdFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSThresholdFilterWidget::apply()
 {
+  VSAbstractFilterWidget::apply();
+
+  // TODO: complete filter widget
 }
 
 // -----------------------------------------------------------------------------
@@ -131,5 +134,7 @@ void VSThresholdFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSThresholdFilterWidget::reset()
 {
+  // TODO: complete filter widget
 
+  cancelChanges();
 }

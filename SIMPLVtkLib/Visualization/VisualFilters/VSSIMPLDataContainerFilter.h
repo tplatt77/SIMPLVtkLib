@@ -37,11 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
-#include "VSAbstractFilter.h"
-
 #include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -55,7 +54,7 @@ class vtkAlgorithmOutput;
 * for other filters to connect to for converting SIMPLib DataContainers to something 
 * VTK can render.
 */
-class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilter : public VSAbstractFilter
+class SIMPLVtkLib_EXPORT VSSIMPLDataContainerFilter : public VSAbstractDataFilter
 {
   Q_OBJECT
 
@@ -97,18 +96,6 @@ public:
   virtual QString getToolTip() const override;
 
   /**
-  * @brief Returns the output data type for the filter
-  * @return
-  */
-  dataType_t getOutputType() override;
-
-  /**
-  * @brief Returns the required input data type
-  * @return
-  */
-  static dataType_t getRequiredInputType();
-
-  /**
   * @brief Returns the VtkDataSetStruct_t used by the filter
   * @return
   */
@@ -119,13 +106,6 @@ protected:
   * @brief Initializes the trivial producer and connects it to the vtkMapper
   */
   void createFilter() override;
-
-  /**
-  * @brief This method is empty as there should never be a case where a VSSIMPLDataContainerFilter
-  * is a child of another filter.
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
 
 private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;

@@ -97,6 +97,12 @@ public slots:
 
 protected slots:
   /**
+  * @brief Sets the actorRepresentation for the current filter
+  * @param index
+  */
+  void setRepresentationIndex(int index);
+
+  /**
   * @brief Handles the active array combo box being changed
   * @param index
   */
@@ -144,6 +150,19 @@ protected slots:
   void alphaSliderMoved(int value);
 
   /**
+  * @brief Slot for handling changes in the VSColorButton used for selecting the VSFilterViewSetting's solid color
+  * @param color
+  */
+  void colorButtonChanged(QColor color);
+
+  /**
+  * @brief Listens for the active VSFilterViewSettings representation type to change
+  * @param settings
+  * @param rep
+  */
+  void listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep);
+
+  /**
   * @brief Listens for the active VSFilterViewSettings active array index to change
   * @param settings
   * @param index
@@ -177,6 +196,18 @@ protected slots:
   * @param show
   */
   void listenScalarBar(VSFilterViewSettings* settings, bool show);
+
+  /**
+  * @brief Listens for the active VSFilterViewSettings solid color to change
+  * @param settings
+  * @param color
+  */
+  void listenSolidColor(VSFilterViewSettings* settings, double* color);
+
+  /**
+  * @brief Enables the Apply and Reset buttons when the current filter widget has changes waiting
+  */
+  void changesWaiting();
 
 protected:
   /**
