@@ -66,6 +66,16 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
 
+  enum Representation : int
+  {
+    Invalid = -1,
+    Points = 0,
+    Wireframe = 1,
+    Surface = 2,
+    SurfaceWithEdges = 3,
+    Default = Surface
+  };
+
   /**
   * @brief Constructor
   * @param filter
@@ -163,6 +173,12 @@ public:
   double* getSolidColor();
 
   /**
+  * @brief Returns the actor property representation
+  * @return
+  */
+  Representation getRepresentation();
+
+  /**
   * @brief Copies another VSFilterViewSettings for everything but the active filter
   * @param filter
   */
@@ -234,6 +250,12 @@ public slots:
   void setSolidColor(double color[3]);
 
   /**
+  * @brief Sets the actor property representation
+  * @param type
+  */
+  void setRepresentation(Representation type);
+
+  /**
   * @brief Updates the input connection for the vtkMapper
   * @param filter
   */
@@ -241,6 +263,7 @@ public slots:
 
 signals:
   void visibilityChanged(VSFilterViewSettings*, bool);
+  void representationChanged(VSFilterViewSettings*, Representation);
   void solidColorChanged(VSFilterViewSettings*, double*);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);

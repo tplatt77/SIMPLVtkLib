@@ -97,6 +97,12 @@ public slots:
 
 protected slots:
   /**
+  * @brief Sets the actorRepresentation for the current filter
+  * @param index
+  */
+  void setRepresentationIndex(int index);
+
+  /**
   * @brief Handles the active array combo box being changed
   * @param index
   */
@@ -148,6 +154,13 @@ protected slots:
   * @param color
   */
   void colorButtonChanged(QColor color);
+
+  /**
+  * @brief Listens for the active VSFilterViewSettings representation type to change
+  * @param settings
+  * @param rep
+  */
+  void listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep);
 
   /**
   * @brief Listens for the active VSFilterViewSettings active array index to change

@@ -52,6 +52,7 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 {
   connectFilter(filter);
   setupActors();
+  setRepresentation(Representation::Default);
 }
 
 // -----------------------------------------------------------------------------
@@ -619,6 +620,53 @@ void VSFilterViewSettings::setSolidColor(double color[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation()
+{
+  if(false == isValid())
+  {
+    return Representation::Invalid;
+  }
+
+  vtkProperty* property = m_Actor->GetProperty();
+  int rep = property->GetRepresentation();
+  int edges = property->GetEdgeVisibility();
+
+  if(1 == edges && Representation::Surface == rep)
+  {
+    return Representation::SurfaceWithEdges;
+  }
+
+  return static_cast<Representation>(rep);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setRepresentation(Representation type)
+{
+  if(false == isValid())
+  {
+    return;
+  }
+
+  if(type == Representation::SurfaceWithEdges)
+  {
+    m_Actor->GetProperty()->SetRepresentation(Representation::Surface);
+    m_Actor->GetProperty()->EdgeVisibilityOn();
+  }
+  else
+  {
+    m_Actor->GetProperty()->SetRepresentation(type);
+    m_Actor->GetProperty()->EdgeVisibilityOff();
+  }
+
+  emit representationChanged(this, type);
+  emit requiresRender();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
 {
   if((nullptr == copy) || (false == copy->isValid()))
@@ -640,6 +688,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setScalarBarVisible(copy->m_ShowScalarBar);
   setAlpha(copy->m_Alpha);
   setSolidColor(copy->getSolidColor());
+  setRepresentation(copy->getRepresentation());
 
   if(hasUi)
   {
