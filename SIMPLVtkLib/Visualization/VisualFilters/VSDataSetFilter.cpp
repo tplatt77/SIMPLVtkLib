@@ -111,9 +111,6 @@ void VSDataSetFilter::createFilter()
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
   QString mimeName = mimeType.name();
 
-  setText(fi.fileName());
-  setToolTip(m_FilePath);
-
   if (mimeType.name().startsWith("image/"))
   {
     readImage();
@@ -128,14 +125,38 @@ void VSDataSetFilter::createFilter()
     readSTLFile();
   }
 
-  if (m_DataSet != nullptr)
+  if(m_DataSet != nullptr)
   {
+    dataType_t outputType = getOutputType();
+    switch(outputType)
+    {
+    case dataType_t::IMAGE_DATA:
+      setText("Image Data");
+      break;
+    case dataType_t::POINT_DATA:
+      setText("Point Data");
+      break;
+    case dataType_t::POLY_DATA:
+      setText("Poly Data");
+      break;
+    case dataType_t::UNSTRUCTURED_GRID:
+      setText("Unstructured Grid Data");
+      break;
+    default:
+      setText("Other Data");
+      break;
+    }
+
     m_DataSet->ComputeBounds();
 
     m_TrivialProducer = VTK_PTR(vtkTrivialProducer)::New();
     m_TrivialProducer->SetOutput(m_DataSet);
 
     emit updatedOutputPort(this);
+  }
+  else
+  {
+    setText("Invalid Import File");
   }
 }
 
@@ -256,5 +277,5 @@ const QString VSDataSetFilter::getFilterName()
 // -----------------------------------------------------------------------------
 QString VSDataSetFilter::getToolTip() const
 {
-  return m_FilePath;
+  return "DataSet Filter";
 }

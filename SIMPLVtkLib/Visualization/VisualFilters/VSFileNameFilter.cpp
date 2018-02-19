@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString getFileName(QString filePath)
+QString fetchFileName(QString filePath)
 {
   QFileInfo fi(filePath);
   if(fi.exists())
@@ -54,10 +54,28 @@ QString getFileName(QString filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFileNameFilter::VSFileNameFilter(VSAbstractFilter* parentFilter, QString filePath)
-  : VSTextFilter(parentFilter, getFileName(filePath), filePath)
+VSFileNameFilter::VSFileNameFilter(QString filePath)
+  : VSTextFilter(nullptr, fetchFileName(filePath), filePath)
+  , m_FilePath(filePath)
 {
   setCheckState(Qt::Unchecked);
   setCheckable(false);
   setEditable(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFileNameFilter::getFilePath()
+{
+  return m_FilePath;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFileNameFilter::getFileName()
+{
+  QFileInfo fi(m_FilePath);
+  return fi.fileName();
 }

@@ -37,10 +37,38 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
+/**
+* @class VSFileNameFilter VSFileNameFilter.h
+* SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h
+* @brief This class handles the file path and contains additional settings in 
+* addition to VSTextFilter's for displaying the file information in the filter 
+* model. The file path and file name can always be retrieved even if the text
+* and tool tip are changed.
+*/
 class SIMPLVtkLib_EXPORT VSFileNameFilter : public VSTextFilter
 {
   Q_OBJECT
 
 public:
-  VSFileNameFilter(VSAbstractFilter* parentFilter, QString filePath);
+  /**
+  * @brief Constructor
+  * @param parentFilter
+  * @param filePath
+  */
+  VSFileNameFilter(QString filePath);
+
+  /**
+  * @brief Returns the stored file path
+  * @return
+  */
+  QString getFilePath();
+
+  /**
+  * @brief Returns the file name
+  * @return
+  */
+  QString getFileName();
+
+private:
+  QString m_FilePath;
 };

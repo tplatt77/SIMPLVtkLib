@@ -42,7 +42,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -73,7 +73,7 @@ public:
   * as top-level VisualFilters
   * @param dca
   */
-  void importDataContainerArray(QString textLabel, QString tooltip, DataContainerArray::Pointer dca);
+  void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
   * @brief Import data from a DataContainerArray and add any relevant DataContainers
@@ -100,7 +100,7 @@ public:
   * @param text
   * @return
   */
-  VSTextFilter* getBaseTextFilter(QString text);
+  VSFileNameFilter* getBaseFileNameFilter(QString text);
 
   /**
   * @brief Returns a vector of top-level data filters

@@ -61,11 +61,11 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importDataContainerArray(QString textLabel, QString tooltip, DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
 {
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> wrappedData = SIMPLVtkBridge::WrapDataContainerArrayAsStruct(dca);
 
-  VSTextFilter* textFilter = new VSTextFilter(nullptr, textLabel, tooltip);
+  VSFileNameFilter* textFilter = new VSFileNameFilter(filePath);
   m_FilterModel->addFilter(textFilter);
 
   // Add VSDataSetFilter for each DataContainer with relevant data
@@ -119,22 +119,30 @@ void VSController::importDataContainer(DataContainer::Pointer dc)
 void VSController::importData(const QString &filePath)
 {
   VSDataSetFilter* filter = new VSDataSetFilter(filePath);
-  m_FilterModel->addFilter(filter);
+  // Check if any data was imported
+  if(filter->getOutput())
+  {
+    VSFileNameFilter* textFilter = new VSFileNameFilter(filePath);
+    m_FilterModel->addFilter(textFilter);
 
-  emit dataImported();
+    filter->setParentFilter(textFilter);
+    m_FilterModel->addFilter(filter);
+
+    emit dataImported();
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter* VSController::getBaseTextFilter(QString text)
+VSFileNameFilter* VSController::getBaseFileNameFilter(QString text)
 {
   QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
   int count = baseFilters.size();
 
   for(int i = 0; i < count; i++)
   {
-    VSTextFilter* filter = dynamic_cast<VSTextFilter*>(baseFilters[i]);
+    VSFileNameFilter* filter = dynamic_cast<VSFileNameFilter*>(baseFilters[i]);
     if(filter)
     {
       if(filter->getFilterName().compare(text) == 0)
