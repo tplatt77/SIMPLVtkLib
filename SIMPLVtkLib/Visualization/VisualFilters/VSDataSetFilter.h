@@ -107,13 +107,6 @@ public:
   */
   static dataType_t getRequiredInputType();
 
-  /**
-   * @brief ContainsValidData
-   * @param filePath
-   * @return
-   */
-  static bool ContainsValidData(const QString &filePath);
-
 protected:
   /**
   * @brief Initializes the trivial producer and connects it to the vtkMapper
@@ -141,4 +134,9 @@ private:
    * @brief readVTKFile
    */
   void readVTKFile();
+
+  /**
+   * @brief readSTLFile
+   */
+  void readSTLFile();
 };

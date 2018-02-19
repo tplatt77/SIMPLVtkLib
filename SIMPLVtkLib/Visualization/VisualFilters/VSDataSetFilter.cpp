@@ -51,6 +51,7 @@
 #include <vtkStructuredGridReader.h>
 #include <vtkUnstructuredGridReader.h>
 #include <vtkPolyDataReader.h>
+#include <vtkSTLReader.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -128,6 +129,10 @@ void VSDataSetFilter::createFilter()
            || ext == "vts" || ext == "vtu")
   {
     readVTKFile();
+  }
+  else if (ext == "stl")
+  {
+    readSTLFile();
   }
 
   if (m_DataSet != nullptr)
@@ -236,21 +241,13 @@ void VSDataSetFilter::readVTKFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSDataSetFilter::ContainsValidData(const QString &filePath)
+void VSDataSetFilter::readSTLFile()
 {
-  QFileInfo fi(filePath);
-  QString ext = fi.completeSuffix().toLower();
+  VTK_NEW(vtkSTLReader, reader);
+  reader->SetFileName(m_FilePath.toLatin1().data());
+  reader->Update();
 
-  QMimeDatabase db;
-  QMimeType mimeType = db.mimeTypeForFile(filePath, QMimeDatabase::MatchContent);
-
-  if (mimeType.inherits("image/jpeg") || mimeType.inherits("image/png") ||
-      mimeType.inherits("image/tiff") || ext == "dream3d" || ext == "vtk" || ext == "stl")
-  {
-    return true;
-  }
-
-  return false;
+  m_DataSet = reader->GetOutput();
 }
 
 // -----------------------------------------------------------------------------
