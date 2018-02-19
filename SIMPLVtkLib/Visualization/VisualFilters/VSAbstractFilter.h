@@ -87,7 +87,9 @@ public:
     IMAGE_DATA,
     UNSTRUCTURED_GRID,
     POLY_DATA,
-    ANY_DATA_SET
+    POINT_DATA,
+    ANY_DATA_SET,
+    INVALID_DATA
   };
 
   /**

@@ -1,5 +1,6 @@
 
 set(VSVisualFilters
+  VSAbstractDataFilter
   VSAbstractFilter
   VSClipFilter
   VSCropFilter

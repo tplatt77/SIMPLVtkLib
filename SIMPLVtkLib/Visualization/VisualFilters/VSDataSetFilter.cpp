@@ -57,7 +57,7 @@
 //
 // -----------------------------------------------------------------------------
 VSDataSetFilter::VSDataSetFilter(const QString &filePath)
-  : VSAbstractFilter()
+  : VSAbstractDataFilter()
   , m_FilePath(filePath)
 {
   createFilter();
@@ -102,14 +102,6 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSDataSetFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  // Do nothing
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSDataSetFilter::createFilter()
 {
   QFileInfo fi(m_FilePath);
@@ -120,6 +112,7 @@ void VSDataSetFilter::createFilter()
   QString mimeName = mimeType.name();
 
   setText(fi.fileName());
+  setToolTip(m_FilePath);
 
   if (mimeType.name().startsWith("image/"))
   {
@@ -263,22 +256,5 @@ const QString VSDataSetFilter::getFilterName()
 // -----------------------------------------------------------------------------
 QString VSDataSetFilter::getToolTip() const
 {
-  return "Dataset Filter";
+  return m_FilePath;
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSDataSetFilter::getOutputType()
-{
-  return IMAGE_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSDataSetFilter::getRequiredInputType()
-{
-  return ANY_DATA_SET;
-}
-
