@@ -63,9 +63,6 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridAlgorithm.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSThresholdWidget.h"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -122,10 +119,8 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   m_LastMinValue = min;
   m_LastMaxValue = max;
 
-  const char* arrayNameStr = arrayName.toLatin1();
-
   m_ThresholdAlgorithm->ThresholdBetween(min, max);
-  m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayNameStr);
+  m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(arrayName));
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);

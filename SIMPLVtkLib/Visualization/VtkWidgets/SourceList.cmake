@@ -3,7 +3,6 @@ set(${PROJECT_NAME}_VtkWidget
   VSBoxWidget
   VSCropWidget
   VSPlaneWidget
-  VSThresholdWidget
 )
 
 set(${PROJECT_NAME}_VtkWidget_NoUi
