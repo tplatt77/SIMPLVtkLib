@@ -35,6 +35,13 @@
 
 #include "VSMainWidget.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+
 #include "ui_VSMainWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -62,7 +69,9 @@ VSMainWidget::VSMainWidget(QWidget* parent)
   connectViewWidget(viewWidget);
   setActiveView(viewWidget);
 
+  createFilterMenu();
   connectSlots();
+  setCurrentFilter(nullptr);
 }
 
 // -----------------------------------------------------------------------------
@@ -71,9 +80,12 @@ VSMainWidget::VSMainWidget(QWidget* parent)
 void VSMainWidget::connectSlots()
 {
   // Filter Slots
-  connect(m_Internals->clipBtn, SIGNAL(clicked()), this, SLOT(createClipFilter()));
-  connect(m_Internals->sliceBtn, SIGNAL(clicked()), this, SLOT(createSliceFilter()));
-  connect(m_Internals->thresholdBtn, SIGNAL(clicked()), this, SLOT(createThresholdFilter()));
+  connect(m_Internals->clipBtn, SIGNAL(clicked()),
+    m_ActionAddClip, SLOT(trigger()));
+  connect(m_Internals->sliceBtn, SIGNAL(clicked()),
+    m_ActionAddSlice, SLOT(trigger()));
+  connect(m_Internals->thresholdBtn, SIGNAL(clicked()),
+    m_ActionAddThreshold, SLOT(trigger()));
 
   // Camera Slots
   connect(m_Internals->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
@@ -131,26 +143,9 @@ void VSMainWidget::setActiveView(VSAbstractViewWidget* viewWidget)
     m_Internals->cameraYpBtn->setEnabled(true);
     m_Internals->cameraZmBtn->setEnabled(true);
     m_Internals->cameraZpBtn->setEnabled(true);
-
-    if (getCurrentFilter() != nullptr)
-    {
-      m_Internals->clipBtn->setEnabled(true);
-      m_Internals->thresholdBtn->setEnabled(true);
-      m_Internals->sliceBtn->setEnabled(true);
-    }
-    else
-    {
-      m_Internals->clipBtn->setDisabled(true);
-      m_Internals->thresholdBtn->setDisabled(true);
-      m_Internals->sliceBtn->setDisabled(true);
-    }
   }
   else
   {
-    m_Internals->clipBtn->setDisabled(true);
-    m_Internals->thresholdBtn->setDisabled(true);
-    m_Internals->sliceBtn->setDisabled(true);
-
     m_Internals->cameraXmBtn->setDisabled(true);
     m_Internals->cameraXpBtn->setDisabled(true);
     m_Internals->cameraYmBtn->setDisabled(true);
@@ -167,18 +162,33 @@ void VSMainWidget::setCurrentFilter(VSAbstractFilter* filter)
 {
   VSMainWidgetBase::setCurrentFilter(filter);
 
-  if (getActiveViewWidget() != nullptr && filter != nullptr)
-  {
-    m_Internals->clipBtn->setEnabled(true);
-    m_Internals->thresholdBtn->setEnabled(true);
-    m_Internals->sliceBtn->setEnabled(true);
-  }
-  else
-  {
-    m_Internals->clipBtn->setDisabled(true);
-    m_Internals->thresholdBtn->setDisabled(true);
-    m_Internals->sliceBtn->setDisabled(true);
-  }
+  // Check if each Filter Type can be added
+  // Clip Filter
+  bool enableClip = VSClipFilter::compatibleWithParent(filter);
+  m_Internals->clipBtn->setEnabled(enableClip);
+  m_ActionAddClip->setEnabled(enableClip);
+
+  // Slice
+  bool enableSlice = VSSliceFilter::compatibleWithParent(filter);
+  m_Internals->sliceBtn->setEnabled(enableSlice);
+  m_ActionAddSlice->setEnabled(enableSlice);
+
+  // Crop Filter
+  bool enableCrop = VSCropFilter::compatibleWithParent(filter);
+  m_ActionAddCrop->setEnabled(enableCrop);
+
+  // Mask
+  bool enableMask = VSMaskFilter::compatibleWithParent(filter);
+  m_ActionAddMask->setEnabled(enableMask);
+
+  // Threshold
+  bool enableThreshold = VSThresholdFilter::compatibleWithParent(filter);
+  m_Internals->thresholdBtn->setEnabled(enableThreshold);
+  m_ActionAddThreshold->setEnabled(enableThreshold);
+
+  // Text
+  bool enableText = VSTextFilter::compatibleWithParent(filter);
+  m_ActionAddText->setEnabled(enableText);
 }
 
 // -----------------------------------------------------------------------------
@@ -257,4 +267,55 @@ void VSMainWidget::activeCameraZMinus()
   {
     activeView->getVisualizationWidget()->camZMinus();
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSMainWidget::getFilterMenu()
+{
+  return m_FilterMenu;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget::createFilterMenu()
+{
+  // Create Actions
+  m_ActionAddClip = new QAction("Clip Filter");
+  connect(m_ActionAddClip, SIGNAL(triggered()),
+    this, SLOT(createClipFilter()));
+
+  m_ActionAddCrop = new QAction("Crop Filter");
+  connect(m_ActionAddCrop, SIGNAL(triggered()),
+    this, SLOT(createCropFilter()));
+
+  m_ActionAddSlice = new QAction("Slice Filter");
+  connect(m_ActionAddSlice, SIGNAL(triggered()),
+    this, SLOT(createSliceFilter()));
+
+  m_ActionAddThreshold = new QAction("Threshold Filter");
+  connect(m_ActionAddThreshold, SIGNAL(triggered()),
+    this, SLOT(createThresholdFilter()));
+
+  m_ActionAddMask = new QAction("Mask Filter");
+  connect(m_ActionAddMask, SIGNAL(triggered()),
+    this, SLOT(createMaskFilter()));
+
+  m_ActionAddText = new QAction("Text Filter");
+  connect(m_ActionAddText, SIGNAL(triggered()),
+    this, SLOT(createTextFilter()));
+
+  // Create Menu
+  m_FilterMenu = new QMenu("Filters", this);
+  m_FilterMenu->addAction(m_ActionAddClip);
+  m_FilterMenu->addAction(m_ActionAddSlice);
+  m_FilterMenu->addAction(m_ActionAddCrop);
+  m_FilterMenu->addAction(m_ActionAddThreshold);
+  m_FilterMenu->addAction(m_ActionAddMask);
+  
+  m_FilterMenu->addSeparator();
+
+  m_FilterMenu->addAction(m_ActionAddText);
 }
