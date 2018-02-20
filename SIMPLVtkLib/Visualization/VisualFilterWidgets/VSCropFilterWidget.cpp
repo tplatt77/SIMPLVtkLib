@@ -70,7 +70,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSCropFilterWidget::VSCropFilterWidget(VSCropFilter* filter, QVTKInteractor* interactor, QWidget* widget)
+VSCropFilterWidget::VSCropFilterWidget(VSCropFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget)
 : VSAbstractFilterWidget(widget)
 , m_Internals(new vsInternals())
 , m_CropFilter(filter)

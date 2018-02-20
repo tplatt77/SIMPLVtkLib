@@ -66,7 +66,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
+  VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent = nullptr);
 
   /**
   * @brief Deconstructor
@@ -99,7 +99,7 @@ public:
   * @brief setInteractor
   * @param interactor
   */
-  void setInteractor(QVTKInteractor* interactor) override;
+  void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
 private:
   class vsInternals;

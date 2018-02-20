@@ -50,7 +50,6 @@ class vtkTableBasedClipDataSet;
 class vtkImplicitPlaneWidget2;
 class VSPlaneWidget;
 class VSBoxWidget;
-class QVTKInteractor;
 
 /**
  * @class VSClipFilterWidget VSClipFilterWidget.h
@@ -72,7 +71,7 @@ public:
    * @param interactor
    * @param widget
    */
-  VSClipFilterWidget(VSClipFilter *filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
+  VSClipFilterWidget(VSClipFilter *filter, vtkRenderWindowInteractor* interactor, QWidget* widget = nullptr);
 
   /**
   * @brief Deconstructor
@@ -105,7 +104,7 @@ public:
    * @brief setInteractor
    * @param interactor
    */
-  void setInteractor(QVTKInteractor* interactor) override;
+  void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
 protected slots:
   /**

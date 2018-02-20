@@ -41,7 +41,7 @@
 
 #include <QtWidgets/QWidget>
 
-#include <QVTKInteractor.h>
+#include <vtkRenderWindowInteractor.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -91,7 +91,7 @@ public:
    * @brief setInteractor
    * @param interactor
    */
-  virtual void setInteractor(QVTKInteractor* interactor);
+  virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
   /**
   * @brief Returns true if there are unapplied changes waiting and false otherwise

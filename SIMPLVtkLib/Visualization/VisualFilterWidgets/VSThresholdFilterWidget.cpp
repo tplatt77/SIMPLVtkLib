@@ -59,7 +59,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor *interactor, QWidget* parent)
+VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, vtkRenderWindowInteractor *interactor, QWidget* parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_ThresholdFilter(filter)

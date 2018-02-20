@@ -61,7 +61,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSMaskFilterWidget(VSMaskFilter* filter, QVTKInteractor* interactor, QWidget* parent);
+  VSMaskFilterWidget(VSMaskFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent);
 
   /**
   * @brief Deconstructor

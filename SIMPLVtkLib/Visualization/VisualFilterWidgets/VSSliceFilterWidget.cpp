@@ -69,7 +69,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor *interactor, QWidget* parent)
+VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowInteractor *interactor, QWidget* parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_SliceFilter(filter)
@@ -148,7 +148,7 @@ void VSSliceFilterWidget::setRenderingEnabled(bool enabled)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSSliceFilterWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   bool rendered = getRenderingEnabled();
 

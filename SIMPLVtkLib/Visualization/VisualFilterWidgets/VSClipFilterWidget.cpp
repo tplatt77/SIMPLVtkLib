@@ -71,7 +71,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, QVTKInteractor* interactor, QWidget* widget)
+VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget)
 : VSAbstractFilterWidget(widget)
 , m_Internals(new vsInternals())
 , m_ClipFilter(filter)
@@ -214,7 +214,7 @@ void VSClipFilterWidget::reset()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSClipFilterWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   bool rendered = getRenderingEnabled();
   setRenderingEnabled(false);

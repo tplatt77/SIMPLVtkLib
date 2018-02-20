@@ -44,8 +44,6 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class QVTKInteractor;
-
 /**
  * @class VSCropFilterWidget VSCropFilterWidget.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilterWidget.h
@@ -65,7 +63,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSCropFilterWidget(VSCropFilter* filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
+  VSCropFilterWidget(VSCropFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget = nullptr);
 
   /**
   * @brief Sets the visualization filter's bounds

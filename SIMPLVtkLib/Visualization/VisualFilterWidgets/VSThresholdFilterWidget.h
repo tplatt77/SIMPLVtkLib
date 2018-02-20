@@ -63,7 +63,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
+  VSThresholdFilterWidget(VSThresholdFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent = nullptr);
 
   /**
   * @brief Deconstructor

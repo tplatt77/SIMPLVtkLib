@@ -59,7 +59,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter* filter, QVTKInteractor* interactor, QWidget *parent)
+VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter* filter, vtkRenderWindowInteractor* interactor, QWidget *parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_MaskFilter(filter)
