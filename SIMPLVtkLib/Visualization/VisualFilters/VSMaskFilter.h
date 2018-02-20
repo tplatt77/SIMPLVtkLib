@@ -39,7 +39,7 @@
 
 #include <vtkThreshold.h>
 
-#include "Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 

@@ -35,19 +35,11 @@
 
 #include "VSSIMPLDataContainerFilter.h"
 
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkLookupTable.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkScalarBarActor.h>
-#include <vtkTrivialProducer.h>
-#include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 // -----------------------------------------------------------------------------

@@ -37,29 +37,13 @@
 
 #include <QString>
 
-#include <vtkActor.h>
 #include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkLookupTable.h>
-#include <vtkPolyDataAlgorithm.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkScalarBarActor.h>
-#include <vtkScalarBarWidget.h>
-#include <vtkTextProperty.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
 #include <vtkGenericDataObjectWriter.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
 // -----------------------------------------------------------------------------

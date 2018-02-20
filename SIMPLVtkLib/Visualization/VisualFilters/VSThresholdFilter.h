@@ -37,26 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSAbstractFilter.h"
+#include <vtkThreshold.h>
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class vtkImageData;
-class vtkDataSet;
-class vtkUnstructuredGrid;
-class vtkImplicitDataSet;
-class vtkExtractGeometry;
-class vtkExtractUnstructuredGrid;
-class VSThresholdWidget;
-class VSSIMPLDataContainerFilter;
-class vtkExtractSelectedThresholds;
-class vtkSelection;
-class vtkSelectionNode;
-class vtkTrivialProducer;
-class vtkPointData;
-class vtkCelldata;
-class vtkMergeFilter;
 
 /**
  * @class VSThresholdFilter VSThresholdFilter.h 

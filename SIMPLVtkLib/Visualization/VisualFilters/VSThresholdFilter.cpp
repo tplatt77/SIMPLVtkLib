@@ -37,31 +37,13 @@
 
 #include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCell.h>
 #include <vtkCellData.h>
-#include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkExtractGeometry.h>
-#include <vtkExtractSelectedThresholds.h>
-#include <vtkExtractUnstructuredGrid.h>
-#include <vtkFloatArray.h>
-#include <vtkImageData.h>
 #include <vtkImplicitDataSet.h>
-#include <vtkMergeFilter.h>
 #include <vtkPointData.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkSelection.h>
-#include <vtkSelectionNode.h>
-#include <vtkStructuredPoints.h>
 #include <vtkThreshold.h>
-#include <vtkTrivialProducer.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
 
 // -----------------------------------------------------------------------------
 //

@@ -36,28 +36,9 @@
 #include "VSClipFilter.h"
 
 #include <QApplication>
-#include <QString>
+#include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkBoxRepresentation.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitDataSet.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkPlanes.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTableBasedClipDataSet.h>
-#include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 
 const QString VSClipFilter::PlaneClipTypeString = "Plane";
 const QString VSClipFilter::BoxClipTypeString = "Box";

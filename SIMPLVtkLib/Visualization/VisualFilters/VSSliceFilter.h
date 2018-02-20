@@ -39,13 +39,10 @@
 
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
 
+#include <vtkCutter.h>
 #include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkCutter;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
 
 /**
  * @class VSSliceFilter VSSliceFilter.h 

@@ -37,19 +37,9 @@
 
 #include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCutter.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
+#include <vtkUnstructuredGrid.h>
 
 // -----------------------------------------------------------------------------
 //

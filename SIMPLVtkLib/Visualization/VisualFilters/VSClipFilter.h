@@ -42,17 +42,14 @@
 #include <vtkDataSet.h>
 #include <vtkPlane.h>
 #include <vtkPlanes.h>
+#include <vtkTableBasedClipDataSet.h>
 #include <vtkTransform.h>
+
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
-class VSClipFilterWidget;
 
 /**
  * @class VSClipFilter VSClipFilter.h 

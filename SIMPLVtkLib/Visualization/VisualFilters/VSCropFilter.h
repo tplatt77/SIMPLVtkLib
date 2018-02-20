@@ -40,11 +40,10 @@
 #include "VSAbstractFilter.h"
 
 #include <vtkBox.h>
+#include <vtkExtractVOI.h>
+#include <vtkImageData.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
 
 /**
  * @class VSCropFilter VSCropFilter.h 

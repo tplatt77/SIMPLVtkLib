@@ -41,8 +41,10 @@
 
 #include <memory>
 
-#include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
+#include <vtkAlgorithmOutput.h>
+#include <vtkDataArray.h>
+#include <vtkDataSet.h>
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -55,17 +57,6 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class QString;
-class vtkAlgorithm;
-class vtkUnstructuredGridAlgorithm;
-class vtkAlgorithmOutput;
-class vtkColorTransferFunction;
-class vtkDataObject;
-class vtkDataSet;
-class vtkDataArray;
-
-class VSAbstractFilterWidget;
-class VSAbstractWidget;
 class VSSIMPLDataContainerFilter;
 
 /**

@@ -37,15 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
-#include <vtkSmartPointer.h>
-
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkTrivialProducer;
-class vtkAlgorithmOutput;
 
 /**
 * @class VSDataSetFilter VSDataSetFilter.h
