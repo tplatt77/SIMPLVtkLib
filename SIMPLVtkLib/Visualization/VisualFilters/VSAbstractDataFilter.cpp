@@ -64,8 +64,10 @@ void VSAbstractDataFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
 {
-  switch(getOutput()->GetDataObjectType())
+  int dataType = getOutput()->GetDataObjectType();
+  switch(dataType)
   {
+  case VTK_IMAGE_DATA:
   case VTK_STRUCTURED_GRID:
   case VTK_RECTILINEAR_GRID:
     return dataType_t::IMAGE_DATA;

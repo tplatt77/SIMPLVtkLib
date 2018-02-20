@@ -215,7 +215,7 @@ public:
   * @brief Returns the output dataType_t value
   * @return
   */
-  virtual dataType_t getOutputType() = 0;
+  virtual dataType_t getOutputType();
 
   /**
   * @brief Returns true if the input dataType_t is compatible with a given required type

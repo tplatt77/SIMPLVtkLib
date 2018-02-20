@@ -363,8 +363,35 @@ VSSIMPLDataContainerFilter* VSAbstractFilter::getDataSetFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType()
+{
+  switch(getOutput()->GetDataObjectType())
+  {
+  case VTK_IMAGE_DATA:
+  case VTK_STRUCTURED_GRID:
+  case VTK_RECTILINEAR_GRID:
+    return dataType_t::IMAGE_DATA;
+  case VTK_STRUCTURED_POINTS:
+    return dataType_t::POINT_DATA;
+  case VTK_UNSTRUCTURED_GRID:
+    return dataType_t::UNSTRUCTURED_GRID;
+  case VTK_POLY_DATA:
+    return dataType_t::POLY_DATA;
+  default:
+    return dataType_t::INVALID_DATA;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSAbstractFilter::compatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
 {
+  if(inputType == INVALID_DATA)
+  {
+    return false;
+  }
+
   if(requiredType == ANY_DATA_SET)
   {
     return true;

@@ -258,6 +258,26 @@ VSAbstractFilter::dataType_t VSClipFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  dataType_t outputType = filter->getOutputType();
+  dataType_t requiredType = getRequiredInputType();
+  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSClipFilter::getLastPlaneInverted()
 {
   return m_LastPlaneInverted;

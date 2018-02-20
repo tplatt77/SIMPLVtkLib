@@ -205,6 +205,24 @@ VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSCropFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int* VSCropFilter::getVOI()
 {
   return m_LastVoi;

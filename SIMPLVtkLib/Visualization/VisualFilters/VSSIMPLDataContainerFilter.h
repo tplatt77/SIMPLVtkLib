@@ -101,6 +101,14 @@ public:
   */
   SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
 
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
+
 protected:
   /**
   * @brief Initializes the trivial producer and connects it to the vtkMapper

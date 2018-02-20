@@ -133,7 +133,7 @@ VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
     return getParentFilter()->getOutputType();
   }
 
-  return ANY_DATA_SET;
+  return INVALID_DATA;
 }
 
 // -----------------------------------------------------------------------------
@@ -142,6 +142,14 @@ VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
 VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSTextFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  return true;
 }
 
 // -----------------------------------------------------------------------------

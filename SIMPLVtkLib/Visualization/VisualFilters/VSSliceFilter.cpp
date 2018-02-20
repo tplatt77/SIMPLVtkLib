@@ -199,6 +199,24 @@ VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSSliceFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 double* VSSliceFilter::getLastOrigin()
 {
   return m_LastOrigin;

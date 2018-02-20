@@ -201,6 +201,29 @@ VSAbstractFilter::dataType_t VSThresholdFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSThresholdFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  // Require scalar values
+  vtkDataSet* output = filter->getOutput();
+  if(output && output->GetCellData() && output->GetCellData()->GetScalars())
+  {
+    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QString VSThresholdFilter::getLastArrayName()
 {
   return m_LastArrayName;

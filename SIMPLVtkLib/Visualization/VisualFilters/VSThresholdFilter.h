@@ -124,6 +124,14 @@ public:
   static dataType_t getRequiredInputType();
 
   /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
+
+  /**
   * @brief Returns the name of the array last used for thresholding
   * @return
   */

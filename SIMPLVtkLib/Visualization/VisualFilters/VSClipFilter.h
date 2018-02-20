@@ -141,6 +141,14 @@ public:
   static dataType_t getRequiredInputType();
 
   /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
+
+  /**
   * @brief Returns whether or not the last applied plane was inverted
   * @return
   */

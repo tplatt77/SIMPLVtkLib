@@ -95,10 +95,12 @@ public:
   virtual QString getToolTip() const override;
 
   /**
-  * @brief Returns the required input data type
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
   * @return
   */
-  //static dataType_t getRequiredInputType();
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
 protected:
   /**

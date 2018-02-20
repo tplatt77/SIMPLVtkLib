@@ -69,6 +69,14 @@ public:
   */
   QString getFileName();
 
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
+
 private:
   QString m_FilePath;
 };
