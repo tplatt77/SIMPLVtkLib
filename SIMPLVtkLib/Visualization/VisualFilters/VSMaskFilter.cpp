@@ -50,7 +50,6 @@
 #include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSMaskWidget.h"
 
 #include <vtkRenderWindowInteractor.h>
 
@@ -104,10 +103,9 @@ void VSMaskFilter::apply(QString name)
 
   // Save the applied values for resetting Mask-Type widgets
   m_LastArrayName = name;
-  const char* arrayName = name.toLatin1();
 
   m_MaskAlgorithm->ThresholdByUpper(1.0);
-  m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayName);
+  m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(name));
   m_MaskAlgorithm->Update();
 
   emit updatedOutputPort(this);

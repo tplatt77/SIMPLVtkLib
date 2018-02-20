@@ -35,26 +35,13 @@
 
 #include "VSMaskFilterWidget.h"
 
-#include <QString>
-
-#include <vtkActor.h>
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkThreshold.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSMaskWidget.h"
-#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-
-#include <vtkRenderWindowInteractor.h>
 
 #include "ui_VSMaskFilterWidget.h"
 
@@ -72,17 +59,17 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter *filter, QVTKInteractor* interactor, QWidget *parent)
+VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter* filter, QVTKInteractor* interactor, QWidget *parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_MaskFilter(filter)
 {
   m_Internals->setupUi(this);
 
-  m_MaskWidget = new VSMaskWidget(this, "", m_MaskFilter->getBounds(), interactor);
-  m_MaskWidget->show();
+  updateMaskNames(filter->getOutput());
+  setMaskName("");
 
-  connect(m_MaskWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  connect(m_Internals->maskComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentMaskChanged(int)));
 }
 
 // -----------------------------------------------------------------------------
@@ -90,7 +77,6 @@ VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter *filter, QVTKInteractor* int
 // -----------------------------------------------------------------------------
 VSMaskFilterWidget::~VSMaskFilterWidget()
 {
-  delete m_MaskWidget;
 }
 
 // -----------------------------------------------------------------------------
@@ -111,7 +97,7 @@ void VSMaskFilterWidget::apply()
 {
   VSAbstractFilterWidget::apply();
 
-  m_MaskFilter->apply(m_MaskWidget->getMaskName());
+  m_MaskFilter->apply(getMaskName());
 }
 
 // -----------------------------------------------------------------------------
@@ -119,7 +105,64 @@ void VSMaskFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSMaskFilterWidget::reset()
 {
-  m_MaskWidget->setMaskName(m_MaskFilter->getLastArrayName());
+  setMaskName(m_MaskFilter->getLastArrayName());
 
   cancelChanges();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilterWidget::updateMaskNames(vtkDataSet* inputData)
+{
+  QString selectedMaskName = m_Internals->maskComboBox->currentText();
+
+  m_Internals->maskComboBox->clear();
+  int numArrays = inputData->GetCellData()->GetNumberOfArrays();
+
+  for(int i = 0; i < numArrays; i++)
+  {
+    vtkDataArray* dataArray = inputData->GetCellData()->GetArray(i);
+    if(dataArray->GetNumberOfComponents() == 1)
+    {
+      const char* arrayName = dataArray->GetName();
+      m_Internals->maskComboBox->addItem(arrayName);
+    }
+  }
+
+  m_Internals->maskComboBox->setCurrentText(selectedMaskName);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilterWidget::setMaskName(QString mask)
+{
+  m_Internals->maskComboBox->setCurrentText(mask);
+  
+  changesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSMaskFilterWidget::getMaskName()
+{
+  return m_Internals->maskComboBox->currentText();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSMaskFilterWidget::getMaskId()
+{
+  return m_Internals->maskComboBox->currentIndex();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilterWidget::currentMaskChanged(int index)
+{
+  changesWaiting();
 }

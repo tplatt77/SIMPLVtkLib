@@ -37,12 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
+#include <vtkThreshold.h>
+
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class VSMaskWidget;
 
 /**
  * @class VSMaskFilter VSMaskFilter.h 
