@@ -42,6 +42,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
@@ -469,6 +470,23 @@ void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
   if(parent)
   {
     VSThresholdFilter* filter = new VSThresholdFilter(parent);
+    finishAddingFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createTextFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent)
+  {
+    VSTextFilter* filter = new VSTextFilter(parent, "Text", "Tool Tip");
     finishAddingFilter(filter, parent);
   }
 }
