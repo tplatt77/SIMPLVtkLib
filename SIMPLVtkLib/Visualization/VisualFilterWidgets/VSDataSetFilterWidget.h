@@ -35,11 +35,10 @@
 
 #pragma once
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSDataSetFilter;
 
 /**
 * @class VSDataSetFilterWidget VSDataSetFilterWidget.h

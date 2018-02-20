@@ -37,19 +37,13 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSClipFilter.h"
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-
-#include <vtkPlane.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
-
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
 
 /**
  * @class VSClipFilterWidget VSClipFilterWidget.h

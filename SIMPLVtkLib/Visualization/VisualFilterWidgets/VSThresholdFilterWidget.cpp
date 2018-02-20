@@ -40,8 +40,6 @@
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkFloatArray.h>
-#include <vtkRenderWindowInteractor.h>
 
 #include "ui_VSThresholdFilterWidget.h"
 

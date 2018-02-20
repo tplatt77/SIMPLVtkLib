@@ -37,17 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-
-#include <vtkPlane.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkCutter;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSSliceFilter;
-class QVTKInteractor;
 
 /**
  * @class VSSliceFilterWidget VSSliceFilterWidget.h

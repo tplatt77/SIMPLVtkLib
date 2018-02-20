@@ -35,24 +35,10 @@
 
 #include "VSCropFilterWidget.h"
 
-#include <QString>
+#include <QtCore/QString>
 
-#include <vtkActor.h>
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
 #include <vtkImageData.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
-#include <vtkExtractVOI.h>
-
-#include <vtkRenderWindowInteractor.h>
 
 #include "ui_VSCropFilterWidget.h"
 

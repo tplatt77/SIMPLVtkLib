@@ -35,13 +35,9 @@
 
 #include "VSMaskFilterWidget.h"
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
 #include "ui_VSMaskFilterWidget.h"
 

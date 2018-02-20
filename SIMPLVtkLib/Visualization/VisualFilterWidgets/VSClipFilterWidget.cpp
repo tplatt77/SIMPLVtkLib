@@ -36,24 +36,10 @@
 #include "VSClipFilterWidget.h"
 
 #include <QApplication>
-#include <QString>
+#include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTableBasedClipDataSet.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "ui_VSClipFilterWidget.h"
 

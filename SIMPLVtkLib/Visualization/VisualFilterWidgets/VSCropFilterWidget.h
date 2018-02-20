@@ -37,8 +37,6 @@
 
 #include <QtWidgets/QWidget>
 
-#include <vtkBox.h>
-
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
