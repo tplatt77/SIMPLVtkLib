@@ -1,7 +1,6 @@
 
 set(${PROJECT_NAME}_VtkWidget
   VSBoxWidget
-  VSCropWidget
   VSPlaneWidget
 )
 

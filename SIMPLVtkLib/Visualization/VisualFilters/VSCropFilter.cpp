@@ -48,7 +48,6 @@
 #include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSCropWidget.h"
 #include <vtkExtractVOI.h>
 
 #include <vtkRenderWindowInteractor.h>
