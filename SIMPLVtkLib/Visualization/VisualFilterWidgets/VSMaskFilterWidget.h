@@ -38,7 +38,6 @@
 #include <QtWidgets/QWidget>
 
 #include <vtkThreshold.h>
-#include <QVTKInteractor.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"

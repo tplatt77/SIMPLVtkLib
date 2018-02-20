@@ -41,9 +41,9 @@
 
 #include <QtWidgets/QWidget>
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include <QVTKInteractor.h>
 
-class QVTKInteractor;
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
 * @class VSAbstractFilterWidget VSAbstractFilterWidget.h
