@@ -73,7 +73,7 @@ void VSMainWidget::connectSlots()
   // Filter Slots
   connect(m_Internals->clipBtn, SIGNAL(clicked()), this, SLOT(createClipFilter()));
   connect(m_Internals->sliceBtn, SIGNAL(clicked()), this, SLOT(createSliceFilter()));
-  connect(m_Internals->maskBtn, SIGNAL(clicked()), this, SLOT(createMaskFilter()));
+  connect(m_Internals->thresholdBtn, SIGNAL(clicked()), this, SLOT(createThresholdFilter()));
 
   // Camera Slots
   connect(m_Internals->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
@@ -135,20 +135,20 @@ void VSMainWidget::setActiveView(VSAbstractViewWidget* viewWidget)
     if (getCurrentFilter() != nullptr)
     {
       m_Internals->clipBtn->setEnabled(true);
-      m_Internals->maskBtn->setEnabled(true);
+      m_Internals->thresholdBtn->setEnabled(true);
       m_Internals->sliceBtn->setEnabled(true);
     }
     else
     {
       m_Internals->clipBtn->setDisabled(true);
-      m_Internals->maskBtn->setDisabled(true);
+      m_Internals->thresholdBtn->setDisabled(true);
       m_Internals->sliceBtn->setDisabled(true);
     }
   }
   else
   {
     m_Internals->clipBtn->setDisabled(true);
-    m_Internals->maskBtn->setDisabled(true);
+    m_Internals->thresholdBtn->setDisabled(true);
     m_Internals->sliceBtn->setDisabled(true);
 
     m_Internals->cameraXmBtn->setDisabled(true);
@@ -170,13 +170,13 @@ void VSMainWidget::setCurrentFilter(VSAbstractFilter* filter)
   if (getActiveViewWidget() != nullptr && filter != nullptr)
   {
     m_Internals->clipBtn->setEnabled(true);
-    m_Internals->maskBtn->setEnabled(true);
+    m_Internals->thresholdBtn->setEnabled(true);
     m_Internals->sliceBtn->setEnabled(true);
   }
   else
   {
     m_Internals->clipBtn->setDisabled(true);
-    m_Internals->maskBtn->setDisabled(true);
+    m_Internals->thresholdBtn->setDisabled(true);
     m_Internals->sliceBtn->setDisabled(true);
   }
 }
