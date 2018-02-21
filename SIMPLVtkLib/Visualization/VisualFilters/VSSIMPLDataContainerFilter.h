@@ -61,7 +61,7 @@ public:
   * @param parentWidget
   * @param dataSetStruct
   */
-  VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer);
+  VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer, VSAbstractFilter* parent = nullptr);
 
   /**
   * @brief Returns the bounds of the vtkDataSet
@@ -93,10 +93,28 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
+
+  /**
   * @brief Returns the VtkDataSetStruct_t used by the filter
   * @return
   */
   SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
+
+  /**
+   * @brief Creates a SIMPLDataContainer filter from the source .dream3d file and json object
+   * @param json
+   */
+  static VSSIMPLDataContainerFilter* Create(const QString &filePath, QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
 
   /**
   * @brief Returns true if this filter type can be added as a child of

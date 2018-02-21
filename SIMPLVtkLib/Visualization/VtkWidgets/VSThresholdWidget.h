@@ -36,26 +36,20 @@
 #pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
-#include "ui_VSPlaneWidget.h"
+#include "ui_VSThresholdWidget.h"
 
 #include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class vtkPlane;
-class vtkImplicitPlaneWidget2;
-class vtkImplicitPlaneRepresentation;
-
 /**
- * @class VSPlaneWidget VSPlaneWidget.h 
- * SIMPLView/VtkSIMPL/VtkWidgets/VSPlaneWidget.h
- * @brief This class handles the management of vtkImplicitPlaneWidget2 for 
- * VSAbstractFilters that use plane-type VTK widgets for their execution. 
- * This class inherits from QWidget and displays editable values representing 
- * the normal and origin of the plane. Editing these values also changes the 
- * vtkImplicitPlaneWidget2 orientation.
+ * @class VSThresholdWidget VSThresholdWidget.h 
+ * SIMPLView/VtkSIMPL/VtkWidgets/VSThresholdWidget.h
+ * @brief This class is used to handle user inputs for thresholding over a 
+ * vtkDataArray. It is primarily used by VtkThresholdFilter as its way of 
+ * accepting input for the filter.
  */
-class SIMPLVtkLib_EXPORT VSPlaneWidget : public VSAbstractWidget, private Ui::VSPlaneWidget
+class SIMPLVtkLib_EXPORT VSThresholdWidget : public VSAbstractWidget, private Ui::VSThresholdWidget
 {
   Q_OBJECT
 
@@ -63,86 +57,57 @@ public:
   /**
   * @brief Constructor
   * @param parent
+  * @param range
   * @param bounds
   * @param iren
   */
-  VSPlaneWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSThresholdWidget(QWidget* parent, double range[2], double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
   * @brief Deconstructor
   */
-  ~VSPlaneWidget();
+  ~VSThresholdWidget();
 
   /**
-  * @brief Copies the normals into the double array passed in
-  * @param normals
+  * @brief Returns the lower bound for thresholding
+  * @return
   */
-  void getNormals(double normals[3]);
+  double getLowerBound();
 
   /**
-  * @brief Sets the normals to the given value
-  * @param normals
+  * @brief Returns the upper bound for thresholding
+  * @return
   */
-  void setNormals(double normals[3]);
+  double getUpperBound();
 
   /**
-  * @brief Sets the normals to match the given values
-  * @param x
-  * @param y
-  * @param z
+  * @brief Sets the lower bound for thresholding
+  * @param min
   */
-  void setNormals(double x, double y, double z);
+  void setLowerThreshold(double min);
 
   /**
-  * @brief Sets the origin to the given value
-  * @param origin
+  * @brief Sets the upper bound for thresholding
+  * @param max
   */
-  void setOrigin(double origin[3]) override;
+  void setUpperThreshold(double max);
 
   /**
-  * @brief Sets the origin to match the given values
-  * @param x
-  * @param y
-  * @param z
+  * @brief Sets the range to threshold over
+  * @param min
+  * @param max
   */
-  void setOrigin(double x, double y, double z) override;
+  void setScalarRange(int min, int max);
 
   /**
-   * @brief setInteractor
-   * @param interactor
-   */
-  void setInteractor(vtkRenderWindowInteractor* interactor) override;
-
-  /**
-  * @brief Enables the plane widget
+  * @brief enable
   */
   void enable() override;
 
   /**
-  * @brief Disables the plane widget
+  * @brief disable
   */
   void disable() override;
-
-  /**
-  * @brief Enables rendering the plane internals
-  */
-  void drawPlaneOn();
-
-  /**
-  * @brief Disables rendering the plane internals
-  */
-  void drawPlaneOff();
-
-  /**
-  * @brief Updates the origin and normal values based on the VTK plane widget 
-  * before applying those values to the input widgets.
-  */
-  void updateSpinBoxes();
-
-  /**
-  * @brief Updates the VTK plane
-  */
-  void updatePlaneWidget();
 
   /**
    * @brief Reads values from a json file into the widget
@@ -158,25 +123,56 @@ public:
 
 public slots:
   /**
-  * @brief Updates the VTK plane widget with the input widget values.
+  * @brief Handles any changes in the minimum spin box
   */
-  void spinBoxValueChanged();
+  void minSpinBoxValueChanged();
+
+  /**
+  * @brief Handles any changes in the maximum spin box
+  */
+  void maxSpinBoxValueChanged();
+
+  /**
+  * @brief Handles any changes in the minimum slider
+  */
+  void minSliderValueChanged();
+  
+  /**
+  * @brief Handles any changes in the maximum slider
+  */
+  void maxSliderValueChanged();
 
 protected:
   /**
-  * @brief Updates the bounds representation for the VTK plane widget.
+  * @brief Copies the value from a QSlider to a QDoubleSpinBox
+  * @param slider
+  * @param spinBox
   */
-  void updateBounds() override;
+  void sliderToSpinBox(QSlider* slider, QDoubleSpinBox* spinBox);
 
   /**
-  * @brief Updates the origin for the VTK plane
+  * @brief Copies the value from a QDoubleSpinBox to a QSlider
+  * @param spinBox
+  * @param slider
   */
-  void updateOrigin() override;
+  void spinBoxToSlider(QDoubleSpinBox* spinBox, QSlider* slider);
+
+  /**
+  * @brief Checks if the min spin box is greater than the max spin box.
+  * If it is, then the max spin box is updated and the method returns true.
+  * Otherwise, this function returns false.
+  * @return
+  */
+  bool checkMinSpinBox();
+
+  /**
+  * @brief Checks if the max spin box is greater than the min spin box.
+  * If it is, then the min spin box is updated and the method returns true.
+  * Otherwise, this function returns false.
+  * @return
+  */
+  bool checkMaxSpinBox();
 
 private:
 
-  vtkSmartPointer<vtkPlane> m_UsePlane;
-  vtkSmartPointer<vtkPlane> m_ViewPlane;
-  vtkImplicitPlaneWidget2* m_PlaneWidget;
-  vtkImplicitPlaneRepresentation* m_PlaneRep;
 };

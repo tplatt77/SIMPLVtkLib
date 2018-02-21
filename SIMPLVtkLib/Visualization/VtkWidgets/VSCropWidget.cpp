@@ -33,166 +33,157 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSTextFilter.h"
+#include "VSCropWidget.h"
 
-#include <QtCore/QUuid>
+#include <vtkImageData.h>
+#include <vtkImplicitFunction.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
 
-#include <vtkAlgorithmOutput.h>
+#include <QSpinBox>
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip)
-  : VSAbstractFilter()
+VSCropWidget::VSCropWidget(QWidget* parent, vtkSmartPointer<vtkImageData> imageData, vtkRenderWindowInteractor* iren)
+: VSAbstractWidget(parent, imageData->GetBounds(), iren)
 {
-  setParentFilter(parent);
+  setupUi(this);
 
-  setText(text);
-  setToolTip(toolTip);
-  setItalic();
+  int imageExtent[6];
+  imageData->GetExtent(imageExtent);
+
+  m_ImageData = imageData;
+
+  int* sampleRate = new int[3]{1, 1, 1};
+
+  xMinSpinBox->setMinimum(imageExtent[0]);
+  xMaxSpinBox->setMinimum(imageExtent[0]);
+
+  xMinSpinBox->setMaximum(imageExtent[1]);
+  xMaxSpinBox->setMaximum(imageExtent[1]);
+
+  yMinSpinBox->setMinimum(imageExtent[2]);
+  yMaxSpinBox->setMinimum(imageExtent[2]);
+
+  yMinSpinBox->setMaximum(imageExtent[3]);
+  yMaxSpinBox->setMaximum(imageExtent[3]);
+
+  zMinSpinBox->setMinimum(imageExtent[4]);
+  zMaxSpinBox->setMinimum(imageExtent[4]);
+
+  zMinSpinBox->setMaximum(imageExtent[5]);
+  zMaxSpinBox->setMaximum(imageExtent[5]);
+
+  setVOI(imageExtent);
+  setSampleRate(sampleRate);
+
+  connect(xMinSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+  connect(xMaxSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+
+  connect(yMinSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+  connect(yMaxSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+
+  connect(zMinSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+  connect(zMaxSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+
+  connect(sampleISpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+  connect(sampleJSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
+  connect(sampleKSpinBox, SIGNAL(editingFinished()), this, SIGNAL(modified()));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSTextFilter::getFilterName()
+VSCropWidget::~VSCropWidget()
 {
-  return text();
+
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSTextFilter::getToolTip() const
+int* VSCropWidget::getVOI()
 {
-  return toolTip();
+  int* voi = new int[6];
+
+  voi[0] = xMinSpinBox->value();
+  voi[1] = xMaxSpinBox->value();
+  voi[2] = yMinSpinBox->value();
+  voi[3] = yMaxSpinBox->value();
+  voi[4] = zMinSpinBox->value();
+  voi[5] = zMaxSpinBox->value();
+
+  return voi;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::setItalic(bool italic)
+int* VSCropWidget::getSampleRate()
 {
-  QFont itemFont = font();
-  itemFont.setItalic(italic);
-  setFont(itemFont);
+  int* sampleRate = new int[3];
+
+  sampleRate[0] = sampleISpinBox->value();
+  sampleRate[1] = sampleJSpinBox->value();
+  sampleRate[2] = sampleKSpinBox->value();
+
+  return sampleRate;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::setBold(bool bold)
+void VSCropWidget::setVOI(int* voi)
 {
-  QFont itemFont = font();
-  itemFont.setBold(bold);
-  setFont(itemFont);
+  xMinSpinBox->setValue(voi[0]);
+  xMaxSpinBox->setValue(voi[1]);
+
+  yMinSpinBox->setValue(voi[2]);
+  yMaxSpinBox->setValue(voi[3]);
+
+  zMinSpinBox->setValue(voi[4]);
+  zMaxSpinBox->setValue(voi[5]);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::setUnderline(bool underline)
+void VSCropWidget::setSampleRate(int* sampleRate)
 {
-  QFont itemFont = font();
-  itemFont.setUnderline(underline);
-  setFont(itemFont);
+  sampleISpinBox->setValue(sampleRate[0]);
+  sampleJSpinBox->setValue(sampleRate[1]);
+  sampleKSpinBox->setValue(sampleRate[2]);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QUuid VSTextFilter::GetUuid()
-{
-  return QUuid("{c819de20-4110-5ea2-b847-89307b05895c}");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSTextFilter::getOutputPort()
-{
-  if(getParentFilter())
-  {
-    return getParentFilter()->getOutputPort();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
-{
-  if(getParentFilter())
-  {
-    return getParentFilter()->getOutput();
-  }
-
-  return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
-{
-  // Return the parent's output type if a parent exists
-  if(getParentFilter())
-  {
-    return getParentFilter()->getOutputType();
-  }
-
-  return INVALID_DATA;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
-{
-  return ANY_DATA_SET;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::writeJson(QJsonObject &json)
-{
-  json["Text"] = text();
-  json["Tooltip"] = toolTip();
-  json["Italic"] = font().italic();
-  json["Bold"] = font().bold();
-  json["Underline"] = font().underline();
-  json["Uuid"] = GetUuid().toString();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSTextFilter::compatibleWithParent(VSAbstractFilter* filter)
-{
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::createFilter()
+void VSCropWidget::enable()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+void VSCropWidget::disable()
 {
-  if(nullptr == filter)
-  {
-    return;
-  }
+}
 
-  m_InputPort = filter->getOutputPort();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropWidget::readJson(QJsonObject &json)
+{
 
-  emit updatedOutputPort(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropWidget::writeJson(const QJsonObject &json)
+{
+
 }

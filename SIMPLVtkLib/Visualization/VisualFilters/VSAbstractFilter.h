@@ -50,6 +50,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtCore/QJsonObject>
+
 #include <QtGui/QStandardItemModel>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
@@ -84,6 +86,8 @@ public:
     ANY_DATA_SET,
     INVALID_DATA
   };
+
+  SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
 
   /**
   * @brief Constructor
@@ -218,6 +222,12 @@ public:
   */
   static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
 
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  virtual void writeJson(QJsonObject &json) = 0;
+
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
 
@@ -258,6 +268,7 @@ protected:
   VTK_PTR(vtkAlgorithmOutput) m_InputPort;
 
 private:
+
   /**
   * @brief Adds a child VSAbstractFilter
   * @param child

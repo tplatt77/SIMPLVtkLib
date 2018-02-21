@@ -36,6 +36,7 @@
 #include "VSMaskFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 #include <vtkCellData.h>
 #include <vtkImageData.h>
@@ -102,6 +103,23 @@ void VSMaskFilter::apply(QString name)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSMaskFilter::readJson(QJsonObject &json)
+{
+  m_LastArrayName = json["Last Array Name"].toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::writeJson(QJsonObject &json)
+{
+  json["Last Array Name"] = m_LastArrayName;
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSMaskFilter::getOutputPort()
 {
   if(m_ConnectedInput && m_MaskAlgorithm)
@@ -153,6 +171,14 @@ void VSMaskFilter::updateAlgorithmInput(VSAbstractFilter* filter)
   {
     emit updatedOutputPort(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSMaskFilter::GetUuid()
+{
+  return QUuid("{baedbc9c-3c2c-5428-a4b2-1ea06ace5aba}");
 }
 
 // -----------------------------------------------------------------------------

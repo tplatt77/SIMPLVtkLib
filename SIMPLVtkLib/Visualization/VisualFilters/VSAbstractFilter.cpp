@@ -52,6 +52,7 @@
 VSAbstractFilter::VSAbstractFilter()
 : QObject()
 , QStandardItem()
+, m_LoadingObject(QJsonObject())
 , m_InputPort(nullptr)
 {
   setCheckable(true);

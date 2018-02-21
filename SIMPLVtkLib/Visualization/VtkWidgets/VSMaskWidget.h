@@ -35,67 +35,46 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
+#include "ui_VSMaskWidget.h"
 
-/**
-* @class VSFileNameFilter VSFileNameFilter.h
-* SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h
-* @brief This class handles the file path and contains additional settings in 
-* addition to VSTextFilter's for displaying the file information in the filter 
-* model. The file path and file name can always be retrieved even if the text
-* and tool tip are changed.
-*/
-class SIMPLVtkLib_EXPORT VSFileNameFilter : public VSTextFilter
+#include <vtkSmartPointer.h>
+
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class vtkDataSet;
+
+class SIMPLVtkLib_EXPORT VSMaskWidget : public VSAbstractWidget, private Ui::VSMaskWidget
 {
   Q_OBJECT
 
 public:
-  /**
-  * @brief Constructor
-  * @param parentFilter
-  * @param filePath
-  */
-  VSFileNameFilter(QString filePath, VSAbstractFilter* parent = nullptr);
+  VSMaskWidget(QWidget* parent, QString mask, double bounds[6], vtkRenderWindowInteractor* iren);
+  ~VSMaskWidget();
+
+  int getMaskId();
+  QString getMaskName();
+  void setMaskName(QString mask);
+  void updateMaskNames(vtkDataSet* inputData);
+
+  void enable() override;
+  void disable() override;
 
   /**
-   * @brief Create
-   * @param json
-   * @return
-   */
-  static VSFileNameFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
-
-  /**
-   * @brief writeJson
+   * @brief Reads values from a json file into the widget
    * @param json
    */
-  void writeJson(QJsonObject &json) override;
+  void readJson(QJsonObject &json) override;
 
   /**
-  * @brief Returns the stored file path
-  * @return
-  */
-  QString getFilePath();
-
-  /**
-  * @brief Returns the file name
-  * @return
-  */
-  QString getFileName();
-
-  /**
-   * @brief getUuid
-   * @return
+   * @brief Writes values to a json file from the widget
+   * @param json
    */
-  static QUuid GetUuid();
+  void writeJson(const QJsonObject &json) override;
 
-  /**
-  * @brief Returns true if this filter type can be added as a child of
-  * the given filter.  Returns false otherwise.
-  * @param
-  * @return
-  */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+protected slots:
+  void currentMaskChanged(int index);
 
 private:
-  QString m_FilePath;
+
 };

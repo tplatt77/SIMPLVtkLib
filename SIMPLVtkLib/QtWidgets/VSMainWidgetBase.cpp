@@ -35,6 +35,11 @@
 
 #include "VSMainWidgetBase.h"
 
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QFile>
+#include <QtCore/QUuid>
+
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
@@ -66,8 +71,8 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)), 
-    this, SLOT(filterAdded(VSAbstractFilter*)));
+  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, QJsonObject)),
+    this, SLOT(filterAdded(VSAbstractFilter*, QJsonObject)));
   connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), 
     this, SLOT(filterRemoved(VSAbstractFilter*)));
 }
@@ -191,7 +196,7 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter)
+void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, QJsonObject fwObj)
 {
   QVTKInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();

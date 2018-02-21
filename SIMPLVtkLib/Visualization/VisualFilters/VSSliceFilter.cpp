@@ -36,6 +36,7 @@
 #include "VSSliceFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
@@ -117,6 +118,22 @@ void VSSliceFilter::apply(double origin[3], double normal[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSSliceFilter::readJson(QJsonObject &json)
+{
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::writeJson(QJsonObject &json)
+{
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSSliceFilter::getOutputPort()
 {
   if(m_ConnectedInput && m_SliceAlgorithm)
@@ -168,6 +185,14 @@ void VSSliceFilter::updateAlgorithmInput(VSAbstractFilter* filter)
   {
     emit updatedOutputPort(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSSliceFilter::GetUuid()
+{
+  return QUuid("{7a5a24be-13db-5101-8a7c-5a8a7979fbbb}");
 }
 
 // -----------------------------------------------------------------------------

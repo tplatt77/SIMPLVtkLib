@@ -216,8 +216,9 @@ protected slots:
   /**
    * @brief
    * @param filter
+   * @param fwObj
    */
-  void filterAdded(VSAbstractFilter* filter);
+  void filterAdded(VSAbstractFilter* filter, QJsonObject fwObj = QJsonObject());
 
   /**
    * @brief Removes filter from the FilterToFilterWidget map

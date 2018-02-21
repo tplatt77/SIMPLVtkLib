@@ -78,7 +78,7 @@ public:
    * @brief reset
    */
   void reset() override;
-
+    
   /**
   * @brief Returns the volume of interest
   * @return

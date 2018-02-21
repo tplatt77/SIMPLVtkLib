@@ -35,16 +35,20 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
+#include "ui_VSCropWidget.h"
+
+#include <vtkSmartPointer.h>
+
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class vtkImageData;
 
 /**
-* @class VSTextFilter VSTextFilter.h 
-* SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h
-* @brief This class is used for nothing more than giving its children some sort 
-* of text label.  This filter does not create any data or modify incoming data 
-* in any way.
-*/
-class SIMPLVtkLib_EXPORT VSTextFilter : public VSAbstractFilter
+ * @class VSCropWidget VSCropWidget.h SIMPLView/VtkSIMPL/VtkWidgets/VSCropWidget.h
+ * @brief This class is the VSAbstractWidget type used by VtkCropFilter.
+ */
+class SIMPLVtkLib_EXPORT VSCropWidget : public VSAbstractWidget, private Ui::VSCropWidget
 {
   Q_OBJECT
 
@@ -52,91 +56,62 @@ public:
   /**
   * @brief Constructor
   * @param parent
-  * @param text
+  * @param imageData
+  * @param iren
   */
-  VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
+  VSCropWidget(QWidget* parent, vtkSmartPointer<vtkImageData> imageData, vtkRenderWindowInteractor* iren);
 
   /**
-  * @brief Returns the filter's name
+  * @brief Deconstructor
+  */
+  ~VSCropWidget();
+
+  /**
+  * @brief Returns the volume of interest
   * @return
   */
-  virtual const QString getFilterName() override;
+  int* getVOI();
 
   /**
-  * @brief Returns the filter's tooltip
-  */
-  virtual QString getToolTip() const override;
-
-  /**
-  * @brief Sets whether or not the font is italic
-  * @param italic
-  */
-  void setItalic(bool italic = true);
-
-  /**
-  * @brief Sets whether or not the font is bold
-  * @param bold
-  */
-  void setBold(bool bold = true);
-
-  /**
-  * @brief Sets whether or not the font is underlined
-  * @param underline
-  */
-  void setUnderline(bool underline = true);
-
-  /**
-  * @brief Returns the output port to be used by vtkMappers and subsequent filters
+  * @brief Returns the sample rate for generating the output
   * @return
   */
-  virtual vtkAlgorithmOutput* getOutputPort() override;
+  int* getSampleRate();
 
   /**
-  * @brief Returns a smart pointer containing the output data from the filter
+  * @brief Sets the volume of interest
   * @return
   */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  void setVOI(int* voi);
 
   /**
-  * @brief Returns the ouput data type
+  * @brief Sets the sample rate for generating the output
   * @return
   */
-  dataType_t getOutputType() override;
+  void setSampleRate(int* sampleRate);
 
   /**
-  * @brief Returns the required incoming data type
+  * @brief enable
   */
-  static dataType_t getRequiredInputType();
+  void enable() override;
 
   /**
-   * @brief Writes values to a json file from the filter
+  * @brief disable
+  */
+  void disable() override;
+
+  /**
+   * @brief Reads values from a json file into the widget
    * @param json
    */
-  void writeJson(QJsonObject &json) override;
+  void readJson(QJsonObject &json) override;
 
   /**
-   * @brief getUuid
-   * @return
+   * @brief Writes values to a json file from the widget
+   * @param json
    */
-  static QUuid GetUuid();
-    
-  /**
-  * @brief Returns true if this filter type can be added as a child of
-  * the given filter.  Returns false otherwise.
-  * @param
-  * @return
-  */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  void writeJson(const QJsonObject &json) override;
 
-protected:
-  /**
-  * @brief createFilter() not required by VSTextFilter
-  */
-  void createFilter() override;
-
-  /**
-  * @brief Updates the input port
-  * @param filter
-  */
-  void updateAlgorithmInput(VSAbstractFilter* filter) override;
+private:
+  vtkSmartPointer<vtkImageData>       m_ImageData;
 };

@@ -33,166 +33,120 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSTextFilter.h"
+#include "VSMaskWidget.h"
 
-#include <QtCore/QUuid>
+#include <vtkCellData.h>
+#include <vtkCommand.h>
+#include <vtkDataArray.h>
+#include <vtkDataSet.h>
+#include <vtkImplicitFunction.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
 
-#include <vtkAlgorithmOutput.h>
+#include <QDoubleSpinBox>
+#include <QSlider>
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip)
-  : VSAbstractFilter()
+VSMaskWidget::VSMaskWidget(QWidget* parent, QString mask, double bounds[6], vtkRenderWindowInteractor* iren)
+: VSAbstractWidget(parent, bounds, iren)
 {
-  setParentFilter(parent);
+  setupUi(this);
 
-  setText(text);
-  setToolTip(toolTip);
-  setItalic();
+  // adjust the vtkWidget when values are changed
+  connect(maskComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentMaskChanged(int)));
+
+  setMaskName(mask);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSTextFilter::getFilterName()
+VSMaskWidget::~VSMaskWidget()
 {
-  return text();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSTextFilter::getToolTip() const
+void VSMaskWidget::updateMaskNames(vtkDataSet* inputData)
 {
-  return toolTip();
-}
+  QString selectedMaskName = maskComboBox->currentText();
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setItalic(bool italic)
-{
-  QFont itemFont = font();
-  itemFont.setItalic(italic);
-  setFont(itemFont);
-}
+  maskComboBox->clear();
+  int numArrays = inputData->GetCellData()->GetNumberOfArrays();
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setBold(bool bold)
-{
-  QFont itemFont = font();
-  itemFont.setBold(bold);
-  setFont(itemFont);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setUnderline(bool underline)
-{
-  QFont itemFont = font();
-  itemFont.setUnderline(underline);
-  setFont(itemFont);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QUuid VSTextFilter::GetUuid()
-{
-  return QUuid("{c819de20-4110-5ea2-b847-89307b05895c}");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSTextFilter::getOutputPort()
-{
-  if(getParentFilter())
+  for(int i = 0; i < numArrays; i++)
   {
-    return getParentFilter()->getOutputPort();
+    const char* arrayName = inputData->GetCellData()->GetArray(i)->GetName();
+    maskComboBox->addItem(arrayName);
   }
 
-  return nullptr;
+  maskComboBox->setCurrentText(selectedMaskName);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
+void VSMaskWidget::setMaskName(QString mask)
 {
-  if(getParentFilter())
-  {
-    return getParentFilter()->getOutput();
-  }
-
-  return nullptr;
+  maskComboBox->setCurrentText(mask);
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
+QString VSMaskWidget::getMaskName()
 {
-  // Return the parent's output type if a parent exists
-  if(getParentFilter())
-  {
-    return getParentFilter()->getOutputType();
-  }
-
-  return INVALID_DATA;
+  return maskComboBox->currentText();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
+int VSMaskWidget::getMaskId()
 {
-  return ANY_DATA_SET;
+  return maskComboBox->currentIndex();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::writeJson(QJsonObject &json)
-{
-  json["Text"] = text();
-  json["Tooltip"] = toolTip();
-  json["Italic"] = font().italic();
-  json["Bold"] = font().bold();
-  json["Underline"] = font().underline();
-  json["Uuid"] = GetUuid().toString();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSTextFilter::compatibleWithParent(VSAbstractFilter* filter)
-{
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::createFilter()
+void VSMaskWidget::enable()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::updateAlgorithmInput(VSAbstractFilter* filter)
+void VSMaskWidget::disable()
 {
-  if(nullptr == filter)
-  {
-    return;
-  }
+}
 
-  m_InputPort = filter->getOutputPort();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskWidget::readJson(QJsonObject &json)
+{
 
-  emit updatedOutputPort(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskWidget::writeJson(const QJsonObject &json)
+{
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskWidget::currentMaskChanged(int index)
+{
+  emit modified();
 }
