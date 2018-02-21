@@ -64,8 +64,14 @@ void VSThresholdFilter::createFilter()
 {
   m_ThresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
 
+  // Parent cell data required
+  if(false == (getParentFilter() && getParentFilter()->getOutput() && getParentFilter()->getOutput()->GetCellData()))
+  {
+    return;
+  }
+
   m_ThresholdAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
-  VTK_PTR(vtkDataArray) dataArray = getWrappedDataContainer()->m_DataSet->GetCellData()->GetScalars();
+  VTK_PTR(vtkDataArray) dataArray = getParentFilter()->getOutput()->GetCellData()->GetScalars();
 
   m_ConnectedInput = true;
 }
