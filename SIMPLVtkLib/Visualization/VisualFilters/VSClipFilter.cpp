@@ -36,34 +36,12 @@
 #include "VSClipFilter.h"
 
 #include <QApplication>
-#include <QString>
 
 #include <QtCore/QJsonArray>
 #include <QtCore/QUuid>
+#include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkBoxRepresentation.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitDataSet.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkPlanes.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTableBasedClipDataSet.h>
-#include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
-
-const QString VSClipFilter::PlaneClipTypeString = "Plane";
-const QString VSClipFilter::BoxClipTypeString = "Box";
 
 // -----------------------------------------------------------------------------
 //
@@ -315,6 +293,26 @@ VSAbstractFilter::dataType_t VSClipFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  dataType_t outputType = filter->getOutputType();
+  dataType_t requiredType = getRequiredInputType();
+  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSClipFilter::getLastPlaneInverted()
 {
   return m_LastPlaneInverted;
@@ -355,17 +353,7 @@ VTK_PTR(vtkTransform) VSClipFilter::getLastBoxTransform()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSClipFilter::getLastClipTypeString()
+VSClipFilter::ClipType VSClipFilter::getLastClipType()
 {
-  QString clipTypeStr = "";
-  if (m_LastClipType == ClipType::PLANE)
-  {
-    clipTypeStr = PlaneClipTypeString;
-  }
-  else if (m_LastClipType == ClipType::BOX)
-  {
-    clipTypeStr = BoxClipTypeString;
-  }
-
-  return clipTypeStr;
+  return m_LastClipType;
 }

@@ -54,6 +54,8 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSTLReader.h>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -311,4 +313,22 @@ const QString VSDataSetFilter::getFilterName()
 QString VSDataSetFilter::getToolTip() const
 {
   return "DataSet Filter";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSDataSetFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  if(dynamic_cast<VSFileNameFilter*>(filter))
+  {
+    return true;
+  }
+
+  return false;
 }

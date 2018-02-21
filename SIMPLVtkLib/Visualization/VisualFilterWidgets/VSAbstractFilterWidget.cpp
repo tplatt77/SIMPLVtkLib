@@ -71,7 +71,7 @@ void VSAbstractFilterWidget::reset()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSAbstractFilterWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   Q_UNUSED(interactor)
 }

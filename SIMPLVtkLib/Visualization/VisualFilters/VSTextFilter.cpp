@@ -143,7 +143,7 @@ VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
     return getParentFilter()->getOutputType();
   }
 
-  return ANY_DATA_SET;
+  return INVALID_DATA;
 }
 
 // -----------------------------------------------------------------------------
@@ -165,6 +165,14 @@ void VSTextFilter::writeJson(QJsonObject &json)
   json["Bold"] = font().bold();
   json["Underline"] = font().underline();
   json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSTextFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  return true;
 }
 
 // -----------------------------------------------------------------------------

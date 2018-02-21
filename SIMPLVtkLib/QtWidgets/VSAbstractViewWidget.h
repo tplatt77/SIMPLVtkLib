@@ -43,6 +43,7 @@
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 

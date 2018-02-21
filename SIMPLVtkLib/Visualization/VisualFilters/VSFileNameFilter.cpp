@@ -133,3 +133,16 @@ QString VSFileNameFilter::getFileName()
   QFileInfo fi(m_FilePath);
   return fi.fileName();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFileNameFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return true;
+  }
+
+  return false;
+}

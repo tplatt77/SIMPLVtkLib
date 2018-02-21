@@ -37,29 +37,13 @@
 
 #include <QString>
 
-#include <vtkActor.h>
 #include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkLookupTable.h>
-#include <vtkPolyDataAlgorithm.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkScalarBarActor.h>
-#include <vtkScalarBarWidget.h>
-#include <vtkTextProperty.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
 #include <vtkGenericDataObjectWriter.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -364,8 +348,38 @@ VSSIMPLDataContainerFilter* VSAbstractFilter::getDataSetFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType()
+{
+  int dataType = getOutput()->GetDataObjectType();
+  switch(dataType)
+  {
+  case VTK_IMAGE_DATA:
+    return dataType_t::IMAGE_DATA;
+  case VTK_STRUCTURED_GRID:
+    return dataType_t::STRUCTURED_GRID;
+  case VTK_RECTILINEAR_GRID:
+    return dataType_t::RECTILINEAR_GRID;
+  case VTK_STRUCTURED_POINTS:
+    return dataType_t::POINT_DATA;
+  case VTK_UNSTRUCTURED_GRID:
+    return dataType_t::UNSTRUCTURED_GRID;
+  case VTK_POLY_DATA:
+    return dataType_t::POLY_DATA;
+  default:
+    return dataType_t::INVALID_DATA;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSAbstractFilter::compatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
 {
+  if(inputType == INVALID_DATA)
+  {
+    return false;
+  }
+
   if(requiredType == ANY_DATA_SET)
   {
     return true;

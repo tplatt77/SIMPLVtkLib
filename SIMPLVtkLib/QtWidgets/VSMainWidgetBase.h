@@ -139,6 +139,13 @@ public slots:
   void createThresholdFilter(VSAbstractFilter* parent = nullptr);
 
   /**
+  * @brief Create a text filter and ste the given filter as its parent.  If no filter is provided,
+  * the current filter is used instead.
+  * @param parent
+  */
+  void createTextFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
   * @brief Renders the active view widget
   */
   void renderActiveView();

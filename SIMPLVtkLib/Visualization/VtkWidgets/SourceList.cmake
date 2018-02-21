@@ -1,10 +1,7 @@
 
 set(${PROJECT_NAME}_VtkWidget
   VSBoxWidget
-  VSCropWidget
-  VSMaskWidget
   VSPlaneWidget
-  VSThresholdWidget
 )
 
 set(${PROJECT_NAME}_VtkWidget_NoUi

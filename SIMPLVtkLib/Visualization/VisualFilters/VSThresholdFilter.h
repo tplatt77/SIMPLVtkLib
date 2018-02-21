@@ -37,26 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSAbstractFilter.h"
+#include <vtkThreshold.h>
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class vtkImageData;
-class vtkDataSet;
-class vtkUnstructuredGrid;
-class vtkImplicitDataSet;
-class vtkExtractGeometry;
-class vtkExtractUnstructuredGrid;
-class VSThresholdWidget;
-class VSSIMPLDataContainerFilter;
-class vtkExtractSelectedThresholds;
-class vtkSelection;
-class vtkSelectionNode;
-class vtkTrivialProducer;
-class vtkPointData;
-class vtkCelldata;
-class vtkMergeFilter;
 
 /**
  * @class VSThresholdFilter VSThresholdFilter.h 
@@ -122,6 +107,14 @@ public:
   * @return
   */
   static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the name of the array last used for thresholding

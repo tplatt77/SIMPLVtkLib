@@ -41,9 +41,9 @@
 
 #include <QtWidgets/QWidget>
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include <vtkRenderWindowInteractor.h>
 
-class QVTKInteractor;
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
 * @class VSAbstractFilterWidget VSAbstractFilterWidget.h
@@ -76,18 +76,6 @@ public:
   */
   virtual void reset();
 
-    /**
-     * @brief Reads values from a json file into the filter
-     * @param json
-     */
-    virtual void readJson(QJsonObject &json) = 0;
-
-    /**
-     * @brief Writes values to a json file from the filter
-     * @param json
-     */
-    virtual void writeJson(const QJsonObject &json) = 0;
-
   /**
    * @brief Sets whether the filter widget should render its vtkWidget in the visualization window
    * @param enabled
@@ -103,7 +91,7 @@ public:
    * @brief setInteractor
    * @param interactor
    */
-  virtual void setInteractor(QVTKInteractor* interactor);
+  virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
   /**
   * @brief Returns true if there are unapplied changes waiting and false otherwise

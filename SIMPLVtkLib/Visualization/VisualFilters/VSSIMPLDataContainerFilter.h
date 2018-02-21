@@ -37,15 +37,12 @@
 
 #include <QtWidgets/QWidget>
 
-#include <vtkSmartPointer.h>
+#include <vtkTrivialProducer.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkTrivialProducer;
-class vtkAlgorithmOutput;
 
 /**
 * @class VSSIMPLDataContainerFilter VSSIMPLDataContainerFilter.h
@@ -118,6 +115,14 @@ public:
    * @param json
    */
   void writeJson(QJsonObject &json) override;
+
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
 protected:
   /**

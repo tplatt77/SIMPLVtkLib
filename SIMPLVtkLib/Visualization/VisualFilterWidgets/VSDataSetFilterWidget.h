@@ -35,11 +35,10 @@
 
 #pragma once
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSDataSetFilter;
 
 /**
 * @class VSDataSetFilterWidget VSDataSetFilterWidget.h
@@ -70,18 +69,6 @@ public:
   * @param bounds
   */
   void setBounds(double* bounds);
-
-  /**
-   * @brief Reads values from a json file into the filter widget
-   * @param json
-   */
-  void readJson(QJsonObject &json) override;
-
-  /**
-   * @brief Writes values to a json file from the filter widget
-   * @param json
-   */
-  void writeJson(const QJsonObject &json) override;
 
 private:
   class vsInternals;

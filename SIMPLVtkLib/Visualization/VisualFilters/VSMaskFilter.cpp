@@ -38,22 +38,9 @@
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 
-#include <vtkActor.h>
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
 #include <vtkImageData.h>
-#include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSMaskWidget.h"
-
-#include <vtkRenderWindowInteractor.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -105,10 +92,9 @@ void VSMaskFilter::apply(QString name)
 
   // Save the applied values for resetting Mask-Type widgets
   m_LastArrayName = name;
-  const char* arrayName = name.toLatin1();
 
   m_MaskAlgorithm->ThresholdByUpper(1.0);
-  m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayName);
+  m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(name));
   m_MaskAlgorithm->Update();
 
   emit updatedOutputPort(this);
@@ -209,6 +195,29 @@ VSAbstractFilter::dataType_t VSMaskFilter::getOutputType()
 VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  // Require scalar values
+  vtkDataSet* output = filter->getOutput();
+  if(output && output->GetCellData() && output->GetCellData()->GetScalars())
+  {
+    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------

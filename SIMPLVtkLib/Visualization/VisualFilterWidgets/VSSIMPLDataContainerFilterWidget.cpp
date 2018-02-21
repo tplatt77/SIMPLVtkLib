@@ -74,19 +74,3 @@ void VSSIMPLDataContainerFilterWidget::setBounds(double* bounds)
 {
 
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSIMPLDataContainerFilterWidget::readJson(QJsonObject &json)
-{
-
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSIMPLDataContainerFilterWidget::writeJson(const QJsonObject &json)
-{
-
-}

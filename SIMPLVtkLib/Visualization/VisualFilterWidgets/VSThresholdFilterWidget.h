@@ -35,30 +35,14 @@
 
 #pragma once
 
+#include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class vtkImageData;
-class vtkDataSet;
-class vtkUnstructuredGrid;
-class vtkImplicitDataSet;
-class vtkExtractGeometry;
-class vtkExtractUnstructuredGrid;
-class VSThresholdWidget;
-class VSSIMPLDataContainerFilter;
-class vtkExtractSelectedThresholds;
-class vtkSelection;
-class vtkSelectionNode;
-class vtkTrivialProducer;
-class vtkPointData;
-class vtkCelldata;
-class vtkMergeFilter;
-class VSThresholdFilter;
-class QVTKInteractor;
 
 /**
  * @class VSThresholdFilterWidget VSThresholdFilterWidget.h
@@ -79,7 +63,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
+  VSThresholdFilterWidget(VSThresholdFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent = nullptr);
 
   /**
   * @brief Deconstructor
@@ -103,20 +87,130 @@ public:
   void reset() override;
 
   /**
-   * @brief Reads values from a json file into the filter widget
-   * @param json
-   */
-  void readJson(QJsonObject &json) override;
+  * @brief Returns the scalar name used for thresholding
+  * @return
+  */
+  QString getScalarName();
 
   /**
-   * @brief Writes values to a json file from the filter widget
-   * @param json
-   */
-  void writeJson(const QJsonObject &json) override;
+  * @brief Returns the lower bound for thresholding
+  * @return
+  */
+  double getLowerBound();
+
+  /**
+  * @brief Returns the upper bound for thresholding
+  * @return
+  */
+  double getUpperBound();
+
+  /**
+  * @brief Sets the lower bound for thresholding
+  * @param min
+  */
+  void setLowerThreshold(double min);
+
+  /**
+  * @brief Sets the upper bound for thresholding
+  * @param max
+  */
+  void setUpperThreshold(double max);
+
+  /**
+  * @brief Sets the range to threshold over
+  * @param min
+  * @param max
+  */
+  void setScalarRange(double min, double max);
+
+protected slots:
+  /**
+  * @brief Handles changes in the scalar combo box
+  * @param index
+  */
+  void scalarIndexChanged(int index);
+
+  /**
+  * @brief Handles any changes in the minimum spin box
+  */
+  void minSpinBoxValueChanged();
+
+  /**
+  * @brief Handles any changes in the maximum spin box
+  */
+  void maxSpinBoxValueChanged();
+
+  /**
+  * @brief Handles any changes in the minimum slider
+  */
+  void minSliderValueChanged();
+
+  /**
+  * @brief Handles any changes in the maximum slider
+  */
+  void maxSliderValueChanged();
+
+protected:
+  /**
+  * @brief Populates the scalar combo box with values based on the vtkDataSet received from the VSThresholdFilter
+  */
+  void setupScalarsComboBox();
+
+  /**
+  * @brief Returns the dataArray with the given name
+  * @param name
+  */
+  vtkDataArray* getDataArray(QString name);
+
+  /**
+  * @brief Updates the range based on the current selected data array
+  */
+  void updateRange();
+
+  /**
+  * @brief Initializes the range to fit the first scalar array
+  */
+  void initRange();
+
+  /**
+  * @brief Sets the target array name and updates the bounds accordingly
+  * @param arrayName
+  */
+  void setScalarName(QString arrayName);
+
+  /**
+  * @brief Copies the value from a QSlider to a QDoubleSpinBox
+  * @param slider
+  * @param spinBox
+  */
+  void sliderToSpinBox(QSlider* slider, QDoubleSpinBox* spinBox);
+
+  /**
+  * @brief Copies the value from a QDoubleSpinBox to a QSlider
+  * @param spinBox
+  * @param slider
+  */
+  void spinBoxToSlider(QDoubleSpinBox* spinBox, QSlider* slider);
+
+  /**
+  * @brief Checks if the min spin box is greater than the max spin box.
+  * If it is, then the max spin box is updated and the method returns true.
+  * Otherwise, this function returns false.
+  * @return
+  */
+  bool checkMinSpinBox();
+
+  /**
+  * @brief Checks if the max spin box is greater than the min spin box.
+  * If it is, then the min spin box is updated and the method returns true.
+  * Otherwise, this function returns false.
+  * @return
+  */
+  bool checkMaxSpinBox();
 
 private:
   class vsInternals;
-  vsInternals*                            m_Internals;
+  vsInternals* m_Internals;
 
-  VSThresholdFilter*                      m_ThresholdFilter;
+  VSThresholdFilter* m_ThresholdFilter;
 };

@@ -37,16 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-#include "ui_VSCropFilterWidget.h"
-
-#include <vtkBox.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSCropFilter;
-class VSCropWidget;
-class QVTKInteractor;
 
 /**
  * @class VSCropFilterWidget VSCropFilterWidget.h
@@ -67,12 +61,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSCropFilterWidget(VSCropFilter* filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
-
-  /**
-  * @brief Deconstructor
-  */
-  ~VSCropFilterWidget();
+  VSCropFilterWidget(VSCropFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget = nullptr);
 
   /**
   * @brief Sets the visualization filter's bounds
@@ -89,24 +78,78 @@ public:
    * @brief reset
    */
   void reset() override;
+    
+  /**
+  * @brief Returns the volume of interest
+  * @return
+  */
+  int* getVOI();
 
   /**
-   * @brief Reads values from a json file into the filter widget
-   * @param json
-   */
-  void readJson(QJsonObject &json) override;
+  * @brief Returns the sample rate for generating the output
+  * @return
+  */
+  int* getSampleRate();
 
   /**
-   * @brief Writes values to a json file from the filter widget
-   * @param json
-   */
-  void writeJson(const QJsonObject &json) override;
+  * @brief Sets the volume of interest
+  * @return
+  */
+  void setVOI(int* voi);
+
+  /**
+  * @brief Sets the sample rate for generating the output
+  * @return
+  */
+  void setSampleRate(int* sampleRate);
+
+protected:
+  /**
+  * @brief Prepares initial data for the widget to use based on the parent 
+  * filter's output
+  */
+  void setupGui();
+
+protected slots:
+  /**
+  * @brief Checks if the X Min value is greater than the X Max value.
+  * If it is, the X Max value is set to the X Min value.
+  */
+  void updatedVoiXMin();
+
+  /**
+  * @brief Checks if the X Min value is greater than the X Max value.
+  * If it is, the X Min value is set to the X Max value.
+  */
+  void updatedVoiXMax();
+
+  /**
+  * @brief Checks if the Y Min value is greater than the Y Max value.
+  * If it is, the Y Max value is set to the Y Min value.
+  */
+  void updatedVoiYMin();
+
+  /**
+  * @brief Checks if the Y Min value is greater than the Y Max value.
+  * If it is, the Y Min value is set to the Y Max value.
+  */
+  void updatedVoiYMax();
+
+  /**
+  * @brief Checks if the Z Min value is greater than the Z Max value.
+  * If it is, the Z Max value is set to the Z Min value.
+  */
+  void updatedVoiZMin();
+
+  /**
+  * @brief Checks if the Z Min value is greater than the Z Max value.
+  * If it is, the Z Min value is set to the Z Max value.
+  */
+  void updatedVoiZMax();
 
 private:
   class vsInternals;
   vsInternals*                    m_Internals;
 
   VSCropFilter*                   m_CropFilter;
-
-  VSCropWidget*                   m_CropWidget;
 };
