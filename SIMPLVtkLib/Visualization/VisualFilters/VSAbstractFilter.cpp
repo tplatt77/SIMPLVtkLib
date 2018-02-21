@@ -349,12 +349,15 @@ VSSIMPLDataContainerFilter* VSAbstractFilter::getDataSetFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType()
 {
-  switch(getOutput()->GetDataObjectType())
+  int dataType = getOutput()->GetDataObjectType();
+  switch(dataType)
   {
   case VTK_IMAGE_DATA:
-  case VTK_STRUCTURED_GRID:
-  case VTK_RECTILINEAR_GRID:
     return dataType_t::IMAGE_DATA;
+  case VTK_STRUCTURED_GRID:
+    return dataType_t::STRUCTURED_GRID;
+  case VTK_RECTILINEAR_GRID:
+    return dataType_t::RECTILINEAR_GRID;
   case VTK_STRUCTURED_POINTS:
     return dataType_t::POINT_DATA;
   case VTK_UNSTRUCTURED_GRID:

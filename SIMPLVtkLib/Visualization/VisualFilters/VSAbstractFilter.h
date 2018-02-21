@@ -76,6 +76,8 @@ public:
   enum dataType_t
   {
     IMAGE_DATA,
+    RECTILINEAR_GRID,
+    STRUCTURED_GRID,
     UNSTRUCTURED_GRID,
     POLY_DATA,
     POINT_DATA,
