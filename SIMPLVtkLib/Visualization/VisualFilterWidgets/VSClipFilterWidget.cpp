@@ -36,24 +36,10 @@
 #include "VSClipFilterWidget.h"
 
 #include <QApplication>
-#include <QString>
+#include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTableBasedClipDataSet.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "ui_VSClipFilterWidget.h"
 
@@ -71,7 +57,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, QVTKInteractor* interactor, QWidget* widget)
+VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget)
 : VSAbstractFilterWidget(widget)
 , m_Internals(new vsInternals())
 , m_ClipFilter(filter)
@@ -81,12 +67,9 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, QVTKInteractor* int
   m_PlaneWidget = new VSPlaneWidget(nullptr, m_ClipFilter->getBounds(), interactor);
   m_BoxWidget = new VSBoxWidget(nullptr, m_ClipFilter->getBounds(), interactor);
 
-  QStringList clipTypes = { VSClipFilter::PlaneClipTypeString, VSClipFilter::BoxClipTypeString };
-  m_Internals->clipTypeComboBox->insertItems(0, clipTypes);
+  changeClipType(static_cast<int>(VSClipFilter::ClipType::PLANE));
 
-  changeClipType(VSClipFilter::PlaneClipTypeString);
-
-  connect(m_Internals->clipTypeComboBox, SIGNAL(currentTextChanged(const QString &)), this, SLOT(changeClipType(const QString &)));
+  connect(m_Internals->clipTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeClipType(int)));
 
   connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
@@ -119,10 +102,16 @@ void VSClipFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilterWidget::changeClipType(const QString &clipType)
+void VSClipFilterWidget::changeClipType(int clipTypei)
 {
-  if (clipType == VSClipFilter::PlaneClipTypeString)
+  m_Internals->clipTypeComboBox->setCurrentIndex(clipTypei);
+  VSClipFilter::ClipType clipType = static_cast<VSClipFilter::ClipType>(clipTypei);
+
+  // Remove and disable any unrelated widgets
+  // Add and enable the corresponding widget
+  switch(clipType)
   {
+  case VSClipFilter::ClipType::PLANE:
     m_Internals->gridLayout->removeWidget(m_BoxWidget);
     m_BoxWidget->disable();
     m_BoxWidget->setParent(nullptr);
@@ -130,9 +119,8 @@ void VSClipFilterWidget::changeClipType(const QString &clipType)
     m_PlaneWidget->enable();
     m_Internals->gridLayout->addWidget(m_PlaneWidget);
     m_PlaneWidget->updatePlaneWidget();
-  }
-  else
-  {
+    break;
+  case VSClipFilter::ClipType::BOX:
     m_Internals->gridLayout->removeWidget(m_PlaneWidget);
     m_PlaneWidget->disable();
     m_PlaneWidget->setParent(nullptr);
@@ -140,6 +128,17 @@ void VSClipFilterWidget::changeClipType(const QString &clipType)
     m_BoxWidget->enable();
     m_Internals->gridLayout->addWidget(m_BoxWidget);
     m_BoxWidget->updateBoxWidget();
+    break;
+  default:
+    // Remove and disable all widgets
+    m_Internals->gridLayout->removeWidget(m_PlaneWidget);
+    m_PlaneWidget->disable();
+    m_PlaneWidget->setParent(nullptr);
+
+    m_Internals->gridLayout->removeWidget(m_BoxWidget);
+    m_BoxWidget->disable();
+    m_BoxWidget->setParent(nullptr);
+    break;
   }
 
   changesWaiting();
@@ -152,21 +151,31 @@ void VSClipFilterWidget::apply()
 {
   VSAbstractFilterWidget::apply();
 
-  if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
-  {
-    double normals[3];
-    double origin[3];
-    m_PlaneWidget->getNormals(normals);
-    m_PlaneWidget->getOrigin(origin);
-    m_PlaneWidget->drawPlaneOff();
+  int clipTypei = m_Internals->clipTypeComboBox->currentIndex();
+  VSClipFilter::ClipType clipType = static_cast<VSClipFilter::ClipType>(clipTypei);
 
-    m_ClipFilter->apply(origin, normals, m_Internals->insideOutCheckBox->isChecked());
-  }
-  else if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::BoxClipTypeString)
+  switch(clipType)
   {
-    VTK_PTR(vtkTransform) transform = m_BoxWidget->getTransform();
-    VTK_PTR(vtkPlanes) planes = m_BoxWidget->getPlanes();
-    m_ClipFilter->apply(planes, transform, m_Internals->insideOutCheckBox->isChecked());
+  case VSClipFilter::ClipType::PLANE:
+    {
+      double normals[3];
+      double origin[3];
+      m_PlaneWidget->getNormals(normals);
+      m_PlaneWidget->getOrigin(origin);
+      m_PlaneWidget->drawPlaneOff();
+
+      m_ClipFilter->apply(origin, normals, m_Internals->insideOutCheckBox->isChecked());
+    }
+    break;
+  case VSClipFilter::ClipType::BOX:
+    {
+      VTK_PTR(vtkTransform) transform = m_BoxWidget->getTransform();
+      VTK_PTR(vtkPlanes) planes = m_BoxWidget->getPlanes();
+      m_ClipFilter->apply(planes, transform, m_Internals->insideOutCheckBox->isChecked());
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -175,20 +184,23 @@ void VSClipFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSClipFilterWidget::reset()
 {
-  QString clipTypeString = m_ClipFilter->getLastClipTypeString();
-  m_Internals->clipTypeComboBox->setCurrentText(clipTypeString);
-
+  VSClipFilter::ClipType clipType = m_ClipFilter->getLastClipType();
+  
   // Set the inverted variable based on the last applied clip type
-  if(m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
+  bool inverted = false;
+  switch(clipType)
   {
-    bool inverted = m_ClipFilter->getLastPlaneInverted();
-    m_Internals->insideOutCheckBox->setChecked(inverted);
+  case VSClipFilter::ClipType::PLANE:
+    inverted = m_ClipFilter->getLastPlaneInverted();
+    break;
+  case VSClipFilter::ClipType::BOX:
+    inverted = m_ClipFilter->getLastBoxInverted();
+    break;
+  default:
+    inverted = false;
+    break;
   }
-  else if(m_Internals->clipTypeComboBox->currentText() == VSClipFilter::BoxClipTypeString)
-  {
-    bool inverted = m_ClipFilter->getLastBoxInverted();
-    m_Internals->insideOutCheckBox->setChecked(inverted);
-  }
+  m_Internals->insideOutCheckBox->setChecked(inverted);
   
   // Reset Plane Type
   {
@@ -208,13 +220,14 @@ void VSClipFilterWidget::reset()
     m_BoxWidget->updateBoxWidget();
   }
 
+  changeClipType(static_cast<int>(clipType));
   cancelChanges();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSClipFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSClipFilterWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   bool rendered = getRenderingEnabled();
   setRenderingEnabled(false);
@@ -239,7 +252,7 @@ void VSClipFilterWidget::setRenderingEnabled(bool enabled)
 {
   VSAbstractFilterWidget::setRenderingEnabled(enabled);
 
-  if (m_Internals->clipTypeComboBox->currentText() == VSClipFilter::PlaneClipTypeString)
+  if (m_Internals->clipTypeComboBox->currentIndex() == static_cast<int>(VSClipFilter::ClipType::PLANE))
   {
     (enabled) ? m_PlaneWidget->enable() : m_PlaneWidget->disable();
   }

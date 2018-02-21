@@ -40,11 +40,10 @@
 #include "VSAbstractFilter.h"
 
 #include <vtkBox.h>
+#include <vtkExtractVOI.h>
+#include <vtkImageData.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkExtractVOI;
-class VSCropWidget;
 
 /**
  * @class VSCropFilter VSCropFilter.h 
@@ -109,6 +108,14 @@ public:
   * @return
   */
   static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
   /**
   * @brief Return the VOI last applied to the filter

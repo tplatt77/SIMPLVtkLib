@@ -41,15 +41,11 @@
 
 #include <memory>
 
-#include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
-#include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkSmartPointer.h>
-#include <vtkTrivialProducer.h>
 #include <vtkTransformFilter.h>
-#include <vtkUnstructuredGridAlgorithm.h>
+#include <vtkTrivialProducer.h>
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -62,10 +58,6 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSAbstractFilterWidget;
-class VSAbstractWidget;
-class VSSIMPLDataContainerFilter;
 
 /**
 * @class VSAbstractFilter VSAbstractFilter.h 
@@ -84,6 +76,8 @@ public:
   enum dataType_t
   {
     IMAGE_DATA,
+    RECTILINEAR_GRID,
+    STRUCTURED_GRID,
     UNSTRUCTURED_GRID,
     POLY_DATA,
     POINT_DATA,
@@ -232,7 +226,7 @@ public:
   * @brief Returns the output dataType_t value
   * @return
   */
-  virtual dataType_t getOutputType() = 0;
+  virtual dataType_t getOutputType();
 
   /**
   * @brief Returns true if the input dataType_t is compatible with a given required type

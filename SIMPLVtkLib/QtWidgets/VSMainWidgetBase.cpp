@@ -42,6 +42,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
@@ -398,7 +399,7 @@ void VSMainWidgetBase::createClipFilter(VSAbstractFilter* parent)
     parent = m_CurrentFilter;
   }
 
-  if(parent)
+  if(parent && VSClipFilter::compatibleWithParent(parent))
   {
     VSClipFilter* filter = new VSClipFilter(parent);
     finishAddingFilter(filter, parent);
@@ -415,7 +416,7 @@ void VSMainWidgetBase::createCropFilter(VSAbstractFilter* parent)
     parent = m_CurrentFilter;
   }
 
-  if(parent)
+  if(parent && VSCropFilter::compatibleWithParent(parent))
   {
     VSCropFilter* filter = new VSCropFilter(parent);
     finishAddingFilter(filter, parent);
@@ -432,7 +433,7 @@ void VSMainWidgetBase::createSliceFilter(VSAbstractFilter* parent)
     parent = m_CurrentFilter;
   }
 
-  if(parent)
+  if(parent && VSSliceFilter::compatibleWithParent(parent))
   {
     VSSliceFilter* filter = new VSSliceFilter(parent);
     finishAddingFilter(filter, parent);
@@ -449,7 +450,7 @@ void VSMainWidgetBase::createMaskFilter(VSAbstractFilter* parent)
     parent = m_CurrentFilter;
   }
 
-  if(parent)
+  if(parent && VSMaskFilter::compatibleWithParent(parent))
   {
     VSMaskFilter* filter = new VSMaskFilter(parent);
     finishAddingFilter(filter, parent);
@@ -466,9 +467,26 @@ void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
     parent = m_CurrentFilter;
   }
 
-  if(parent)
+  if(parent && VSThresholdFilter::compatibleWithParent(parent))
   {
     VSThresholdFilter* filter = new VSThresholdFilter(parent);
+    finishAddingFilter(filter, parent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::createTextFilter(VSAbstractFilter* parent)
+{
+  if(nullptr == parent)
+  {
+    parent = m_CurrentFilter;
+  }
+
+  if(parent && VSTextFilter::compatibleWithParent(parent))
+  {
+    VSTextFilter* filter = new VSTextFilter(parent, "Text", "Tool Tip");
     finishAddingFilter(filter, parent);
   }
 }

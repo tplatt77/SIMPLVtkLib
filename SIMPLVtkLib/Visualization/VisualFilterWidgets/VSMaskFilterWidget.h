@@ -37,14 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class VSMaskFilter;
-class VSMaskWidget;
-class QVTKInteractor;
 
 /**
  * @class VSMaskFilterWidget VSMaskFilterWidget.h
@@ -63,7 +59,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSMaskFilterWidget(VSMaskFilter* filter, QVTKInteractor* interactor, QWidget* parent);
+  VSMaskFilterWidget(VSMaskFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent);
 
   /**
   * @brief Deconstructor
@@ -86,10 +82,41 @@ public:
    */
   void reset() override;
 
+protected:
+  /**
+  * @brief Returns the mask index
+  * @return
+  */
+  int getMaskId();
+
+  /**
+  * @brief Returns the selected mask name
+  * @return
+  */
+  QString getMaskName();
+
+  /**
+  * @brief Sets the target mask name
+  * @param mask
+  */
+  void setMaskName(QString mask);
+
+  /**
+  * @brief Updates the mask names based on the given vtkDataSet
+  * @param inputData
+  */
+  void updateMaskNames(vtkDataSet* inputData);
+
+protected slots:
+  /**
+  * @brief Notifies changes in the current mask selection
+  * @param index
+  */
+  void currentMaskChanged(int index);
+
 private:
   class vsInternals;
-  vsInternals*                                  m_Internals;
+  vsInternals* m_Internals;
 
-  VSMaskFilter*                                 m_MaskFilter = nullptr;
-  VSMaskWidget*                                 m_MaskWidget = nullptr;
+  VSMaskFilter* m_MaskFilter = nullptr;
 };

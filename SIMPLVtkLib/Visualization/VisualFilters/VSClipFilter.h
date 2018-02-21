@@ -42,17 +42,14 @@
 #include <vtkDataSet.h>
 #include <vtkPlane.h>
 #include <vtkPlanes.h>
+#include <vtkTableBasedClipDataSet.h>
 #include <vtkTransform.h>
+
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
-class VSClipFilterWidget;
 
 /**
  * @class VSClipFilter VSClipFilter.h 
@@ -69,14 +66,14 @@ class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter
 
 public:
 
-  enum class ClipType : unsigned int
+  enum class ClipType : int
   {
     PLANE = 0,
     BOX = 1
   };
 
-  static const QString PlaneClipTypeString;
-  static const QString BoxClipTypeString;
+  //static const QString PlaneClipTypeString;
+  //static const QString BoxClipTypeString;
 
   /**
   * @brief Constructor
@@ -141,6 +138,14 @@ public:
   static dataType_t getRequiredInputType();
 
   /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
+
+  /**
   * @brief Returns whether or not the last applied plane was inverted
   * @return
   */
@@ -171,10 +176,10 @@ public:
   VTK_PTR(vtkTransform) getLastBoxTransform();
 
   /**
-   * @brief Returns the clip type string of the last applied clip
+   * @brief Returns the clip type of the last applied clip
    * @return
    */
-  QString getLastClipTypeString();
+  ClipType getLastClipType();
 
 protected:
   /**

@@ -37,34 +37,13 @@
 
 #include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCell.h>
 #include <vtkCellData.h>
-#include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkExtractGeometry.h>
-#include <vtkExtractSelectedThresholds.h>
-#include <vtkExtractUnstructuredGrid.h>
-#include <vtkFloatArray.h>
-#include <vtkImageData.h>
 #include <vtkImplicitDataSet.h>
-#include <vtkMergeFilter.h>
 #include <vtkPointData.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkSelection.h>
-#include <vtkSelectionNode.h>
-#include <vtkStructuredPoints.h>
 #include <vtkThreshold.h>
-#include <vtkTrivialProducer.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSThresholdWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -85,8 +64,14 @@ void VSThresholdFilter::createFilter()
 {
   m_ThresholdAlgorithm = VTK_PTR(vtkThreshold)::New();
 
+  // Parent cell data required
+  if(false == (getParentFilter() && getParentFilter()->getOutput() && getParentFilter()->getOutput()->GetCellData()))
+  {
+    return;
+  }
+
   m_ThresholdAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
-  VTK_PTR(vtkDataArray) dataArray = getWrappedDataContainer()->m_DataSet->GetCellData()->GetScalars();
+  VTK_PTR(vtkDataArray) dataArray = getParentFilter()->getOutput()->GetCellData()->GetScalars();
 
   m_ConnectedInput = true;
 }
@@ -122,10 +107,8 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   m_LastMinValue = min;
   m_LastMaxValue = max;
 
-  const char* arrayNameStr = arrayName.toLatin1();
-
   m_ThresholdAlgorithm->ThresholdBetween(min, max);
-  m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, arrayNameStr);
+  m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(arrayName));
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);
@@ -201,6 +184,29 @@ VSAbstractFilter::dataType_t VSThresholdFilter::getOutputType()
 VSAbstractFilter::dataType_t VSThresholdFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSThresholdFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  // Require scalar values
+  vtkDataSet* output = filter->getOutput();
+  if(output && output->GetCellData() && output->GetCellData()->GetScalars())
+  {
+    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------

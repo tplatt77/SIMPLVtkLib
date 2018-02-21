@@ -35,6 +35,9 @@
 
 #pragma once
 
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMenu>
+
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -57,11 +60,22 @@ public:
   */
   VSMainWidget(QWidget* parent = nullptr);
 
+  /**
+  * @brief Returns a QMenu with all the Add Filter actions
+  * @return
+  */
+  QMenu* getFilterMenu();
+
 protected:
   /**
   * @brief Connect Qt signals and slots
   */
   virtual void connectSlots() override;
+
+  /**
+  * @brief Creates the filter menu
+  */
+  virtual void createFilterMenu();
 
 protected slots:
   /**
@@ -119,4 +133,12 @@ protected slots:
 private:
   class vsInternals;
   vsInternals* m_Internals;
+
+  QMenu* m_FilterMenu = nullptr;
+  QAction* m_ActionAddText = nullptr;
+  QAction* m_ActionAddClip = nullptr;
+  QAction* m_ActionAddCrop = nullptr;
+  QAction* m_ActionAddSlice = nullptr;
+  QAction* m_ActionAddMask = nullptr;
+  QAction* m_ActionAddThreshold = nullptr;
 };

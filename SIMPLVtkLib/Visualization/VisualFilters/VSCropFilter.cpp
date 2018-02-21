@@ -35,23 +35,7 @@
 
 #include "VSCropFilter.h"
 
-#include <QString>
-
-#include <vtkActor.h>
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImageData.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSCropWidget.h"
-#include <vtkExtractVOI.h>
-
-#include <vtkRenderWindowInteractor.h>
+#include <QtCore/QString>
 
 // -----------------------------------------------------------------------------
 //
@@ -200,6 +184,24 @@ VSAbstractFilter::dataType_t VSCropFilter::getOutputType()
 VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
 {
   return IMAGE_DATA;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSCropFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  {
+    return true;
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------

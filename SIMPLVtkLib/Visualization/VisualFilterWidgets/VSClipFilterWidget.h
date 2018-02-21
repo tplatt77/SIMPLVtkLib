@@ -37,20 +37,13 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSClipFilter.h"
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-
-#include <vtkPlane.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
-
-class vtkClipDataSet;
-class vtkTableBasedClipDataSet;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSBoxWidget;
-class QVTKInteractor;
 
 /**
  * @class VSClipFilterWidget VSClipFilterWidget.h
@@ -72,7 +65,7 @@ public:
    * @param interactor
    * @param widget
    */
-  VSClipFilterWidget(VSClipFilter *filter, QVTKInteractor* interactor, QWidget* widget = nullptr);
+  VSClipFilterWidget(VSClipFilter *filter, vtkRenderWindowInteractor* interactor, QWidget* widget = nullptr);
 
   /**
   * @brief Deconstructor
@@ -105,14 +98,14 @@ public:
    * @brief setInteractor
    * @param interactor
    */
-  void setInteractor(QVTKInteractor* interactor) override;
+  void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
 protected slots:
   /**
    * @brief changeClipType
    * @param clipType
    */
-  void changeClipType(const QString &clipType);
+  void changeClipType(int clipType);
 
 private:
   class vsInternals;

@@ -233,20 +233,20 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   updateFilterInfo();
   updateViewSettingInfo();
 
-// Update widget size
-  QWidget* widgetResized = m_Internals->viewSettingsWidget;
-  QSize preferredSize = widgetResized->sizeHint();
-  int newWidth;
-  if(widgetResized->parentWidget())
-  {
-    newWidth = std::min(widgetResized->width(), widgetResized->parentWidget()->width());
-  }
-  else
-  {
-    newWidth = widgetResized->width();
-  }
-  preferredSize.setWidth(newWidth);
-  m_Internals->viewSettingsWidget->resize(preferredSize);
+  // Update widget size
+  //QWidget* widgetResized = m_Internals->viewSettingsWidget;
+  //QSize preferredSize = widgetResized->sizeHint();
+  //int newWidth;
+  //if(widgetResized->parentWidget())
+  //{
+  //  newWidth = std::min(widgetResized->width(), widgetResized->parentWidget()->width());
+  //}
+  //else
+  //{
+  //  newWidth = widgetResized->width();
+  //}
+  //preferredSize.setWidth(newWidth);
+  //m_Internals->viewSettingsWidget->resize(preferredSize);
 }
 
 // -----------------------------------------------------------------------------

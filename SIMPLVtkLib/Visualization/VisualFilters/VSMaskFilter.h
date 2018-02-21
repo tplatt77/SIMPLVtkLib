@@ -37,12 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilters/VSAbstractFilter.h"
+#include <vtkThreshold.h>
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkThreshold;
-class VSMaskWidget;
 
 /**
  * @class VSMaskFilter VSMaskFilter.h 
@@ -103,6 +102,14 @@ public:
   * @return
   */
   static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the name of the array last applied as a mask
