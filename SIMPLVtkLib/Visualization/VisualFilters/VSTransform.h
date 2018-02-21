@@ -38,6 +38,9 @@
 #include <QtCore/QObject>
 
 #include <vtkMatrix4x4.h>
+#include <vtkPlane.h>
+#include <vtkPlanes.h>
+#include <vtkPoints.h>
 #include <vtkTransform.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
@@ -130,6 +133,76 @@ public:
   */
   VTK_PTR(vtkTransform) getVtkTransform();
 
+  /**
+  * @brief Localizes the given point from global space
+  * @param point
+  */
+  void localizePoint(double point[3]);
+
+  /**
+  * @brief Localizes the given points from global space
+  * @param points
+  */
+  void localizePoints(vtkPoints* points);
+  
+  /**
+  * @brief Localizes the given normal from global space
+  * @param orientation
+  */
+  void localizeNormal(double normal[3]);
+
+  /**
+  * @brief Localizes the given normals from global space
+  */
+  void localizeNormals(vtkDataArray* normals);
+
+  /**
+  * @brief Localizes the given plane from global space
+  * @param plane
+  */
+  void localizePlane(vtkPlane* plane);
+
+  /**
+  * @brief Localizes the given planes from global space
+  * @param planes
+  */
+  void localizePlanes(vtkPlanes* planes);
+
+  /**
+  * @brief Performs the transformation on the given point to put it in global space
+  * @param point
+  */
+  void globalizePoint(double point[3]);
+
+  /**
+  * @brief Globalizes the given points to put them in global space
+  * @param points
+  */
+  void globalizePoints(vtkPoints* points);
+
+  /**
+  * @brief Performs the transformation on the given normal to put it in global space
+  * @param normal
+  */
+  void globalizeNormal(double normal[3]);
+
+  /**
+  * @brief Globalizes the given normals to put them in global space
+  */
+  void globalizeNormals(vtkDataArray* normals);
+
+  /**
+  * @brief Performs the transformation on the given plane to put it in global space
+  * @param plane
+  */
+  void globalizePlane(vtkPlane* plane);
+
+  /**
+  * @brief Performs the transformation on the given planes to put them in global space
+  * @param planes
+  */
+  void globalizePlanes(vtkPlanes* planes);
+
 signals:
   void updatedPosition(double* position);
   void updatedRotation(double* rotation);
@@ -152,6 +225,19 @@ protected:
   * @return
   */
   VTK_PTR(vtkTransform) getLocalVtkTransform();
+
+  /**
+  * @brief Returns the vtkTransform for localizing data
+  * @return
+  */
+  VTK_PTR(vtkTransform) getLocalizeTransform();
+
+  /**
+  * @brief Returns the vtkTransform for globalizing data
+  * @return
+  */
+  VTK_PTR(vtkTransform) getGlobalizeTransform();
+
 private:
   VSTransform* m_Parent = nullptr;
 

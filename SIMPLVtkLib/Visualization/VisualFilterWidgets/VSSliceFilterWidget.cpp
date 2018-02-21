@@ -100,13 +100,17 @@ void VSSliceFilterWidget::apply()
   VSAbstractFilterWidget::apply();
 
   double origin[3];
-  double normals[3];
+  double normal[3];
 
   m_SliceWidget->getOrigin(origin);
-  m_SliceWidget->getNormals(normals);
+  m_SliceWidget->getNormals(normal);
   m_SliceWidget->drawPlaneOff();
 
-  m_SliceFilter->apply(origin, normals);
+  VSTransform* transform = m_SliceFilter->getTransform();
+  transform->localizeNormal(normal);
+  transform->localizePoint(origin);
+
+  m_SliceFilter->apply(origin, normal);
 }
 
 // -----------------------------------------------------------------------------
@@ -115,9 +119,13 @@ void VSSliceFilterWidget::apply()
 void VSSliceFilterWidget::reset()
 {
   double* origin = m_SliceFilter->getLastOrigin();
-  double* normals = m_SliceFilter->getLastNormal();
+  double* normal = m_SliceFilter->getLastNormal();
 
-  m_SliceWidget->setNormals(normals);
+  VSTransform* transform = m_SliceFilter->getTransform();
+  transform->globalizeNormal(normal);
+  transform->globalizePoint(origin);
+
+  m_SliceWidget->setNormals(normal);
   m_SliceWidget->setOrigin(origin);
   m_SliceWidget->updatePlaneWidget();
   m_SliceWidget->drawPlaneOff();

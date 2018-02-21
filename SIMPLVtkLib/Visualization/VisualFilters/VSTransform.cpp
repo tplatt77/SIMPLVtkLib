@@ -330,3 +330,156 @@ void VSTransform::setLocalScale(double scale[3])
 
   emit emitScale();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransform) VSTransform::getLocalizeTransform()
+{
+  VTK_PTR(vtkTransform) transform = getVtkTransform();
+  transform->Inverse();
+
+  return transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransform) VSTransform::getGlobalizeTransform()
+{
+  VTK_PTR(vtkTransform) transform = getVtkTransform();
+
+  return transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizePoint(double point[3])
+{
+  getLocalizeTransform()->TransformPoint(point, point);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizePoints(vtkPoints* points)
+{
+  getLocalizeTransform()->TransformPoints(points, points);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizeNormal(double normal[3])
+{
+  getLocalizeTransform()->TransformNormal(normal, normal);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizeNormals(vtkDataArray* normals)
+{
+  getLocalizeTransform()->TransformNormals(normals, normals);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizePlane(vtkPlane* plane)
+{
+  if(nullptr == plane)
+  {
+    return;
+  }
+
+  double* normal = plane->GetNormal();
+  double* origin = plane->GetOrigin();
+
+  localizeNormal(normal);
+  localizePoint(origin);
+
+  plane->SetNormal(normal);
+  plane->SetOrigin(origin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::localizePlanes(vtkPlanes* planes)
+{
+  vtkPoints* points = planes->GetPoints();
+  localizePoints(points);
+  planes->SetPoints(points);
+
+  vtkDataArray* normals = planes->GetNormals();
+  localizeNormals(normals);
+  planes->SetNormals(normals);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizePoint(double point[3])
+{
+  getGlobalizeTransform()->TransformPoint(point, point);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizePoints(vtkPoints* points)
+{
+  getGlobalizeTransform()->TransformPoints(points, points);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizeNormal(double normal[3])
+{
+  getGlobalizeTransform()->TransformNormal(normal, normal);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizeNormals(vtkDataArray* normals)
+{
+  getGlobalizeTransform()->TransformNormals(normals, normals);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizePlane(vtkPlane* plane)
+{
+  if(nullptr == plane)
+  {
+    return;
+  }
+
+  double* normal = plane->GetNormal();
+  double* origin = plane->GetOrigin();
+
+  globalizeNormal(normal);
+  globalizePoint(origin);
+
+  plane->SetNormal(normal);
+  plane->SetOrigin(origin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizePlanes(vtkPlanes* planes)
+{
+  vtkPoints* points = planes->GetPoints();
+  globalizePoints(points);
+  planes->SetPoints(points);
+
+  vtkDataArray* normals = planes->GetNormals();
+  globalizeNormals(normals);
+  planes->SetNormals(normals);
+}
