@@ -104,6 +104,7 @@ void VSClipFilterWidget::setBounds(double* bounds)
 // -----------------------------------------------------------------------------
 void VSClipFilterWidget::changeClipType(int clipTypei)
 {
+  m_Internals->clipTypeComboBox->setCurrentIndex(clipTypei);
   VSClipFilter::ClipType clipType = static_cast<VSClipFilter::ClipType>(clipTypei);
 
   // Remove and disable any unrelated widgets
@@ -150,7 +151,8 @@ void VSClipFilterWidget::apply()
 {
   VSAbstractFilterWidget::apply();
 
-  VSClipFilter::ClipType clipType = static_cast<VSClipFilter::ClipType>(m_Internals->clipTypeComboBox->currentIndex());
+  int clipTypei = m_Internals->clipTypeComboBox->currentIndex();
+  VSClipFilter::ClipType clipType = static_cast<VSClipFilter::ClipType>(clipTypei);
 
   switch(clipType)
   {
@@ -183,8 +185,7 @@ void VSClipFilterWidget::apply()
 void VSClipFilterWidget::reset()
 {
   VSClipFilter::ClipType clipType = m_ClipFilter->getLastClipType();
-  m_Internals->clipTypeComboBox->setCurrentIndex(static_cast<int>(clipType));
-
+  
   // Set the inverted variable based on the last applied clip type
   bool inverted = false;
   switch(clipType)
@@ -219,6 +220,7 @@ void VSClipFilterWidget::reset()
     m_BoxWidget->updateBoxWidget();
   }
 
+  changeClipType(static_cast<int>(clipType));
   cancelChanges();
 }
 
