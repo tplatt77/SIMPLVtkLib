@@ -409,13 +409,7 @@ void VSTransform::localizePlane(vtkPlane* plane)
 // -----------------------------------------------------------------------------
 void VSTransform::localizePlanes(vtkPlanes* planes)
 {
-  vtkPoints* points = planes->GetPoints();
-  localizePoints(points);
-  planes->SetPoints(points);
-
-  vtkDataArray* normals = planes->GetNormals();
-  localizeNormals(normals);
-  planes->SetNormals(normals);
+  planes->SetTransform(getGlobalizeTransform());
 }
 
 // -----------------------------------------------------------------------------
@@ -475,11 +469,5 @@ void VSTransform::globalizePlane(vtkPlane* plane)
 // -----------------------------------------------------------------------------
 void VSTransform::globalizePlanes(vtkPlanes* planes)
 {
-  vtkPoints* points = planes->GetPoints();
-  globalizePoints(points);
-  planes->SetPoints(points);
-
-  vtkDataArray* normals = planes->GetNormals();
-  globalizeNormals(normals);
-  planes->SetNormals(normals);
+  planes->SetTransform(getLocalizeTransform());
 }
