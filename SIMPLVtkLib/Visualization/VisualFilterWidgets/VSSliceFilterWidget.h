@@ -37,17 +37,11 @@
 
 #include <QtWidgets/QWidget>
 
-#include "Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-
-#include <vtkPlane.h>
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkCutter;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
-class VSSliceFilter;
-class QVTKInteractor;
 
 /**
  * @class VSSliceFilterWidget VSSliceFilterWidget.h
@@ -66,7 +60,7 @@ public:
   * @param parentWidget
   * @param parent
   */
-  VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor* interactor, QWidget* parent = nullptr);
+  VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* parent = nullptr);
 
   /**
   * @brief Deconstructor
@@ -99,7 +93,7 @@ public:
   * @brief setInteractor
   * @param interactor
   */
-  void setInteractor(QVTKInteractor* interactor) override;
+  void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
 private:
   class vsInternals;

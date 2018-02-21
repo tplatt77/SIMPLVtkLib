@@ -35,19 +35,12 @@
 
 #include "VSSIMPLDataContainerFilter.h"
 
-#include <vtkAlgorithmOutput.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkLookupTable.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkScalarBarActor.h>
-#include <vtkTrivialProducer.h>
-#include <vtkUnstructuredGridAlgorithm.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -145,4 +138,22 @@ QString VSSIMPLDataContainerFilter::getToolTip() const
 SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
 {
   return m_WrappedDataContainer;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSIMPLDataContainerFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
+  {
+    return false;
+  }
+
+  if(dynamic_cast<VSFileNameFilter*>(filter))
+  {
+    return true;
+  }
+
+  return false;
 }

@@ -37,34 +37,9 @@
 
 #include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCell.h>
 #include <vtkCellData.h>
-#include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkExtractGeometry.h>
-#include <vtkExtractSelectedThresholds.h>
-#include <vtkExtractUnstructuredGrid.h>
-#include <vtkFloatArray.h>
-#include <vtkImageData.h>
-#include <vtkImplicitDataSet.h>
-#include <vtkMergeFilter.h>
-#include <vtkPointData.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkSelection.h>
-#include <vtkSelectionNode.h>
-#include <vtkStructuredPoints.h>
-#include <vtkThreshold.h>
-#include <vtkTrivialProducer.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridAlgorithm.h>
-
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSThresholdWidget.h"
 
 #include "ui_VSThresholdFilterWidget.h"
 
@@ -82,22 +57,20 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, QVTKInteractor *interactor, QWidget* parent)
+VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, vtkRenderWindowInteractor *interactor, QWidget* parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_ThresholdFilter(filter)
 {
   m_Internals->setupUi(this);
 
-  //VTK_PTR(vtkDataArray) dataArray = getBaseDataArray(parent->getViewScalarId());
-  //double range[2] = {dataArray->GetRange()[0], dataArray->GetRange()[1]};
+  connect(m_Internals->scalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(scalarIndexChanged(int)));
+  connect(m_Internals->minSpinBox, SIGNAL(editingFinished()), this, SLOT(minSpinBoxValueChanged()));
+  connect(m_Internals->maxSpinBox, SIGNAL(editingFinished()), this, SLOT(maxSpinBoxValueChanged()));
+  connect(m_Internals->minSlider, SIGNAL(valueChanged(int)), this, SLOT(minSliderValueChanged()));
+  connect(m_Internals->maxSlider, SIGNAL(valueChanged(int)), this, SLOT(maxSliderValueChanged()));
 
-  //m_ThresholdWidget = new VSThresholdWidget(thresholdFunctionWidget, range, parent->getBounds(), parent->getInteractor());
-  //m_ThresholdWidget->show();
-
-  //connect(m_ThresholdWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
-
-  //setupScalarsComboBox();
+  setupScalarsComboBox();
 }
 
 // -----------------------------------------------------------------------------
@@ -105,7 +78,6 @@ VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, QVTK
 // -----------------------------------------------------------------------------
 VSThresholdFilterWidget::~VSThresholdFilterWidget()
 {
-  //delete m_ThresholdWidget;
 }
 
 // -----------------------------------------------------------------------------
@@ -126,7 +98,7 @@ void VSThresholdFilterWidget::apply()
 {
   VSAbstractFilterWidget::apply();
 
-  // TODO: complete filter widget
+  m_ThresholdFilter->apply(getScalarName(), getLowerBound(), getUpperBound());
 }
 
 // -----------------------------------------------------------------------------
@@ -134,7 +106,300 @@ void VSThresholdFilterWidget::apply()
 // -----------------------------------------------------------------------------
 void VSThresholdFilterWidget::reset()
 {
-  // TODO: complete filter widget
+  QString lastArrayName = m_ThresholdFilter->getLastArrayName();
+  double lastLowerValue = m_ThresholdFilter->getLastMinValue();
+  double lastUpperValue = m_ThresholdFilter->getLastMaxValue();
+
+  setScalarName(lastArrayName);
+  setScalarRange(lastLowerValue, lastUpperValue);
 
   cancelChanges();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::setupScalarsComboBox()
+{
+  vtkDataSet* inputData = m_ThresholdFilter->getOutput();
+  m_Internals->scalarsComboBox->clear();
+
+  // Return if there is no vtkDataSet or vtkCellData
+  if(false == (inputData && inputData->GetCellData()))
+  {
+    return;
+  }
+
+  // Add scalar arrays to the combo box
+  int numArrays = inputData->GetCellData()->GetNumberOfArrays();
+  for(int i = 0; i < numArrays; i++)
+  {
+    vtkDataArray* dataArray = inputData->GetCellData()->GetArray(i);
+    if(dataArray->GetNumberOfComponents() == 1)
+    {
+      const char* arrayName = dataArray->GetName();
+      m_Internals->scalarsComboBox->addItem(arrayName);
+    }
+  }
+
+  // Initialize values based on the first scalar array
+  if(m_Internals->scalarsComboBox->count() > 0)
+  {
+    m_Internals->scalarsComboBox->setCurrentIndex(0);
+    initRange();
+  }
+  else
+  {
+    adjustSize();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::initRange()
+{
+  vtkDataArray* dataArray = getDataArray(getScalarName());
+
+  double range[2];
+  if(dataArray)
+  {
+    range[0] = dataArray->GetRange()[0];
+    range[1] = dataArray->GetRange()[1];
+  }
+  else
+  {
+    range[0] = 0.0;
+    range[1] = 0.0;
+  }
+
+  setScalarRange(range[0], range[1]);
+  setLowerThreshold(range[0]);
+  setUpperThreshold(range[1]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::updateRange()
+{
+  vtkDataArray* dataArray = getDataArray(getScalarName());
+
+  if(dataArray)
+  {
+    double min = dataArray->GetRange()[0];
+    double max = dataArray->GetRange()[1];
+
+    setScalarRange(min, max);
+  }
+  else
+  {
+    setScalarRange(0.0, 0.0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkDataArray* VSThresholdFilterWidget::getDataArray(QString name)
+{
+  vtkDataSet* dataSet = m_ThresholdFilter->getOutput();
+  if(dataSet && dataSet->GetCellData())
+  {
+    return dataSet->GetCellData()->GetArray(qPrintable(name));
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::scalarIndexChanged(int index)
+{
+  updateRange();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSThresholdFilterWidget::getScalarName()
+{
+  return m_Internals->scalarsComboBox->currentText();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::setScalarName(QString arrayName)
+{
+  m_Internals->scalarsComboBox->setCurrentText(arrayName);
+
+  updateRange();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdFilterWidget::getLowerBound()
+{
+  return m_Internals->minSpinBox->value();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::setLowerThreshold(double min)
+{
+  m_Internals->minSpinBox->setValue(min);
+  minSpinBoxValueChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::setUpperThreshold(double max)
+{
+  m_Internals->maxSpinBox->setValue(max);
+  maxSpinBoxValueChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdFilterWidget::getUpperBound()
+{
+  return m_Internals->maxSpinBox->value();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::setScalarRange(double min, double max)
+{
+  m_Internals->minSpinBox->setMinimum(min);
+  m_Internals->maxSpinBox->setMinimum(min);
+
+  m_Internals->minSpinBox->setMaximum(max);
+  m_Internals->maxSpinBox->setMaximum(max);
+
+  // adjust sliders accordingly
+  minSpinBoxValueChanged();
+  maxSpinBoxValueChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::minSpinBoxValueChanged()
+{
+  spinBoxToSlider(m_Internals->minSpinBox, m_Internals->minSlider);
+
+  if(checkMinSpinBox())
+  {
+    spinBoxToSlider(m_Internals->maxSpinBox, m_Internals->maxSlider);
+  }
+
+  changesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::maxSpinBoxValueChanged()
+{
+  spinBoxToSlider(m_Internals->maxSpinBox, m_Internals->maxSlider);
+
+  if(checkMaxSpinBox())
+  {
+    spinBoxToSlider(m_Internals->minSpinBox, m_Internals->minSlider);
+  }
+
+  changesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::minSliderValueChanged()
+{
+  sliderToSpinBox(m_Internals->minSlider, m_Internals->minSpinBox);
+
+  if(checkMinSpinBox())
+  {
+    spinBoxToSlider(m_Internals->maxSpinBox, m_Internals->maxSlider);
+  }
+
+  changesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::maxSliderValueChanged()
+{
+  sliderToSpinBox(m_Internals->maxSlider, m_Internals->maxSpinBox);
+
+  if(checkMaxSpinBox())
+  {
+    spinBoxToSlider(m_Internals->minSpinBox, m_Internals->minSlider);
+  }
+
+  changesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::sliderToSpinBox(QSlider* slider, QDoubleSpinBox* spinBox)
+{
+  int sliderRange = slider->maximum() - slider->minimum();
+  double spinBoxRange = spinBox->maximum() - spinBox->minimum();
+
+  int sliderValue = slider->value() + slider->minimum();
+
+  double percentage = sliderValue / (double)sliderRange;
+  spinBox->setValue(percentage * spinBoxRange + spinBox->minimum());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilterWidget::spinBoxToSlider(QDoubleSpinBox* spinBox, QSlider* slider)
+{
+  int sliderRange = slider->maximum() - slider->minimum();
+  double spinBoxRange = spinBox->maximum() - spinBox->minimum();
+
+  double spinBoxValue = spinBox->value() - spinBox->minimum();
+
+  double percentage = spinBoxValue / spinBoxRange;
+  slider->setValue(percentage * sliderRange + slider->minimum());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSThresholdFilterWidget::checkMinSpinBox()
+{
+  if(m_Internals->minSpinBox->value() > m_Internals->maxSpinBox->value())
+  {
+    m_Internals->maxSpinBox->setValue(m_Internals->minSpinBox->value());
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSThresholdFilterWidget::checkMaxSpinBox()
+{
+  if(m_Internals->minSpinBox->value() > m_Internals->maxSpinBox->value())
+  {
+    m_Internals->minSpinBox->setValue(m_Internals->maxSpinBox->value());
+    return true;
+  }
+
+  return false;
 }

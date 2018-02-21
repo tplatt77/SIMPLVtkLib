@@ -37,21 +37,11 @@
 
 #include <QtCore/QString>
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkCutter.h>
-#include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkImplicitPlaneRepresentation.h>
-#include <vtkImplicitPlaneWidget2.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkUnstructuredGridAlgorithm.h>
+#include <vtkPlane.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "ui_VSSliceFilterWidget.h"
 
@@ -69,7 +59,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, QVTKInteractor *interactor, QWidget* parent)
+VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowInteractor *interactor, QWidget* parent)
 : VSAbstractFilterWidget(parent)
 , m_Internals(new vsInternals())
 , m_SliceFilter(filter)
@@ -148,7 +138,7 @@ void VSSliceFilterWidget::setRenderingEnabled(bool enabled)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSliceFilterWidget::setInteractor(QVTKInteractor* interactor)
+void VSSliceFilterWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   bool rendered = getRenderingEnabled();
 

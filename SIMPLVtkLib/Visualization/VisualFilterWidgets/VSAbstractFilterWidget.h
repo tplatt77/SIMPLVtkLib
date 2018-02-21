@@ -41,9 +41,9 @@
 
 #include <QtWidgets/QWidget>
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include <vtkRenderWindowInteractor.h>
 
-class QVTKInteractor;
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
 * @class VSAbstractFilterWidget VSAbstractFilterWidget.h
@@ -91,7 +91,7 @@ public:
    * @brief setInteractor
    * @param interactor
    */
-  virtual void setInteractor(QVTKInteractor* interactor);
+  virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
   /**
   * @brief Returns true if there are unapplied changes waiting and false otherwise

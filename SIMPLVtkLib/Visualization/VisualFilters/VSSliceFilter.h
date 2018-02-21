@@ -39,13 +39,10 @@
 
 #include "Visualization/VisualFilters/VSAbstractFilter.h"
 
+#include <vtkCutter.h>
 #include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkCutter;
-class vtkImplicitPlaneWidget2;
-class VSPlaneWidget;
 
 /**
  * @class VSSliceFilter VSSliceFilter.h 
@@ -108,6 +105,14 @@ public:
   * @return
   */
   static dataType_t getRequiredInputType();
+
+  /**
+  * @brief Returns true if this filter type can be added as a child of
+  * the given filter.  Returns false otherwise.
+  * @param
+  * @return
+  */
+  static bool compatibleWithParent(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the origin of the last applied slice

@@ -90,10 +90,10 @@
          <item>
           <widget class="QPushButton" name="clipBtn">
            <property name="toolTip">
-            <string>Clip</string>
+            <string>Add Clip Filter</string>
            </property>
            <property name="statusTip">
-            <string>Clip</string>
+            <string/>
            </property>
            <property name="text">
             <string/>
@@ -116,10 +116,10 @@
          <item>
           <widget class="QPushButton" name="sliceBtn">
            <property name="toolTip">
-            <string>Slice</string>
+            <string>Add Slice Filter</string>
            </property>
            <property name="statusTip">
-            <string>Slice</string>
+            <string/>
            </property>
            <property name="text">
             <string/>
@@ -140,12 +140,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="maskBtn">
+          <widget class="QPushButton" name="thresholdBtn">
            <property name="toolTip">
-            <string>Mask</string>
+            <string>Add Threshold Filter</string>
            </property>
            <property name="statusTip">
-            <string>Mask</string>
+            <string/>
            </property>
            <property name="text">
             <string/>
