@@ -261,7 +261,6 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
 
   if(m_ViewSettings)
   {
-    
     connect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)),
       this, SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
     connect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)),

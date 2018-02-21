@@ -240,7 +240,7 @@ void VSTransformWidget::translationSpinBoxesChanged()
   position[1] = m_Internals->posYSpinBox->value();
   position[2] = m_Internals->posZSpinBox->value();
 
-  m_Transform->setPosition(position);
+  m_Transform->setLocalPosition(position);
 }
 
 // -----------------------------------------------------------------------------
@@ -258,7 +258,7 @@ void VSTransformWidget::rotationSpinBoxesChanged()
   rotation[1] = m_Internals->rotYSpinBox->value();
   rotation[2] = m_Internals->rotZSpinBox->value();
 
-  m_Transform->setRotation(rotation);
+  m_Transform->setLocalRotation(rotation);
 }
 
 // -----------------------------------------------------------------------------
@@ -276,7 +276,7 @@ void VSTransformWidget::scaleSpinBoxesChanged()
   scale[1] = m_Internals->scaleYSpinBox->value();
   scale[2] = m_Internals->scaleZSpinBox->value();
 
-  m_Transform->setScale(scale);
+  m_Transform->setLocalScale(scale);
 }
 
 // -----------------------------------------------------------------------------

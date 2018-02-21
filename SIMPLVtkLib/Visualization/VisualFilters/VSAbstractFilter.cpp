@@ -108,6 +108,8 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
     // Sets the transform's parent to nullptr
     m_Transform->setParent(nullptr);
   }
+
+  updateTransformFilter();
 }
 
 // -----------------------------------------------------------------------------

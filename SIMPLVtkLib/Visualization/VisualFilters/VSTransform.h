@@ -110,19 +110,19 @@ public:
   * @brief Sets the transform's local position
   * @param position
   */
-  void setPosition(double position[3]);
+  void setLocalPosition(double position[3]);
 
   /**
   * @brief Sets the transform's local Euler rotation
   * @param rotation
   */
-  void setRotation(double rotation[3]);
+  void setLocalRotation(double rotation[3]);
 
   /**
   * @brief Sets the transform's local scale
   * @param scale
   */
-  void setScale(double scale[3]);
+  void setLocalScale(double scale[3]);
 
   /**
   * @brief Returns the vtkTransform describing the global position, rotation, and scale.
@@ -137,6 +137,7 @@ signals:
   void emitPosition();
   void emitRotation();
   void emitScale();
+  void emitAll();
   void valuesChanged();
 
 protected:
@@ -146,10 +147,15 @@ protected:
   */
   VTK_PTR(vtkMatrix4x4) getRotationMatrix();
 
+  /**
+  * @brief Returns the vtkTransform describing the local position, rotation, and scale.
+  * @return
+  */
+  VTK_PTR(vtkTransform) getLocalVtkTransform();
 private:
   VSTransform* m_Parent = nullptr;
 
-  double m_Position[3];
-  double m_Rotation[3];
-  double m_Scale[3];
+  double m_LocalPosition[3];
+  double m_LocalRotation[3];
+  double m_LocalScale[3];
 };

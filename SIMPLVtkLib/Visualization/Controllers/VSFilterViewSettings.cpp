@@ -515,12 +515,6 @@ void VSFilterViewSettings::setupActors()
 
   m_Actor = VTK_PTR(vtkActor)::New();
   m_Actor->SetMapper(m_Mapper);
-  if(m_Filter->getTransform())
-  {
-    m_Actor->SetPosition(m_Filter->getTransform()->getPosition());
-    m_Actor->SetOrientation(m_Filter->getTransform()->getRotation());
-    m_Actor->SetScale(m_Filter->getTransform()->getScale());
-  }
 
   m_LookupTable = new VSLookupTableController();
   m_Mapper->SetLookupTable(m_LookupTable->getColorTransferFunction());
