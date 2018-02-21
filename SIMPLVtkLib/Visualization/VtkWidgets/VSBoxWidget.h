@@ -176,6 +176,18 @@ public:
   */
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
+  /**
+   * @brief Reads values from a json file into the widget
+   * @param json
+   */
+  void readJson(QJsonObject &json) override;
+
+  /**
+   * @brief Writes values to a json file from the widget
+   * @param json
+   */
+  void writeJson(const QJsonObject &json) override;
+
 public slots:
   /**
   * @brief Updates the box widget from the spin box values

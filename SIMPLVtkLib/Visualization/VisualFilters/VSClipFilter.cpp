@@ -38,6 +38,9 @@
 #include <QApplication>
 #include <QString>
 
+#include <QtCore/QJsonArray>
+#include <QtCore/QUuid>
+
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
 #include <vtkBoxRepresentation.h>
@@ -186,6 +189,14 @@ void VSClipFilter::apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transf
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QUuid VSClipFilter::GetUuid()
+{
+  return QUuid("{be4f6ccb-d4eb-56b3-bddc-94dd5056fdd2}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSClipFilter::getOutputPort()
 {
   if(m_ConnectedInput && m_ClipAlgorithm)
@@ -237,6 +248,52 @@ void VSClipFilter::updateAlgorithmInput(VSAbstractFilter* filter)
   {
     emit updatedOutputPort(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::readJson(QJsonObject &json)
+{
+  m_LastClipType = static_cast<ClipType>(json["Last Clip Type"].toInt());
+  m_LastPlaneInverted = json["Last Plane Inverted"].toBool();
+  m_LastBoxInverted = json["Last Box Inverted"].toBool();
+
+  QJsonArray lastPlaneOrigin = json["Last Plane Origin"].toArray();
+  m_LastPlaneOrigin[0] = lastPlaneOrigin.at(0).toDouble();
+  m_LastPlaneOrigin[1] = lastPlaneOrigin.at(1).toDouble();
+  m_LastPlaneOrigin[2] = lastPlaneOrigin.at(2).toDouble();
+
+  QJsonArray lastPlaneNormal = json["Last Plane Normal"].toArray();
+  m_LastPlaneNormal[0] = lastPlaneNormal.at(0).toDouble();
+  m_LastPlaneNormal[1] = lastPlaneNormal.at(1).toDouble();
+  m_LastPlaneNormal[2] = lastPlaneNormal.at(2).toDouble();
+
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::writeJson(QJsonObject &json)
+{
+  json["Last Clip Type"] = static_cast<int>(m_LastClipType);
+  json["Last Plane Inverted"] = m_LastPlaneInverted;
+  json["Last Box Inverted"] = m_LastBoxInverted;
+
+  QJsonArray lastPlaneOrigin;
+  lastPlaneOrigin.append(m_LastPlaneOrigin[0]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[1]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[2]);
+  json["Last Plane Origin"] = lastPlaneOrigin;
+
+  QJsonArray lastPlaneNormal;
+  lastPlaneNormal.append(m_LastPlaneNormal[0]);
+  lastPlaneNormal.append(m_LastPlaneNormal[1]);
+  lastPlaneNormal.append(m_LastPlaneNormal[2]);
+  json["Last Plane Normal"] = lastPlaneNormal;
+
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------

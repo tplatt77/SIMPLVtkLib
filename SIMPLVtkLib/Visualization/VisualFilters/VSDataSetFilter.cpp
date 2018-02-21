@@ -37,6 +37,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QMimeDatabase>
+#include <QtCore/QUuid>
 
 #include <vtkPolyData.h>
 #include <vtkImageData.h>
@@ -56,11 +57,13 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter::VSDataSetFilter(const QString &filePath)
+VSDataSetFilter::VSDataSetFilter(const QString &filePath, VSAbstractFilter* parent)
   : VSAbstractDataFilter()
   , m_FilePath(filePath)
 {
   createFilter();
+
+  setParentFilter(parent);
 }
 
 // -----------------------------------------------------------------------------
@@ -97,6 +100,28 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
   }
 
   return m_DataSet;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSDataSetFilter* VSDataSetFilter::Create(const QString &filePath, QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSDataSetFilter* filter = new VSDataSetFilter(filePath, parent);
+  if (filter)
+  {
+    return filter;
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::writeJson(QJsonObject &json)
+{
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------
@@ -262,6 +287,14 @@ void VSDataSetFilter::readSTLFile()
   reader->Update();
 
   m_DataSet = reader->GetOutput();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSDataSetFilter::GetUuid()
+{
+  return QUuid("{e6596215-3f53-5e62-8f04-cc123f27d1e3}");
 }
 
 // -----------------------------------------------------------------------------

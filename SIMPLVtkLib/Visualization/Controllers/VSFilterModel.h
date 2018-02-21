@@ -95,7 +95,7 @@ public:
   QVector<VSAbstractFilter*> getAllFilters();
 
 signals:
-  void filterAdded(VSAbstractFilter* filter);
+  void filterAdded(VSAbstractFilter* filter, QJsonObject = QJsonObject());
   void filterRemoved(VSAbstractFilter* filter);
 
 public slots:

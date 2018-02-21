@@ -68,6 +68,13 @@ public:
   VSCropFilter(VSAbstractFilter* parent);
 
   /**
+   * @brief Create
+   * @param json
+   * @return
+   */
+  static VSCropFilter* Create(QJsonObject &json, VSAbstractFilter *parent);
+
+  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -121,6 +128,30 @@ public:
   * @return
   */
   int* getSampleRate();
+
+  /**
+   * @brief Set the VOI last applied to the filter
+   * @param voi
+   */
+  void setVOI(int* voi);
+
+  /**
+   * @brief Set the sample rate last applied to the filter
+   * @param sampleRate
+   */
+  void setSampleRate(int* sampleRate);
+
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
 
 protected:
   /**

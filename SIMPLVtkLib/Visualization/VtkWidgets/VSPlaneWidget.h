@@ -144,6 +144,18 @@ public:
   */
   void updatePlaneWidget();
 
+  /**
+   * @brief Reads values from a json file into the widget
+   * @param json
+   */
+  void readJson(QJsonObject &json) override;
+
+  /**
+   * @brief Writes values to a json file from the widget
+   * @param json
+   */
+  void writeJson(const QJsonObject &json) override;
+
 public slots:
   /**
   * @brief Updates the VTK plane widget with the input widget values.

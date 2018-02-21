@@ -108,6 +108,18 @@ public:
   */
   static dataType_t getRequiredInputType();
 
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
+
 protected:
   /**
   * @brief createFilter() not required by VSTextFilter

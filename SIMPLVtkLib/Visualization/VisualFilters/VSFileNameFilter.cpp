@@ -36,6 +36,9 @@
 #include "VSFileNameFilter.h"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QUuid>
+
+#include <QtWidgets/QFileDialog>
 
 // -----------------------------------------------------------------------------
 //
@@ -54,13 +57,64 @@ QString fetchFileName(QString filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFileNameFilter::VSFileNameFilter(QString filePath)
+VSFileNameFilter::VSFileNameFilter(QString filePath, VSAbstractFilter* parent)
   : VSTextFilter(nullptr, fetchFileName(filePath), filePath)
   , m_FilePath(filePath)
 {
   setCheckState(Qt::Unchecked);
   setCheckable(false);
   setEditable(false);
+  setParentFilter(parent);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFileNameFilter* VSFileNameFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  QString filePath = json["File Path"].toString("");
+  QFileInfo fi(filePath);
+
+  if (fi.exists() == false)
+  {
+    // The file doesn't exist, so have the user give the new location of the file
+    QString filter = tr("All Files (*.*))");
+    filePath = QFileDialog::getOpenFileName(nullptr, tr("Locate '%1'").arg(fi.fileName()), "", filter);
+    if (filePath.isEmpty())
+    {
+      return nullptr;
+    }
+  }
+
+  VSFileNameFilter* newFilter = new VSFileNameFilter(filePath, parent);
+  newFilter->setToolTip(json["Tooltip"].toString());
+
+  QFont font = newFilter->font();
+  font.setItalic(json["Italic"].toBool());
+  font.setBold(json["Bold"].toBool());
+  font.setUnderline(json["Underline"].toBool());
+  newFilter->setFont(font);
+
+  return newFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFileNameFilter::writeJson(QJsonObject &json)
+{
+  VSTextFilter::writeJson(json);
+
+  json["File Path"] = m_FilePath;
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSFileNameFilter::GetUuid()
+{
+  return QUuid("{b02e564e-6ef9-58cb-a4a2-9d067f92bc7c}");
 }
 
 // -----------------------------------------------------------------------------

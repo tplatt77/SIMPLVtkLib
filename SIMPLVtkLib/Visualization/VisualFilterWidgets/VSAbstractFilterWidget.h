@@ -76,6 +76,18 @@ public:
   */
   virtual void reset();
 
+    /**
+     * @brief Reads values from a json file into the filter
+     * @param json
+     */
+    virtual void readJson(QJsonObject &json) = 0;
+
+    /**
+     * @brief Writes values to a json file from the filter
+     * @param json
+     */
+    virtual void writeJson(const QJsonObject &json) = 0;
+
   /**
    * @brief Sets whether the filter widget should render its vtkWidget in the visualization window
    * @param enabled

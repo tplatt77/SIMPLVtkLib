@@ -35,7 +35,9 @@
 
 #include "VSCropFilter.h"
 
-#include <QString>
+#include <QtCore/QString>
+#include <QtCore/QJsonArray>
+#include <QtCore/QUuid>
 
 #include <vtkActor.h>
 #include <vtkAlgorithm.h>
@@ -77,6 +79,37 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSCropFilter* VSCropFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSCropFilter* filter = new VSCropFilter(parent);
+  if (filter)
+  {
+    QJsonArray voiArray = json["Last VOI"].toArray();
+    int lastVOI[6];
+    lastVOI[0] = voiArray.at(0).toInt();
+    lastVOI[1] = voiArray.at(1).toInt();
+    lastVOI[2] = voiArray.at(2).toInt();
+    lastVOI[3] = voiArray.at(3).toInt();
+    lastVOI[4] = voiArray.at(4).toInt();
+    lastVOI[5] = voiArray.at(5).toInt();
+    filter->setVOI(lastVOI);
+
+    QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
+    int lastSampleRate[3];
+    lastSampleRate[0] = sampleRateArray.at(0).toInt();
+    lastSampleRate[1] = sampleRateArray.at(1).toInt();
+    lastSampleRate[2] = sampleRateArray.at(2).toInt();
+    filter->setSampleRate(lastSampleRate);
+
+    return filter;
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSCropFilter::createFilter()
 {
   m_CropAlgorithm = vtkSmartPointer<vtkExtractVOI>::New();
@@ -112,6 +145,37 @@ void VSCropFilter::apply(int voi[6], int sampleRate[3])
   }
 
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::writeJson(QJsonObject &json)
+{
+  QJsonArray lastVOI;
+  lastVOI.append(m_LastVoi[0]);
+  lastVOI.append(m_LastVoi[1]);
+  lastVOI.append(m_LastVoi[2]);
+  lastVOI.append(m_LastVoi[3]);
+  lastVOI.append(m_LastVoi[4]);
+  lastVOI.append(m_LastVoi[5]);
+  json["Last VOI"] = lastVOI;
+
+  QJsonArray lastSampleRate;
+  lastSampleRate.append(m_LastSampleRate[0]);
+  lastSampleRate.append(m_LastSampleRate[1]);
+  lastSampleRate.append(m_LastSampleRate[2]);
+  json["Last Sample Rate"] = lastSampleRate;
+
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSCropFilter::GetUuid()
+{
+  return QUuid("{65a3f063-5054-5abe-b518-3a2884d96b1c}");
 }
 
 // -----------------------------------------------------------------------------
@@ -216,4 +280,27 @@ int* VSCropFilter::getVOI()
 int* VSCropFilter::getSampleRate()
 {
   return m_LastSampleRate;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::setVOI(int* voi)
+{
+  m_LastVoi[0] = voi[0];
+  m_LastVoi[1] = voi[1];
+  m_LastVoi[2] = voi[2];
+  m_LastVoi[3] = voi[3];
+  m_LastVoi[4] = voi[4];
+  m_LastVoi[5] = voi[5];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::setSampleRate(int* sampleRate)
+{
+  m_LastSampleRate[0] = sampleRate[0];
+  m_LastSampleRate[1] = sampleRate[1];
+  m_LastSampleRate[2] = sampleRate[2];
 }

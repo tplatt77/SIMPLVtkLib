@@ -36,6 +36,7 @@
 #include "VSThresholdFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
@@ -129,6 +130,30 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::readJson(QJsonObject &json)
+{
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::writeJson(QJsonObject &json)
+{
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSThresholdFilter::GetUuid()
+{
+  return QUuid("{cbd16e15-5a0a-5c46-8375-7974b481b57a}");
 }
 
 // -----------------------------------------------------------------------------

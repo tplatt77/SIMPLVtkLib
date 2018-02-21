@@ -90,6 +90,18 @@ public:
    */
   void reset() override;
 
+  /**
+   * @brief Reads values from a json file into the filter widget
+   * @param json
+   */
+  void readJson(QJsonObject &json) override;
+
+  /**
+   * @brief Writes values to a json file from the filter widget
+   * @param json
+   */
+  void writeJson(const QJsonObject &json) override;
+
 private:
   class vsInternals;
   vsInternals*                    m_Internals;
