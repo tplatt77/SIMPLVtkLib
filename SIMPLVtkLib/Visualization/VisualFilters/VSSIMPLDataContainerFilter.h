@@ -93,10 +93,10 @@ public:
   virtual QString getToolTip() const override;
 
   /**
-  * @brief Returns the VtkDataSetStruct_t used by the filter
+  * @brief Returns the WrappedDataContainerPtr used by the filter
   * @return
   */
-  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() override;
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
   /**
   * @brief Returns true if this filter type can be added as a child of

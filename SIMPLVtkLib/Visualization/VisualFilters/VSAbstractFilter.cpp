@@ -40,10 +40,11 @@
 #include <vtkAlgorithm.h>
 #include <vtkCellData.h>
 #include <vtkGenericDataObjectWriter.h>
+#include <vtkPointSet.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -215,21 +216,6 @@ VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLVtkBridge::WrappedDataContainerPtr VSAbstractFilter::getWrappedDataContainer()
-{
-  VSSIMPLDataContainerFilter* dataSetFilter = getDataSetFilter();
-
-  if(nullptr == dataSetFilter)
-  {
-    return nullptr;
-  }
-
-  return dataSetFilter->getWrappedDataContainer();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QStringList VSAbstractFilter::getArrayNames()
 {
   QStringList arrayNames;
@@ -339,9 +325,9 @@ double* VSAbstractFilter::getBounds() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSIMPLDataContainerFilter* VSAbstractFilter::getDataSetFilter()
+VSAbstractDataFilter* VSAbstractFilter::getDataSetFilter()
 {
-  VSSIMPLDataContainerFilter* cast = dynamic_cast<VSSIMPLDataContainerFilter*>(this);
+  VSAbstractDataFilter* cast = dynamic_cast<VSAbstractDataFilter*>(this);
 
   if(cast != nullptr)
   {

@@ -59,6 +59,8 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSAbstractDataFilter;
+
 /**
 * @class VSAbstractFilter VSAbstractFilter.h 
 * SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h
@@ -93,7 +95,7 @@ public:
   /**
   * @brief Deconstructor
   */
-  ~VSAbstractFilter();
+  virtual ~VSAbstractFilter();
 
   /**
   * @brief Deletes the item and removes it from the model
@@ -143,12 +145,6 @@ public:
   * @return
   */
   QVector<VSAbstractFilter*> getDescendants() const;
-
-  /**
-  * @brief Returns the WrappedDataContainerPtr from the VSSIMPLDataContainerFilter
-  * @return
-  */
-  virtual SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
   /**
   * @brief Returns a list of array names
@@ -282,10 +278,10 @@ protected:
   VTK_PTR(vtkTransformFilter) getTransformFilter();
 
   /*
-  * @brief Returns a pointer to the VSSIMPLDataContainerFilter that stores the input vtkDataSet
+  * @brief Returns a pointer to the VSAbstractDataFilter that stores the input vtkDataSet
   * @return
   */
-  VSSIMPLDataContainerFilter* getDataSetFilter();
+  VSAbstractDataFilter* getDataSetFilter();
   
   /**
   * @brief Updates the input connection for the vtkAlgorithm if that was already setup
