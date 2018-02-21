@@ -40,8 +40,8 @@
 
 #include <vtkUnstructuredGrid.h>
 
-const QString VSClipFilter::PlaneClipTypeString = "Plane";
-const QString VSClipFilter::BoxClipTypeString = "Box";
+//const QString VSClipFilter::PlaneClipTypeString = "Plane";
+//const QString VSClipFilter::BoxClipTypeString = "Box";
 
 // -----------------------------------------------------------------------------
 //
@@ -299,17 +299,7 @@ VTK_PTR(vtkTransform) VSClipFilter::getLastBoxTransform()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSClipFilter::getLastClipTypeString()
+VSClipFilter::ClipType VSClipFilter::getLastClipType()
 {
-  QString clipTypeStr = "";
-  if (m_LastClipType == ClipType::PLANE)
-  {
-    clipTypeStr = PlaneClipTypeString;
-  }
-  else if (m_LastClipType == ClipType::BOX)
-  {
-    clipTypeStr = BoxClipTypeString;
-  }
-
-  return clipTypeStr;
+  return m_LastClipType;
 }

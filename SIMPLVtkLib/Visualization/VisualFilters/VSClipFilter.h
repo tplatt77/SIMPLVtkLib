@@ -66,14 +66,14 @@ class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter
 
 public:
 
-  enum class ClipType : unsigned int
+  enum class ClipType : int
   {
     PLANE = 0,
     BOX = 1
   };
 
-  static const QString PlaneClipTypeString;
-  static const QString BoxClipTypeString;
+  //static const QString PlaneClipTypeString;
+  //static const QString BoxClipTypeString;
 
   /**
   * @brief Constructor
@@ -176,10 +176,10 @@ public:
   VTK_PTR(vtkTransform) getLastBoxTransform();
 
   /**
-   * @brief Returns the clip type string of the last applied clip
+   * @brief Returns the clip type of the last applied clip
    * @return
    */
-  QString getLastClipTypeString();
+  ClipType getLastClipType();
 
 protected:
   /**

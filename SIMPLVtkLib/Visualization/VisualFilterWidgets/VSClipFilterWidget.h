@@ -105,7 +105,7 @@ protected slots:
    * @brief changeClipType
    * @param clipType
    */
-  void changeClipType(const QString &clipType);
+  void changeClipType(int clipType);
 
 private:
   class vsInternals;
