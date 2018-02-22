@@ -74,6 +74,7 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
   connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_Internals->insideOutCheckBox, SIGNAL(clicked()), this, SLOT(changesWaiting()));
+  connect(m_ClipFilter->getTransform(), SIGNAL(valuesChanged()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------

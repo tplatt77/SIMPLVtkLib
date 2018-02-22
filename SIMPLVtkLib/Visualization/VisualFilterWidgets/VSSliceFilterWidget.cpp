@@ -70,6 +70,7 @@ VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowI
   m_SliceWidget->show();
 
   connect(m_SliceWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
+  connect(m_SliceFilter->getTransform(), SIGNAL(valuesChanged()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
