@@ -64,8 +64,8 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
 {
   m_Internals->setupUi(this);
 
-  m_PlaneWidget = new VSPlaneWidget(nullptr, m_ClipFilter->getBounds(), interactor);
-  m_BoxWidget = new VSBoxWidget(nullptr, m_ClipFilter->getBounds(), interactor);
+  m_PlaneWidget = new VSPlaneWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getBounds(), interactor);
+  m_BoxWidget = new VSBoxWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getBounds(), interactor);
 
   changeClipType(static_cast<int>(VSClipFilter::ClipType::PLANE));
 
@@ -165,10 +165,6 @@ void VSClipFilterWidget::apply()
       m_PlaneWidget->getOrigin(origin);
       m_PlaneWidget->drawPlaneOff();
 
-      VSTransform* transform = m_ClipFilter->getTransform();
-      transform->localizeNormal(normal);
-      transform->localizePoint(origin);
-
       m_ClipFilter->apply(origin, normal, m_Internals->insideOutCheckBox->isChecked());
     }
     break;
@@ -176,9 +172,6 @@ void VSClipFilterWidget::apply()
     {
       VTK_PTR(vtkTransform) boxTransform = m_BoxWidget->getTransform();
       VTK_PTR(vtkPlanes) planes = m_BoxWidget->getPlanes();
-
-      VSTransform* transform = m_ClipFilter->getTransform();
-      transform->localizePlanes(planes);
 
       m_ClipFilter->apply(planes, boxTransform, m_Internals->insideOutCheckBox->isChecked());
     }
@@ -215,10 +208,6 @@ void VSClipFilterWidget::reset()
   {
     double* origin = m_ClipFilter->getLastPlaneOrigin();
     double* normal = m_ClipFilter->getLastPlaneNormal();
-
-    VSTransform* transform = m_ClipFilter->getTransform();
-    transform->globalizeNormal(normal);
-    transform->globalizePoint(origin);
     
     m_PlaneWidget->setNormals(normal);
     m_PlaneWidget->setOrigin(origin);

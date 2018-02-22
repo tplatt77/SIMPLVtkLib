@@ -40,13 +40,15 @@
 #endif
 
 #include <QtWidgets/QWidget>
+
 #include <vector>
+
+#include <vtkImplicitFunction.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class vtkRenderWindowInteractor;
-class vtkImplicitFunction;
 
 /**
 * @class VSAbstractWidget VSAbstractWidget.h 
@@ -67,7 +69,7 @@ public:
   * @param bounds
   * @param iren
   */
-  VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSAbstractWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
   * @brief Copies the vtkWidget bounds
@@ -138,6 +140,12 @@ public:
 signals:
   void modified();
 
+protected slots:
+  /**
+  * @brief Updates the vtk widget for positioning in global space
+  */
+  virtual void updateGlobalSpace() = 0;
+
 protected:
   /**
   * @brief Updates the widget bounds
@@ -149,10 +157,17 @@ protected:
   */
   virtual void updateOrigin();
 
+  /**
+  * @brief Returns the VSTransform used by this widget
+  * @return
+  */
+  VSTransform* getVSTransform();
+
   const double MIN_SIZE = 6.0;
 
 private:
   vtkRenderWindowInteractor * m_RenderWindowInteractor;
+  VSTransform* m_Transform;
   double m_Bounds[6];
   double m_Origin[3];
 };

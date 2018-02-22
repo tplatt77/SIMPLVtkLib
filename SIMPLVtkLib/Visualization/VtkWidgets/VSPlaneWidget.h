@@ -66,7 +66,7 @@ public:
   * @param bounds
   * @param iren
   */
-  VSPlaneWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSPlaneWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
   * @brief Deconstructor
@@ -150,6 +150,12 @@ public slots:
   */
   void spinBoxValueChanged();
 
+protected slots:
+  /**
+  * @brief Updates the vtk widget for positioning in global space
+  */
+  virtual void updateGlobalSpace() override;
+
 protected:
   /**
   * @brief Updates the bounds representation for the VTK plane widget.
@@ -162,7 +168,6 @@ protected:
   void updateOrigin() override;
 
 private:
-
   vtkSmartPointer<vtkPlane> m_UsePlane;
   vtkSmartPointer<vtkPlane> m_ViewPlane;
   vtkImplicitPlaneWidget2* m_PlaneWidget;

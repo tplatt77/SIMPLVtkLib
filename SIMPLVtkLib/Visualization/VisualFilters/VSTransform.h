@@ -169,6 +169,12 @@ public:
   void localizePlanes(vtkPlanes* planes);
 
   /**
+  * @brief Localizes the given transform from the global space
+  * @param transform
+  */
+  void localizeTransform(vtkTransform* transform);
+
+  /**
   * @brief Performs the transformation on the given point to put it in global space
   * @param point
   */
@@ -202,6 +208,12 @@ public:
   * @param planes
   */
   void globalizePlanes(vtkPlanes* planes);
+
+  /**
+  * @brief Performs the transformation on the given transformation to put it in the global space
+  * @param transform
+  */
+  void globalizeTransform(vtkTransform* transform);
 
 signals:
   void updatedPosition(double* position);

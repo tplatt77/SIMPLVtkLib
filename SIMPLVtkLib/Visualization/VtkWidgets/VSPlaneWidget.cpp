@@ -47,6 +47,9 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 class vtkPlaneCallback : public vtkCommand
 {
 public:
@@ -59,28 +62,59 @@ public:
   {
     vtkImplicitPlaneWidget2* planeWidget = reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
     vtkImplicitPlaneRepresentation* rep = reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
-    rep->GetPlane(this->plane);
+    rep->GetPlane(this->m_UsePlane);
+    rep->GetPlane(this->m_ViewPlane);
+
+    if(m_VSTransform)
+    {
+      m_VSTransform->localizePlane(this->m_UsePlane);
+    }
 
     rep->DrawPlaneOn();
 
-    qtPlaneWidget->updateSpinBoxes();
-    qtPlaneWidget->modified();
+    m_VSPlaneWidget->updateSpinBoxes();
+    m_VSPlaneWidget->modified();
   }
 
   vtkPlaneCallback()
-  : plane(0)
-  , qtPlaneWidget(0)
+  : m_UsePlane(nullptr)
+  , m_VSPlaneWidget(nullptr)
+  , m_VSTransform(nullptr)
   {
   }
-  vtkPlane* plane;
-  VSPlaneWidget* qtPlaneWidget;
+
+  void setUsePlane(vtkPlane* plane)
+  {
+    m_UsePlane = plane;
+  }
+
+  void setViewPlane(vtkPlane* plane)
+  {
+    m_ViewPlane = plane;
+  }
+
+  void setPlaneWidget(VSPlaneWidget* widget)
+  {
+    m_VSPlaneWidget = widget;
+  }
+
+  void setTransform(VSTransform* transform)
+  {
+    m_VSTransform = transform;
+  }
+
+private:
+  vtkPlane* m_UsePlane;
+  vtkPlane* m_ViewPlane;
+  VSPlaneWidget* m_VSPlaneWidget;
+  VSTransform* m_VSTransform;
 };
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSPlaneWidget::VSPlaneWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren)
-: VSAbstractWidget(parent, bounds, iren)
+VSPlaneWidget::VSPlaneWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
+: VSAbstractWidget(parent, transform, bounds, iren)
 {
   setupUi(this);
 
@@ -97,9 +131,11 @@ VSPlaneWidget::VSPlaneWidget(QWidget* parent, double bounds[6], vtkRenderWindowI
   m_UsePlane->SetNormal(normal);
   m_UsePlane->SetOrigin(getOrigin());
 
-  vtkSmartPointer<vtkPlaneCallback> myCallback = vtkSmartPointer<vtkPlaneCallback>::New();
-  myCallback->plane = m_ViewPlane;
-  myCallback->qtPlaneWidget = this;
+  VTK_NEW(vtkPlaneCallback, myCallback);
+  myCallback->setUsePlane(m_UsePlane);
+  myCallback->setViewPlane(m_ViewPlane);
+  myCallback->setPlaneWidget(this);
+  myCallback->setTransform(transform);
 
   // Implicit Plane Widget
   m_PlaneRep = vtkImplicitPlaneRepresentation::New();
@@ -153,7 +189,9 @@ void VSPlaneWidget::getNormals(double normals[3])
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::setNormals(double normals[3])
 {
+  m_UsePlane->SetNormal(normals);
   m_ViewPlane->SetNormal(normals);
+  getVSTransform()->globalizePlane(m_ViewPlane);
 
   normalXSpinBox->setValue(normals[0]);
   normalYSpinBox->setValue(normals[1]);
@@ -180,7 +218,9 @@ void VSPlaneWidget::setOrigin(double origin[3])
 {
   VSAbstractWidget::setOrigin(origin);
 
+  m_UsePlane->SetOrigin(origin);
   m_ViewPlane->SetOrigin(origin);
+  getVSTransform()->globalizePlane(m_ViewPlane);
 
   originXSpinBox->setValue(origin[0]);
   originYSpinBox->setValue(origin[1]);
@@ -215,7 +255,9 @@ void VSPlaneWidget::updateBounds()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::updateOrigin()
 {
+  m_UsePlane->SetOrigin(getOrigin());
   m_ViewPlane->SetOrigin(getOrigin());
+  m_ViewPlane->SetTransform(getVSTransform()->getVtkTransform());
 }
 
 // -----------------------------------------------------------------------------
@@ -304,19 +346,22 @@ void VSPlaneWidget::spinBoxValueChanged()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::updatePlaneWidget()
 {
+  int enabled = m_PlaneWidget->GetEnabled();
   m_PlaneWidget->Off();
 
   double normals[3];
   getNormals(normals);
 
+  m_UsePlane->SetNormal(normals);
+  m_UsePlane->SetOrigin(getOrigin());
   m_ViewPlane->SetNormal(normals);
   m_ViewPlane->SetOrigin(getOrigin());
+  getVSTransform()->globalizePlane(m_ViewPlane);
 
   m_PlaneRep->SetPlane(m_ViewPlane);
+  m_PlaneWidget->SetEnabled(enabled);
 
-  m_PlaneWidget->On();
-
-  if(getInteractor())
+  if(getInteractor() && enabled)
   {
     getInteractor()->Render();
   }
@@ -329,4 +374,13 @@ void VSPlaneWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 {
   VSAbstractWidget::setInteractor(interactor);
   m_PlaneWidget->SetInteractor(interactor);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::updateGlobalSpace()
+{
+  // reposition the vtkWidget
+  updatePlaneWidget();
 }

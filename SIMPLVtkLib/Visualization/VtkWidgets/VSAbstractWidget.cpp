@@ -35,14 +35,13 @@
 
 #include "VSAbstractWidget.h"
 
-#include <vtkRenderWindowInteractor.h>
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget::VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderWindowInteractor* iren)
+VSAbstractWidget::VSAbstractWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
 : QWidget(parent)
 , m_RenderWindowInteractor(iren)
+, m_Transform(transform)
 {
   setBounds(bounds);
 
@@ -50,6 +49,8 @@ VSAbstractWidget::VSAbstractWidget(QWidget* parent, double bounds[6], vtkRenderW
   {
     m_Origin[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2.0;
   }
+
+  connect(transform, SIGNAL(valuesChanged()), this, SLOT(updateGlobalSpace()));
 }
 
 // -----------------------------------------------------------------------------
@@ -161,4 +162,12 @@ void VSAbstractWidget::updateBounds()
 // -----------------------------------------------------------------------------
 void VSAbstractWidget::updateOrigin()
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTransform* VSAbstractWidget::getVSTransform()
+{
+  return m_Transform;
 }

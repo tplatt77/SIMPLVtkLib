@@ -66,7 +66,7 @@ VSSliceFilterWidget::VSSliceFilterWidget(VSSliceFilter* filter, vtkRenderWindowI
 {
   m_Internals->setupUi(this);
 
-  m_SliceWidget = new VSPlaneWidget(this, m_SliceFilter->getBounds(), interactor);
+  m_SliceWidget = new VSPlaneWidget(this, m_SliceFilter->getTransform(), m_SliceFilter->getBounds(), interactor);
   m_SliceWidget->show();
 
   connect(m_SliceWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));

@@ -415,6 +415,14 @@ void VSTransform::localizePlanes(vtkPlanes* planes)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSTransform::localizeTransform(vtkTransform* transform)
+{
+  transform->SetInput(getLocalizeTransform());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSTransform::globalizePoint(double point[3])
 {
   getGlobalizeTransform()->TransformPoint(point, point);
@@ -470,4 +478,12 @@ void VSTransform::globalizePlane(vtkPlane* plane)
 void VSTransform::globalizePlanes(vtkPlanes* planes)
 {
   planes->SetTransform(getLocalizeTransform());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::globalizeTransform(vtkTransform* transform)
+{
+  transform->SetInput(getGlobalizeTransform());
 }
