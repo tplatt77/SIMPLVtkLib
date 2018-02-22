@@ -73,29 +73,27 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
 VSCropFilter* VSCropFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
 {
   VSCropFilter* filter = new VSCropFilter(parent);
-  if (filter)
-  {
-    QJsonArray voiArray = json["Last VOI"].toArray();
-    int lastVOI[6];
-    lastVOI[0] = voiArray.at(0).toInt();
-    lastVOI[1] = voiArray.at(1).toInt();
-    lastVOI[2] = voiArray.at(2).toInt();
-    lastVOI[3] = voiArray.at(3).toInt();
-    lastVOI[4] = voiArray.at(4).toInt();
-    lastVOI[5] = voiArray.at(5).toInt();
-    filter->setVOI(lastVOI);
 
-    QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
-    int lastSampleRate[3];
-    lastSampleRate[0] = sampleRateArray.at(0).toInt();
-    lastSampleRate[1] = sampleRateArray.at(1).toInt();
-    lastSampleRate[2] = sampleRateArray.at(2).toInt();
-    filter->setSampleRate(lastSampleRate);
+  QJsonArray voiArray = json["Last VOI"].toArray();
+  int lastVOI[6];
+  lastVOI[0] = voiArray.at(0).toInt();
+  lastVOI[1] = voiArray.at(1).toInt();
+  lastVOI[2] = voiArray.at(2).toInt();
+  lastVOI[3] = voiArray.at(3).toInt();
+  lastVOI[4] = voiArray.at(4).toInt();
+  lastVOI[5] = voiArray.at(5).toInt();
+  filter->setVOI(lastVOI);
 
-    return filter;
-  }
+  QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
+  int lastSampleRate[3];
+  lastSampleRate[0] = sampleRateArray.at(0).toInt();
+  lastSampleRate[1] = sampleRateArray.at(1).toInt();
+  lastSampleRate[2] = sampleRateArray.at(2).toInt();
+  filter->setSampleRate(lastSampleRate);
 
-  return nullptr;
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -143,6 +141,8 @@ void VSCropFilter::apply(int voi[6], int sampleRate[3])
 // -----------------------------------------------------------------------------
 void VSCropFilter::writeJson(QJsonObject &json)
 {
+  VSAbstractFilter::writeJson(json);
+
   QJsonArray lastVOI;
   lastVOI.append(m_LastVoi[0]);
   lastVOI.append(m_LastVoi[1]);

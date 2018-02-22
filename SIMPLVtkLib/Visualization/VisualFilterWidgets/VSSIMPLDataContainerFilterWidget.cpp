@@ -58,6 +58,13 @@ VSSIMPLDataContainerFilterWidget::VSSIMPLDataContainerFilterWidget(VSSIMPLDataCo
 {
   m_Internals->setupUi(this);
   cancelChanges();
+
+  if (m_DataContainerFilter->isInitialized() == true)
+  {
+    m_DataContainerFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------

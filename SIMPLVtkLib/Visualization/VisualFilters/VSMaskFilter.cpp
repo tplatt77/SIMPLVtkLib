@@ -57,6 +57,20 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSMaskFilter* VSMaskFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSMaskFilter* filter = new VSMaskFilter(parent);
+
+  filter->setLastArrayName(json["Last Array Name"].toString());
+
+  filter->setInitialized(true);
+
+  return filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMaskFilter::createFilter()
 {
   m_MaskAlgorithm = VTK_PTR(vtkThreshold)::New();
@@ -113,6 +127,8 @@ void VSMaskFilter::readJson(QJsonObject &json)
 // -----------------------------------------------------------------------------
 void VSMaskFilter::writeJson(QJsonObject &json)
 {
+  VSAbstractFilter::writeJson(json);
+
   json["Last Array Name"] = m_LastArrayName;
   json["Uuid"] = GetUuid().toString();
 }
@@ -226,4 +242,12 @@ bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
 QString VSMaskFilter::getLastArrayName()
 {
   return m_LastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::setLastArrayName(QString lastArrayName)
+{
+  m_LastArrayName = lastArrayName;
 }

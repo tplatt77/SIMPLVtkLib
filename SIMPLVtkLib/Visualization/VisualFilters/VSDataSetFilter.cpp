@@ -110,12 +110,9 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
 VSDataSetFilter* VSDataSetFilter::Create(const QString &filePath, QJsonObject &json, VSAbstractFilter* parent)
 {
   VSDataSetFilter* filter = new VSDataSetFilter(filePath, parent);
-  if (filter)
-  {
-    return filter;
-  }
 
-  return nullptr;
+  filter->setInitialized(true);
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -123,6 +120,8 @@ VSDataSetFilter* VSDataSetFilter::Create(const QString &filePath, QJsonObject &j
 // -----------------------------------------------------------------------------
 void VSDataSetFilter::writeJson(QJsonObject &json)
 {
+  VSAbstractFilter::writeJson(json);
+
   json["Uuid"] = GetUuid().toString();
 }
 

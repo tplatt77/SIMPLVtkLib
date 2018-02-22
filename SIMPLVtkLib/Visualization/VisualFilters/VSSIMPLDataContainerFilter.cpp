@@ -150,6 +150,7 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString &fi
 
           VSSIMPLDataContainerFilter* newFilter = new VSSIMPLDataContainerFilter(wrappedDC, parent);
           newFilter->setToolTip(json["Tooltip"].toString());
+          newFilter->setInitialized(true);
           return newFilter;
         }
       }
@@ -164,6 +165,8 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString &fi
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::writeJson(QJsonObject &json)
 {
+  VSAbstractFilter::writeJson(json);
+
   json["Data Container Name"] = text();
   json["Tooltip"] = toolTip();
   json["Uuid"] = GetUuid().toString();

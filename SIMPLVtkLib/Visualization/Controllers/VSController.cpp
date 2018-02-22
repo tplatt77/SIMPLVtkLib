@@ -182,11 +182,8 @@ bool VSController::saveSession(const QString &sessionFilePath)
 void VSController::saveFilter(VSAbstractFilter* filter, QJsonObject &obj)
 {
   QJsonObject rootFilterObj;
-  QJsonObject filterObj;
 
-  filter->writeJson(filterObj);
-
-  rootFilterObj["Filter"] = filterObj;
+  filter->writeJson(rootFilterObj);
 
   // Write the children
   QJsonObject childrenObj;
@@ -238,17 +235,16 @@ bool VSController::loadSession(const QString &sessionFilePath)
 // -----------------------------------------------------------------------------
 void VSController::loadFilter(QJsonObject &obj, VSAbstractFilter* parentFilter)
 {
-  QJsonObject filterObj = obj["Filter"].toObject();
-  QUuid uuid(filterObj["Uuid"].toString());
+  QUuid uuid(obj["Uuid"].toString());
 
   VSAbstractFilter* newFilter = nullptr;
   if (uuid == VSClipFilter::GetUuid())
   {
-
+    newFilter = VSClipFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSCropFilter::GetUuid())
   {
-    newFilter = VSCropFilter::Create(filterObj, parentFilter);
+    newFilter = VSCropFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSDataSetFilter::GetUuid())
   {
@@ -257,16 +253,16 @@ void VSController::loadFilter(QJsonObject &obj, VSAbstractFilter* parentFilter)
       VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
       QString filePath = fileNameFilter->getFilePath();
 
-      newFilter = VSDataSetFilter::Create(filePath, filterObj, parentFilter);
+      newFilter = VSDataSetFilter::Create(filePath, obj, parentFilter);
     }
   }
   else if (uuid == VSFileNameFilter::GetUuid())
   {
-    newFilter = VSFileNameFilter::Create(filterObj, parentFilter);
+    newFilter = VSFileNameFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSMaskFilter::GetUuid())
   {
-
+    newFilter = VSMaskFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSSIMPLDataContainerFilter::GetUuid())
   {
@@ -275,25 +271,27 @@ void VSController::loadFilter(QJsonObject &obj, VSAbstractFilter* parentFilter)
       VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
       QString filePath = fileNameFilter->getFilePath();
 
-      newFilter = VSSIMPLDataContainerFilter::Create(filePath, filterObj, parentFilter);
+      newFilter = VSSIMPLDataContainerFilter::Create(filePath, obj, parentFilter);
     }
   }
   else if (uuid == VSSliceFilter::GetUuid())
   {
-
+    newFilter = VSSliceFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSTextFilter::GetUuid())
   {
-
+    newFilter = VSTextFilter::Create(obj, parentFilter);
   }
   else if (uuid == VSThresholdFilter::GetUuid())
   {
-
+    newFilter = VSThresholdFilter::Create(obj, parentFilter);
   }
 
   if (newFilter != nullptr)
   {
     m_FilterModel->addFilter(newFilter);
+    newFilter->setCheckState(static_cast<Qt::CheckState>(obj["CheckState"].toInt()));
+    emit filterCheckStateChanged(newFilter);
 
     QJsonObject childrenObj = obj["Child Filters"].toObject();
     for (QJsonObject::iterator iter = childrenObj.begin(); iter != childrenObj.end(); iter++)

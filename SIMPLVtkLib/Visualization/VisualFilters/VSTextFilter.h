@@ -57,6 +57,14 @@ public:
   VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSTextFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * @brief Returns the filter's name
   * @return
   */

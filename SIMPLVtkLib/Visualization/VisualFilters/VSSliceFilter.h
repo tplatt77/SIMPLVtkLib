@@ -64,6 +64,14 @@ public:
   VSSliceFilter(VSAbstractFilter* parent);
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSSliceFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -125,6 +133,20 @@ public:
   * @return
   */
   double* getLastNormal();
+
+  /**
+  * @brief Sets the origin of the last applied slice
+  * @param origin
+  * @return
+  */
+  void setLastOrigin(double* origin);
+
+  /**
+  * @brief Sets the normal of the last applied slice
+  * @param normal
+  * @return
+  */
+  void setLastNormal(double* normal);
 
   /**
    * @brief Reads values from a json file into the filter
