@@ -64,6 +64,13 @@ VSCropFilterWidget::VSCropFilterWidget(VSCropFilter* filter, vtkRenderWindowInte
   m_Internals->setupUi(this);
 
   setupGui();
+
+  if (m_CropFilter->isInitialized() == true)
+  {
+    m_CropFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------

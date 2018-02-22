@@ -425,3 +425,11 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
     emit updatedOutputPort(filter);
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::writeJson(QJsonObject &json)
+{
+  json["CheckState"] = checkState();
+}

@@ -71,6 +71,13 @@ VSThresholdFilterWidget::VSThresholdFilterWidget(VSThresholdFilter* filter, vtkR
   connect(m_Internals->maxSlider, SIGNAL(valueChanged(int)), this, SLOT(maxSliderValueChanged()));
 
   setupScalarsComboBox();
+
+  if (m_ThresholdFilter->isInitialized() == true)
+  {
+    m_ThresholdFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------

@@ -55,6 +55,27 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolT
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSTextFilter* VSTextFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  QString text = json["Text"].toString();
+  QString tooltip = json["Tooltip"].toString();
+
+  VSTextFilter* filter = new VSTextFilter(parent, text, tooltip);
+
+  QFont font = filter->font();
+  font.setItalic(json["Italic"].toBool());
+  font.setBold(json["Bold"].toBool());
+  font.setUnderline(json["Underline"].toBool());
+  filter->setFont(font);
+
+  filter->setInitialized(true);
+
+  return filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 const QString VSTextFilter::getFilterName()
 {
   return text();
@@ -159,6 +180,8 @@ VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 void VSTextFilter::writeJson(QJsonObject &json)
 {
+  VSAbstractFilter::writeJson(json);
+
   json["Text"] = text();
   json["Tooltip"] = toolTip();
   json["Italic"] = font().italic();

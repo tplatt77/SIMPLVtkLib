@@ -139,6 +139,8 @@ public:
 signals:
   void filterAdded(VSAbstractFilter*, QJsonObject = QJsonObject());
   void filterRemoved(VSAbstractFilter*);
+  void filterCheckStateChanged(VSAbstractFilter* filter);
+
   void dataImported();
 
 private:

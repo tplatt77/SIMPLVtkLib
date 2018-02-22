@@ -39,6 +39,7 @@
 #include <QtCore/QUuid>
 
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
 
 // -----------------------------------------------------------------------------
 //
@@ -78,7 +79,9 @@ VSFileNameFilter* VSFileNameFilter::Create(QJsonObject &json, VSAbstractFilter* 
   if (fi.exists() == false)
   {
     // The file doesn't exist, so have the user give the new location of the file
-    QString filter = tr("All Files (*.*))");
+    QMessageBox::warning(nullptr, "Filter Creation Warning", tr("The file '%1' is used by a filter and does not exist or has been moved.  Please select the file's new location.").arg(filePath));
+
+    QString filter = tr("All Files (*.*)");
     filePath = QFileDialog::getOpenFileName(nullptr, tr("Locate '%1'").arg(fi.fileName()), "", filter);
     if (filePath.isEmpty())
     {
@@ -94,6 +97,8 @@ VSFileNameFilter* VSFileNameFilter::Create(QJsonObject &json, VSAbstractFilter* 
   font.setBold(json["Bold"].toBool());
   font.setUnderline(json["Underline"].toBool());
   newFilter->setFont(font);
+
+  newFilter->setInitialized(true);
 
   return newFilter;
 }

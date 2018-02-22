@@ -65,6 +65,14 @@ public:
   VSThresholdFilter(VSAbstractFilter* parent);
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSThresholdFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * @brief Returns the filter name
   * @return
   */
@@ -133,6 +141,24 @@ public:
   * @return
   */
   double getLastMaxValue();
+
+  /**
+  * @brief Sets the name of the array last used for thresholding
+  * @return
+  */
+  QString setLastArrayName(QString lastArrayName);
+
+  /**
+  * @brief Sets the last minimum value for thresholding
+  * @return
+  */
+  void setLastMinValue(double lastMinValue);
+
+  /**
+  * @brief Sets the last maximum value for thresholding
+  * @return
+  */
+  void setLastMaxValue(double lastMaxValue);
 
   /**
    * @brief Reads values from a json file into the filter

@@ -88,6 +88,7 @@ public:
   };
 
   SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
+  SIMPL_BOOL_PROPERTY(Initialized)
 
   /**
   * @brief Constructor
@@ -226,7 +227,7 @@ public:
    * @brief Writes values to a json file from the filter
    * @param json
    */
-  virtual void writeJson(QJsonObject &json) = 0;
+  virtual void writeJson(QJsonObject &json);
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);

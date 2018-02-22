@@ -88,6 +88,14 @@ public:
   ~VSClipFilter();
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSClipFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -170,10 +178,44 @@ public:
   bool getLastBoxInverted();
 
   /**
+  * @brief Sets whether or not the last applied plane was inverted
+  * @param inverted
+  * @return
+  */
+  void setLastPlaneInverted(bool inverted);
+
+  /**
+  * @brief Sets the origin of the last applied plane
+  * @param origin
+  * @return
+  */
+  void setLastPlaneOrigin(double* origin);
+
+  /**
+  * @brief Sets the normal of the last applied plane
+  * @param normal
+  * @return
+  */
+  void setLastPlaneNormal(double* normal);
+
+  /**
+  * @brief Sets whether or not the last applied box was inverted
+  * @param inverted
+  * @return
+  */
+  void setLastBoxInverted(bool inverted);
+
+  /**
   * @brief Returns the vtkTransform of the last applied box
   * @return
   */
   VTK_PTR(vtkTransform) getLastBoxTransform();
+
+  /**
+  * @brief Sets the vtkTransform of the last applied box
+  * @return
+  */
+  void setLastBoxTransform(VTK_PTR(vtkTransform) transform);
 
   /**
    * @brief Returns the clip type of the last applied clip
@@ -182,10 +224,10 @@ public:
   ClipType getLastClipType();
 
   /**
-   * @brief Reads values from a json file into the filter
-   * @param json
+   * @brief Sets the clip type of the last applied clip
+   * @param type
    */
-  void readJson(QJsonObject &json);
+  void setLastClipType(ClipType type);
 
   /**
    * @brief Writes values to a json file from the filter

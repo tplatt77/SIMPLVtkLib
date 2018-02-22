@@ -74,6 +74,13 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
   connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_Internals->insideOutCheckBox, SIGNAL(clicked()), this, SLOT(changesWaiting()));
+
+  if (m_ClipFilter->isInitialized() == true)
+  {
+    m_ClipFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -165,6 +172,7 @@ void VSClipFilterWidget::apply()
       m_PlaneWidget->drawPlaneOff();
 
       m_ClipFilter->apply(origin, normals, m_Internals->insideOutCheckBox->isChecked());
+      m_ClipFilter->setInitialized(false);
     }
     break;
   case VSClipFilter::ClipType::BOX:
@@ -172,6 +180,7 @@ void VSClipFilterWidget::apply()
       VTK_PTR(vtkTransform) transform = m_BoxWidget->getTransform();
       VTK_PTR(vtkPlanes) planes = m_BoxWidget->getPlanes();
       m_ClipFilter->apply(planes, transform, m_Internals->insideOutCheckBox->isChecked());
+      m_ClipFilter->setInitialized(false);
     }
     break;
   default:
@@ -183,7 +192,7 @@ void VSClipFilterWidget::apply()
 //
 // -----------------------------------------------------------------------------
 void VSClipFilterWidget::reset()
-{
+{ 
   VSClipFilter::ClipType clipType = m_ClipFilter->getLastClipType();
   
   // Set the inverted variable based on the last applied clip type
