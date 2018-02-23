@@ -110,7 +110,7 @@ VSTransform* VSTransform::getParent()
 double* VSTransform::getPosition()
 {
   double* position = new double[3];
-  getVtkTransform()->GetPosition(position);
+  getGlobalTransform()->GetPosition(position);
   return position;
 }
 
@@ -135,7 +135,7 @@ double* VSTransform::getRotation()
   }
 
   double* rotation = new double[3];
-  getVtkTransform()->GetOrientation(rotation);
+  getGlobalTransform()->GetOrientation(rotation);
 
   for(int i = 0; i < 3; i++)
   {
@@ -173,7 +173,7 @@ double* VSTransform::getLocalRotation()
 double* VSTransform::getScale()
 {
   double* scale = new double[3];
-  getVtkTransform()->GetScale(scale);
+  getGlobalTransform()->GetScale(scale);
   return scale;
 }
 
@@ -190,14 +190,14 @@ double* VSTransform::getLocalScale()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkTransform) VSTransform::getVtkTransform()
+VTK_PTR(vtkTransform) VSTransform::getGlobalTransform()
 {
   VTK_NEW(vtkTransform, transform);
   transform->DeepCopy(m_LocalTransform);
 
   if(m_Parent)
   {
-    transform->SetInput(m_Parent->getVtkTransform());
+    transform->SetInput(m_Parent->getGlobalTransform());
   }
 
   return transform;
@@ -206,7 +206,7 @@ VTK_PTR(vtkTransform) VSTransform::getVtkTransform()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkTransform) VSTransform::getLocalVtkTransform()
+VTK_PTR(vtkTransform) VSTransform::getLocalTransform()
 {
   VTK_NEW(vtkTransform, transform);
   transform->DeepCopy(m_LocalTransform);
@@ -330,7 +330,7 @@ void VSTransform::setLocalScale(double scale[3])
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getLocalizeTransform()
 {
-  VTK_PTR(vtkTransform) transform = getVtkTransform();
+  VTK_PTR(vtkTransform) transform = getGlobalTransform();
   transform->Inverse();
 
   return transform;
@@ -341,7 +341,7 @@ VTK_PTR(vtkTransform) VSTransform::getLocalizeTransform()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getGlobalizeTransform()
 {
-  return getVtkTransform();
+  return getGlobalTransform();
 }
 
 // -----------------------------------------------------------------------------
@@ -349,7 +349,7 @@ VTK_PTR(vtkTransform) VSTransform::getGlobalizeTransform()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getTransposedTransform()
 {
-  VTK_PTR(vtkTransform) transpose = getVtkTransform();
+  VTK_PTR(vtkTransform) transpose = getGlobalTransform();
   VTK_NEW(vtkMatrix4x4, matrix);
   transpose->GetTranspose(matrix);
   transpose->SetMatrix(matrix);

@@ -131,7 +131,7 @@ public:
   * @brief Returns the vtkTransform describing the global position, rotation, and scale.
   * @return
   */
-  VTK_PTR(vtkTransform) getVtkTransform();
+  VTK_PTR(vtkTransform) getGlobalTransform();
 
   /**
   * @brief Localizes the given point from global space
@@ -246,7 +246,7 @@ protected:
   * @brief Returns the vtkTransform describing the local position, rotation, and scale.
   * @return
   */
-  VTK_PTR(vtkTransform) getLocalVtkTransform();
+  VTK_PTR(vtkTransform) getLocalTransform();
 
   /**
   * @brief Returns the vtkTransform for localizing data

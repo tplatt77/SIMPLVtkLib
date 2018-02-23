@@ -480,7 +480,7 @@ void VSAbstractFilter::createTransformFilter()
   
   if(m_Transform)
   {
-    m_TransformFilter->SetTransform(m_Transform->getVtkTransform());
+    m_TransformFilter->SetTransform(m_Transform->getGlobalTransform());
     connect(m_Transform.get(), SIGNAL(valuesChanged()),
       this, SLOT(updateTransformFilter()));
   }
@@ -518,7 +518,7 @@ void VSAbstractFilter::updateTransformFilter()
 
   if(getTransform())
   {
-    m_TransformFilter->SetTransform(getTransform()->getVtkTransform());
+    m_TransformFilter->SetTransform(getTransform()->getGlobalTransform());
     emit transformChanged();
   }
 }

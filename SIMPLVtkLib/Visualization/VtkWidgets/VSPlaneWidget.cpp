@@ -257,7 +257,7 @@ void VSPlaneWidget::updateOrigin()
 {
   m_UsePlane->SetOrigin(getOrigin());
   m_ViewPlane->SetOrigin(getOrigin());
-  m_ViewPlane->SetTransform(getVSTransform()->getVtkTransform());
+  m_ViewPlane->SetTransform(getVSTransform()->getGlobalTransform());
 }
 
 // -----------------------------------------------------------------------------
