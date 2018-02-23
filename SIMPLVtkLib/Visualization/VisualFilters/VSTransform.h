@@ -250,6 +250,18 @@ protected:
   */
   VTK_PTR(vtkTransform) getGlobalizeTransform();
 
+  /**
+  * @brief Returns the transposed globalizing transform
+  * @return
+  */
+  VTK_PTR(vtkTransform) getTransposedTransform();
+
+  /**
+  * @brief Resets the vtkTransform so that any pipelined transforms are removed
+  * @param transform
+  */
+  void updateTransform(vtkTransform* transform);
+
 private:
   VSTransform* m_Parent = nullptr;
 

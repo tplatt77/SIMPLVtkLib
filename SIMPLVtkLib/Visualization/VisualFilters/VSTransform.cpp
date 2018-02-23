@@ -279,15 +279,15 @@ VTK_PTR(vtkTransform) VSTransform::getLocalVtkTransform()
   }
   delete[] rotation;
 
-  // Scale
-  double* scale = getLocalScale();
-  transform->Scale(scale);
-  delete[] scale;
-
   // Translate
   double* position = getLocalPosition();
   transform->Translate(position);
   delete[] position;
+
+  // Scale
+  double* scale = getLocalScale();
+  transform->Scale(scale);
+  delete[] scale;
 
   return transform;
 }
@@ -347,9 +347,20 @@ VTK_PTR(vtkTransform) VSTransform::getLocalizeTransform()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getGlobalizeTransform()
 {
-  VTK_PTR(vtkTransform) transform = getVtkTransform();
+  return getVtkTransform();
+}
 
-  return transform;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransform) VSTransform::getTransposedTransform()
+{
+  VTK_PTR(vtkTransform) transpose = getVtkTransform();
+  VTK_NEW(vtkMatrix4x4, matrix);
+  transpose->GetTranspose(matrix);
+  transpose->SetMatrix(matrix);
+
+  return transpose;
 }
 
 // -----------------------------------------------------------------------------
@@ -417,7 +428,9 @@ void VSTransform::localizePlanes(vtkPlanes* planes)
 // -----------------------------------------------------------------------------
 void VSTransform::localizeTransform(vtkTransform* transform)
 {
+  //transform->SetInput(getTransposedTransform());
   transform->SetInput(getLocalizeTransform());
+  updateTransform(transform);
 }
 
 // -----------------------------------------------------------------------------
@@ -486,4 +499,17 @@ void VSTransform::globalizePlanes(vtkPlanes* planes)
 void VSTransform::globalizeTransform(vtkTransform* transform)
 {
   transform->SetInput(getGlobalizeTransform());
+  updateTransform(transform);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::updateTransform(vtkTransform* transform)
+{
+  VTK_NEW(vtkMatrix4x4, matrix);
+  matrix->DeepCopy(transform->GetMatrix());
+
+  transform->SetInput(nullptr);
+  transform->SetMatrix(matrix);
 }

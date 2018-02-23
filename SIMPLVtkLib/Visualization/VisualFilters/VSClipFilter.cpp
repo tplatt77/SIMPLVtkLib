@@ -155,7 +155,7 @@ void VSClipFilter::apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transf
   // Handle Box-Type clips
   m_LastClipType = ClipType::BOX;
   m_LastBoxInverted = inverted;
-  m_LastBoxTransform = transform;
+  m_LastBoxTransform->DeepCopy(transform);
 
   m_ClipAlgorithm->SetClipFunction(planes);
   m_ClipAlgorithm->SetInsideOut(inverted);

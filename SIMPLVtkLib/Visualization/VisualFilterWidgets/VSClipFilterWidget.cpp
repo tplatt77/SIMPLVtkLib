@@ -219,7 +219,6 @@ void VSClipFilterWidget::reset()
   {
     VTK_PTR(vtkTransform) transform = m_ClipFilter->getLastBoxTransform();
     m_BoxWidget->setTransform(transform);
-    m_BoxWidget->updateBoxWidget();
   }
 
   changeClipType(static_cast<int>(clipType));
