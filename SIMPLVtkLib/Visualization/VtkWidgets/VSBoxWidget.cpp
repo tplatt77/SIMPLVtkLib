@@ -254,10 +254,6 @@ void VSBoxWidget::setRotation(double x, double y, double z)
 // -----------------------------------------------------------------------------
 void VSBoxWidget::updateBounds()
 {
-  int enabled = m_BoxWidget->GetEnabled();
-  m_BoxWidget->EnabledOff();
-  m_BoxWidget->GetRepresentation()->PlaceWidget(getBounds());
-  m_BoxWidget->SetEnabled(enabled);
 }
 
 // -----------------------------------------------------------------------------
@@ -357,8 +353,6 @@ void VSBoxWidget::updateBoxWidget()
   m_BoxWidget->SetEnabled(enabled);
 
   getInteractor()->Render();
-
-  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -408,6 +402,8 @@ void VSBoxWidget::setTransform(VTK_PTR(vtkTransform) transform)
   
   updateBoxWidget();
   updateSpinBoxes();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -429,15 +425,14 @@ void VSBoxWidget::setValues(double position[3], double rotation[3], double scale
 {
   VTK_NEW(vtkTransform, transform);
   
+  transform->Translate(position);
   transform->RotateZ(rotation[2]);
   transform->RotateY(rotation[1]);
   transform->RotateX(rotation[0]);
-  transform->Translate(position);
   transform->Scale(scale);
 
   m_UseTransform->SetInput(nullptr);
-  m_UseTransform->DeepCopy(transform);
-  m_UseTransform->SetInput(nullptr);
+  m_UseTransform->SetMatrix(transform->GetMatrix());
 
   updateBoxWidget();
   emit modified();
