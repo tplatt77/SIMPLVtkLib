@@ -528,10 +528,15 @@ void VSAbstractFilter::updateTransformFilter()
 // -----------------------------------------------------------------------------
 double* VSAbstractFilter::getTransformBounds()
 {
-  if(nullptr == m_TransformFilter)
+  if(nullptr == m_TransformFilter || nullptr == getParentFilter())
   {
     return getBounds();
   }
 
-  return m_TransformFilter->GetOutput()->GetBounds();
+  vtkTransformFilter* trans = vtkTransformFilter::New();
+  trans->SetInputConnection(getParentFilter()->getOutputPort());
+  trans->SetTransform(getTransform()->getGlobalTransform());
+  trans->Update();
+
+  return trans->GetOutput()->GetBounds();
 }

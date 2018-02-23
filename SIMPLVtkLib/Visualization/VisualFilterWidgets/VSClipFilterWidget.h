@@ -107,6 +107,11 @@ protected slots:
    */
   void changeClipType(int clipType);
 
+  /**
+  * @brief Calls updates for the VSTransform
+  */
+  void updateTransform();
+
 private:
   class vsInternals;
   vsInternals*                        m_Internals;

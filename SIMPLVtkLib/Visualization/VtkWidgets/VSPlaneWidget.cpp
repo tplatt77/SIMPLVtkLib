@@ -243,9 +243,10 @@ void VSPlaneWidget::setOrigin(double x, double y, double z)
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::updateBounds()
 {
+  int enabled = m_PlaneWidget->GetEnabled();
   m_PlaneWidget->EnabledOff();
   m_PlaneWidget->GetRepresentation()->PlaceWidget(getBounds());
-  m_PlaneWidget->EnabledOn();
+  m_PlaneWidget->SetEnabled(enabled);
 }
 
 // -----------------------------------------------------------------------------
@@ -349,14 +350,15 @@ void VSPlaneWidget::spinBoxValueChanged()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::updatePlaneWidget()
 {
-  int enabled = m_PlaneWidget->GetEnabled();
-  m_PlaneWidget->Off();
-
   double normals[3];
   getNormals(normals);
 
   m_UsePlane->SetNormal(normals);
   m_UsePlane->SetOrigin(getOrigin());
+
+  int enabled = m_PlaneWidget->GetEnabled();
+  m_PlaneWidget->Off();
+
   m_ViewPlane->SetNormal(normals);
   m_ViewPlane->SetOrigin(getOrigin());
   getVSTransform()->globalizePlane(m_ViewPlane);

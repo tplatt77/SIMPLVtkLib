@@ -64,8 +64,10 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
 {
   m_Internals->setupUi(this);
 
-  m_PlaneWidget = new VSPlaneWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getBounds(), interactor);
-  m_BoxWidget = new VSBoxWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getBounds(), interactor);
+  connect(m_ClipFilter->getTransform(), SIGNAL(valuesChanged()), this, SLOT(updateTransform()));
+
+  m_PlaneWidget = new VSPlaneWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getTransformBounds(), interactor);
+  m_BoxWidget = new VSBoxWidget(nullptr, m_ClipFilter->getTransform(), m_ClipFilter->getTransformBounds(), interactor);
 
   changeClipType(static_cast<int>(VSClipFilter::ClipType::PLANE));
 
@@ -74,7 +76,6 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
   connect(m_PlaneWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_BoxWidget, SIGNAL(modified()), this, SLOT(changesWaiting()));
   connect(m_Internals->insideOutCheckBox, SIGNAL(clicked()), this, SLOT(changesWaiting()));
-  connect(m_ClipFilter->getTransform(), SIGNAL(valuesChanged()), this, SLOT(changesWaiting()));
 }
 
 // -----------------------------------------------------------------------------
@@ -261,4 +262,12 @@ void VSClipFilterWidget::setRenderingEnabled(bool enabled)
   {
     (enabled) ? m_BoxWidget->enable() : m_BoxWidget->disable();
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilterWidget::updateTransform()
+{
+  setBounds(m_ClipFilter->getTransformBounds());
 }

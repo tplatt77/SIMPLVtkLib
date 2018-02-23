@@ -95,6 +95,12 @@ public:
   */
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
+protected slots:
+  /**
+  * @brief Updates the filter widget when the transform is updated
+  */
+  void updateTransform();
+
 private:
   class vsInternals;
   vsInternals*                    m_Internals;
