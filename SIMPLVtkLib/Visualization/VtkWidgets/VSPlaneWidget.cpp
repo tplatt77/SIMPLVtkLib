@@ -329,6 +329,8 @@ void VSPlaneWidget::updateSpinBoxes()
   originYSpinBox->setValue(origin[1]);
   originZSpinBox->setValue(origin[2]);
 
+  setOrigin(origin);
+
   drawPlaneOn();
   emit modified();
 }
