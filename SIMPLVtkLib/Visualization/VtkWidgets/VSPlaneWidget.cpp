@@ -317,11 +317,20 @@ void VSPlaneWidget::drawPlaneOff()
 void VSPlaneWidget::updateSpinBoxes()
 {
   double normals[3];
-  m_PlaneRep->GetNormal(normals);
-  m_PlaneRep->GetOrigin(getOrigin());
+  double origin[3];
+  m_UsePlane->GetNormal(normals);
+  m_UsePlane->GetOrigin(origin);
 
-  setNormals(normals);
-  setOrigin(getOrigin());
+  normalXSpinBox->setValue(normals[0]);
+  normalYSpinBox->setValue(normals[1]);
+  normalZSpinBox->setValue(normals[2]);
+
+  originXSpinBox->setValue(origin[0]);
+  originYSpinBox->setValue(origin[1]);
+  originZSpinBox->setValue(origin[2]);
+
+  drawPlaneOn();
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
