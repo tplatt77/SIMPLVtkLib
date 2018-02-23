@@ -227,10 +227,20 @@ signals:
 
 protected:
   /**
-  * @brief Returns the rotation matrix for the current global rotation.
-  * @return
+  * @brief Returns a new vtkTransform based on the given values
+  * @param position
+  * @param rotation
+  * @param scale
   */
-  VTK_PTR(vtkMatrix4x4) getRotationMatrix();
+  static vtkTransform* createTransform(double position[3], double rotation[3], double scale[3]);
+
+  /**
+  * @brief Sets the local transformation to match the given values.
+  * @param position
+  * @param rotation
+  * @param scale
+  */
+  void setLocalValues(double position[3], double rotation[3], double scale[3]);
 
   /**
   * @brief Returns the vtkTransform describing the local position, rotation, and scale.
@@ -264,8 +274,5 @@ protected:
 
 private:
   VSTransform* m_Parent = nullptr;
-
-  double m_LocalPosition[3];
-  double m_LocalRotation[3];
-  double m_LocalScale[3];
+  VTK_PTR(vtkTransform) m_LocalTransform;
 };

@@ -139,32 +139,26 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     m_Internals->posXSpinBox->setValue(localPos[0]);
     m_Internals->posYSpinBox->setValue(localPos[1]);
     m_Internals->posZSpinBox->setValue(localPos[2]);
-    delete localPos;
 
     double* localRot = transform->getLocalRotation();
     m_Internals->rotXSpinBox->setValue(localRot[0]);
     m_Internals->rotYSpinBox->setValue(localRot[1]);
     m_Internals->rotZSpinBox->setValue(localRot[2]);
-    delete localRot;
 
     double* localScale = transform->getLocalScale();
     m_Internals->scaleXSpinBox->setValue(localScale[0]);
     m_Internals->scaleYSpinBox->setValue(localScale[1]);
     m_Internals->scaleZSpinBox->setValue(localScale[2]);
-    delete localScale;
 
     // global
     double* globalPos = transform->getPosition();
     updateTranslationLabels(globalPos);
-    delete globalPos;
 
     double* globalRot = transform->getRotation();
     updateRotationLabels(globalRot);
-    delete globalRot;
 
     double* globalScale = transform->getScale();
     updateScaleLabels(globalScale);
-    delete globalScale;
   }
   else
   {

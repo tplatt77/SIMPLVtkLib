@@ -42,14 +42,9 @@
 // -----------------------------------------------------------------------------
 VSTransform::VSTransform(VSTransform* parent)
 {
-  setParent(parent);
+  m_LocalTransform = VTK_PTR(vtkTransform)::New();
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_LocalPosition[i] = 0.0;
-    m_LocalRotation[i] = 0.0;
-    m_LocalScale[i] = 1.0;
-  }
+  setParent(parent);
 
   connect(this, &VSTransform::emitPosition, this, [=] 
   { 
@@ -114,14 +109,8 @@ VSTransform* VSTransform::getParent()
 // -----------------------------------------------------------------------------
 double* VSTransform::getPosition()
 {
-  if(nullptr == m_Parent)
-  {
-    return getLocalPosition();
-  }
-
-  VTK_PTR(vtkTransform) transform = getVtkTransform();
   double* position = new double[3];
-  transform->GetPosition(position);
+  getVtkTransform()->GetPosition(position);
   return position;
 }
 
@@ -131,43 +120,8 @@ double* VSTransform::getPosition()
 double* VSTransform::getLocalPosition()
 {
   double* position = new double[3];
-  for(int i = 0; i < 3; i++)
-  {
-    position[i] = m_LocalPosition[i];
-  }
-
+  m_LocalTransform->GetPosition(position);
   return position;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VTK_PTR(vtkMatrix4x4) VSTransform::getRotationMatrix()
-{
-  VTK_NEW(vtkTransform, transform);
-
-  if(m_Parent)
-  {
-    transform->SetMatrix(m_Parent->getRotationMatrix());
-  }
-
-  double* rotation = getLocalRotation();
-  // Only rotate if there is a value to rotate by
-  if(abs(rotation[2]) >= 0.0001)
-  {
-    transform->RotateZ(rotation[2]);
-  }
-  if(abs(rotation[1]) >= 0.0001)
-  {
-    transform->RotateY(rotation[1]);
-  }
-  if(abs(rotation[0]) >= 0.0001)
-  {
-    transform->RotateX(rotation[0]);
-  }
-
-  delete[] rotation;
-  return transform->GetMatrix();
 }
 
 // -----------------------------------------------------------------------------
@@ -180,9 +134,8 @@ double* VSTransform::getRotation()
     return getLocalRotation();
   }
 
-  VTK_PTR(vtkTransform) transform = getVtkTransform();
   double* rotation = new double[3];
-  transform->GetOrientation(rotation);
+  getVtkTransform()->GetOrientation(rotation);
 
   for(int i = 0; i < 3; i++)
   {
@@ -201,9 +154,14 @@ double* VSTransform::getRotation()
 double* VSTransform::getLocalRotation()
 {
   double* rotation = new double[3];
+  m_LocalTransform->GetOrientation(rotation);
+
   for(int i = 0; i < 3; i++)
   {
-    rotation[i] = m_LocalRotation[i];
+    if(abs(rotation[i]) < 0.0001)
+    {
+      rotation[i] = 0.0;
+    }
   }
 
   return rotation;
@@ -214,15 +172,8 @@ double* VSTransform::getLocalRotation()
 // -----------------------------------------------------------------------------
 double* VSTransform::getScale()
 {
-  if(nullptr == m_Parent)
-  {
-    return getLocalScale();
-  }
-
-
-  VTK_PTR(vtkTransform) transform = getVtkTransform();
   double* scale = new double[3];
-  transform->GetScale(scale);
+  getVtkTransform()->GetScale(scale);
   return scale;
 }
 
@@ -232,11 +183,7 @@ double* VSTransform::getScale()
 double* VSTransform::getLocalScale()
 {
   double* scale = new double[3];
-  for(int i = 0; i < 3; i++)
-  {
-    scale[i] = m_LocalScale[i];
-  }
-
+  m_LocalTransform->GetScale(scale);
   return scale;
 }
 
@@ -245,13 +192,14 @@ double* VSTransform::getLocalScale()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getVtkTransform()
 {
-  VTK_PTR(vtkTransform) transform = getLocalVtkTransform();
+  VTK_NEW(vtkTransform, transform);
+  transform->DeepCopy(m_LocalTransform);
 
   if(m_Parent)
   {
     transform->SetInput(m_Parent->getVtkTransform());
   }
-  
+
   return transform;
 }
 
@@ -260,10 +208,24 @@ VTK_PTR(vtkTransform) VSTransform::getVtkTransform()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getLocalVtkTransform()
 {
-  VTK_PTR(vtkTransform) transform = VTK_PTR(vtkTransform)::New();
+  VTK_NEW(vtkTransform, transform);
+  transform->DeepCopy(m_LocalTransform);
 
-  // Rotation
-  double* rotation = getLocalRotation();
+  updateTransform(transform);
+
+  return transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkTransform* VSTransform::createTransform(double position[3], double rotation[3], double scale[3])
+{
+  vtkTransform* transform = vtkTransform::New();
+
+  // Translate
+  transform->Translate(position);
+
   // Only rotate if there is a value to rotate by
   if(abs(rotation[2]) >= 0.0001)
   {
@@ -277,17 +239,12 @@ VTK_PTR(vtkTransform) VSTransform::getLocalVtkTransform()
   {
     transform->RotateX(rotation[0]);
   }
-  delete[] rotation;
-
-  // Translate
-  double* position = getLocalPosition();
-  transform->Translate(position);
-  delete[] position;
 
   // Scale
-  double* scale = getLocalScale();
   transform->Scale(scale);
-  delete[] scale;
+
+  // Set the hard value and reset the pipelined transformation
+  updateTransform(transform);
 
   return transform;
 }
@@ -295,12 +252,43 @@ VTK_PTR(vtkTransform) VSTransform::getLocalVtkTransform()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSTransform::setLocalValues(double position[3], double rotation[3], double scale[3])
+{
+  m_LocalTransform->Identity();
+
+  // Translate
+  m_LocalTransform->Translate(position);
+
+  // Only rotate if there is a value to rotate by
+  if(abs(rotation[2]) >= 0.0001)
+  {
+    m_LocalTransform->RotateZ(rotation[2]);
+  }
+  if(abs(rotation[1]) >= 0.0001)
+  {
+    m_LocalTransform->RotateY(rotation[1]);
+  }
+  if(abs(rotation[0]) >= 0.0001)
+  {
+    m_LocalTransform->RotateX(rotation[0]);
+  }
+
+  // Scale
+  m_LocalTransform->Scale(scale);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSTransform::setLocalPosition(double position[3])
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LocalPosition[i] = position[i];
-  }
+  double rotation[3];
+  double scale[3];
+
+  m_LocalTransform->GetOrientation(rotation);
+  m_LocalTransform->GetScale(scale);
+
+  setLocalValues(position, rotation, scale);
 
   emit emitPosition();
 }
@@ -310,10 +298,13 @@ void VSTransform::setLocalPosition(double position[3])
 // -----------------------------------------------------------------------------
 void VSTransform::setLocalRotation(double rotation[3])
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LocalRotation[i] = rotation[i];
-  }
+  double position[3];
+  double scale[3];
+
+  m_LocalTransform->GetPosition(position);
+  m_LocalTransform->GetScale(scale);
+
+  setLocalValues(position, rotation, scale);
 
   emit emitRotation();
 }
@@ -323,10 +314,13 @@ void VSTransform::setLocalRotation(double rotation[3])
 // -----------------------------------------------------------------------------
 void VSTransform::setLocalScale(double scale[3])
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LocalScale[i] = scale[i];
-  }
+  double position[3];
+  double rotation[3];
+
+  m_LocalTransform->GetPosition(position);
+  m_LocalTransform->GetOrientation(rotation);
+
+  setLocalValues(position, rotation, scale);
 
   emit emitScale();
 }
