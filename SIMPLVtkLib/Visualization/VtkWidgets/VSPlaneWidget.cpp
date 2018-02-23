@@ -179,9 +179,7 @@ VSPlaneWidget::~VSPlaneWidget()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::getNormals(double normals[3])
 { 
-  normals[0] = normalXSpinBox->value();
-  normals[1] = normalYSpinBox->value();
-  normals[2] = normalZSpinBox->value();
+  m_UsePlane->GetNormal(normals);
 }
 
 // -----------------------------------------------------------------------------
