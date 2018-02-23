@@ -260,7 +260,7 @@ protected:
   * @brief Resets the vtkTransform so that any pipelined transforms are removed
   * @param transform
   */
-  void updateTransform(vtkTransform* transform);
+  static void updateTransform(vtkTransform* transform);
 
 private:
   VSTransform* m_Parent = nullptr;
