@@ -334,8 +334,13 @@ void VSPlaneWidget::spinBoxValueChanged()
   origin[2] = originZSpinBox->value();
   setOrigin(origin);
 
-  updatePlaneWidget();
+  double normal[3];
+  normal[0] = normalXSpinBox->value();
+  normal[1] = normalYSpinBox->value();
+  normal[2] = normalZSpinBox->value();
+  setNormals(normal);
 
+  updatePlaneWidget();
   emit modified();
 }
 
