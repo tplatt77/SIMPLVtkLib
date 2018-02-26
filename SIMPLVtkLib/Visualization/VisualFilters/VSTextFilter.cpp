@@ -35,6 +35,10 @@
 
 #include "VSTextFilter.h"
 
+#include <QtCore/QUuid>
+
+#include <vtkAlgorithmOutput.h>
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -46,6 +50,27 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolT
   setText(text);
   setToolTip(toolTip);
   setItalic();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTextFilter* VSTextFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  QString text = json["Text"].toString();
+  QString tooltip = json["Tooltip"].toString();
+
+  VSTextFilter* filter = new VSTextFilter(parent, text, tooltip);
+
+  QFont font = filter->font();
+  font.setItalic(json["Italic"].toBool());
+  font.setBold(json["Bold"].toBool());
+  font.setUnderline(json["Underline"].toBool());
+  filter->setFont(font);
+
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -97,6 +122,14 @@ void VSTextFilter::setUnderline(bool underline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QUuid VSTextFilter::GetUuid()
+{
+  return QUuid("{c819de20-4110-5ea2-b847-89307b05895c}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSTextFilter::getOutputPort()
 {
   if(getParentFilter())
@@ -140,6 +173,21 @@ VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
 VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
 {
   return ANY_DATA_SET;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTextFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  json["Text"] = text();
+  json["Tooltip"] = toolTip();
+  json["Italic"] = font().italic();
+  json["Bold"] = font().bold();
+  json["Underline"] = font().underline();
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------

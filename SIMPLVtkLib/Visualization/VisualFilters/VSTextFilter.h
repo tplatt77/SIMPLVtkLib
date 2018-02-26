@@ -57,6 +57,14 @@ public:
   VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip);
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSTextFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * @brief Returns the filter's name
   * @return
   */
@@ -108,6 +116,18 @@ public:
   */
   static dataType_t getRequiredInputType();
 
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
+    
   /**
   * @brief Returns true if this filter type can be added as a child of
   * the given filter.  Returns false otherwise.

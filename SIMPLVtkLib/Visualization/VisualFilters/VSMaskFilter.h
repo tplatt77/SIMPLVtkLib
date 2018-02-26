@@ -63,6 +63,14 @@ public:
   VSMaskFilter(VSAbstractFilter* parent);
 
   /**
+   * @brief Create
+   * @param json
+   * @param parent
+   * @return
+   */
+  static VSMaskFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
   * Brief Returns the filter name
   * @return
   */
@@ -116,6 +124,30 @@ public:
   * @return
   */
   QString getLastArrayName();
+
+  /**
+  * @brief Sets the name of the array last applied as a mask
+  * @return
+  */
+  void setLastArrayName(QString lastArrayName);
+
+  /**
+   * @brief Reads values from a json file into the filter
+   * @param json
+   */
+  void readJson(QJsonObject &json);
+
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
 
 protected:
   /**

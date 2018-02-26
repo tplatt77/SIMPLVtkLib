@@ -111,6 +111,18 @@ public:
   */
   virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
+  /**
+   * @brief Reads values from a json file into the widget
+   * @param json
+   */
+  virtual void readJson(QJsonObject &json) = 0;
+
+  /**
+   * @brief Writes values to a json file from the widget
+   * @param json
+   */
+  virtual void writeJson(const QJsonObject &json) = 0;
+
 signals:
   void modified();
 

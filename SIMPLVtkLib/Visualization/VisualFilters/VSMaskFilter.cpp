@@ -36,6 +36,7 @@
 #include "VSMaskFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 #include <vtkCellData.h>
 #include <vtkImageData.h>
@@ -51,6 +52,20 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
   setParentFilter(parent);
   setText(getFilterName());
   setToolTip(getToolTip());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSMaskFilter* VSMaskFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSMaskFilter* filter = new VSMaskFilter(parent);
+
+  filter->setLastArrayName(json["Last Array Name"].toString());
+
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -97,6 +112,25 @@ void VSMaskFilter::apply(QString name)
   m_MaskAlgorithm->Update();
 
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::readJson(QJsonObject &json)
+{
+  m_LastArrayName = json["Last Array Name"].toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  json["Last Array Name"] = m_LastArrayName;
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------
@@ -158,6 +192,14 @@ void VSMaskFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QUuid VSMaskFilter::GetUuid()
+{
+  return QUuid("{baedbc9c-3c2c-5428-a4b2-1ea06ace5aba}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter::dataType_t VSMaskFilter::getOutputType()
 {
   return UNSTRUCTURED_GRID;
@@ -200,4 +242,12 @@ bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
 QString VSMaskFilter::getLastArrayName()
 {
   return m_LastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::setLastArrayName(QString lastArrayName)
+{
+  m_LastArrayName = lastArrayName;
 }

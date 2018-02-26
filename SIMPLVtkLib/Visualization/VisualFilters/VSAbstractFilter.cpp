@@ -53,6 +53,7 @@
 VSAbstractFilter::VSAbstractFilter()
 : QObject()
 , QStandardItem()
+, m_LoadingObject(QJsonObject())
 , m_InputPort(nullptr)
 , m_Transform(new VSTransform())
 {
@@ -539,4 +540,12 @@ double* VSAbstractFilter::getTransformBounds()
   trans->Update();
 
   return trans->GetOutput()->GetBounds();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::writeJson(QJsonObject &json)
+{
+  json["CheckState"] = checkState();
 }

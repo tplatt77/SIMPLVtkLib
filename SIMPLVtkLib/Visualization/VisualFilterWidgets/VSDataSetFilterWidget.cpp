@@ -58,6 +58,13 @@ VSDataSetFilterWidget::VSDataSetFilterWidget(VSDataSetFilter* filter, QWidget* w
 {
   m_Internals->setupUi(this);
   cancelChanges();
+
+  if (m_DataSetFilter->isInitialized() == true)
+  {
+    m_DataSetFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------

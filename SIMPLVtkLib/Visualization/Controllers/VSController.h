@@ -69,6 +69,22 @@ public:
   virtual ~VSController();
 
   /**
+   * @brief Saves the session to the file at sessionFilePath
+   * @param sessionFilePath
+   * @param instance
+   * @return
+   */
+  bool saveSession(const QString &sessionFilePath);
+
+  /**
+   * @brief Loads the session stored in the file at sessionFilePath
+   * @param sessionFilePath
+   * @param instance
+   * @return
+   */
+  bool loadSession(const QString &sessionFilePath);
+
+  /**
   * @brief Import data from a DataContainerArray and add any relevant DataContainers
   * as top-level VisualFilters
   * @param dca
@@ -121,10 +137,25 @@ public:
   VSFilterModel* getFilterModel();
 
 signals:
-  void filterAdded(VSAbstractFilter*);
+  void filterAdded(VSAbstractFilter*, QJsonObject = QJsonObject());
   void filterRemoved(VSAbstractFilter*);
+  void filterCheckStateChanged(VSAbstractFilter* filter);
+
   void dataImported();
 
 private:
   VSFilterModel* m_FilterModel;
+
+  /**
+   * @brief saveFilter
+   * @param filter
+   * @param obj
+   */
+  void saveFilter(VSAbstractFilter* filter, QJsonObject &obj);
+
+  /**
+   * @brief loadFilter
+   * @param filterObj
+   */
+  void loadFilter(QJsonObject &obj, VSAbstractFilter* parentFilter = nullptr);
 };

@@ -35,7 +35,20 @@
 
 #include "VSController.h"
 
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QFile>
+#include <QtCore/QUuid>
+
+#include "SIMPLib/Utilities/SIMPLH5DataReader.h"
+#include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
+
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
@@ -72,8 +85,7 @@ void VSController::importDataContainerArray(QString filePath, DataContainerArray
   size_t count = wrappedData.size();
   for(size_t i = 0; i < count; i++)
   {
-    VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedData[i]);
-    filter->setParentFilter(textFilter);
+    VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedData[i], textFilter);
     m_FilterModel->addFilter(filter);
   }
 }
@@ -129,6 +141,164 @@ void VSController::importData(const QString &filePath)
     m_FilterModel->addFilter(filter);
 
     emit dataImported();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSController::saveSession(const QString &sessionFilePath)
+{
+  QFile outputFile(sessionFilePath);
+  if(outputFile.open(QIODevice::WriteOnly))
+  {
+    QJsonObject rootObj;
+
+    QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+    for (int i = 0; i < baseFilters.size(); i++)
+    {
+      VSAbstractFilter* filter = baseFilters[i];
+
+      saveFilter(filter, rootObj);
+    }
+
+    QJsonDocument doc(rootObj);
+
+    outputFile.write(doc.toJson());
+    outputFile.close();
+
+    return true;
+  }
+  else
+  {
+    // "Failed to open output file" error
+    return false;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::saveFilter(VSAbstractFilter* filter, QJsonObject &obj)
+{
+  QJsonObject rootFilterObj;
+
+  filter->writeJson(rootFilterObj);
+
+  // Write the children
+  QJsonObject childrenObj;
+
+  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  for (int i = 0; i < childFilters.size(); i++)
+  {
+    VSAbstractFilter* childFilter = childFilters[i];
+    saveFilter(childFilter, childrenObj);
+  }
+
+  rootFilterObj["Child Filters"] = childrenObj;
+
+  obj[filter->getFilterName()] = rootFilterObj;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSController::loadSession(const QString &sessionFilePath)
+{
+  QFile inputFile(sessionFilePath);
+  if(inputFile.open(QIODevice::ReadOnly) == false)
+  {
+    return false;
+  }
+
+  QByteArray byteArray = inputFile.readAll();
+  QJsonParseError parseError;
+
+  QJsonDocument doc = QJsonDocument::fromJson(byteArray, &parseError);
+  if(parseError.error != QJsonParseError::NoError)
+  {
+    return false;
+  }
+
+  QJsonObject rootObj = doc.object();
+  for (QJsonObject::iterator iter = rootObj.begin(); iter != rootObj.end(); iter++)
+  {
+    QJsonObject filterObj = iter.value().toObject();
+    loadFilter(filterObj);
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::loadFilter(QJsonObject &obj, VSAbstractFilter* parentFilter)
+{
+  QUuid uuid(obj["Uuid"].toString());
+
+  VSAbstractFilter* newFilter = nullptr;
+  if (uuid == VSClipFilter::GetUuid())
+  {
+    newFilter = VSClipFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSCropFilter::GetUuid())
+  {
+    newFilter = VSCropFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSDataSetFilter::GetUuid())
+  {
+    if (dynamic_cast<VSFileNameFilter*>(parentFilter) != nullptr)
+    {
+      VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
+      QString filePath = fileNameFilter->getFilePath();
+
+      newFilter = VSDataSetFilter::Create(filePath, obj, parentFilter);
+    }
+  }
+  else if (uuid == VSFileNameFilter::GetUuid())
+  {
+    newFilter = VSFileNameFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSMaskFilter::GetUuid())
+  {
+    newFilter = VSMaskFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSSIMPLDataContainerFilter::GetUuid())
+  {
+    if (dynamic_cast<VSFileNameFilter*>(parentFilter) != nullptr)
+    {
+      VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
+      QString filePath = fileNameFilter->getFilePath();
+
+      newFilter = VSSIMPLDataContainerFilter::Create(filePath, obj, parentFilter);
+    }
+  }
+  else if (uuid == VSSliceFilter::GetUuid())
+  {
+    newFilter = VSSliceFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSTextFilter::GetUuid())
+  {
+    newFilter = VSTextFilter::Create(obj, parentFilter);
+  }
+  else if (uuid == VSThresholdFilter::GetUuid())
+  {
+    newFilter = VSThresholdFilter::Create(obj, parentFilter);
+  }
+
+  if (newFilter != nullptr)
+  {
+    m_FilterModel->addFilter(newFilter);
+    newFilter->setCheckState(static_cast<Qt::CheckState>(obj["CheckState"].toInt()));
+    emit filterCheckStateChanged(newFilter);
+
+    QJsonObject childrenObj = obj["Child Filters"].toObject();
+    for (QJsonObject::iterator iter = childrenObj.begin(); iter != childrenObj.end(); iter++)
+    {
+      QJsonObject childObj = iter.value().toObject();
+      loadFilter(childObj, newFilter);
+    }
   }
 }
 

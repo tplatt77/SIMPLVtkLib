@@ -55,7 +55,20 @@ public:
   * @param parentFilter
   * @param filePath
   */
-  VSFileNameFilter(QString filePath);
+  VSFileNameFilter(QString filePath, VSAbstractFilter* parent = nullptr);
+
+  /**
+   * @brief Create
+   * @param json
+   * @return
+   */
+  static VSFileNameFilter* Create(QJsonObject &json, VSAbstractFilter* parent);
+
+  /**
+   * @brief writeJson
+   * @param json
+   */
+  void writeJson(QJsonObject &json) override;
 
   /**
   * @brief Returns the stored file path
@@ -68,6 +81,12 @@ public:
   * @return
   */
   QString getFileName();
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
 
   /**
   * @brief Returns true if this filter type can be added as a child of

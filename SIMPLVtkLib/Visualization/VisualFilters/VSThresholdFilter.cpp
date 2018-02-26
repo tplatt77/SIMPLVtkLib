@@ -36,6 +36,7 @@
 #include "VSThresholdFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
@@ -55,6 +56,22 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
   setParentFilter(parent);
   setText(getFilterName());
   setToolTip(getToolTip());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSThresholdFilter* VSThresholdFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSThresholdFilter* filter = new VSThresholdFilter(parent);
+
+  filter->setLastArrayName(json["Last Array Name"].toString());
+  filter->setLastMinValue(json["Last Minimum Value"].toDouble());
+  filter->setLastMaxValue(json["Last Maximum Value"].toDouble());
+
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -112,6 +129,35 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::readJson(QJsonObject &json)
+{
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  json["Uuid"] = GetUuid().toString();
+  json["Last Array Name"] = m_LastArrayName;
+  json["Last Minimum Value"] = m_LastMinValue;
+  json["Last Maximum Value"] = m_LastMaxValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSThresholdFilter::GetUuid()
+{
+  return QUuid("{cbd16e15-5a0a-5c46-8375-7974b481b57a}");
 }
 
 // -----------------------------------------------------------------------------
@@ -231,4 +277,28 @@ double VSThresholdFilter::getLastMinValue()
 double VSThresholdFilter::getLastMaxValue()
 {
   return m_LastMaxValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSThresholdFilter::setLastArrayName(QString lastArrayName)
+{
+  m_LastArrayName = lastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::setLastMinValue(double lastMinValue)
+{
+  m_LastMinValue = lastMinValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::setLastMaxValue(double lastMaxValue)
+{
+  m_LastMaxValue = lastMaxValue;
 }

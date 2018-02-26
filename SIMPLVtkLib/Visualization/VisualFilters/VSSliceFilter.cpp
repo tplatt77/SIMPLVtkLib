@@ -36,6 +36,8 @@
 #include "VSSliceFilter.h"
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
+#include <QtCore/QJsonArray>
 
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
@@ -59,6 +61,32 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
   m_LastNormal[0] = 1.0;
   m_LastNormal[1] = 0.0;
   m_LastNormal[2] = 0.0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSliceFilter* VSSliceFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSSliceFilter* filter = new VSSliceFilter(parent);
+
+  QJsonArray lastOrigin = json["Last Origin"].toArray();
+  double origin[3];
+  origin[0] = lastOrigin.at(0).toDouble();
+  origin[1] = lastOrigin.at(1).toDouble();
+  origin[2] = lastOrigin.at(2).toDouble();
+  filter->setLastOrigin(origin);
+
+  QJsonArray lastNormal = json["Last Normal"].toArray();
+  double normals[3];
+  normals[0] = lastNormal.at(0).toDouble();
+  normals[1] = lastNormal.at(1).toDouble();
+  normals[2] = lastNormal.at(2).toDouble();
+  filter->setLastNormal(normals);
+
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -112,6 +140,36 @@ void VSSliceFilter::apply(double origin[3], double normal[3])
   m_SliceAlgorithm->Update();
 
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::readJson(QJsonObject &json)
+{
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  QJsonArray lastOrigin;
+  lastOrigin.append(m_LastOrigin[0]);
+  lastOrigin.append(m_LastOrigin[1]);
+  lastOrigin.append(m_LastOrigin[2]);
+  json["Last Origin"] = lastOrigin;
+
+  QJsonArray lastNormal;
+  lastNormal.append(m_LastNormal[0]);
+  lastNormal.append(m_LastNormal[1]);
+  lastNormal.append(m_LastNormal[2]);
+  json["Last Normal"] = lastNormal;
+
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------
@@ -173,6 +231,14 @@ void VSSliceFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QUuid VSSliceFilter::GetUuid()
+{
+  return QUuid("{7a5a24be-13db-5101-8a7c-5a8a7979fbbb}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter::dataType_t VSSliceFilter::getOutputType()
 {
   return POLY_DATA;
@@ -218,4 +284,24 @@ double* VSSliceFilter::getLastOrigin()
 double* VSSliceFilter::getLastNormal()
 {
   return m_LastNormal;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::setLastOrigin(double* origin)
+{
+  m_LastOrigin[0] = origin[0];
+  m_LastOrigin[1] = origin[1];
+  m_LastOrigin[2] = origin[2];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::setLastNormal(double* normal)
+{
+  m_LastNormal[0] = normal[0];
+  m_LastNormal[1] = normal[1];
+  m_LastNormal[2] = normal[2];
 }

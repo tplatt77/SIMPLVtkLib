@@ -36,12 +36,12 @@
 #include "VSClipFilter.h"
 
 #include <QApplication>
+
+#include <QtCore/QJsonArray>
+#include <QtCore/QUuid>
 #include <QtCore/QString>
 
 #include <vtkUnstructuredGrid.h>
-
-//const QString VSClipFilter::PlaneClipTypeString = "Plane";
-//const QString VSClipFilter::BoxClipTypeString = "Box";
 
 // -----------------------------------------------------------------------------
 //
@@ -77,6 +77,51 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
 VSClipFilter::~VSClipFilter()
 {
 
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipFilter* VSClipFilter::Create(QJsonObject &json, VSAbstractFilter* parent)
+{
+  VSClipFilter* filter = new VSClipFilter(parent);
+
+  filter->setLastClipType(static_cast<ClipType>(json["Last Clip Type"].toInt()));
+  filter->setLastPlaneInverted(json["Last Plane Inverted"].toBool());
+  filter->setLastBoxInverted(json["Last Box Inverted"].toBool());
+
+  QJsonArray lastPlaneOrigin = json["Last Plane Origin"].toArray();
+  double origin[3];
+  origin[0] = lastPlaneOrigin.at(0).toDouble();
+  origin[1] = lastPlaneOrigin.at(1).toDouble();
+  origin[2] = lastPlaneOrigin.at(2).toDouble();
+  filter->setLastPlaneOrigin(origin);
+
+  QJsonArray lastPlaneNormal = json["Last Plane Normal"].toArray();
+  double normals[3];
+  normals[0] = lastPlaneNormal.at(0).toDouble();
+  normals[1] = lastPlaneNormal.at(1).toDouble();
+  normals[2] = lastPlaneNormal.at(2).toDouble();
+  filter->setLastPlaneNormal(normals);
+
+  QJsonArray boxTransformDataArray = json["Box Transform Data"].toArray();
+  double boxTransformData[12];
+  for (int i = 0; i < 12; i++)
+  {
+    boxTransformData[i] = boxTransformDataArray[i].toDouble();
+  }
+
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(boxTransformData);
+
+  VTK_NEW(vtkTransform, transform);
+  transform->SetMatrix(matrix);
+
+  filter->setLastBoxTransform(transform);
+
+  filter->setInitialized(true);
+
+  return filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -167,6 +212,14 @@ void VSClipFilter::apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transf
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QUuid VSClipFilter::GetUuid()
+{
+  return QUuid("{be4f6ccb-d4eb-56b3-bddc-94dd5056fdd2}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSClipFilter::getOutputPort()
 {
   if(m_ConnectedInput && m_ClipAlgorithm)
@@ -218,6 +271,42 @@ void VSClipFilter::updateAlgorithmInput(VSAbstractFilter* filter)
   {
     emit updatedOutputPort(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  json["Last Clip Type"] = static_cast<int>(m_LastClipType);
+  json["Last Plane Inverted"] = m_LastPlaneInverted;
+  json["Last Box Inverted"] = m_LastBoxInverted;
+
+  QJsonArray lastPlaneOrigin;
+  lastPlaneOrigin.append(m_LastPlaneOrigin[0]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[1]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[2]);
+  json["Last Plane Origin"] = lastPlaneOrigin;
+
+  QJsonArray lastPlaneNormal;
+  lastPlaneNormal.append(m_LastPlaneNormal[0]);
+  lastPlaneNormal.append(m_LastPlaneNormal[1]);
+  lastPlaneNormal.append(m_LastPlaneNormal[2]);
+  json["Last Plane Normal"] = lastPlaneNormal;
+
+  json["Uuid"] = GetUuid().toString();
+
+  vtkMatrix4x4* matrix = m_LastBoxTransform->GetMatrix();
+  double* matrixData = matrix->GetData();
+  QJsonArray boxTransformData;
+  for (int i = 0; i < 12; i++)
+  {
+    boxTransformData.append(matrixData[i]);
+  }
+
+  json["Box Transform Data"] = boxTransformData;
 }
 
 // -----------------------------------------------------------------------------
@@ -302,4 +391,56 @@ VTK_PTR(vtkTransform) VSClipFilter::getLastBoxTransform()
 VSClipFilter::ClipType VSClipFilter::getLastClipType()
 {
   return m_LastClipType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastPlaneInverted(bool inverted)
+{
+  m_LastPlaneInverted = inverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastPlaneOrigin(double* origin)
+{
+  m_LastPlaneOrigin[0] = origin[0];
+  m_LastPlaneOrigin[1] = origin[1];
+  m_LastPlaneOrigin[2] = origin[2];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastPlaneNormal(double* normal)
+{
+  m_LastPlaneNormal[0] = normal[0];
+  m_LastPlaneNormal[1] = normal[1];
+  m_LastPlaneNormal[2] = normal[2];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastBoxInverted(bool inverted)
+{
+  m_LastBoxInverted = inverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastBoxTransform(VTK_PTR(vtkTransform) transform)
+{
+  m_LastBoxTransform = transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::setLastClipType(VSClipFilter::ClipType type)
+{
+  m_LastClipType = type;
 }

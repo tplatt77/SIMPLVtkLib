@@ -35,9 +35,16 @@
 
 #include "VSSIMPLDataContainerFilter.h"
 
+#include <QtCore/QUuid>
+
+#include <vtkAlgorithmOutput.h>
+
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
+
+#include "SIMPLib/Utilities/SIMPLH5DataReader.h"
+#include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
@@ -45,7 +52,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer)
+VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer, VSAbstractFilter *parent)
 : VSAbstractDataFilter()
 , m_WrappedDataContainer(wrappedDataContainer)
 {
@@ -53,6 +60,7 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
 
   setText(wrappedDataContainer->m_Name);
   setToolTip(getToolTip());
+  setParentFilter(parent);
 }
 
 // -----------------------------------------------------------------------------
@@ -89,6 +97,87 @@ VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
   }
 
   return m_WrappedDataContainer->m_DataSet;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString &filePath, QJsonObject &json, VSAbstractFilter* parent)
+{
+  QString dcName = json["Data Container Name"].toString();
+
+  // Read in the data from the file and initialize the filter
+  SIMPLH5DataReader reader;
+  bool success = reader.openFile(filePath);
+  if (success)
+  {
+    int err = 0;
+    DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(nullptr, err);
+    for (QMap<QString,DataContainerProxy>::iterator dcIter = proxy.dataContainers.begin(); dcIter != proxy.dataContainers.end(); dcIter++)
+    {
+      if (dcIter.key() == dcName)
+      {
+        DataContainerProxy dcProxy = dcIter.value();
+        dcProxy.flag = Qt::Checked;
+
+        for (QMap<QString,AttributeMatrixProxy>::iterator amIter = dcProxy.attributeMatricies.begin(); amIter != dcProxy.attributeMatricies.end(); amIter++)
+        {
+          AttributeMatrixProxy amProxy = amIter.value();
+
+          if (amProxy.amType == AttributeMatrix::Type::Cell)
+          {
+            amProxy.flag = Qt::Checked;
+          }
+
+          for (QMap<QString,DataArrayProxy>::iterator daIter = amProxy.dataArrays.begin(); daIter != amProxy.dataArrays.end(); daIter++)
+          {
+            DataArrayProxy daProxy = daIter.value();
+            daProxy.flag = Qt::Checked;
+
+            amProxy.dataArrays[daProxy.name] = daProxy;
+          }
+
+          dcProxy.attributeMatricies[amProxy.name] = amProxy;
+        }
+
+        proxy.dataContainers[dcProxy.name] = dcProxy;
+
+        DataContainerArray::Pointer dca = reader.readSIMPLDataUsingProxy(proxy, false);
+        DataContainerShPtr dc = dca->getDataContainer(dcName);
+        if (dc)
+        {
+          SIMPLVtkBridge::WrappedDataContainerPtr wrappedDC = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
+
+          VSSIMPLDataContainerFilter* newFilter = new VSSIMPLDataContainerFilter(wrappedDC, parent);
+          newFilter->setToolTip(json["Tooltip"].toString());
+          newFilter->setInitialized(true);
+          return newFilter;
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::writeJson(QJsonObject &json)
+{
+  VSAbstractFilter::writeJson(json);
+
+  json["Data Container Name"] = text();
+  json["Tooltip"] = toolTip();
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSSIMPLDataContainerFilter::GetUuid()
+{
+  return QUuid("{d1c86a47-85b5-55bd-bcdb-0bdb6c5cf020}");
 }
 
 // -----------------------------------------------------------------------------

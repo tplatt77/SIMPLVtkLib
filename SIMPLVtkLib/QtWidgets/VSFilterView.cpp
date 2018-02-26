@@ -71,6 +71,7 @@ void VSFilterView::setController(VSController* controller)
   {
     disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)),
       this, SLOT(insertFilter(VSAbstractFilter*)));
+    disconnect(m_Controller, &VSController::filterCheckStateChanged, 0, 0);
   }
 
   m_Controller = controller;
@@ -80,6 +81,11 @@ void VSFilterView::setController(VSController* controller)
     this, SLOT(insertFilter(VSAbstractFilter*)));
   connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
     this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));
+  connect(m_Controller, &VSController::filterCheckStateChanged, this, [=] (VSAbstractFilter* filter) {
+    QModelIndex filterIndex = m_Controller->getFilterModel()->getIndexFromFilter(filter);
+    itemClicked(filterIndex);
+  });
+
 }
 
 // -----------------------------------------------------------------------------

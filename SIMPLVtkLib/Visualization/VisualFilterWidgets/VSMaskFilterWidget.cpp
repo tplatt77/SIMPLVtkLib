@@ -66,6 +66,13 @@ VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter* filter, vtkRenderWindowInte
   setMaskName("");
 
   connect(m_Internals->maskComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentMaskChanged(int)));
+
+  if (m_MaskFilter->isInitialized() == true)
+  {
+    m_MaskFilter->setInitialized(false);
+    reset();
+    apply();
+  }
 }
 
 // -----------------------------------------------------------------------------

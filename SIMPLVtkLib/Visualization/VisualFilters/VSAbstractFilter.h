@@ -51,6 +51,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtCore/QJsonObject>
+
 #include <QtGui/QStandardItemModel>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
@@ -86,6 +88,9 @@ public:
     ANY_DATA_SET,
     INVALID_DATA
   };
+
+  SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
+  SIMPL_BOOL_PROPERTY(Initialized)
 
   /**
   * @brief Constructor
@@ -237,6 +242,12 @@ public:
   * @return
   */
   VSTransform* getTransform();
+
+  /**
+  * @brief Writes values to a json file from the filter
+  * @param json
+  */
+  virtual void writeJson(QJsonObject &json);
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
