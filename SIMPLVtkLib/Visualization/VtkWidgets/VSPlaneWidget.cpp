@@ -122,17 +122,11 @@ VSPlaneWidget::VSPlaneWidget(QWidget* parent, VSTransform* transform, double bou
   m_UsePlane = vtkSmartPointer<vtkPlane>::New();
 
   double normal[3] = { 1.0, 0.0, 0.0 };
-  double origin[3];
   double viewNormal[3] = { 1.0, 0.0, 0.0 };
-  double viewOrigin[3];
-  for(int i = 0; i < 3; i++)
-  {
-    viewOrigin[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2.0;
-    origin[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2.0;
-  }
   transform->globalizeNormal(viewNormal);
-  transform->localizePoint(origin);
-
+  double* origin = calculateLocalOrigin(bounds, transform);
+  double* viewOrigin = calculateGlobalOrigin(bounds);
+  
   m_UsePlane->SetOrigin(origin);
   m_UsePlane->SetNormal(normal);
   m_ViewPlane->SetOrigin(viewOrigin);
@@ -218,30 +212,36 @@ void VSPlaneWidget::setNormals(double x, double y, double z)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setOrigin(double origin[3])
+double* VSPlaneWidget::getOrigin()
 {
-  VSAbstractWidget::setOrigin(origin);
-
-  m_UsePlane->SetOrigin(origin);
-  m_ViewPlane->SetOrigin(origin);
-  getVSTransform()->globalizePlane(m_ViewPlane);
-
-  originXSpinBox->setValue(origin[0]);
-  originYSpinBox->setValue(origin[1]);
-  originZSpinBox->setValue(origin[2]);
-
-  drawPlaneOn();
-
-  emit modified();
+  return m_UsePlane->GetOrigin();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setOrigin(double x, double y, double z)
+void VSPlaneWidget::getOrigin(double origin[3])
 {
-  double origin[3] = {x, y, z};
-  setOrigin(origin);
+  m_UsePlane->GetOrigin(origin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setOrigin(double origin[3])
+{
+  m_UsePlane->SetOrigin(origin);
+  
+  originXSpinBox->setValue(origin[0]);
+  originYSpinBox->setValue(origin[1]);
+  originZSpinBox->setValue(origin[2]);
+
+  m_ViewPlane->SetOrigin(origin);
+  getVSTransform()->globalizePoint(origin);
+
+  drawPlaneOn();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -253,16 +253,6 @@ void VSPlaneWidget::updateBounds()
   m_PlaneWidget->EnabledOff();
   m_PlaneWidget->GetRepresentation()->PlaceWidget(getBounds());
   m_PlaneWidget->SetEnabled(enabled);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSPlaneWidget::updateOrigin()
-{
-  m_UsePlane->SetOrigin(getOrigin());
-  m_ViewPlane->SetOrigin(getOrigin());
-  m_ViewPlane->SetTransform(getVSTransform()->getGlobalTransform());
 }
 
 // -----------------------------------------------------------------------------

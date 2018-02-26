@@ -94,18 +94,22 @@ public:
   void setNormals(double x, double y, double z);
 
   /**
+  * @brief Returns the origin from the m_UsePlane
+  * @return
+  */
+  double* getOrigin();
+
+  /**
+  * @brief Copies the origin from the m_UsePlane into the double array passed in
+  * @param origin
+  */
+  void getOrigin(double origin[3]);
+
+  /**
   * @brief Sets the origin to the given value
   * @param origin
   */
-  void setOrigin(double origin[3]) override;
-
-  /**
-  * @brief Sets the origin to match the given values
-  * @param x
-  * @param y
-  * @param z
-  */
-  void setOrigin(double x, double y, double z) override;
+  void setOrigin(double origin[3]);
 
   /**
    * @brief setInteractor
@@ -161,11 +165,6 @@ protected:
   * @brief Updates the bounds representation for the VTK plane widget.
   */
   void updateBounds() override;
-
-  /**
-  * @brief Updates the origin for the VTK plane
-  */
-  void updateOrigin() override;
 
 private:
   vtkSmartPointer<vtkPlane> m_UsePlane;

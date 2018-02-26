@@ -45,11 +45,6 @@ VSAbstractWidget::VSAbstractWidget(QWidget* parent, VSTransform* transform, doub
 {
   setBounds(bounds);
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_Origin[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2.0;
-  }
-
   connect(transform, SIGNAL(valuesChanged()), this, SLOT(updateGlobalSpace()));
 }
 
@@ -75,20 +70,25 @@ double* VSAbstractWidget::getBounds()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractWidget::getOrigin(double origin[3])
+double* VSAbstractWidget::calculateLocalOrigin(double* bounds, VSTransform* transform)
 {
-  for(int i = 0; i < 3; i++)
-  {
-    origin[i] = this->m_Origin[i];
-  }
+  double* origin = calculateGlobalOrigin(bounds);
+  transform->localizePoint(origin);
+  return origin;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSAbstractWidget::getOrigin()
+double* VSAbstractWidget::calculateGlobalOrigin(double* bounds)
 {
-  return m_Origin;
+  double* origin = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2.0;
+  }
+
+  return origin;
 }
 
 // -----------------------------------------------------------------------------
@@ -114,31 +114,6 @@ void VSAbstractWidget::setBounds(double bounds[6])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractWidget::setOrigin(double origin[3])
-{
-  for(int i = 0; i < 3; i++)
-  {
-    this->m_Origin[i] = origin[i];
-  }
-
-  updateOrigin();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractWidget::setOrigin(double x, double y, double z)
-{
-  m_Origin[0] = x;
-  m_Origin[1] = y;
-  m_Origin[2] = z;
-
-  updateOrigin();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 vtkRenderWindowInteractor* VSAbstractWidget::getInteractor()
 {
   return m_RenderWindowInteractor;
@@ -156,13 +131,6 @@ void VSAbstractWidget::setInteractor(vtkRenderWindowInteractor* interactor)
 //
 // -----------------------------------------------------------------------------
 void VSAbstractWidget::updateBounds()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractWidget::updateOrigin()
 {
 }
 

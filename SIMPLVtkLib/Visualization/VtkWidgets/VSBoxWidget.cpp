@@ -197,10 +197,8 @@ void VSBoxWidget::setScale(double x, double y, double z)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::setOrigin(double origin[3])
+void VSBoxWidget::setTranslation(double origin[3])
 {
-  VSAbstractWidget::setOrigin(origin);
-
   double rotation[3];
   double scale[3];
   m_UseTransform->GetOrientation(rotation);
@@ -211,15 +209,6 @@ void VSBoxWidget::setOrigin(double origin[3])
   translationZSpinBox->setValue(origin[2]);
 
   setValues(origin, rotation, scale);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSBoxWidget::setOrigin(double x, double y, double z)
-{
-  double origin[3] = {x, y, z};
-  setOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -247,20 +236,6 @@ void VSBoxWidget::setRotation(double x, double y, double z)
   double rotation[3] = {x, y, z};
 
   setRotation(rotation);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSBoxWidget::updateBounds()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSBoxWidget::updateOrigin()
-{
 }
 
 // -----------------------------------------------------------------------------

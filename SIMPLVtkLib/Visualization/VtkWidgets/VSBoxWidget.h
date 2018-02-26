@@ -104,15 +104,7 @@ public:
   * @brief Sets the object's origin
   * @param origin
   */
-  void setOrigin(double origin[3]) override;
-
-  /**
-  * @brief Sets the object's origin
-  * @param x
-  * @param y
-  * @param z
-  */
-  void setOrigin(double x, double y, double z) override;
+  void setTranslation(double origin[3]);
 
   /**
   * @param Gets the box's transform
@@ -189,16 +181,6 @@ protected slots:
   virtual void updateGlobalSpace() override;
 
 protected:
-  /**
-  * @brief Updates the widget bounds
-  */
-  void updateBounds() override;
-
-  /**
-  * @brief Updates the widget origin
-  */
-  void updateOrigin() override;
-
   /**
   * @brief Sets the widget's transformation variables
   * @param position
