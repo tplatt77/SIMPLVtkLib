@@ -52,6 +52,7 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
 
 #include <QtGui/QStandardItemModel>
 
@@ -306,6 +307,12 @@ protected:
   * @return
   */
   QStringList getComponentList(vtkAbstractArray* array);
+
+  /**
+  * @brief Reads the transformation data from json and applies it to the filter
+  * @param json
+  */
+  void readTransformJson(QJsonObject& json);
 
   bool m_ConnectedInput = false;
   VTK_PTR(vtkAlgorithmOutput) m_InputPort;

@@ -35,7 +35,7 @@
 
 #include "VSAbstractFilter.h"
 
-#include <QString>
+#include <QtCore/QString>
 
 #include <vtkAlgorithm.h>
 #include <vtkCellData.h>
@@ -548,4 +548,59 @@ double* VSAbstractFilter::getTransformBounds()
 void VSAbstractFilter::writeJson(QJsonObject &json)
 {
   json["CheckState"] = checkState();
+
+  // Save the transform settings
+  QJsonObject transformObject;
+  QJsonArray localPositionArray;
+  QJsonArray localRotationArray;
+  QJsonArray localScaleArray;
+
+  VSTransform* transform = getTransform();
+  double* localPos = transform->getLocalPosition();
+  double* localRot = transform->getLocalRotation();
+  double* localScale = transform->getLocalScale();
+
+  for(int i = 0; i < 3; i++)
+  {
+    localPositionArray.push_back(localPos[i]);
+    localRotationArray.push_back(localRot[i]);
+    localScaleArray.push_back(localScale[i]);
+  }
+
+  delete[] localPos;
+  delete[] localRot;
+  delete[] localScale;
+
+  transformObject["LocalPosition"] = localPositionArray;
+  transformObject["LocalRotation"] = localRotationArray;
+  transformObject["LocalScale"] = localScaleArray;
+
+  json["Transform"] = transformObject;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::readTransformJson(QJsonObject& json)
+{
+  QJsonObject transformObject = json["Transform"].toObject();
+  QJsonArray localPositionArray = transformObject["LocalPosition"].toArray();
+  QJsonArray localRotationArray = transformObject["LocalRotation"].toArray();
+  QJsonArray localScaleArray = transformObject["LocalScale"].toArray();
+
+  double localPos[3];
+  double localRot[3];
+  double localScale[3];
+
+  for(int i = 0; i < 3; i++)
+  {
+    localPos[i] = localPositionArray[i].toDouble();
+    localRot[i] = localRotationArray[i].toDouble();
+    localScale[i] = localScaleArray[i].toDouble();
+  }
+
+  VSTransform* transform = getTransform();
+  transform->setLocalPosition(localPos);
+  transform->setLocalRotation(localRot);
+  transform->setLocalScale(localScale);
 }
