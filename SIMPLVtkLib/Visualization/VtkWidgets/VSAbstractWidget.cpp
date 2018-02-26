@@ -100,7 +100,9 @@ void VSAbstractWidget::setBounds(double bounds[6])
   {
     double offset = 0;
     if(bounds[i * 2 + 1] - bounds[i * 2] < MIN_SIZE)
+    {
       offset = (MIN_SIZE - (bounds[i * 2 + 1] - bounds[i * 2])) / 2.0;
+    }
 
     this->m_Bounds[i * 2] = bounds[i * 2] - offset;
     this->m_Bounds[i * 2 + 1] = bounds[i * 2 + 1] + offset;

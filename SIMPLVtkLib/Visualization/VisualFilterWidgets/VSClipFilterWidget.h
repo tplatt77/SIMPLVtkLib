@@ -59,7 +59,7 @@ class SIMPLVtkLib_EXPORT VSClipFilterWidget : public VSAbstractFilterWidget
   Q_OBJECT
 
 public:
-    /**
+  /**
    * @brief VSClipFilterWidget
    * @param filter
    * @param interactor
