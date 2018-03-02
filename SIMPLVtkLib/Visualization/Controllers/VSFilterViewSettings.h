@@ -42,7 +42,8 @@
 #include <QtGui/QColor>
 
 #include <vtkActor.h>
-#include <vtkMapper.h>
+#include <vtkDataSetSurfaceFilter.h>
+#include <vtkAbstractMapper3D.h>
 #include <vtkScalarBarActor.h>
 #include <vtkScalarBarWidget.h>
 
@@ -50,6 +51,10 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class vtkDataSetMapper;
+class vtkImageSliceMapper;
+class vtkImageSlice;
 
 /**
 * @class VSFilterViewSettings VSFilterViewSettings.h
@@ -66,7 +71,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
 
-  enum Representation : int
+  enum class Representation : int
   {
     Invalid = -1,
     Points = 0,
@@ -74,6 +79,13 @@ public:
     Surface = 2,
     SurfaceWithEdges = 3,
     Default = Surface
+  };
+
+  enum class ActorType : int
+  {
+    Invalid = -1,
+    DataSet = 0,
+    Image2D = 1
   };
 
   /**
@@ -158,7 +170,7 @@ public:
   * @brief Returns the vtkActor used to render the filter
   * @return
   */
-  VTK_PTR(vtkActor) getActor();
+  VTK_PTR(vtkProp3D) getActor();
 
   /**
   * @brief Returns the vtkScalarBarWidget used for the filter
@@ -177,6 +189,14 @@ public:
   * @return
   */
   Representation getRepresentation();
+
+  /**
+  * @brief Returns the actor property representation as an integer
+  * @return
+  */
+  int getRepresentationi();
+
+  ActorType getActorType();
 
   /**
   * @brief Copies another VSFilterViewSettings for everything but the active filter
@@ -278,6 +298,30 @@ protected:
   */
   void setupActors();
 
+  void setupImageActors();
+
+  void setupDataSetActors();
+
+  vtkDataSetMapper* getDataSetMapper();
+
+  vtkActor* getDataSetActor();
+
+  vtkImageSliceMapper* getImageMapper();
+
+  vtkImageSlice* getImageSliceActor();
+
+  bool isFlatImage();
+
+  /**
+  * @brief Updates the alpha for DataSet actors
+  */
+  void updateDataSetAlpha();
+
+  /**
+  * @breif Updates the alpha for 2D Image actors
+  */
+  void updateImageAlpha();
+
   /**
   * @brief Sets the visual filter makes any Qt connections required
   * @param filter
@@ -310,15 +354,19 @@ protected:
 
 private:
   VSAbstractFilter* m_Filter = nullptr;
+  ActorType m_ActorType = ActorType::Invalid;
+  VTK_PTR(vtkDataSetSurfaceFilter) m_DataSetFilter = nullptr;
   bool m_ShowFilter = true;
   int m_ActiveArray = 0;
   int m_ActiveComponent = -1;
   Qt::CheckState m_MapColors = Qt::Checked;
-  VTK_PTR(vtkMapper) m_Mapper = nullptr;
-  VTK_PTR(vtkActor) m_Actor = nullptr;
+  VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
+  VTK_PTR(vtkProp3D) m_Actor = nullptr;
   bool m_ShowScalarBar = true;
   VSLookupTableController* m_LookupTable = nullptr;
   double m_Alpha = 1.0;
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
   VTK_PTR(vtkScalarBarWidget) m_ScalarBarWidget = nullptr;
+
+  static double* NULL_COLOR;
 };

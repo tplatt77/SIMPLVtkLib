@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
+* Copyright (c) 2009-2015 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,137 +33,124 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSFilterModel.h"
+#include "LoadHDF5FileDialog.h"
+
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+
+#include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileTreeModel.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterModel::VSFilterModel(QObject* parent)
-  : QStandardItemModel(parent)
+LoadHDF5FileDialog::LoadHDF5FileDialog(QWidget* parent) :
+  QDialog(parent)
 {
+  setupUi(this);
+
+  setupGui();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::addFilter(VSAbstractFilter* filter, bool currentFilter)
+LoadHDF5FileDialog::~LoadHDF5FileDialog()
 {
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  if(nullptr == filter->getParentFilter())
-  {
-    appendRow(filter);
-  }
-
-  emit filterAdded(filter, currentFilter);
+  
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::removeFilter(VSAbstractFilter* filter)
+void LoadHDF5FileDialog::setupGui()
 {
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  emit filterRemoved(filter);
-
-  if(filter->getParentFilter())
-  {
-    filter->deleteFilter();
-  }
-  else
-  {
-    QModelIndex index = getIndexFromFilter(filter);
-    removeRow(index.row());
-  }
-
-  //filter->deleteLater();
-  submit();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
-{
-  if(false == index.parent().isValid())
-  {
-    return dynamic_cast<VSAbstractFilter*>(item(index.row(), index.column()));
-  }
-  else
-  {
-    int i = index.row();
-    VSAbstractFilter* parentFilter = getFilterFromIndex(index.parent());
-    return parentFilter->getChild(i);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
-{
-  if (filter == nullptr)
-  {
-    return QModelIndex();
-  }
-
-  return filter->index();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSFilterModel::getBaseFilters()
-{
-  QVector<VSAbstractFilter*> filters;
-
-  int count = rowCount();
-  for(int i = 0; i < count; i++)
-  {
-    QModelIndex modelIndex = index(i, 0);
-    VSAbstractFilter* filter = getFilterFromIndex(modelIndex);
-    if(filter)
+  DREAM3DFileTreeModel* model = new DREAM3DFileTreeModel();
+  connect(model, &DREAM3DFileTreeModel::dataChanged, [=] {
+    bool allChecked = true;
+    Qt::CheckState checkState = Qt::Unchecked;
+    for (int i = 0; i < model->rowCount(); i++)
     {
-      filters.push_back(filter);
+      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
+      if (model->getCheckState(dcIndex) == Qt::Checked)
+      {
+        checkState = Qt::PartiallyChecked;
+      }
+      else
+      {
+        allChecked = false;
+      }
+    }
+
+    if (allChecked == true)
+    {
+      checkState = Qt::Checked;
+    }
+
+    selectAllCB->blockSignals(true);
+    selectAllCB->setCheckState(checkState);
+    selectAllCB->blockSignals(false);
+
+    checkState == Qt::Unchecked ? loadBtn->setEnabled(false) : loadBtn->setEnabled(true);
+  });
+
+  connect(selectAllCB, &QCheckBox::stateChanged, [=] (int state) {
+    Qt::CheckState checkState = static_cast<Qt::CheckState>(state);
+    if (checkState == Qt::PartiallyChecked)
+    {
+      selectAllCB->setCheckState(Qt::Checked);
+      return;
+    }
+
+    for (int i = 0; i < model->rowCount(); i++)
+    {
+      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
+      model->setData(dcIndex, checkState, Qt::CheckStateRole);
+    }
+  });
+
+  treeView->setModel(model);
+
+  connect(loadBtn, &QPushButton::clicked, [=] {
+    accept();
+  });
+
+  connect(cancelBtn, &QPushButton::clicked, [=] {
+    reject();
+  });
+
+  loadBtn->setDisabled(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void LoadHDF5FileDialog::setProxy(DataContainerArrayProxy proxy)
+{
+  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(treeView->model());
+  if (model != nullptr)
+  {
+    model->populateTreeWithProxy(proxy);
+    selectAllCB->setChecked(true);
+
+    QModelIndexList indexes = model->match(model->index(0, 0), Qt::DisplayRole, "*", -1, Qt::MatchWildcard|Qt::MatchRecursive);
+    for (int i = 0; i < indexes.size(); i++)
+    {
+      QModelIndex index = indexes[i];
+      treeView->expand(index);
     }
   }
-
-  return filters;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
+DataContainerArrayProxy LoadHDF5FileDialog::getDataStructureProxy()
 {
-  QVector<VSAbstractFilter*> filters = getBaseFilters();
-
-  int count = filters.size();
-  for(int i = 0; i < count; i++)
+  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(treeView->model());
+  if (model == nullptr)
   {
-    filters.push_back(filters[i]);
-    filters.append(filters[i]->getDescendants());
+    return DataContainerArrayProxy();
   }
 
-  return filters;
+  return model->getModelProxy();
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterModel::updateModelForView(VSFilterViewSettings::Map viewSettings)
-{
-  for(auto iter = viewSettings.begin(); iter != viewSettings.end(); iter++)
-  {
-    VSFilterViewSettings* settings = iter->second;
-    VSAbstractFilter* filter = settings->getFilter();
-    filter->setCheckState(settings->isVisible() ? Qt::Checked : Qt::Unchecked);
-  }
-}

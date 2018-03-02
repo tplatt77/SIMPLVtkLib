@@ -42,6 +42,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSConcurrentImport.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -92,10 +93,10 @@ public:
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
-  * @brief Import data from a DataContainerArray and add any relevant DataContainers
-  * as top-level VisualFilters
-  * @param dca
-  */
+   * @brief Import data from a DataContainerArray and add any relevant DataContainers
+   * as top-level VisualFilters
+   * @param dca
+   */
   void importDataContainerArray(DataContainerArray::Pointer dca);
 
   /**
@@ -137,7 +138,7 @@ public:
   VSFilterModel* getFilterModel();
 
 signals:
-  void filterAdded(VSAbstractFilter*, QJsonObject = QJsonObject());
+  void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
   void filterCheckStateChanged(VSAbstractFilter* filter);
 
@@ -145,6 +146,7 @@ signals:
 
 private:
   VSFilterModel* m_FilterModel;
+  VSConcurrentImport* m_ImportObject;
 
   /**
    * @brief saveFilter

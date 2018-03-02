@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,134 +33,81 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSViewWidget.h"
+#include "DREAM3DFileItemDelegate.h"
 
+#include <QtCore/QFileInfo>
+
+#include <QtWidgets/QLineEdit>
+
+#include <QtGui/QIntValidator>
 #include <QtGui/QPainter>
 
-#include "ui_VSViewWidget.h"
+#include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileTreeModel.h"
+#include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileItem.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-class VSViewWidget::VSInternals : public Ui::VSViewWidget
+DREAM3DFileItemDelegate::DREAM3DFileItemDelegate(QObject* parent)
+: QStyledItemDelegate(parent)
 {
-public:
-  VSInternals()
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+DREAM3DFileItemDelegate::~DREAM3DFileItemDelegate() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QWidget* DREAM3DFileItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+  QLineEdit* editor = new QLineEdit(parent);
+  return editor;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DREAM3DFileItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+{
+  QString value = index.model()->data(index, Qt::DisplayRole).toString();
+  QLineEdit* line = static_cast<QLineEdit*>(editor);
+  line->setText(value);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DREAM3DFileItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+  DREAM3DFileTreeModel* treeModel = qobject_cast<DREAM3DFileTreeModel*>(model);
+
+  QLineEdit* line = static_cast<QLineEdit*>(editor);
+  QString value = line->text();
+
+  if(value.isEmpty() == false)
   {
+    QModelIndex bIndex = treeModel->index(index.row(), DREAM3DFileItem::Name, index.parent());
+    treeModel->setData(bIndex, value, Qt::DisplayRole);
   }
-};
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags f)
-  : VSAbstractViewWidget(parent, f)
-  , m_Internals(new VSInternals())
-{
-  m_Internals->setupUi(this);
-
-  connectSlots();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSViewWidget::VSViewWidget(const VSViewWidget& other)
-  : VSAbstractViewWidget(nullptr)
-  , m_Internals(new VSInternals())
+void DREAM3DFileItemDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  m_Internals->setupUi(this);
-
-  setController(other.getController());
-  getVisualizationWidget()->copy(other.getVisualizationWidget());
-  copyFilters(other.getAllFilterViewSettings());
-
-  connectSlots();
+  editor->setGeometry(option.rect);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::connectSlots()
+void DREAM3DFileItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(splitHorizontally()));
-  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(splitVertically()));
-  connect(m_Internals->closeBtn, SIGNAL(clicked()), this, SLOT(closeView()));
+  // Place any painting code here
 
-  // Clicking any button should set the active VSViewController
-  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
-  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
-  connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractViewWidget* VSViewWidget::clone()
-{
-  VSViewWidget* viewWidget = new VSViewWidget(*(this));
-  return viewWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
-{
-  if(nullptr == m_Internals)
-  {
-    return nullptr;
-  }
-
-  return m_Internals->visualizationWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setActive(bool active)
-{
-  (active) ? toActiveState() : toInactiveState();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toActiveState()
-{
-  QString styleString;
-  QTextStream ss(&styleString);
-
-  ss << "VSViewWidget {";
-
-  ss << "border: 1px solid #0500ff;";
-  ss << "padding: 1px;";
-
-  ss << "}";
-
-  setStyleSheet(styleString);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toInactiveState()
-{
-  setStyleSheet("");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
-{
-  if(false == (viewSettings && viewSettings->getScalarBarWidget()))
-  {
-    return;
-  }
-
-  VTK_PTR(vtkScalarBarWidget) scalarBarWidget = viewSettings->getScalarBarWidget();
-  scalarBarWidget->SetEnabled(showScalarBar);
-
-  renderView();
+  QStyledItemDelegate::paint(painter, option, index);
 }

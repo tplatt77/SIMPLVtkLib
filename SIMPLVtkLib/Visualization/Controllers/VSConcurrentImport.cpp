@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
+* Copyright (c) 2009-2015 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,134 +33,115 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSViewWidget.h"
+#include "VSConcurrentImport.h"
 
-#include <QtGui/QPainter>
+#include <QtConcurrent>
 
-#include "ui_VSViewWidget.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-class VSViewWidget::VSInternals : public Ui::VSViewWidget
+VSConcurrentImport::VSConcurrentImport(VSController* controller)
+: QObject()
+, m_Controller(controller)
+, m_ImportDataContainerOrderLock(1)
 {
-public:
-  VSInternals()
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::addDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
+{
+  VSFileNameFilter* fileFilter = new VSFileNameFilter(filePath);
+  addDataContainerArray(std::make_pair(fileFilter, dca));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::addDataContainerArray(DcaFilePair fileDcPair)
+{
+  m_WrappedList.push_back(fileDcPair);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::run()
+{
+  while(m_WrappedList.size() > 0)
   {
+    DcaFilePair filePair = m_WrappedList.front();
+    importDataContainerArray(filePair);
+
+    m_WrappedList.pop_front();
   }
-};
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags f)
-  : VSAbstractViewWidget(parent, f)
-  , m_Internals(new VSInternals())
-{
-  m_Internals->setupUi(this);
-
-  connectSlots();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSViewWidget::VSViewWidget(const VSViewWidget& other)
-  : VSAbstractViewWidget(nullptr)
-  , m_Internals(new VSInternals())
+void VSConcurrentImport::importDataContainerArray(DcaFilePair filePair)
 {
-  m_Internals->setupUi(this);
+  VSFileNameFilter* fileFilter = filePair.first;
+  DataContainerArray::Pointer dca = filePair.second;
+  m_Controller->getFilterModel()->addFilter(fileFilter);
 
-  setController(other.getController());
-  getVisualizationWidget()->copy(other.getVisualizationWidget());
-  copyFilters(other.getAllFilterViewSettings());
+  m_ImportDataContainerOrder = dca->getDataContainers();
 
-  connectSlots();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::connectSlots()
-{
-  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(splitHorizontally()));
-  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(splitVertically()));
-  connect(m_Internals->closeBtn, SIGNAL(clicked()), this, SLOT(closeView()));
-
-  // Clicking any button should set the active VSViewController
-  connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
-  connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
-  connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractViewWidget* VSViewWidget::clone()
-{
-  VSViewWidget* viewWidget = new VSViewWidget(*(this));
-  return viewWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
-{
-  if(nullptr == m_Internals)
+  size_t threadCount = QThreadPool::globalInstance()->maxThreadCount();
+  for (int i = 0; i < threadCount; i++)
   {
-    return nullptr;
+    //      QSharedPointer<QFutureWatcher<void>> watcher(new QFutureWatcher<void>());
+    //      connect(watcher.data(), &QFutureWatcher<void>::finished, this, [=] {
+    //        m_NumOfFinishedImportDataContainerThreads++;
+
+    //        if (m_NumOfFinishedImportDataContainerThreads == threadCount)
+    //        {
+
+    //        }
+    //      });
+
+    QFuture<void> future = QtConcurrent::run(this, &VSConcurrentImport::importDataContainer, fileFilter);
+    //      watcher->setFuture(future);
+
+    //      m_ImportDataContainerWatchers.push_back(watcher);
   }
-
-  return m_Internals->visualizationWidget;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::setActive(bool active)
+void VSConcurrentImport::importDataContainer(VSFileNameFilter* fileFilter)
 {
-  (active) ? toActiveState() : toInactiveState();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toActiveState()
-{
-  QString styleString;
-  QTextStream ss(&styleString);
-
-  ss << "VSViewWidget {";
-
-  ss << "border: 1px solid #0500ff;";
-  ss << "padding: 1px;";
-
-  ss << "}";
-
-  setStyleSheet(styleString);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toInactiveState()
-{
-  setStyleSheet("");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
-{
-  if(false == (viewSettings && viewSettings->getScalarBarWidget()))
+  while (m_ImportDataContainerOrder.size() > 0)
   {
-    return;
+    if (m_ImportDataContainerOrderLock.tryAcquire() == true)
+    {
+      DataContainer::Pointer dc = m_ImportDataContainerOrder.front();
+      m_ImportDataContainerOrder.pop_front();
+
+      m_ImportDataContainerOrderLock.release();
+
+      SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
+      if(wrappedDc)
+      {
+        importWrappedDataContainer(fileFilter, wrappedDc);
+      }
+    }
   }
+}
 
-  VTK_PTR(vtkScalarBarWidget) scalarBarWidget = viewSettings->getScalarBarWidget();
-  scalarBarWidget->SetEnabled(showScalarBar);
-
-  renderView();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::importWrappedDataContainer(VSFileNameFilter* fileFilter, SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
+{
+  VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedDc, fileFilter);
+  m_Controller->getFilterModel()->addFilter(filter);
 }

@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -35,74 +35,28 @@
 
 #pragma once
 
-#include <QtGui/QStandardItemModel>
+#include <QtCore/QModelIndex>
 
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include <QStyledItemDelegate>
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-/**
-* @class VSFilterModel VSFilterModel.h SIMPLVtkLib/QtWidgets/VSFilterModel.h
-* @brief This class handles the visual filter model for the VSController.
-*/
-class SIMPLVtkLib_EXPORT VSFilterModel : public QStandardItemModel
+class DREAM3DFileItemDelegate : public QStyledItemDelegate
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  /**
-  * @brief Constructor
-  * @param parent
-  */
-  VSFilterModel(QObject* parent = nullptr);
+  public:
+    explicit DREAM3DFileItemDelegate(QObject* parent = 0);
 
-  /**
-  * @brief Adds a filter to the model
-  * @param filter
-  */
-  void addFilter(VSAbstractFilter* filter, bool currentFilter = true);
+    virtual ~DREAM3DFileItemDelegate();
 
-  /**
-  * @brief Removes a filter from the model
-  * @param filter
-  */
-  void removeFilter(VSAbstractFilter* filter);
+  protected:
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const Q_DECL_OVERRIDE;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const Q_DECL_OVERRIDE;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE;
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE;
 
-  /**
-  * @brief Returns the visual filter stored at the given index
-  * @param index
-  * @return
-  */
-  VSAbstractFilter* getFilterFromIndex(QModelIndex index);
-
-  /**
-  * @brief Returns the model index of the given filter
-  * @param filter
-  * @return
-  */
-  QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
-
-  /**
-  * @brief Returns a vector of top-level filters in the model
-  * @return
-  */
-  QVector<VSAbstractFilter*> getBaseFilters();
-
-  /**
-  * @brief Returns a vector of all visual filters in the model
-  */
-  QVector<VSAbstractFilter*> getAllFilters();
-
-signals:
-  void filterAdded(VSAbstractFilter* filter, bool currentFilter);
-  void filterRemoved(VSAbstractFilter* filter);
-
-public slots:
-  /**
-  * @brief Updates the model to reflect the view settings found in a given view controller
-  * @param viewSettings
-  */
-  void updateModelForView(VSFilterViewSettings::Map viewSettings);
+  private:
+    DREAM3DFileItemDelegate(const DREAM3DFileItemDelegate&) = delete; // Copy Constructor Not Implemented
+    void operator=(const DREAM3DFileItemDelegate&) = delete;        // Operator '=' Not Implemented
 };
-
