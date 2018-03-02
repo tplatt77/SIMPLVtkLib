@@ -95,22 +95,13 @@ void VSConcurrentImport::importDataContainerArray(DcaFilePair filePair)
   m_ImportDataContainerOrder = dca->getDataContainers();
 
   size_t threadCount = QThreadPool::globalInstance()->maxThreadCount();
+  if(threadCount > 1)
+  {
+    threadCount--;
+  }
   for (int i = 0; i < threadCount; i++)
   {
-    //      QSharedPointer<QFutureWatcher<void>> watcher(new QFutureWatcher<void>());
-    //      connect(watcher.data(), &QFutureWatcher<void>::finished, this, [=] {
-    //        m_NumOfFinishedImportDataContainerThreads++;
-
-    //        if (m_NumOfFinishedImportDataContainerThreads == threadCount)
-    //        {
-
-    //        }
-    //      });
-
     QFuture<void> future = QtConcurrent::run(this, &VSConcurrentImport::importDataContainer, fileFilter);
-    //      watcher->setFuture(future);
-
-    //      m_ImportDataContainerWatchers.push_back(watcher);
   }
 }
 
