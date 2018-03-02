@@ -321,7 +321,7 @@ vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setActiveArrayIndex(int index)
 {
-  if(false == getDataSetMapper())
+  if(nullptr == getDataSetMapper())
   {
     return;
   }
