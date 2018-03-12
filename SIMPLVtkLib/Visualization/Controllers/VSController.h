@@ -61,6 +61,7 @@ class SIMPLVtkLib_EXPORT VSController : public QObject
 public:
   /**
   * @brief Constructor
+  * @param parent
   */
   VSController(QObject* parent = nullptr);
 
@@ -141,7 +142,6 @@ signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
   void filterCheckStateChanged(VSAbstractFilter* filter);
-
   void dataImported();
 
 private:
