@@ -250,6 +250,8 @@ VSFilterViewSettings* VSAbstractViewWidget::createFilterViewSettings(VSAbstractF
   connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
     this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
   connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
+  connect(viewSettings, SIGNAL(swappingActors(vtkProp3D*, vtkProp3D*)),
+    this, SLOT(swapActors(vtkProp3D*, vtkProp3D*)));
 
   m_FilterViewSettings[filter] = viewSettings;
 
@@ -312,6 +314,15 @@ void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSetting
 
   emit visibilityChanged(viewSettings, filterVisible);
   renderView();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::swapActors(vtkProp3D* oldProp, vtkProp3D* newProp)
+{
+  getVisualizationWidget()->getRenderer()->RemoveViewProp(oldProp);
+  getVisualizationWidget()->getRenderer()->AddViewProp(newProp);
 }
 
 // -----------------------------------------------------------------------------
@@ -578,8 +589,34 @@ void VSAbstractViewWidget::closeView()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSAbstractViewWidget::setBlockRender(bool block)
+{
+  m_BlockRender = block;
+
+  if(getVisualizationWidget() && getVisualizationWidget()->getRenderer())
+  {
+    if(block)
+    {
+      getVisualizationWidget()->getRenderer()->DrawOff();
+    }
+    else
+    {
+      getVisualizationWidget()->getRenderer()->DrawOn();
+      renderView();
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractViewWidget::renderView()
 {
+  if(m_BlockRender)
+  {
+    return;
+  }
+
   VSVisualizationWidget* visualizationWidget = getVisualizationWidget();
   if(visualizationWidget)
   {
@@ -592,6 +629,11 @@ void VSAbstractViewWidget::renderView()
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::resetCamera()
 {
+  if(m_BlockRender)
+  {
+    return;
+  }
+
   VSVisualizationWidget* visualizationWidget = getVisualizationWidget();
   if(visualizationWidget && visualizationWidget->getRenderer())
   {

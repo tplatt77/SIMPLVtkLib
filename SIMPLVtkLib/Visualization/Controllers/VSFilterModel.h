@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <QtCore/QSemaphore>
 #include <QtGui/QStandardItemModel>
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
@@ -61,19 +62,6 @@ public:
   * @brief Deconstructor
   */
   virtual ~VSFilterModel() = default;
-
-  /**
-  * @brief Adds a filter to the model
-  * @param filter
-  * @param currentFilter
-  */
-  void addFilter(VSAbstractFilter* filter, bool currentFilter = true);
-
-  /**
-  * @brief Removes a filter from the model
-  * @param filter
-  */
-  void removeFilter(VSAbstractFilter* filter);
 
   /**
   * @brief Returns the visual filter stored at the given index
@@ -110,5 +98,20 @@ public slots:
   * @param viewSettings
   */
   void updateModelForView(VSFilterViewSettings::Map viewSettings);
+
+  /**
+  * @brief Adds a filter to the model
+  * @param filter
+  */
+  void addFilter(VSAbstractFilter* filter, bool currentFilter = true);
+
+  /**
+  * @brief Removes a filter from the model
+  * @param filter
+  */
+  void removeFilter(VSAbstractFilter* filter);
+
+private:
+  QSemaphore m_ModelLock;
 };
 

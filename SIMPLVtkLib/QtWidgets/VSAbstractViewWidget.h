@@ -125,7 +125,6 @@ signals:
   void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
-  void requiresRender();
 
 public slots:
   /**
@@ -153,6 +152,12 @@ public slots:
   */
   void resetCamera();
 
+  /**
+  * @brief Sets whether or not the render process should be blocked
+  * @param block
+  */
+  void setBlockRender(bool block);
+
 protected slots:
   /**
   * @brief Connect a new visual filter's VSFilterViewSettings
@@ -172,6 +177,8 @@ protected slots:
   * @param filterVisible
   */
   void setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
+
+  void swapActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
   /**
   * @brief Change the active filter's array index
@@ -290,4 +297,5 @@ private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
   VSFilterViewSettings::Map m_FilterViewSettings;
   VSController* m_Controller = nullptr;
+  bool m_BlockRender = false;
 };

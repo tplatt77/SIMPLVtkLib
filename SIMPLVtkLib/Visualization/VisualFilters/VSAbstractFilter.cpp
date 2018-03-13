@@ -58,6 +58,8 @@ VSAbstractFilter::VSAbstractFilter()
 , m_LoadingObject(QJsonObject())
 , m_InputPort(nullptr)
 , m_Transform(new VSTransform())
+, m_OutlineFilter(vtkOutlineFilter::New())
+, m_ChildLock(1)
 {
   setCheckable(true);
   setCheckState(Qt::Checked);
@@ -66,7 +68,7 @@ VSAbstractFilter::VSAbstractFilter()
   m_Transform->moveToThread(thread);
 
   connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), 
-    this, SLOT(connectTransformFilter(VSAbstractFilter*)));
+    this, SLOT(connectAdditionalOutputFilters(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -85,7 +87,7 @@ void VSAbstractFilter::deleteFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
-  VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(QStandardItem::parent());
+  VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(QObject::parent());
   return parentFilter;
 }
 
@@ -94,6 +96,12 @@ VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 {
+  if(getParentFilter())
+  {
+    disconnect(parent, SIGNAL(updatedOutput()),
+      this, SIGNAL(updatedOutput()));
+  }
+
   setParent(parent);
   if(parent)
   {
@@ -101,6 +109,9 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 
     // Sets the transform's parent as well
     m_Transform->setParent(parent->getTransform());
+
+    connect(parent, SIGNAL(updatedOutput()),
+      this, SIGNAL(updatedOutput()));
   }
   else
   {
@@ -117,9 +128,15 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
   connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), 
-    child, SLOT(connectToOutuput(VSAbstractFilter*)), Qt::UniqueConnection);
+    child, SLOT(connectToOutput(VSAbstractFilter*)), Qt::UniqueConnection);
 
+  // Avoid crashing when adding children from multiple threads
+  while(false == m_ChildLock.tryAcquire())
+  {
+    QThread::currentThread()->wait();
+  }
   appendRow(child);
+  m_ChildLock.release();
 }
 
 // -----------------------------------------------------------------------------
@@ -129,7 +146,7 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 {
   int row = getIndexOfChild(child);
 
-  disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutuput(VSAbstractFilter*)));
+  disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)));
   removeRow(row);
 }
 
@@ -435,16 +452,16 @@ void VSAbstractFilter::setInputPort(VTK_PTR(vtkAlgorithmOutput) inputPort)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
+void VSAbstractFilter::connectToOutput(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
     return;
   }
 
-  m_InputPort = filter->getOutputPort();
+  setInputPort(filter->getOutputPort());
 
-  if(m_ConnectedInput)
+  if(getConnectedInput())
   {
     // Connect algorithm input and filter output
     updateAlgorithmInput(filter);
@@ -459,13 +476,24 @@ void VSAbstractFilter::connectToOutuput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractFilter::connectTransformFilter(VSAbstractFilter* filter)
+void VSAbstractFilter::connectAdditionalOutputFilters(VSAbstractFilter* filter)
 {
+  // Update the outline filter connection
+  m_OutlineFilter->SetInputConnection(getOutputPort());
+
   // Update the transform filter's input port if the filter exists
   if(m_TransformFilter)
   {
     m_TransformFilter->SetInputConnection(getOutputPort());
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkAlgorithmOutput* VSAbstractFilter::getOutlinePort()
+{
+  return m_OutlineFilter->GetOutputPort();
 }
 
 // -----------------------------------------------------------------------------

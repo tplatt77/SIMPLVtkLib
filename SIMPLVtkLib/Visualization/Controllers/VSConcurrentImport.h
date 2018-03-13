@@ -38,12 +38,14 @@
 #include <list>
 #include <utility>
 
-#include <QtCore/QSemaphore>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QSemaphore>
+#include <QtCore/QThread>
 
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class VSController;
@@ -84,6 +86,15 @@ public:
   */
   void run();
 
+signals:
+  void importedFilter(VSAbstractFilter* filter, bool currentFilter = false);
+  void blockRender(bool block = true);
+  void applyingDataFilters(int count);
+  void dataFilterApplied(int num);
+
+protected slots:
+  void partialWrappingThreadFinished();
+
 protected:
   /**
   * @brief Adds the DcaFilePair value to the list of files and DataContainerArrays to wrap
@@ -104,18 +115,24 @@ protected:
   void importDataContainer(VSFileNameFilter* fileFilter);
 
   /**
-  * @brief Given a VSFileNameFilter and wrapped data container, create and add a VSSIMPLDataContainerFilter to the filter model
-  * @param fileFilter
-  * @param wrappedDc
+  * @brief Applies the unapplied DataContainer filters to finish the import process.
   */
-  void importWrappedDataContainer(VSFileNameFilter* fileFilter, SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc);
+  void applyDataFilters();
 
 private:
   VSController* m_Controller;
   std::list<DcaFilePair> m_WrappedList;
+  std::list<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
 
   QList<DataContainerShPtr> m_ImportDataContainerOrder;
   QSemaphore m_ImportDataContainerOrderLock;
-  QVector< QSharedPointer<QFutureWatcher<void>> > m_ImportDataContainerWatchers;
+  QSemaphore m_UnappliedDataFilterLock;
+  QSemaphore m_FilterLock;
+  QSemaphore m_WrappedDcLock;
   int m_NumOfFinishedImportDataContainerThreads = 0;
+  std::list<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
+  VSFileNameFilter* m_FileNameFilter = nullptr;
+  int m_ThreadCount;
+  int m_ThreadsRemaining = 0;
+  int m_AppliedFilterCount = 0;
 };
