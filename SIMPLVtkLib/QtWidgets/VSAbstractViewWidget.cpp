@@ -344,7 +344,7 @@ void VSAbstractViewWidget::setFilterComponentIndex(VSFilterViewSettings* viewSet
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, int mapColorState)
+void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState)
 {
   renderView();
 }

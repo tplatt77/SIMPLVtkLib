@@ -280,8 +280,14 @@ public slots:
   */
   void setRepresentation(Representation type);
 
+  /**
+  * @brief Checks the imported data type, changes the representation, and renders the changes
+  */
   void importedData();
 
+  /**
+  * @brief Updates the actors for the current data type and renders the changes
+  */
   void checkDataType();
 
   /**
@@ -297,7 +303,7 @@ public slots:
 
 signals:
   void visibilityChanged(VSFilterViewSettings*, bool);
-  void representationChanged(VSFilterViewSettings*, Representation);
+  void representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation);
   void solidColorChanged(VSFilterViewSettings*, double*);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);

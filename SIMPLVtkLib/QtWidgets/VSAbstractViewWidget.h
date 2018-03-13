@@ -178,6 +178,11 @@ protected slots:
   */
   void setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
 
+  /**
+  * @brief Removes the old prop from the renderer if applicable and adds the new one
+  * @param oldProp
+  * @param newProp
+  */
   void swapActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
   /**
@@ -223,7 +228,7 @@ protected slots:
   * @param viewSettings
   * @param mapColors
   */
-  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, int mapColorState);
+  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState);
 
   /**
   * @brief ScalarBar visibility changed for filter
