@@ -91,9 +91,19 @@ signals:
   void blockRender(bool block = true);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
+  void finishedWrappingFilter(VSSIMPLDataContainerFilter* filter);
 
 protected slots:
+  /**
+  * @brief partialWrappingThreadFinished
+  */
   void partialWrappingThreadFinished();
+
+  /**
+  * @brief applyFilter
+  * @param filter
+  */
+  void applyDataFilter(VSSIMPLDataContainerFilter* filter);
 
 protected:
   /**
@@ -129,6 +139,8 @@ private:
   QSemaphore m_UnappliedDataFilterLock;
   QSemaphore m_FilterLock;
   QSemaphore m_WrappedDcLock;
+  QSemaphore m_ThreadCountLock;
+  QSemaphore m_AppliedFilterCountLock;
   int m_NumOfFinishedImportDataContainerThreads = 0;
   std::list<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
   VSFileNameFilter* m_FileNameFilter = nullptr;

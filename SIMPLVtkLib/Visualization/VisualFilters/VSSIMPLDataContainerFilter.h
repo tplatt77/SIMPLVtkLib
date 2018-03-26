@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <QtCore/QSemaphore>
 #include <QtWidgets/QWidget>
 
 #include <vtkTrivialProducer.h>
@@ -109,6 +110,11 @@ public:
   void apply();
 
   /**
+  * @brief finishWrapping
+  */
+  void finishWrapping();
+
+  /**
   * @brief Returns the WrappedDataContainerPtr used by the filter
   * @return
   */
@@ -143,4 +149,5 @@ protected:
 private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
+  QSemaphore m_ApplyLock;
 };
