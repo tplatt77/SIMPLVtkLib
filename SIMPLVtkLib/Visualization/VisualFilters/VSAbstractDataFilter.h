@@ -67,8 +67,15 @@ public:
   */
   dataType_t getOutputType() override;
 
+  /**
+   * @brief Reloads the data in the item
+   */
+  virtual void reloadData();
+
 signals:
   void dataImported();
+
+  void dataReloaded();
 
 protected:
   /**
@@ -82,4 +89,7 @@ protected:
   * @param filter
   */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+signals:
+    void filterReloaded(VSAbstractFilter* filter);
 };

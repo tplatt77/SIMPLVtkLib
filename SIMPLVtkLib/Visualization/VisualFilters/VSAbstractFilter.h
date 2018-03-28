@@ -258,6 +258,8 @@ signals:
   void updatedOutput();
   void transformChanged();
 
+  void errorGenerated(const QString &title, const QString &msg, const int &errorCode);
+
 protected slots:
   /**
   * @brief Updates input connection to match the given filter.  If this filter is not

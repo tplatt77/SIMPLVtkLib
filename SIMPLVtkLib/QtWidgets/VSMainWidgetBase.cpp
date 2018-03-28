@@ -146,6 +146,9 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   if(m_FilterView)
   {
     disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
+    disconnect(m_FilterView, SIGNAL(deleteFilterRequested(VSAbstractFilter*)));
+    disconnect(m_FilterView, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)));
+    disconnect(m_FilterView, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)));
     disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
     disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
       view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
@@ -154,6 +157,9 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   view->setController(m_Controller);
 
   m_FilterView = view;
+  connect(view, SIGNAL(deleteFilterRequested(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+  connect(view, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)), this, SLOT(reloadDataFilter(VSAbstractDataFilter*)));
+  connect(view, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)), this, SLOT(reloadFileFilter(VSFileNameFilter*)));
   connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
   connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
   connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
@@ -351,9 +357,6 @@ void VSMainWidgetBase::openDREAM3DFile(const QString &filePath)
       return;
     }
 
-    bool containsCellAttributeMatrices = false;
-    bool containsValidArrays = false;
-
     QStringList dcNames = proxy.dataContainers.keys();
     for (int i = 0; i < dcNames.size(); i++)
     {
@@ -378,15 +381,6 @@ void VSMainWidgetBase::openDREAM3DFile(const QString &filePath)
           {
             dcProxy.attributeMatricies.remove(amName);
             proxy.dataContainers[dcName] = dcProxy;
-          }
-          else
-          {
-            containsCellAttributeMatrices = true;
-
-            if (amProxy.dataArrays.size() > 0)
-            {
-              containsValidArrays = true;
-            }
           }
         }
       }
@@ -573,6 +567,92 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::reloadDataFilter(VSAbstractDataFilter* filter)
+{
+  std::vector<VSAbstractDataFilter*> filters;
+  filters.push_back(filter);
+
+  QtConcurrent::run(this, &VSMainWidgetBase::reloadFilters, filters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::reloadFileFilter(VSFileNameFilter* filter)
+{
+  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  std::vector<VSAbstractDataFilter*> filters;
+  for (int i = 0; i < childFilters.size(); i++)
+  {
+    VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilters[i]);
+    if (dataFilter)
+    {
+      filters.push_back(dataFilter);
+    }
+  }
+
+  QtConcurrent::run(this, &VSMainWidgetBase::reloadFilters, filters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
+{
+  if (filters.size() == 1)
+  {
+    // This is a single filter, so do a simple reload
+    VSAbstractDataFilter* filter = filters[0];
+    filter->reloadData();
+  }
+  else if (filters.size() > 1 && dynamic_cast<VSSIMPLDataContainerFilter*>(filters[0]) != nullptr)
+  {
+    // This is from a file containing multiple SIMPL Data Containers, so we will use this block of code to optimize the file reading process
+    QSharedPointer<SIMPLH5DataReader> reader = QSharedPointer<SIMPLH5DataReader>(new SIMPLH5DataReader());
+    connect(reader.data(), SIGNAL(errorGenerated(const QString &, const QString &, const int &)),
+            this, SLOT(generateError(const QString &, const QString &, const int &)));
+
+    VSSIMPLDataContainerFilter* simplFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[0]);
+    VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(simplFilter->getParentFilter());
+    if (fileNameFilter == nullptr)
+    {
+      QString ss = QObject::tr("Data Container filters could not be reloaded because they do not have a file filter parent.");
+      emit generateError("Data Reload Error", ss, -3002);
+    }
+    
+    bool success = reader->openFile(fileNameFilter->getFilePath());
+    if (success)
+    {
+      int err = 0;
+      DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
+
+      for (size_t i = 0; i < filters.size(); i++)
+      {
+        VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
+
+        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(validFilter->getFilterName());
+
+        AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
+        DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
+        DataArrayProxy::CompDimsVector compDimsVector;
+
+        dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
+        dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+      }
+
+      DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
+      m_Controller->reloadDataContainerArray(fileNameFilter, dca);
+    }
+  }
+  else
+  {
+    // This should not happen, so throw an error and bail!
+  }
 }
 
 // -----------------------------------------------------------------------------

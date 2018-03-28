@@ -64,6 +64,8 @@ VSConcurrentImport::VSConcurrentImport(VSController* controller)
 
   connect(this, &VSConcurrentImport::finishedWrappingFilter, this, &VSConcurrentImport::applyDataFilter);
 
+  connect(this, SIGNAL(finishedPartialWrapping()), this, SLOT(partialWrappingThreadFinished()));
+
   int threadsUsed = 2;
   m_ThreadCount = QThreadPool::globalInstance()->maxThreadCount();
   if(m_ThreadCount > threadsUsed)
@@ -82,6 +84,14 @@ VSConcurrentImport::VSConcurrentImport(VSController* controller)
 void VSConcurrentImport::addDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
 {
   VSFileNameFilter* fileFilter = new VSFileNameFilter(filePath);
+  addDataContainerArray(fileFilter, dca);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::addDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca)
+{
   addDataContainerArray(std::make_pair(fileFilter, dca));
 }
 
@@ -114,11 +124,16 @@ void VSConcurrentImport::importDataContainerArray(DcaFilePair filePair)
 {
   m_FileNameFilter = filePair.first;
   DataContainerArray::Pointer dca = filePair.second;
-  m_Controller->getFilterModel()->addFilter(m_FileNameFilter);
+
+  if (m_LoadType == LoadType::Import)
+  {
+    m_Controller->getFilterModel()->addFilter(m_FileNameFilter);
+  }
 
   m_ImportDataContainerOrder = dca->getDataContainers();
 
   emit blockRender(true);
+
   // Wait for the filter lock
   m_FilterLock.acquire();
   
@@ -127,9 +142,7 @@ void VSConcurrentImport::importDataContainerArray(DcaFilePair filePair)
   m_ThreadCountLock.release();
   for(int i = 0; i < m_ThreadCount; i++)
   {
-    QFutureWatcher<void>* watcher = new QFutureWatcher<void>(this);
-    connect(watcher, SIGNAL(finished()), this, SLOT(partialWrappingThreadFinished()));
-    watcher->setFuture(QtConcurrent::run(this, &VSConcurrentImport::importDataContainer, m_FileNameFilter));
+    QtConcurrent::run(this, &VSConcurrentImport::wrapDataContainer);
   }
 }
 
@@ -146,8 +159,27 @@ void VSConcurrentImport::partialWrappingThreadFinished()
     m_ThreadCountLock.release();
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
-      VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedDc, m_FileNameFilter);
-      m_Controller->getFilterModel()->addFilter(filter, false);
+      VSSIMPLDataContainerFilter* filter = nullptr;
+      if (m_LoadType == LoadType::Import)
+      {
+        filter = new VSSIMPLDataContainerFilter(wrappedDc, m_FileNameFilter);
+        m_Controller->getFilterModel()->addFilter(filter, false);
+      }
+      else
+      {
+        QVector<VSAbstractFilter*> childFilters = m_FileNameFilter->getChildren();
+        for (int i = 0; i < childFilters.size(); i++)
+        {
+          VSAbstractFilter* childFilter = childFilters[i];
+          if (childFilter->getFilterName() != wrappedDc->m_Name)
+          {
+            continue;
+          }
+
+          filter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+          filter->setWrappedDataContainer(wrappedDc);
+        }
+      }
 
       // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
       m_UnappliedDataFilterLock.acquire();
@@ -198,7 +230,7 @@ void VSConcurrentImport::applyDataFilter(VSSIMPLDataContainerFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSConcurrentImport::importDataContainer(VSFileNameFilter* fileFilter)
+void VSConcurrentImport::wrapDataContainer()
 {
   m_ImportDataContainerOrderLock.acquire();
   while (m_ImportDataContainerOrder.size() > 0)
@@ -219,6 +251,8 @@ void VSConcurrentImport::importDataContainer(VSFileNameFilter* fileFilter)
     m_ImportDataContainerOrderLock.acquire();
   }
   m_ImportDataContainerOrderLock.release();
+  
+  emit finishedPartialWrapping();
 }
 
 // -----------------------------------------------------------------------------
@@ -238,10 +272,24 @@ void VSConcurrentImport::applyDataFilters()
 
     m_AppliedFilterCountLock.acquire();
     emit dataFilterApplied(++m_AppliedFilterCount);
+
+    if (m_LoadType == LoadType::Reload)
+    {
+      emit filter->dataReloaded();
+    }
+
     m_AppliedFilterCountLock.release();
 
     // Lock semaphore before the while statement is checked again
     m_UnappliedDataFilterLock.acquire();
   }
   m_UnappliedDataFilterLock.release();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::setLoadType(LoadType type)
+{
+  m_LoadType = type;
 }

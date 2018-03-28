@@ -35,6 +35,8 @@
 
 #include "VSSIMPLDataContainerFilter.h"
 
+#include <QtConcurrent>
+
 #include <QtCore/QUuid>
 
 #include <vtkAlgorithmOutput.h>
@@ -55,6 +57,7 @@
 VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer, VSAbstractFilter *parent)
 : VSAbstractDataFilter()
 , m_WrappedDataContainer(wrappedDataContainer)
+, m_WrappingWatcher(this)
 , m_ApplyLock(1)
 {
   createFilter();
@@ -187,6 +190,8 @@ QUuid VSSIMPLDataContainerFilter::GetUuid()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::createFilter()
 {
+  connect(&m_WrappingWatcher, SIGNAL(finished()), this, SLOT(wrappingFinished()));
+
   VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
   dataSet->ComputeBounds();
   
@@ -205,6 +210,104 @@ void VSSIMPLDataContainerFilter::createFilter()
   m_TrivialProducer->SetOutput(dataSet);
   
   emit updatedOutputPort(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::reloadData()
+{
+  QString dcName = m_WrappedDataContainer->m_Name;
+
+  VSAbstractFilter* parentFilter = getParentFilter();
+  VSFileNameFilter* fileFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
+  if (fileFilter != nullptr)
+  {
+    QString filePath = fileFilter->getFilePath();
+
+    QSharedPointer<SIMPLH5DataReader> reader = QSharedPointer<SIMPLH5DataReader>(new SIMPLH5DataReader());
+    connect(reader.data(), SIGNAL(errorGenerated(const QString &, const QString &, const int &)),
+            this, SIGNAL(errorGenerated(const QString &, const QString &, const int &)));
+
+    bool success = reader->openFile(filePath);
+    if (success)
+    {
+      int err = 0;
+      DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
+      QStringList dcNames = dcaProxy.dataContainers.keys();
+      if (dcNames.contains(dcName))
+      {
+        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
+        if (dcProxy.dcType != static_cast<unsigned int>(IGeometry::Type::Unknown))
+        {
+          QString dcName = m_WrappedDataContainer->m_Name;
+          DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
+
+          AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
+          DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
+          DataArrayProxy::CompDimsVector compDimsVector;
+
+          dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
+          dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+
+          DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
+          DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+
+          m_WrappingWatcher.setFuture(QtConcurrent::run(this, &VSSIMPLDataContainerFilter::reloadData, dc));
+        }
+        else
+        {
+          QString ss = QObject::tr("Data Container '%1' could not be reloaded because it has an unknown data container geometry.").arg(dcName).arg(filePath);
+          emit errorGenerated("Data Reload Error", ss, -3001);
+          return;
+        }
+      }
+      else
+      {
+        QString ss = QObject::tr("Data Container '%1' could not be reloaded because it no longer exists in the underlying file '%2'.").arg(dcName).arg(filePath);
+        emit errorGenerated("Data Reload Error", ss, -3001);
+        return;
+      }
+    }
+  }
+  else
+  {
+    QString ss = QObject::tr("Data Container '%1' could not be reloaded because it does not have a file filter parent.").arg(dcName);
+    emit errorGenerated("Data Reload Error", ss, -3002);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::reloadData(DataContainer::Pointer dc)
+{
+  m_WrappedDataContainer = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::wrappingFinished()
+{
+  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  dataSet->ComputeBounds();
+
+  vtkCellData* cellData = dataSet->GetCellData();
+  if(cellData)
+  {
+    vtkDataArray* dataArray = cellData->GetArray(0);
+    if(dataArray)
+    {
+      char* name = dataArray->GetName();
+      cellData->SetActiveScalars(name);
+    }
+  }
+
+  m_TrivialProducer->SetOutput(dataSet);
+
+  emit updatedOutputPort(this);
+  emit dataReloaded();
 }
 
 // -----------------------------------------------------------------------------
@@ -257,6 +360,14 @@ void VSSIMPLDataContainerFilter::finishWrapping()
 SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
 {
   return m_WrappedDataContainer;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerFilter::setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
+{
+  m_WrappedDataContainer = wrappedDc;
 }
 
 // -----------------------------------------------------------------------------

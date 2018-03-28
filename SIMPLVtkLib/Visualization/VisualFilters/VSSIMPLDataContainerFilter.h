@@ -35,7 +35,9 @@
 
 #pragma once
 
+#include <QtCore/QFutureWatcher>
 #include <QtCore/QSemaphore>
+
 #include <QtWidgets/QWidget>
 
 #include <vtkTrivialProducer.h>
@@ -44,6 +46,8 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class SIMPLH5DataReader;
 
 /**
 * @class VSSIMPLDataContainerFilter VSSIMPLDataContainerFilter.h
@@ -121,6 +125,12 @@ public:
   SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
 
   /**
+   * @brief Sets the WrappedDataContainerPtr used by the filter
+   * @param wrappedDc The WrappedDataContainerPtr
+   */
+  void setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc);
+
+  /**
    * @brief Creates a SIMPLDataContainer filter from the source .dream3d file and json object
    * @param json
    */
@@ -131,6 +141,17 @@ public:
    * @param json
    */
   void writeJson(QJsonObject &json) override;
+
+  /**
+   * @brief reloadData
+   */
+  void reloadData() override;
+
+  /**
+   * @brief reloadData
+   * @param dc
+   */
+  void reloadData(DataContainer::Pointer dc);
 
   /**
   * @brief Returns true if this filter type can be added as a child of
@@ -146,8 +167,15 @@ protected:
   */
   void createFilter() override;
 
+private slots:
+  /**
+   * @brief This slot is called when a data container is finished being wrapped on a separate thread
+   */
+  void wrappingFinished();
+
 private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
+  QFutureWatcher<void> m_WrappingWatcher;
   QSemaphore m_ApplyLock;
 };
