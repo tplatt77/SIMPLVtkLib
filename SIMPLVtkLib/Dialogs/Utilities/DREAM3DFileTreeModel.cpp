@@ -1,47 +1,47 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "DREAM3DFileTreeModel.h"
 
-#include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 #include <QtGui/QFont>
 
-#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileItem.h"
 
@@ -88,7 +88,7 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
   {
     return item->data(index.column());
   }
-  else if (role == Qt::CheckStateRole)
+  else if(role == Qt::CheckStateRole)
   {
     return item->getCheckState();
   }
@@ -104,10 +104,10 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
   {
     return QVariant();
   }
-  else if (role == Qt::FontRole)
+  else if(role == Qt::FontRole)
   {
     DREAM3DFileItem* item = getItem(index);
-    if (item->getItemType() == DREAM3DFileItem::ItemType::DataContainer)
+    if(item->getItemType() == DREAM3DFileItem::ItemType::DataContainer)
     {
       QFont font;
       font.setBold(true);
@@ -150,11 +150,11 @@ Qt::ItemFlags DREAM3DFileTreeModel::flags(const QModelIndex& index) const
   {
     return (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
   }
-  else if (item->getItemType() == DREAM3DFileItem::ItemType::AttributeMatrix)
+  else if(item->getItemType() == DREAM3DFileItem::ItemType::AttributeMatrix)
   {
     return (0);
   }
-  else if (item->getItemType() == DREAM3DFileItem::ItemType::DataArray)
+  else if(item->getItemType() == DREAM3DFileItem::ItemType::DataArray)
   {
     return (Qt::ItemNeverHasChildren);
   }
@@ -237,7 +237,7 @@ bool DREAM3DFileTreeModel::removeRows(int position, int rows, const QModelIndex&
   DREAM3DFileItem* parentItem = getItem(parent);
   bool success = true;
 
-  if (rows <= 0)
+  if(rows <= 0)
   {
     return false;
   }
@@ -297,11 +297,11 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
     item->setItemTooltip(value.toString());
     emit dataChanged(index, index);
   }
-  else if (role == Qt::CheckStateRole)
+  else if(role == Qt::CheckStateRole)
   {
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
-    if (itemType(index) == DREAM3DFileItem::ItemType::DataContainer)
+    if(itemType(index) == DREAM3DFileItem::ItemType::DataContainer)
     {
       QModelIndexList indexesChanged;
 
@@ -312,7 +312,7 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
       DataContainerProxy dcProxy = m_Proxy.dataContainers.value(dcName);
       dcProxy.flag = value.toBool();
 
-      for (int i = 0; i < rowCount(index); i++)
+      for(int i = 0; i < rowCount(index); i++)
       {
         QModelIndex amIndex = this->index(i, DREAM3DFileItem::Name, index);
         setCheckState(amIndex, checkState);
@@ -322,7 +322,7 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
         AttributeMatrixProxy amProxy = dcProxy.attributeMatricies.value(amName);
         amProxy.flag = value.toBool();
 
-        for (int i = 0; i < rowCount(amIndex); i++)
+        for(int i = 0; i < rowCount(amIndex); i++)
         {
           QModelIndex daIndex = this->index(i, DREAM3DFileItem::Name, amIndex);
           setCheckState(daIndex, checkState);
@@ -341,41 +341,41 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
 
       emit dataChanged(indexesChanged[0], indexesChanged[indexesChanged.size() - 1]);
 
-//      Qt::CheckState tristateCS = Qt::Unchecked;
-//      QModelIndex selIndex = this->index(0, DREAM3DFileItem::Name);
-//      bool allChecked = true;
-//      for (int i = 0; i < rowCount(selIndex); i++)
-//      {
-//        QModelIndex dcIndex = this->index(i, DREAM3DFileItem::Name, selIndex);
-//        if (getCheckState(dcIndex) == Qt::Checked)
-//        {
-//          tristateCS = Qt::PartiallyChecked;
-//        }
-//        else
-//        {
-//          allChecked = false;
-//        }
-//      }
+      //      Qt::CheckState tristateCS = Qt::Unchecked;
+      //      QModelIndex selIndex = this->index(0, DREAM3DFileItem::Name);
+      //      bool allChecked = true;
+      //      for (int i = 0; i < rowCount(selIndex); i++)
+      //      {
+      //        QModelIndex dcIndex = this->index(i, DREAM3DFileItem::Name, selIndex);
+      //        if (getCheckState(dcIndex) == Qt::Checked)
+      //        {
+      //          tristateCS = Qt::PartiallyChecked;
+      //        }
+      //        else
+      //        {
+      //          allChecked = false;
+      //        }
+      //      }
 
-//      if (allChecked)
-//      {
-//        tristateCS = Qt::Checked;
-//      }
+      //      if (allChecked)
+      //      {
+      //        tristateCS = Qt::Checked;
+      //      }
 
-//      setCheckState(selIndex, tristateCS);
-//      indexesChanged.push_front(selIndex);
+      //      setCheckState(selIndex, tristateCS);
+      //      indexesChanged.push_front(selIndex);
     }
-//    else if (itemType(index) == DREAM3DFileItem::ItemType::SelectAll)
-//    {
-//      for (int i = 0; i < rowCount(index); i++)
-//      {
-//        QModelIndex dcIndex = this->index(i, DREAM3DFileItem::Name, index);
-//        setData(dcIndex, checkState, Qt::CheckStateRole);
-//      }
+    //    else if (itemType(index) == DREAM3DFileItem::ItemType::SelectAll)
+    //    {
+    //      for (int i = 0; i < rowCount(index); i++)
+    //      {
+    //        QModelIndex dcIndex = this->index(i, DREAM3DFileItem::Name, index);
+    //        setData(dcIndex, checkState, Qt::CheckStateRole);
+    //      }
 
-//      setCheckState(index, checkState);
-//      emit dataChanged(index, index);
-//    }
+    //      setCheckState(index, checkState);
+    //      emit dataChanged(index, index);
+    //    }
 
     return false;
   }
@@ -391,7 +391,7 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DREAM3DFileItem::ItemType DREAM3DFileTreeModel::itemType(const QModelIndex &index) const
+DREAM3DFileItem::ItemType DREAM3DFileTreeModel::itemType(const QModelIndex& index) const
 {
   DREAM3DFileItem* item = getItem(index);
   return item->getItemType();
@@ -400,7 +400,7 @@ DREAM3DFileItem::ItemType DREAM3DFileTreeModel::itemType(const QModelIndex &inde
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void DREAM3DFileTreeModel::setItemType(const QModelIndex &index, DREAM3DFileItem::ItemType itemType)
+void DREAM3DFileTreeModel::setItemType(const QModelIndex& index, DREAM3DFileItem::ItemType itemType)
 {
   DREAM3DFileItem* item = getItem(index);
   item->setItemType(itemType);
@@ -409,7 +409,7 @@ void DREAM3DFileTreeModel::setItemType(const QModelIndex &index, DREAM3DFileItem
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Qt::CheckState DREAM3DFileTreeModel::getCheckState(const QModelIndex &index) const
+Qt::CheckState DREAM3DFileTreeModel::getCheckState(const QModelIndex& index) const
 {
   DREAM3DFileItem* item = getItem(index);
   return item->getCheckState();
@@ -418,7 +418,7 @@ Qt::CheckState DREAM3DFileTreeModel::getCheckState(const QModelIndex &index) con
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void DREAM3DFileTreeModel::setCheckState(const QModelIndex &index, Qt::CheckState checkState)
+void DREAM3DFileTreeModel::setCheckState(const QModelIndex& index, Qt::CheckState checkState)
 {
   DREAM3DFileItem* item = getItem(index);
   item->setCheckState(checkState);
@@ -451,7 +451,7 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
 {
   clearModel();
 
-  for (QMap<QString, DataContainerProxy>::iterator dcIter = proxy.dataContainers.begin(); dcIter != proxy.dataContainers.end(); dcIter++)
+  for(QMap<QString, DataContainerProxy>::iterator dcIter = proxy.dataContainers.begin(); dcIter != proxy.dataContainers.end(); dcIter++)
   {
     QString dcName = dcIter.key();
     DataContainerProxy dcProxy = dcIter.value();
@@ -462,7 +462,7 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
     setItemType(dcIndex, DREAM3DFileItem::ItemType::DataContainer);
     setData(dcIndex, dcName, Qt::DisplayRole);
 
-    for (QMap<QString, AttributeMatrixProxy>::iterator amIter = dcProxy.attributeMatricies.begin(); amIter != dcProxy.attributeMatricies.end(); amIter++)
+    for(QMap<QString, AttributeMatrixProxy>::iterator amIter = dcProxy.attributeMatricies.begin(); amIter != dcProxy.attributeMatricies.end(); amIter++)
     {
       QString amName = amIter.key();
       AttributeMatrixProxy amProxy = amIter.value();
@@ -473,7 +473,7 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
       setItemType(amIndex, DREAM3DFileItem::ItemType::AttributeMatrix);
       setData(amIndex, amName, Qt::DisplayRole);
 
-      for (QMap<QString, DataArrayProxy>::iterator daIter = amProxy.dataArrays.begin(); daIter != amProxy.dataArrays.end(); daIter++)
+      for(QMap<QString, DataArrayProxy>::iterator daIter = amProxy.dataArrays.begin(); daIter != amProxy.dataArrays.end(); daIter++)
       {
         QString daName = daIter.key();
         DataArrayProxy daProxy = daIter.value();
@@ -502,5 +502,3 @@ DataContainerArrayProxy DREAM3DFileTreeModel::getModelProxy()
 {
   return m_Proxy;
 }
-
-

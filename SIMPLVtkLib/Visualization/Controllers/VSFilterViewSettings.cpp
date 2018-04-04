@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2015 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSFilterViewSettings.h"
 
@@ -41,9 +41,9 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkDataSetMapper.h>
 #include <vtkImageActor.h>
+#include <vtkImageData.h>
 #include <vtkImageProperty.h>
 #include <vtkImageSliceMapper.h>
-#include <vtkImageData.h>
 #include <vtkMapper.h>
 #include <vtkPointData.h>
 #include <vtkProperty.h>
@@ -51,15 +51,15 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
-double* VSFilterViewSettings::NULL_COLOR = new double[3]{ 0.0, 0.0, 0.0 };
+double* VSFilterViewSettings::NULL_COLOR = new double[3]{0.0, 0.0, 0.0};
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
-  : QObject(nullptr)
-  , m_ShowFilter(true)
-  , m_ShowScalarBar(true)
+: QObject(nullptr)
+, m_ShowFilter(true)
+, m_ShowScalarBar(true)
 {
   connectFilter(filter);
   setupActors();
@@ -70,13 +70,13 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 //
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
-  : QObject(nullptr)
-  , m_ShowFilter(copy.m_ShowFilter)
-  , m_ActiveArray(copy.m_ActiveArray)
-  , m_ActiveComponent(copy.m_ActiveComponent)
-  , m_MapColors(copy.m_MapColors)
-  , m_ShowScalarBar(copy.m_ShowScalarBar)
-  , m_Alpha(copy.m_Alpha)
+: QObject(nullptr)
+, m_ShowFilter(copy.m_ShowFilter)
+, m_ActiveArray(copy.m_ActiveArray)
+, m_ActiveComponent(copy.m_ActiveComponent)
+, m_MapColors(copy.m_MapColors)
+, m_ShowScalarBar(copy.m_ShowScalarBar)
+, m_Alpha(copy.m_Alpha)
 {
   connectFilter(copy.m_Filter);
   setupActors();
@@ -205,7 +205,7 @@ VTK_PTR(vtkProp3D) VSFilterViewSettings::getActor()
 // -----------------------------------------------------------------------------
 vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper()
 {
-  if(ActorType::DataSet == m_ActorType &&  isValid())
+  if(ActorType::DataSet == m_ActorType && isValid())
   {
     return dynamic_cast<vtkDataSetMapper*>(m_Mapper.Get());
   }
@@ -367,7 +367,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   {
     return;
   }
-  
+
   // Clamp index with lower bound
   if(index < -1)
   {
@@ -402,7 +402,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   }
 
   m_Mapper->Update();
-  
+
   emit activeComponentIndexChanged(this, m_ActiveComponent);
 }
 
@@ -610,7 +610,7 @@ void VSFilterViewSettings::setupActors(bool outline)
   else
   {
     setupDataSetActors();
-    
+
     if(isFlatImage())
     {
       setScalarBarVisible(false);
@@ -649,7 +649,7 @@ bool VSFilterViewSettings::isFlatImage()
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -825,7 +825,7 @@ void VSFilterViewSettings::updateTransform()
 
   if(ActorType::Image2D == m_ActorType)
   {
-    VSTransform* transform =  m_Filter->getTransform();
+    VSTransform* transform = m_Filter->getTransform();
     m_Actor->SetPosition(transform->getPosition());
     m_Actor->SetOrientation(transform->getRotation());
     m_Actor->SetScale(transform->getScale());
@@ -915,22 +915,22 @@ VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation()
 {
   return m_Representation;
 
-  //vtkActor* actor = getDataSetActor();
-  //if(nullptr == actor)
+  // vtkActor* actor = getDataSetActor();
+  // if(nullptr == actor)
   //{
   //  return Representation::Invalid;
   //}
 
-  //vtkProperty* property = actor->GetProperty();
-  //Representation rep = static_cast<Representation>(property->GetRepresentation());
-  //int edges = property->GetEdgeVisibility();
+  // vtkProperty* property = actor->GetProperty();
+  // Representation rep = static_cast<Representation>(property->GetRepresentation());
+  // int edges = property->GetEdgeVisibility();
 
-  //if(1 == edges && Representation::Surface == rep)
+  // if(1 == edges && Representation::Surface == rep)
   //{
   //  return Representation::SurfaceWithEdges;
   //}
 
-  //return rep;
+  // return rep;
 }
 
 // -----------------------------------------------------------------------------

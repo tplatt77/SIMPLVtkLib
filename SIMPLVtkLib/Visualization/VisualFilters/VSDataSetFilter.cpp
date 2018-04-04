@@ -40,29 +40,29 @@
 #include <QtCore/QUuid>
 
 #include <vtkBMPReader.h>
-#include <vtkPolyData.h>
+#include <vtkGenericDataObjectReader.h>
 #include <vtkImageData.h>
-#include <vtkRectilinearGrid.h>
-#include <vtkStructuredGrid.h>
 #include <vtkJPEGReader.h>
 #include <vtkPNGReader.h>
-#include <vtkTIFFReader.h>
-#include <vtkGenericDataObjectReader.h>
-#include <vtkRectilinearGridReader.h>
-#include <vtkStructuredPointsReader.h>
-#include <vtkStructuredGridReader.h>
-#include <vtkUnstructuredGridReader.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
+#include <vtkRectilinearGrid.h>
+#include <vtkRectilinearGridReader.h>
 #include <vtkSTLReader.h>
+#include <vtkStructuredGrid.h>
+#include <vtkStructuredGridReader.h>
+#include <vtkStructuredPointsReader.h>
+#include <vtkTIFFReader.h>
+#include <vtkUnstructuredGridReader.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter::VSDataSetFilter(const QString &filePath, VSAbstractFilter* parent)
-  : VSAbstractDataFilter()
-  , m_FilePath(filePath)
+VSDataSetFilter::VSDataSetFilter(const QString& filePath, VSAbstractFilter* parent)
+: VSAbstractDataFilter()
+, m_FilePath(filePath)
 {
   createFilter();
 
@@ -108,7 +108,7 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDataSetFilter* VSDataSetFilter::Create(const QString &filePath, QJsonObject &json, VSAbstractFilter* parent)
+VSDataSetFilter* VSDataSetFilter::Create(const QString& filePath, QJsonObject& json, VSAbstractFilter* parent)
 {
   VSDataSetFilter* filter = new VSDataSetFilter(filePath, parent);
 
@@ -120,7 +120,7 @@ VSDataSetFilter* VSDataSetFilter::Create(const QString &filePath, QJsonObject &j
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSDataSetFilter::writeJson(QJsonObject &json)
+void VSDataSetFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
 
@@ -188,16 +188,15 @@ void VSDataSetFilter::readDataSet()
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
   QString mimeName = mimeType.name();
 
-  if (mimeType.name().startsWith("image/"))
+  if(mimeType.name().startsWith("image/"))
   {
     readImage();
   }
-  else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr"
-           || ext == "vts" || ext == "vtu")
+  else if(ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
   {
     readVTKFile();
   }
-  else if (ext == "stl")
+  else if(ext == "stl")
   {
     readSTLFile();
   }
@@ -232,7 +231,7 @@ void VSDataSetFilter::readImage()
   QMimeDatabase db;
   QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
 
-  if (mimeType.inherits("image/jpeg"))
+  if(mimeType.inherits("image/jpeg"))
   {
     VTK_NEW(vtkJPEGReader, imageReader);
     imageReader->SetFileName(m_FilePath.toLatin1().data());
@@ -243,7 +242,7 @@ void VSDataSetFilter::readImage()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (mimeType.inherits("image/png"))
+  else if(mimeType.inherits("image/png"))
   {
     VTK_NEW(vtkPNGReader, imageReader);
     imageReader->SetFileName(m_FilePath.toLatin1().data());
@@ -254,7 +253,7 @@ void VSDataSetFilter::readImage()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (mimeType.inherits("image/tiff"))
+  else if(mimeType.inherits("image/tiff"))
   {
     VTK_NEW(vtkTIFFReader, imageReader);
     imageReader->SetFileName(m_FilePath.toLatin1().data());
@@ -286,7 +285,7 @@ void VSDataSetFilter::readVTKFile()
   QFileInfo fi(m_FilePath);
   QString ext = fi.completeSuffix().toLower();
 
-  if (ext == "vtk")
+  if(ext == "vtk")
   {
     VTK_NEW(vtkGenericDataObjectReader, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());
@@ -297,7 +296,7 @@ void VSDataSetFilter::readVTKFile()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (ext == "vti")
+  else if(ext == "vti")
   {
     VTK_NEW(vtkImageReader2, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());
@@ -308,7 +307,7 @@ void VSDataSetFilter::readVTKFile()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (ext == "vtp")
+  else if(ext == "vtp")
   {
     VTK_NEW(vtkPolyDataReader, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());
@@ -319,7 +318,7 @@ void VSDataSetFilter::readVTKFile()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (ext == "vtr")
+  else if(ext == "vtr")
   {
     VTK_NEW(vtkRectilinearGridReader, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());
@@ -330,7 +329,7 @@ void VSDataSetFilter::readVTKFile()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (ext == "vts")
+  else if(ext == "vts")
   {
     VTK_NEW(vtkStructuredGridReader, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());
@@ -341,7 +340,7 @@ void VSDataSetFilter::readVTKFile()
     m_TrivialProducer->Update();
     m_DataSet = newDataSet;
   }
-  else if (ext == "vtu")
+  else if(ext == "vtu")
   {
     VTK_NEW(vtkStructuredGridReader, vtkReader);
     vtkReader->SetFileName(m_FilePath.toLatin1().data());

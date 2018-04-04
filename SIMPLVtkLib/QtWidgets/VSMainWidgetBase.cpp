@@ -1,45 +1,45 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2017 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSMainWidgetBase.h"
 
 #include <QtConcurrent>
 
+#include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
-#include <QtCore/QFile>
 #include <QtCore/QThread>
 #include <QtCore/QUuid>
 
@@ -50,28 +50,28 @@
 
 #include "SIMPLVtkLib/Dialogs/LoadHDF5FileDialog.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
-  : QWidget(parent)
-  , m_Controller(new VSController())
+: QWidget(parent)
+, m_Controller(new VSController())
 {
   connectSlots();
 }
@@ -81,17 +81,12 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)),
-    this, SLOT(filterAdded(VSAbstractFilter*, bool)));
-  connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), 
-    this, SLOT(filterRemoved(VSAbstractFilter*)));
-  connect(m_Controller, SIGNAL(blockRender(bool)),
-    this, SLOT(setBlockRender(bool)));
-  connect(m_Controller, SIGNAL(filterSelected(VSAbstractFilter*)),
-    this, SLOT(setCurrentFilter(VSAbstractFilter*)));
+  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(filterAdded(VSAbstractFilter*, bool)));
+  connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
+  connect(m_Controller, SIGNAL(blockRender(bool)), this, SLOT(setBlockRender(bool)));
+  connect(m_Controller, SIGNAL(filterSelected(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
 
-  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString &)),
-          this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString &)));
+  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString&)), this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString&)));
 }
 
 // -----------------------------------------------------------------------------
@@ -99,11 +94,9 @@ void VSMainWidgetBase::connectSlots()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectViewWidget(VSAbstractViewWidget* viewWidget)
 {
-  connect(viewWidget, SIGNAL(viewWidgetCreated(VSAbstractViewWidget*)),
-    this, SLOT(connectViewWidget(VSAbstractViewWidget*)));
+  connect(viewWidget, SIGNAL(viewWidgetCreated(VSAbstractViewWidget*)), this, SLOT(connectViewWidget(VSAbstractViewWidget*)));
 
-  connect(viewWidget, SIGNAL(markActive(VSAbstractViewWidget*)),
-    this, SLOT(setActiveView(VSAbstractViewWidget*)));
+  connect(viewWidget, SIGNAL(markActive(VSAbstractViewWidget*)), this, SLOT(setActiveView(VSAbstractViewWidget*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -150,8 +143,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
     disconnect(m_FilterView, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)));
     disconnect(m_FilterView, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)));
     disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
-      view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
   }
 
   view->setController(m_Controller);
@@ -162,9 +154,8 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   connect(view, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)), this, SLOT(reloadFileFilter(VSFileNameFilter*)));
   connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
   connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-  connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
-    view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-  
+  connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+
   view->setViewWidget(m_ActiveViewWidget);
 }
 
@@ -183,24 +174,18 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
   if(m_InfoWidget)
   {
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
-      m_InfoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)),
-      m_InfoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
-      this, SLOT(deleteFilter(VSAbstractFilter*)));
+    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_InfoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_InfoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
+    disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
   }
 
   m_InfoWidget = infoWidget;
 
   if(m_InfoWidget)
   {
-    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)),
-      infoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)),
-      infoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)),
-      this, SLOT(deleteFilter(VSAbstractFilter*)));
+    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), infoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), infoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
+    connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
 
     VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
     m_InfoWidget->setFilter(m_CurrentFilter, filterWidget);
@@ -223,59 +208,58 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
   QVTKInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
-  if (activeViewWidget != nullptr)
+  if(activeViewWidget != nullptr)
   {
     VSVisualizationWidget* vizWidget = activeViewWidget->getVisualizationWidget();
-    if (vizWidget != nullptr)
+    if(vizWidget != nullptr)
     {
       interactor = vizWidget->GetInteractor();
     }
   }
 
-
   VSAbstractFilterWidget* fw = nullptr;
-  if (dynamic_cast<VSClipFilter*>(filter) != nullptr)
+  if(dynamic_cast<VSClipFilter*>(filter) != nullptr)
   {
     VSClipFilter* vsFilter = dynamic_cast<VSClipFilter*>(filter);
     fw = new VSClipFilterWidget(vsFilter, interactor, this);
   }
-  else if (dynamic_cast<VSCropFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSCropFilter*>(filter) != nullptr)
   {
     VSCropFilter* vsFilter = dynamic_cast<VSCropFilter*>(filter);
     fw = new VSCropFilterWidget(vsFilter, interactor, this);
   }
-  else if (dynamic_cast<VSMaskFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSMaskFilter*>(filter) != nullptr)
   {
     VSMaskFilter* vsFilter = dynamic_cast<VSMaskFilter*>(filter);
     fw = new VSMaskFilterWidget(vsFilter, interactor, this);
   }
-  else if (dynamic_cast<VSSIMPLDataContainerFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSSIMPLDataContainerFilter*>(filter) != nullptr)
   {
     VSSIMPLDataContainerFilter* vsFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
     fw = new VSSIMPLDataContainerFilterWidget(vsFilter, this);
   }
-  else if (dynamic_cast<VSDataSetFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSDataSetFilter*>(filter) != nullptr)
   {
     VSDataSetFilter* vsFilter = dynamic_cast<VSDataSetFilter*>(filter);
     fw = new VSDataSetFilterWidget(vsFilter, this);
   }
-  else if (dynamic_cast<VSSliceFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSSliceFilter*>(filter) != nullptr)
   {
     VSSliceFilter* vsFilter = dynamic_cast<VSSliceFilter*>(filter);
     fw = new VSSliceFilterWidget(vsFilter, interactor, this);
   }
-  else if (dynamic_cast<VSThresholdFilter*>(filter) != nullptr)
+  else if(dynamic_cast<VSThresholdFilter*>(filter) != nullptr)
   {
     VSThresholdFilter* vsFilter = dynamic_cast<VSThresholdFilter*>(filter);
     fw = new VSThresholdFilterWidget(vsFilter, interactor, this);
   }
 
-  if (fw != nullptr)
+  if(fw != nullptr)
   {
     m_FilterToFilterWidgetMap.insert(filter, fw);
   }
 
-  if (currentFilter == true)
+  if(currentFilter == true)
   {
     setCurrentFilter(filter);
   }
@@ -297,7 +281,7 @@ void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::importFiles(QStringList filePaths)
 {
-  for (int i = 0; i < filePaths.size(); i++)
+  for(int i = 0; i < filePaths.size(); i++)
   {
     QString filePath = filePaths[i];
 
@@ -308,20 +292,19 @@ void VSMainWidgetBase::importFiles(QStringList filePaths)
 
     QFileInfo fi(filePath);
     QString ext = fi.completeSuffix().toLower();
-    if (ext == "dream3d")
+    if(ext == "dream3d")
     {
       openDREAM3DFile(filePath);
     }
-    else if (mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
+    else if(mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
     {
       m_Controller->importData(filePath);
     }
-    else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr"
-             || ext == "vts" || ext == "vtu")
+    else if(ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
     {
       m_Controller->importData(filePath);
     }
-    else if (ext == "stl")
+    else if(ext == "stl")
     {
       m_Controller->importData(filePath);
     }
@@ -329,7 +312,9 @@ void VSMainWidgetBase::importFiles(QStringList filePaths)
     {
       QMessageBox::critical(this, "Invalid File Type",
                             tr("IMF Viewer failed to open the file because the file extension, '.%1', is not supported by the "
-                               "application.").arg(ext), QMessageBox::StandardButton::Ok);
+                               "application.")
+                                .arg(ext),
+                            QMessageBox::StandardButton::Ok);
       continue;
     }
   }
@@ -338,46 +323,45 @@ void VSMainWidgetBase::importFiles(QStringList filePaths)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::openDREAM3DFile(const QString &filePath)
+void VSMainWidgetBase::openDREAM3DFile(const QString& filePath)
 {
   QFileInfo fi(filePath);
 
   SIMPLH5DataReader reader;
-  connect(&reader, SIGNAL(errorGenerated(const QString &, const QString &, const int &)),
-          this, SLOT(generateError(const QString &, const QString &, const int &)));
+  connect(&reader, SIGNAL(errorGenerated(const QString&, const QString&, const int&)), this, SLOT(generateError(const QString&, const QString&, const int&)));
 
   bool success = reader.openFile(filePath);
-  if (success)
+  if(success)
   {
     int err = 0;
     SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
     DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
-    if (proxy.dataContainers.isEmpty())
+    if(proxy.dataContainers.isEmpty())
     {
       return;
     }
 
     QStringList dcNames = proxy.dataContainers.keys();
-    for (int i = 0; i < dcNames.size(); i++)
+    for(int i = 0; i < dcNames.size(); i++)
     {
       QString dcName = dcNames[i];
       DataContainerProxy dcProxy = proxy.dataContainers[dcName];
 
       // We want only data containers with geometries displayed
-      if (dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
+      if(dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
       {
         proxy.dataContainers.remove(dcName);
       }
       else
       {
         QStringList amNames = dcProxy.attributeMatricies.keys();
-        for (int j = 0; j < amNames.size(); j++)
+        for(int j = 0; j < amNames.size(); j++)
         {
           QString amName = amNames[j];
           AttributeMatrixProxy amProxy = dcProxy.attributeMatricies[amName];
 
           // We want only cell attribute matrices displayed
-          if (amProxy.amType != AttributeMatrix::Type::Cell)
+          if(amProxy.amType != AttributeMatrix::Type::Cell)
           {
             dcProxy.attributeMatricies.remove(amName);
             proxy.dataContainers[dcName] = dcProxy;
@@ -386,11 +370,13 @@ void VSMainWidgetBase::openDREAM3DFile(const QString &filePath)
       }
     }
 
-    if (proxy.dataContainers.size() <= 0)
+    if(proxy.dataContainers.size() <= 0)
     {
       QMessageBox::critical(this, "Invalid Data",
                             tr("IMF Viewer failed to open file '%1' because the file does not "
-                               "contain any data containers with a supported geometry.").arg(fi.fileName()), QMessageBox::StandardButton::Ok);
+                               "contain any data containers with a supported geometry.")
+                                .arg(fi.fileName()),
+                            QMessageBox::StandardButton::Ok);
       return;
     }
 
@@ -401,25 +387,24 @@ void VSMainWidgetBase::openDREAM3DFile(const QString &filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString &filePath)
+void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString& filePath)
 {
   QSharedPointer<LoadHDF5FileDialog> dialog = QSharedPointer<LoadHDF5FileDialog>(new LoadHDF5FileDialog());
   dialog->setProxy(proxy);
   int ret = dialog->exec();
 
-  if (ret == QDialog::Accepted)
+  if(ret == QDialog::Accepted)
   {
     SIMPLH5DataReader reader;
 
     bool success = reader.openFile(filePath);
-    if (success)
+    if(success)
     {
-      connect(&reader, SIGNAL(errorGenerated(const QString &, const QString &, const int &)),
-              this, SLOT(generateError(const QString &, const QString &, const int &)));
+      connect(&reader, SIGNAL(errorGenerated(const QString&, const QString&, const int&)), this, SLOT(generateError(const QString&, const QString&, const int&)));
 
       DataContainerArrayProxy dcaProxy = dialog->getDataStructureProxy();
       DataContainerArray::Pointer dca = reader.readSIMPLDataUsingProxy(dcaProxy, false);
-      if (dca.get() == nullptr)
+      if(dca.get() == nullptr)
       {
         return;
       }
@@ -432,7 +417,7 @@ void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::generateError(const QString &title, const QString &msg, const int &code)
+void VSMainWidgetBase::generateError(const QString& title, const QString& msg, const int& code)
 {
   QMessageBox::critical(this, title, msg, QMessageBox::StandardButton::Ok);
 }
@@ -454,8 +439,7 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(false);
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
-      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
   }
 
   m_ActiveViewWidget = viewWidget;
@@ -466,8 +450,7 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(true);
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)),
-      this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
 
     // Update filter check states to match the current view widget
     getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
@@ -587,10 +570,10 @@ void VSMainWidgetBase::reloadFileFilter(VSFileNameFilter* filter)
 {
   QVector<VSAbstractFilter*> childFilters = filter->getChildren();
   std::vector<VSAbstractDataFilter*> filters;
-  for (int i = 0; i < childFilters.size(); i++)
+  for(int i = 0; i < childFilters.size(); i++)
   {
     VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilters[i]);
-    if (dataFilter)
+    if(dataFilter)
     {
       filters.push_back(dataFilter);
     }
@@ -604,34 +587,33 @@ void VSMainWidgetBase::reloadFileFilter(VSFileNameFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
 {
-  if (filters.size() == 1)
+  if(filters.size() == 1)
   {
     // This is a single filter, so do a simple reload
     VSAbstractDataFilter* filter = filters[0];
     filter->reloadData();
   }
-  else if (filters.size() > 1 && dynamic_cast<VSSIMPLDataContainerFilter*>(filters[0]) != nullptr)
+  else if(filters.size() > 1 && dynamic_cast<VSSIMPLDataContainerFilter*>(filters[0]) != nullptr)
   {
     // This is from a file containing multiple SIMPL Data Containers, so we will use this block of code to optimize the file reading process
     QSharedPointer<SIMPLH5DataReader> reader = QSharedPointer<SIMPLH5DataReader>(new SIMPLH5DataReader());
-    connect(reader.data(), SIGNAL(errorGenerated(const QString &, const QString &, const int &)),
-            this, SLOT(generateError(const QString &, const QString &, const int &)));
+    connect(reader.data(), SIGNAL(errorGenerated(const QString&, const QString&, const int&)), this, SLOT(generateError(const QString&, const QString&, const int&)));
 
     VSSIMPLDataContainerFilter* simplFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[0]);
     VSFileNameFilter* fileNameFilter = dynamic_cast<VSFileNameFilter*>(simplFilter->getParentFilter());
-    if (fileNameFilter == nullptr)
+    if(fileNameFilter == nullptr)
     {
       QString ss = QObject::tr("Data Container filters could not be reloaded because they do not have a file filter parent.");
       emit generateError("Data Reload Error", ss, -3002);
     }
-    
+
     bool success = reader->openFile(fileNameFilter->getFilePath());
-    if (success)
+    if(success)
     {
       int err = 0;
       DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
 
-      for (size_t i = 0; i < filters.size(); i++)
+      for(size_t i = 0; i < filters.size(); i++)
       {
         VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
 
@@ -802,7 +784,7 @@ void VSMainWidgetBase::renderAllViews()
     viewWidget->renderView();
   }
 
-  //QThread::currentThread()->wait(1);
+  // QThread::currentThread()->wait(1);
 }
 
 // -----------------------------------------------------------------------------

@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2015 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSInfoWidget.h"
 
@@ -39,15 +39,15 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
 
@@ -65,8 +65,8 @@ public:
 //
 // -----------------------------------------------------------------------------
 VSInfoWidget::VSInfoWidget(QWidget* parent)
-  : QWidget(parent)
-  , m_Internals(new VSInternals())
+: QWidget(parent)
+, m_Internals(new VSInternals())
 {
   m_Internals->setupUi(this);
   setupGui();
@@ -80,34 +80,21 @@ void VSInfoWidget::setupGui()
 {
   m_presetsDialog = new ColorPresetsDialog();
 
-  connect(m_Internals->representationCombo, SIGNAL(currentIndexChanged(int)),
-    this, SLOT(setRepresentationIndex(int)));
-  connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)),
-    this, SLOT(updateActiveArrayIndex(int)));
-  connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)),
-    this, SLOT(updateActiveComponentIndex(int)));
-  connect(m_Internals->mapScalarsCheckBox, SIGNAL(stateChanged(int)),
-    this, SLOT(setScalarsMapped(int)));
-  connect(m_Internals->showScalarBarCheckBox, SIGNAL(stateChanged(int)),
-    this, SLOT(setScalarBarVisible(int)));
-  connect(m_Internals->invertColorScaleBtn, SIGNAL(clicked()),
-    this, SLOT(invertScalarBar()));
-  connect(m_Internals->alphaSlider, SIGNAL(valueChanged(int)),
-    this, SLOT(alphaSliderMoved(int)));
-  connect(m_Internals->selectPresetColorsBtn, SIGNAL(clicked()),
-    this, SLOT(selectPresetColors()));
-  connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)),
-    this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
+  connect(m_Internals->representationCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setRepresentationIndex(int)));
+  connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveArrayIndex(int)));
+  connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveComponentIndex(int)));
+  connect(m_Internals->mapScalarsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarsMapped(int)));
+  connect(m_Internals->showScalarBarCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarBarVisible(int)));
+  connect(m_Internals->invertColorScaleBtn, SIGNAL(clicked()), this, SLOT(invertScalarBar()));
+  connect(m_Internals->alphaSlider, SIGNAL(valueChanged(int)), this, SLOT(alphaSliderMoved(int)));
+  connect(m_Internals->selectPresetColorsBtn, SIGNAL(clicked()), this, SLOT(selectPresetColors()));
+  connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)), this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
 
-  connect(m_Internals->applyBtn, SIGNAL(clicked()),
-    this, SLOT(applyFilter()));
-  connect(m_Internals->resetBtn, SIGNAL(clicked()),
-    this, SLOT(resetFilter()));
-  connect(m_Internals->deleteBtn, SIGNAL(clicked()),
-    this, SLOT(deleteFilter()));
+  connect(m_Internals->applyBtn, SIGNAL(clicked()), this, SLOT(applyFilter()));
+  connect(m_Internals->resetBtn, SIGNAL(clicked()), this, SLOT(resetFilter()));
+  connect(m_Internals->deleteBtn, SIGNAL(clicked()), this, SLOT(deleteFilter()));
 
-  connect(m_Internals->colorBtn, SIGNAL(changedColor(QColor)),
-    this, SLOT(colorButtonChanged(QColor)));
+  connect(m_Internals->colorBtn, SIGNAL(changedColor(QColor)), this, SLOT(colorButtonChanged(QColor)));
 
   m_Internals->applyBtn->setDisabled(true);
   m_Internals->resetBtn->setDisabled(true);
@@ -174,7 +161,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
     m_Internals->filterWidgetLayout->removeWidget(m_FilterWidget);
     m_FilterWidget->hide();
     m_FilterWidget = nullptr;
-    
+
     disconnect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
   }
 
@@ -207,7 +194,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
     listenSolidColor(m_ViewSettings, m_ViewSettings->getSolidColor());
     actorType = m_ViewSettings->getActorType();
   }
-  
+
   if(m_FilterWidget != nullptr)
   {
     m_Internals->filterWidgetLayout->addWidget(m_FilterWidget);
@@ -256,38 +243,27 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
 {
   if(m_ViewSettings)
   {
-    disconnect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)),
-      this, SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
-    disconnect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)),
-      this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
-    disconnect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)),
-      this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
-    disconnect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)),
-      this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    disconnect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)),
-      this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
-    disconnect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
-      this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
-    disconnect(settings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)),
-      this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
+    disconnect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
+               SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
+    disconnect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
+    disconnect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
+    disconnect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
+    disconnect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
+    disconnect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
+    disconnect(settings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)), this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
   }
 
   m_ViewSettings = settings;
 
   if(m_ViewSettings)
   {
-    connect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)),
-      this, SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
-    connect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)),
-      this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)),
-      this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)),
-      this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    connect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)),
-      this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
-    connect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)),
-      this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
+    connect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
+            SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
+    connect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
+    connect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
+    connect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
+    connect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
+    connect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
   }
 }
 
@@ -431,7 +407,7 @@ void VSInfoWidget::updateActiveArrayIndex(int index)
   QStringList componentList = m_Filter->getComponentList(index);
   bool multiComponents = componentList.size() > 1;
   m_Internals->activeComponentCombo->setEnabled(multiComponents);
-  
+
   if(multiComponents)
   {
     m_Internals->activeComponentCombo->setEnabled(true);
