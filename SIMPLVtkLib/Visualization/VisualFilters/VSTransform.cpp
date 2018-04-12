@@ -186,6 +186,46 @@ double* VSTransform::getLocalScale()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSTransform::translate(double delta[3])
+{
+  m_LocalTransform->Translate(delta);
+  emit emitPosition();
+  emit updatedLocalPosition(m_LocalTransform->GetPosition());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::rotate(double amount, double axis[3])
+{
+  m_LocalTransform->RotateWXYZ(amount, axis);
+  emit emitRotation();
+  emit updatedLocalRotation(m_LocalTransform->GetOrientation());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::scale(double amount)
+{
+  m_LocalTransform->Scale(amount, amount, amount);
+  emit emitScale();
+  emit updatedLocalScale(m_LocalTransform->GetScale());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::scale(double amount[3])
+{
+  m_LocalTransform->Scale(amount);
+  emit emitScale();
+  emit updatedLocalScale(m_LocalTransform->GetScale());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VTK_PTR(vtkTransform) VSTransform::getGlobalTransform()
 {
   VTK_NEW(vtkTransform, transform);
@@ -287,6 +327,7 @@ void VSTransform::setLocalPosition(double position[3])
   setLocalValues(position, rotation, scale);
 
   emit emitPosition();
+  emit updatedLocalPosition(m_LocalTransform->GetPosition());
 }
 
 // -----------------------------------------------------------------------------
@@ -303,6 +344,7 @@ void VSTransform::setLocalRotation(double rotation[3])
   setLocalValues(position, rotation, scale);
 
   emit emitRotation();
+  emit updatedLocalRotation(m_LocalTransform->GetOrientation());
 }
 
 // -----------------------------------------------------------------------------
@@ -319,6 +361,7 @@ void VSTransform::setLocalScale(double scale[3])
   setLocalValues(position, rotation, scale);
 
   emit emitScale();
+  emit updatedLocalScale(m_LocalTransform->GetScale());
 }
 
 // -----------------------------------------------------------------------------
@@ -418,7 +461,6 @@ void VSTransform::localizePlanes(vtkPlanes* planes)
 // -----------------------------------------------------------------------------
 void VSTransform::localizeTransform(vtkTransform* transform)
 {
-  // transform->SetInput(getTransposedTransform());
   transform->SetInput(getLocalizeTransform());
   updateTransform(transform);
 }

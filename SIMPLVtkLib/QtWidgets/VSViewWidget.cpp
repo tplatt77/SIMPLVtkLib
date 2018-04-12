@@ -56,8 +56,11 @@ public:
 VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
 : VSAbstractViewWidget(parent, windowFlags)
 , m_Internals(new VSInternals())
+, m_InteractorStyle(VSInteractorStyleFilterCamera::New())
 {
   m_Internals->setupUi(this);
+  m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
+  m_InteractorStyle->setViewWidget(this);
 
   connectSlots();
 }

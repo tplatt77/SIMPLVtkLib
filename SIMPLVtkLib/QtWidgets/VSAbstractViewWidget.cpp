@@ -692,3 +692,33 @@ void VSAbstractViewWidget::setController(VSController* controller)
     checkFilterViewSetting(viewSettings);
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractViewWidget::getFilterFromProp(vtkProp3D* prop)
+{
+  if(nullptr == prop)
+  {
+    return nullptr;
+  }
+
+  // Compare prop with all VSFilterViewSettings to find a match
+  for(std::pair<VSAbstractFilter*, VSFilterViewSettings*> settingPair : getAllFilterViewSettings())
+  {
+    if(settingPair.second->getActor() == prop)
+    {
+      return settingPair.first;
+    }
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter)
+{
+  m_Controller->selectFilter(filter);
+}

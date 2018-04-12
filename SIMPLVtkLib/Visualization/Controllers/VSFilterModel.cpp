@@ -44,6 +44,8 @@ VSFilterModel::VSFilterModel(QObject* parent)
 : QStandardItemModel(parent)
 , m_ModelLock(1)
 {
+  connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)),
+    this, SLOT(deleteFilter(VSAbstractFilter*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -94,6 +96,16 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
 
   // filter->deleteLater();
   submit();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::deleteFilter(VSAbstractFilter* filter)
+{
+  // This should be emitted after the slots related to removing the filter 
+  // have already been added to the call order.
+  filter->deleteLater();
 }
 
 // -----------------------------------------------------------------------------

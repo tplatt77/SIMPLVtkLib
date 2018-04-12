@@ -93,9 +93,12 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 {
   if(m_Transform)
   {
-    disconnect(transform, SIGNAL(updatedPosition(double*)), this, SLOT(updateTranslationLabels(double*)));
-    disconnect(transform, SIGNAL(updatedRotation(double*)), this, SLOT(updateRotationLabels(double*)));
-    disconnect(transform, SIGNAL(updatedScale(double*)), this, SLOT(updateScaleLabels(double*)));
+    disconnect(m_Transform, SIGNAL(updatedPosition(double*)), this, SLOT(updateTranslationLabels(double*)));
+    disconnect(m_Transform, SIGNAL(updatedRotation(double*)), this, SLOT(updateRotationLabels(double*)));
+    disconnect(m_Transform, SIGNAL(updatedScale(double*)), this, SLOT(updateScaleLabels(double*)));
+    disconnect(m_Transform, SIGNAL(updatedLocalPosition(double*)), this, SLOT(updateLocalTranslation(double*)));
+    disconnect(m_Transform, SIGNAL(updatedLocalRotation(double*)), this, SLOT(updateLocalRotation(double*)));
+    disconnect(m_Transform, SIGNAL(updatedLocalScale(double*)), this, SLOT(updateLocalScale(double*)));
   }
 
   m_Transform = transform;
@@ -127,6 +130,9 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     connect(transform, SIGNAL(updatedPosition(double*)), this, SLOT(updateTranslationLabels(double*)));
     connect(transform, SIGNAL(updatedRotation(double*)), this, SLOT(updateRotationLabels(double*)));
     connect(transform, SIGNAL(updatedScale(double*)), this, SLOT(updateScaleLabels(double*)));
+    connect(transform, SIGNAL(updatedLocalPosition(double*)), this, SLOT(updateLocalTranslation(double*)));
+    connect(transform, SIGNAL(updatedLocalRotation(double*)), this, SLOT(updateLocalRotation(double*)));
+    connect(transform, SIGNAL(updatedLocalScale(double*)), this, SLOT(updateLocalScale(double*)));
 
     // local
     double* localPos = transform->getLocalPosition();
@@ -327,4 +333,34 @@ void VSTransformWidget::updateScaleLabels(double* scale)
   m_Internals->scaleXLabel->setText(value1);
   m_Internals->scaleYLabel->setText(value2);
   m_Internals->scaleZLabel->setText(value3);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransformWidget::updateLocalTranslation(double* position)
+{
+  m_Internals->posXSpinBox->setValue(position[0]);
+  m_Internals->posYSpinBox->setValue(position[1]);
+  m_Internals->posZSpinBox->setValue(position[2]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransformWidget::updateLocalRotation(double* rotation)
+{
+  m_Internals->rotXSpinBox->setValue(rotation[0]);
+  m_Internals->rotYSpinBox->setValue(rotation[1]);
+  m_Internals->rotZSpinBox->setValue(rotation[2]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransformWidget::updateLocalScale(double* scale)
+{
+  m_Internals->scaleXSpinBox->setValue(scale[0]);
+  m_Internals->scaleYSpinBox->setValue(scale[1]);
+  m_Internals->scaleZSpinBox->setValue(scale[2]);
 }

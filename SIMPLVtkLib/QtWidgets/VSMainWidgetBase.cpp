@@ -783,8 +783,6 @@ void VSMainWidgetBase::renderAllViews()
   {
     viewWidget->renderView();
   }
-
-  // QThread::currentThread()->wait(1);
 }
 
 // -----------------------------------------------------------------------------

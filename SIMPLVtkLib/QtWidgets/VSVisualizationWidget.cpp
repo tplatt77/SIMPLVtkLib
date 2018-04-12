@@ -156,6 +156,15 @@ VTK_PTR(vtkRenderer) VSVisualizationWidget::getRenderer()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSVisualizationWidget::setInteractorStyle(vtkInteractorStyle* style)
+{
+  GetRenderWindow()->GetInteractor()->SetInteractorStyle(style);
+  style->SetDefaultRenderer(m_Renderer);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSVisualizationWidget::render()
 {
   if(GetRenderWindow() && GetRenderWindow()->GetInteractor())

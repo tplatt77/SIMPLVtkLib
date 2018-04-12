@@ -74,8 +74,8 @@ public:
 
 signals:
   void dataImported();
-
   void dataReloaded();
+  void filterReloaded(VSAbstractFilter* filter);
 
 protected:
   /**
@@ -89,7 +89,4 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
-
-signals:
-  void filterReloaded(VSAbstractFilter* filter);
 };

@@ -134,6 +134,31 @@ public:
   void setLocalScale(double scale[3]);
 
   /**
+   * @brief Translates the object in global space
+   * @param delta
+   */
+  void translate(double delta[3]);
+
+  /**
+   * @brief Rotates the transform by the given amount along a specified axis
+   * @param amount
+   * @param axis
+   */
+  void rotate(double amount, double axis[3]);
+
+  /**
+   * @brief Scales the transform by a given amount
+   * @param amount
+   */
+  void scale(double amount);
+
+  /**
+   * @brief Scales the transform by a given amount
+   * @param amount
+   */
+  void scale(double amount[3]);
+
+  /**
    * @brief Returns the vtkTransform describing the global position, rotation, and scale.
    * @return
    */
@@ -232,6 +257,9 @@ signals:
   void emitScale();
   void emitAll();
   void valuesChanged();
+  void updatedLocalPosition(double* position);
+  void updatedLocalRotation(double* rotation);
+  void updatedLocalScale(double* scale);
 
 protected:
   /**

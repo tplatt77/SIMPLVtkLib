@@ -111,6 +111,13 @@ public slots:
    */
   void removeFilter(VSAbstractFilter* filter);
 
+private slots:
+  /**
+  * @brief Deletes the target filter.  This slot should only be called through the signal emitted in removeFilter
+  * @param filter
+  */
+  void deleteFilter(VSAbstractFilter* filter);
+
 private:
   QSemaphore m_ModelLock;
 };

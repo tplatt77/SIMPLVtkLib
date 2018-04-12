@@ -58,7 +58,6 @@ VSAbstractFilter::VSAbstractFilter()
 , m_LoadingObject(QJsonObject())
 , m_InputPort(nullptr)
 , m_Transform(new VSTransform())
-, m_OutlineFilter(vtkOutlineFilter::New())
 , m_ChildLock(1)
 {
   setCheckable(true);
@@ -100,13 +99,14 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
     disconnect(parent, SIGNAL(updatedOutput()), this, SIGNAL(updatedOutput()));
   }
 
-  setParent(parent);
+  QObject::setParent(parent);
   if(parent)
   {
     parent->addChild(this);
 
     // Sets the transform's parent as well
     m_Transform->setParent(parent->getTransform());
+    setInputPort(parent->getOutputPort());
 
     connect(parent, SIGNAL(updatedOutput()), this, SIGNAL(updatedOutput()));
   }
@@ -455,7 +455,7 @@ void VSAbstractFilter::connectToOutput(VSAbstractFilter* filter)
     return;
   }
 
-  setInputPort(filter->getOutputPort());
+  setInputPort(filter->getTransformedOutputPort());
 
   if(getConnectedInput())
   {
@@ -474,22 +474,11 @@ void VSAbstractFilter::connectToOutput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::connectAdditionalOutputFilters(VSAbstractFilter* filter)
 {
-  // Update the outline filter connection
-  m_OutlineFilter->SetInputConnection(getOutputPort());
-
   // Update the transform filter's input port if the filter exists
   if(m_TransformFilter)
   {
     m_TransformFilter->SetInputConnection(getOutputPort());
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSAbstractFilter::getOutlinePort()
-{
-  return m_OutlineFilter->GetOutputPort();
 }
 
 // -----------------------------------------------------------------------------

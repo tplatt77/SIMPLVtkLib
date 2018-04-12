@@ -71,13 +71,13 @@ public:
   /**
    * @brief Deconstructor
    */
-  virtual ~VSSIMPLDataContainerFilter() = default;
+  virtual ~VSSIMPLDataContainerFilter();
 
   /**
    * @brief Returns the bounds of the vtkDataSet
    * @return
    */
-  double* getBounds() const;
+  double* getBounds() const override;
 
   /**
    * @brief Returns the output port for the filter
@@ -107,11 +107,6 @@ public:
    * @return
    */
   static QUuid GetUuid();
-
-  /**
-   * @brief Wrap the entire DataContainer
-   */
-  void apply();
 
   /**
    * @brief finishWrapping
@@ -161,6 +156,15 @@ public:
    */
   static bool compatibleWithParent(VSAbstractFilter* filter);
 
+public slots:
+  /**
+  * @brief Wrap the entire DataContainer
+  */
+  void apply();
+
+signals:
+  void finishedWrapping();
+
 protected:
   /**
    * @brief Initializes the trivial producer and connects it to the vtkMapper
@@ -171,11 +175,12 @@ private slots:
   /**
    * @brief This slot is called when a data container is finished being wrapped on a separate thread
    */
-  void wrappingFinished();
+  void reloadWrappingFinished();
 
 private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
   QFutureWatcher<void> m_WrappingWatcher;
   QSemaphore m_ApplyLock;
+  bool m_WrappingTransform = false;
 };

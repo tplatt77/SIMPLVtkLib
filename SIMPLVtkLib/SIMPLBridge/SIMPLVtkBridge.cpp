@@ -228,6 +228,18 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
     wrappedDcStruct->m_DataContainer = dc;
     wrappedDcStruct->m_Name = dc->getName();
 
+    //vtkImageData* imageData = vtkImageData::SafeDownCast(dataSet);
+    //if(imageData)
+    //{
+    //  double origin[3];
+    //  imageData->GetOrigin(origin);
+    //  for(int i = 0; i < 3; i++)
+    //  {
+    //    wrappedDcStruct->m_Origin[i] = origin[i];
+    //  }
+    //  imageData->SetOrigin(0.0, 0.0, 0.0);
+    //}
+
     return wrappedDcStruct;
   }
 }
@@ -242,7 +254,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     return;
   }
 
-  vtkDataSet* dataSet = wrappedDcStruct->m_DataSet;
+  VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
   DataContainer::AttributeMatrixMap_t attrMats = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
 
   for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
@@ -269,7 +281,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
       cell2Point->PassCellDataOn();
       cell2Point->Update();
 
-      vtkDataSet* pointDataSet = nullptr;
+      VTK_PTR(vtkDataSet) pointDataSet = nullptr;
       switch(dataSet->GetDataObjectType())
       {
       case VTK_IMAGE_DATA:
@@ -295,14 +307,16 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
         break;
       }
 
-      vtkPointData* pointData = pointDataSet->GetPointData();
+      dataSet->DeepCopy(pointDataSet);
+
+      // Set the active cell / point data scalars
+      vtkPointData* pointData = dataSet->GetPointData();
       if(pointData->GetNumberOfArrays() > 0)
       {
         pointData->SetActiveScalars(pointData->GetArray(0)->GetName());
       }
-      dataSet->DeepCopy(pointDataSet);
 
-      // Set the active cell / point data scalars
+      cellData = dataSet->GetCellData();
       if(cellData->GetNumberOfArrays() > 0)
       {
         cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
@@ -517,7 +531,7 @@ VTK_PTR(vtkDataSet) SIMPLVtkBridge::WrapGeometry(ImageGeom::Pointer image)
   image->getOrigin(origin);
 
   VTK_NEW(vtkImageData, vtkImage);
-  vtkImage->SetExtent(0, std::get<0>(dims), 0, std::get<1>(dims), 0, std::get<2>(dims));
+  vtkImage->SetExtent(origin[0], origin[0] + std::get<0>(dims), origin[1], origin[1] + std::get<1>(dims), origin[2], origin[2] + std::get<2>(dims));
   vtkImage->SetDimensions(std::get<0>(dims) + 1, std::get<1>(dims) + 1, std::get<2>(dims) + 1);
   vtkImage->SetSpacing(res[0], res[1], res[2]);
   vtkImage->SetOrigin(origin[0], origin[1], origin[2]);

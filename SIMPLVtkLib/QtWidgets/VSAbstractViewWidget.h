@@ -115,6 +115,13 @@ public:
    */
   virtual VSVisualizationWidget* getVisualizationWidget() const = 0;
 
+  /**
+  * @brief Returns the corresponding VSAbstractFilter for the given prop
+  * @param prop
+  * @return
+  */
+  virtual VSAbstractFilter* getFilterFromProp(vtkProp3D* prop);
+
 signals:
   void viewWidgetClosed();
   void markActive(VSAbstractViewWidget*);
@@ -162,6 +169,12 @@ public slots:
    * @param block
    */
   void setBlockRender(bool block);
+
+  /**
+  * @brief Select the given filter
+  * @param filter
+  */
+  void selectFilter(VSAbstractFilter* filter);
 
 protected slots:
   /**

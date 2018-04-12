@@ -106,6 +106,24 @@ protected slots:
    */
   void updateScaleLabels(double* scale);
 
+  /**
+  * @brief Updates the local translation spinboxes
+  * @param position
+  */
+  void updateLocalTranslation(double* position);
+
+  /**
+  * @brief Updates the local rotation spinboxes
+  * @param rotation
+  */
+  void updateLocalRotation(double* rotation);
+
+  /**
+  * @brief Updates the local scale spinboxes
+  * @param scale
+  */
+  void updateLocalScale(double* scale);
+
 protected:
   /**
    * @brief Performs any initial setup required for the GUI
