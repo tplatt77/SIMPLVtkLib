@@ -174,7 +174,10 @@ void VSConcurrentImport::partialWrappingThreadFinished()
           }
 
           filter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-          filter->setWrappedDataContainer(wrappedDc);
+          if(filter)
+          {
+            filter->setWrappedDataContainer(wrappedDc);
+          }
         }
       }
 
