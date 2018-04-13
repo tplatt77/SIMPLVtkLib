@@ -560,7 +560,9 @@ void VSInfoWidget::listenArrayIndex(VSFilterViewSettings* settings, int index)
 // -----------------------------------------------------------------------------
 void VSInfoWidget::listenComponentIndex(VSFilterViewSettings* settings, int index)
 {
-  m_Internals->activeComponentCombo->setCurrentIndex(index);
+  m_Internals->activeComponentCombo->blockSignals(true);
+  m_Internals->activeComponentCombo->setCurrentIndex(index+1);
+  m_Internals->activeComponentCombo->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
