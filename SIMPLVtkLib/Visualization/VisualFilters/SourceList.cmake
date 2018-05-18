@@ -7,6 +7,7 @@ set(VSVisualFilters
   VSDataSetFilter
   VSFileNameFilter
   VSMaskFilter
+  VSPipelineFilter
   VSSIMPLDataContainerFilter
   VSSliceFilter
   VSTextFilter

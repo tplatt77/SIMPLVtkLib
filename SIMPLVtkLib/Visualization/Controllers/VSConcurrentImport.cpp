@@ -78,6 +78,23 @@ VSConcurrentImport::VSConcurrentImport(VSController* controller)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSConcurrentImport::addDataContainerArray(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  VSPipelineFilter* pipelineFilter = new VSPipelineFilter(pipeline);
+  addDataContainerArray(pipelineFilter, dca);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSConcurrentImport::addDataContainerArray(VSPipelineFilter* pipelineFilter, DataContainerArray::Pointer dca)
+{
+  addDataContainerArray(std::make_pair(pipelineFilter, dca));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSConcurrentImport::addDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
 {
   VSFileNameFilter* fileFilter = new VSFileNameFilter(filePath);
@@ -95,7 +112,7 @@ void VSConcurrentImport::addDataContainerArray(VSFileNameFilter* fileFilter, Dat
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSConcurrentImport::addDataContainerArray(DcaFilePair fileDcPair)
+void VSConcurrentImport::addDataContainerArray(DcaGenericPair fileDcPair)
 {
   m_WrappedList.push_back(fileDcPair);
 }
@@ -107,7 +124,7 @@ void VSConcurrentImport::run()
 {
   while(m_WrappedList.size() > 0)
   {
-    DcaFilePair filePair = m_WrappedList.front();
+    DcaGenericPair filePair = m_WrappedList.front();
     importDataContainerArray(filePair);
 
     m_WrappedList.pop_front();
@@ -117,14 +134,14 @@ void VSConcurrentImport::run()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSConcurrentImport::importDataContainerArray(DcaFilePair filePair)
+void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
 {
-  m_FileNameFilter = filePair.first;
-  DataContainerArray::Pointer dca = filePair.second;
+  m_DataParentFilter = genericPair.first;
+  DataContainerArray::Pointer dca = genericPair.second;
 
   if(m_LoadType == LoadType::Import)
   {
-    m_Controller->getFilterModel()->addFilter(m_FileNameFilter);
+    m_Controller->getFilterModel()->addFilter(m_DataParentFilter);
   }
 
   m_ImportDataContainerOrder = dca->getDataContainers();
@@ -159,12 +176,12 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       VSSIMPLDataContainerFilter* filter = nullptr;
       if(m_LoadType == LoadType::Import)
       {
-        filter = new VSSIMPLDataContainerFilter(wrappedDc, m_FileNameFilter);
+        filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
         m_Controller->getFilterModel()->addFilter(filter, false);
       }
       else
       {
-        QVector<VSAbstractFilter*> childFilters = m_FileNameFilter->getChildren();
+        QVector<VSAbstractFilter*> childFilters = m_DataParentFilter->getChildren();
         for(int i = 0; i < childFilters.size(); i++)
         {
           VSAbstractFilter* childFilter = childFilters[i];

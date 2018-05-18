@@ -323,6 +323,14 @@ void VSMainWidgetBase::importFiles(QStringList filePaths)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSMainWidgetBase::importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  m_Controller->importPipelineOutput(pipeline, dca);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMainWidgetBase::openDREAM3DFile(const QString& filePath)
 {
   QFileInfo fi(filePath);

@@ -116,6 +116,13 @@ public:
    */
   void importFiles(QStringList filePaths);
 
+  /**
+  * @brief Imports or reloads the given DataContainerArray from the FilterPipeline
+  * @param pipeline
+  * @param dca
+  */
+  void importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
 public slots:
   /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,

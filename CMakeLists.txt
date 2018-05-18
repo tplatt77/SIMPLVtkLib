@@ -1,6 +1,67 @@
-project(SIMPLVtkLib VERSION 2.0)
+# Request C++11 standard, using new CMake variables.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS False)
 
+if(${CMAKE_MAJOR_VERSION} STREQUAL "3")
+  # CMake 3.1 introduces if() policies on dereferencing variables in quotes
+  cmake_policy(SET CMP0054 NEW)
+endif()
 
+cmake_minimum_required(VERSION 3.8.0)
+
+#------------------------------------------------------------------------------
+# Create the Top level Project
+#
+project(SIMPLVtkLib VERSION 1.0.0)
+set(PROJECT_PREFIX "SIMPLVtkLib" CACHE STRING "The Prefix to be used for Preprocessor definitions")
+
+# ---------- Setup output Directories -------------------------
+if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
+    ${SIMPLVtkLibProj_BINARY_DIR}/Bin
+    CACHE PATH
+    "Single Directory for all Libraries"
+    )
+endif()
+
+# --------- Setup the Executable output Directory -------------
+if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    ${SIMPLVtkLibProj_BINARY_DIR}/Bin
+    CACHE PATH
+    "Single Directory for all Executables."
+    )
+endif()
+
+# --------- Setup the Executable output Directory -------------
+if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+    ${SIMPLVtkLibProj_BINARY_DIR}/Bin
+    CACHE PATH
+    "Single Directory for all static libraries."
+    )
+endif()
+
+#------------------------------------------------------------------------------
+# Find the Git Package for Versioning. It should be ok if Git is NOT found
+# Find_package(Git)
+
+# get_filename_component(SIMPLVtkLib_PARENT ${SIMPLVtkLibProj_SOURCE_DIR} DIRECTORY CACHE)
+
+#------------------------------------------------------------------------------
+# If the developer has set another CMP directory then use that, otherwise look
+# for the CMP directory at the same level as the SIMPL directory
+if("${CMP_SOURCE_DIR}" STREQUAL "")
+  set(CMP_SOURCE_DIR ${SIMPLVtkLib_PARENT}/CMP)
+  message(STATUS "CMP_SOURCE_DIR: ${CMP_SOURCE_DIR}")
+endif()
+
+if(NOT EXISTS "${CMP_SOURCE_DIR}")
+  message(FATAL_ERROR "CMP_SOURCE_DIR does not exist at '${CMP_SOURCE_DIR}'")
+endif()
+
+#------------------------------------------------------------------------------
 set(SIMPLVtkLib_BUILT_AS_DYNAMIC_LIB 0)
 if(BUILD_SHARED_LIBS)
   set(SIMPLVtkLib_BUILT_AS_DYNAMIC_LIB 1)
@@ -17,6 +78,7 @@ endif()
 
 set(PROJECT_PREFIX "SIMPLVtkLib" CACHE STRING "The Prefix to be used for Preprocessor definitions")
 set(SIMPLVtkLib_INSTALL_FILES 0)
+set(PROJECT_INSTALL_HEADERS 0)
 # -----------------------------------------------------------------------
 # The project generally does NOT want to install headers. See if another
 # project has over ridden that property
@@ -47,7 +109,18 @@ set(SIMPLVtkLib_HDF5_SUPPORT 1)
 option(SIMPLVtkLib_ENABLE_HDF5 "Enable the use of HDF5 functionality" ON)
 mark_as_advanced(SIMPLVtkLib_ENABLE_HDF5)
 
+# --------------------------------------------------------------------
+# Find and Use the Qt5 Libraries
 include(${CMP_SOURCE_DIR}/cmpProject.cmake)
+include(${CMP_SOURCE_DIR}/ExtLib/Qt5Support.cmake)
+set(SIMPLVtkLib_Qt5_Components Core Widgets Network Gui Concurrent Svg Xml OpenGL PrintSupport )
+CMP_AddQt5Support( "${SIMPLVtkLib_Qt5_Components}"
+                    "${SIMPL_USE_QtWebEngine}"
+                    "${SIMPLProj_BINARY_DIR}"
+                    "SIMPLVtkLib")
+
+set(CMP_MODULES_SOURCE_DIR ${CMP_SOURCE_DIR}/Modules CACHE INTERNAL "")
+set(CMAKE_MODULE_PATH ${CMP_MODULES_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
 configure_file(${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLibConfiguration.h.in
                ${SIMPLVtkLib_BINARY_DIR}/${CMP_TOP_HEADER_FILE})
@@ -80,7 +153,6 @@ include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/SourceList.cmake
 
   # -- Include the Dialogs sources
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Dialogs/SourceList.cmake)
-
 
 #------------------------------------------------------------------------------
 # Clear these variables and look for any extra Widget Directories that the
@@ -139,7 +211,7 @@ endif()
 # --------------------------------------------------------------------
 # Look for Vtk 8.0 as we need it for the plugin GUI to be generated
 # These are the required component libraries
-set(VtkComponents
+set(SIMPLVtk_VtkComponents
 		vtkFiltersGeometry
     vtkFiltersModeling
     vtkGUISupportQt
@@ -157,11 +229,12 @@ set(VtkComponents
     vtkIOGeometry
     vtkChartsCore
     vtkViewsContext2D
+    CACHE INTERNAL "VTK Components for SIMPLVtkLib" FORCE
   )
 
 include("${CMP_SOURCE_DIR}/ExtLib/VtkSupport.cmake")
 CMP_FindVtkComponents(QT5_REQUIRED TRUE
-                      COMPONENTS ${VtkComponents}
+                      COMPONENTS ${SIMPLVtk_VtkComponents}
                       )
 
 # Add in all the dependent link libraries
@@ -171,10 +244,11 @@ set(SIMPLVtkLib_LINK_LIBRARIES
   SVWidgetsLib
   Qt5::Gui
   Qt5::Widgets
-  ${VtkComponents}
+  ${SIMPLVtk_VtkComponents}
   ${SIMPLVtkLib_Extra_Link_Libraries}
 )
 
+get_filename_component(SIMPLVtkLib_BINARY_PARENT_DIR ${SIMPLVtkLib_BINARY_DIR} DIRECTORY)
 add_library(SIMPLVtkLib ${LIB_TYPE} ${Project_SRCS})
 CMP_AddDefinitions(TARGET SIMPLVtkLib)
 target_include_directories(SIMPLVtkLib
@@ -189,7 +263,7 @@ target_include_directories(SIMPLVtkLib
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/Controllers
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VtkWidgets
-)
+                              ${SIMPLVtkLib_BINARY_PARENT_DIR})
 if(WIN32 AND BUILD_SHARED_LIBS)
     target_compile_definitions(SIMPLVtkLib PUBLIC "-DSIMPLVtkLib_BUILT_AS_DYNAMIC_LIB")
 endif()

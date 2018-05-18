@@ -100,6 +100,35 @@ void VSController::reloadDataContainerArray(VSFileNameFilter* fileFilter, DataCo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
+  m_ImportObject->addDataContainerArray(pipeline, dca);
+  m_ImportObject->run();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  VSAbstractFilter* parentFilter = getFilterModel()->getPipelineFilter(pipeline->getName());
+  if(parentFilter)
+  {
+    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Reload);
+  }
+  else
+  {
+    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
+  }
+  
+  m_ImportObject->addDataContainerArray(pipeline, dca);
+  m_ImportObject->run();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSController::importDataContainerArray(DataContainerArray::Pointer dca)
 {
   m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);

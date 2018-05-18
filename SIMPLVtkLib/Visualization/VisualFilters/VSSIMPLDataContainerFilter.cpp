@@ -50,6 +50,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -244,6 +245,8 @@ void VSSIMPLDataContainerFilter::reloadData()
 
   VSAbstractFilter* parentFilter = getParentFilter();
   VSFileNameFilter* fileFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
+  VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(parentFilter);
+  // Reload file data
   if(fileFilter != nullptr)
   {
     QString filePath = fileFilter->getFilePath();
@@ -280,7 +283,7 @@ void VSSIMPLDataContainerFilter::reloadData()
         else
         {
           QString ss = QObject::tr("Data Container '%1' could not be reloaded because it has an unknown data container geometry.").arg(dcName).arg(filePath);
-          emit errorGenerated("Data Reload Error", ss, -3001);
+          emit errorGenerated("Data Reload Error", ss, -3003);
           return;
         }
       }
@@ -292,6 +295,37 @@ void VSSIMPLDataContainerFilter::reloadData()
       }
     }
   }
+  // Reload pipeline data
+  else if(pipelineFilter != nullptr)
+  {
+    FilterPipeline::Pointer pipeline = pipelineFilter->getFilterPipeline();
+    DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
+
+    DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+    if(nullptr == dc)
+    {
+      QString ss = QObject::tr("Data Container '%1' could not be reloaded because it no longer exists in the underlying pipeline '%2'.").arg(dcName).arg(pipelineFilter->getPipelineName());
+      emit errorGenerated("Data Reload Error", ss, -3001);
+      return;
+    }
+
+    IGeometry::Pointer geom = dc->getGeometry();
+    if(nullptr == geom)
+    {
+      QString ss = QObject::tr("Data Container '%1' could not be reloaded because it does not have a data container geometry.").arg(dcName).arg(pipelineFilter->getPipelineName());
+      emit errorGenerated("Data Reload Error", ss, -3002);
+      return;
+    }
+    else if(geom->getGeometryType() == IGeometry::Type::Unknown)
+    {
+      QString ss = QObject::tr("Data Container '%1' could not be reloaded because it has an unknown data container geometry.").arg(dcName).arg(pipelineFilter->getPipelineName());
+      emit errorGenerated("Data Reload Error", ss, -3003);
+      return;
+    }
+
+    m_WrappingWatcher.setFuture(QtConcurrent::run(this, &VSSIMPLDataContainerFilter::reloadData, dc));
+  }
+  // No known reload method
   else
   {
     QString ss = QObject::tr("Data Container '%1' could not be reloaded because it does not have a file filter parent.").arg(dcName);
@@ -404,6 +438,10 @@ bool VSSIMPLDataContainerFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   if(dynamic_cast<VSFileNameFilter*>(filter))
+  {
+    return true;
+  }
+  if(dynamic_cast<VSPipelineFilter*>(filter))
   {
     return true;
   }

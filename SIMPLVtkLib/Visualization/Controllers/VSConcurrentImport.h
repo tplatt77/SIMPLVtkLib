@@ -46,6 +46,7 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
 class VSController;
@@ -65,7 +66,7 @@ public:
     Reload
   };
 
-  using DcaFilePair = std::pair<VSFileNameFilter*, DataContainerArray::Pointer>;
+  using DcaGenericPair = std::pair<VSTextFilter*, DataContainerArray::Pointer>;
 
   /**
    * @brief Constructor
@@ -77,6 +78,20 @@ public:
    * @brief Deconstructor
    */
   virtual ~VSConcurrentImport() = default;
+
+  /**
+   * @brief Add a DataContainerArray from the given FilterPipeline to the list of items to import
+   * @param pipeline
+   * @param dca
+   */
+  void addDataContainerArray(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
+  /**
+  * @brief Add a DataContainerArray with the given pipeline filter to the list of items to import
+  * @param pipelineFilter
+  * @param dca
+  */
+  void addDataContainerArray(VSPipelineFilter* pipelineFilter, DataContainerArray::Pointer dca);
 
   /**
    * @brief Add a DataContainerArray with the given file path to the list items to import
@@ -123,13 +138,13 @@ protected:
    * @brief Adds the DcaFilePair value to the list of files and DataContainerArrays to wrap
    * @param wrappedFileDc
    */
-  void addDataContainerArray(DcaFilePair wrappedFileDc);
+  void addDataContainerArray(DcaGenericPair wrappedInputDc);
 
   /**
-   * @brief Begins importing the given DataContainerArray and file path pair
-   * @param filePair
+   * @brief Begins importing the given DataContainerArray and parent filter pair
+   * @param dcaPair
    */
-  void importDataContainerArray(DcaFilePair filePair);
+  void importDataContainerArray(DcaGenericPair dcaPair);
 
   /**
    * @brief Wraps the DataContainers in vtkDataSets and prepares to add the generated filters to the filter model
@@ -143,7 +158,7 @@ protected:
 
 private:
   VSController* m_Controller;
-  std::list<DcaFilePair> m_WrappedList;
+  std::list<DcaGenericPair> m_WrappedList;
   std::list<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
 
   QList<DataContainerShPtr> m_ImportDataContainerOrder;
@@ -155,7 +170,7 @@ private:
   QSemaphore m_AppliedFilterCountLock;
   int m_NumOfFinishedImportDataContainerThreads = 0;
   std::list<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
-  VSFileNameFilter* m_FileNameFilter = nullptr;
+  VSTextFilter* m_DataParentFilter = nullptr;
   int m_ThreadCount;
   int m_ThreadsRemaining = 0;
   int m_AppliedFilterCount = 0;

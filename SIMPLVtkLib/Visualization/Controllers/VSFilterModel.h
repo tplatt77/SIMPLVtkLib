@@ -38,6 +38,8 @@
 #include <QtCore/QSemaphore>
 #include <QtGui/QStandardItemModel>
 
+#include "SIMPLib/Filtering/FilterPipeline.h"
+
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
@@ -88,6 +90,20 @@ public:
    */
   QVector<VSAbstractFilter*> getAllFilters();
 
+  /**
+   * @brief Returns the first matching VSPipelineFilter with the given FilterPipeline
+   * @param pipeline
+   * @return
+   */
+  VSAbstractFilter* getPipelineFilter(FilterPipeline::Pointer pipeline);
+
+  /**
+   * @brief Returns the first matching VSPipelineFilter with the given pipeline name
+   * @param pipelineName
+   * @return
+   */
+  VSAbstractFilter* getPipelineFilter(QString pipelineName);
+
 signals:
   void filterAdded(VSAbstractFilter* filter, bool currentFilter);
   void filterRemoved(VSAbstractFilter* filter);
@@ -113,9 +129,9 @@ public slots:
 
 private slots:
   /**
-  * @brief Deletes the target filter.  This slot should only be called through the signal emitted in removeFilter
-  * @param filter
-  */
+   * @brief Deletes the target filter.  This slot should only be called through the signal emitted in removeFilter
+   * @param filter
+   */
   void deleteFilter(VSAbstractFilter* filter);
 
 private:

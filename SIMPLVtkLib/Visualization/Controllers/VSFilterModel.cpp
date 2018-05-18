@@ -35,6 +35,8 @@
 
 #include "VSFilterModel.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
+
 #include <QtCore/QThread>
 
 // -----------------------------------------------------------------------------
@@ -174,6 +176,48 @@ QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
   }
 
   return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSFilterModel::getPipelineFilter(FilterPipeline::Pointer pipeline)
+{
+  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+  for(VSAbstractFilter* filter : baseFilters)
+  {
+    VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
+    if(pipelineFilter)
+    {
+      if(pipelineFilter->getFilterPipeline() == pipeline)
+      {
+        return pipelineFilter;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSFilterModel::getPipelineFilter(QString pipelineName)
+{
+  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+  for(VSAbstractFilter* filter : baseFilters)
+  {
+    VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
+    if(pipelineFilter)
+    {
+      if(pipelineFilter->getPipelineName() == pipelineName)
+      {
+        return pipelineFilter;
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

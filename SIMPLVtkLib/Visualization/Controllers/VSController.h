@@ -39,6 +39,7 @@
 #include <QtCore/QVector>
 
 #include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSConcurrentImport.h"
@@ -92,6 +93,20 @@ public:
    * @param dca
    */
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
+
+  /**
+  * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
+  * @param pipeline
+  * @param dca
+  */
+  void importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
+  /**
+   * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
+   * @param pipeline
+   * @param dca
+   */
+  void reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
