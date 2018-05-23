@@ -214,6 +214,7 @@ endif()
 set(SIMPLVtk_VtkComponents
 		vtkFiltersGeometry
     vtkFiltersModeling
+    vtkFiltersSources
     vtkGUISupportQt
     vtkRenderingCore
     vtkRenderingFreeType
