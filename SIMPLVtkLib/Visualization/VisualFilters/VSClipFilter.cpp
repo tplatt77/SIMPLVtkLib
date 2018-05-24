@@ -330,7 +330,7 @@ bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
 
   dataType_t outputType = filter->getOutputType();
   dataType_t requiredType = getRequiredInputType();
-  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  if(compatibleInput(outputType, requiredType))
   {
     return true;
   }

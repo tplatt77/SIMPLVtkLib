@@ -56,9 +56,9 @@ VSAbstractFilter::VSAbstractFilter()
 : QObject()
 , QStandardItem()
 , m_LoadingObject(QJsonObject())
-, m_InputPort(nullptr)
 , m_Transform(new VSTransform())
 , m_ChildLock(1)
+, m_InputPort(nullptr)
 {
   setCheckable(true);
   setCheckState(Qt::Checked);

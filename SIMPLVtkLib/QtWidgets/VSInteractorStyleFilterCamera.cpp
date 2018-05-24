@@ -94,6 +94,8 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
     case ActionType::Scale:
       scaleFilter();
       break;
+    case ActionType::None:
+      break;
     }
   }
   else
@@ -179,7 +181,6 @@ void VSInteractorStyleFilterCamera::grabFilter()
 
   VTK_NEW(vtkPropPicker, picker);
   picker->Pick(clickPos[0], clickPos[1], 0, renderer);
-  double* pickPos = picker->GetPickPosition();
   vtkProp3D* prop = picker->GetProp3D();
   VSAbstractFilter* filter = m_ViewWidget->getFilterFromProp(prop);
 
@@ -306,6 +307,8 @@ void VSInteractorStyleFilterCamera::setActionType(ActionType type)
   case ActionType::Scale:
     beginScaling();
     break;
+  case ActionType::None:
+    break;
   }
 }
 
@@ -332,6 +335,8 @@ void VSInteractorStyleFilterCamera::cancelAction()
     break;
   case ActionType::Scale:
     cancelScaling();
+    break;
+  case ActionType::None:
     break;
   }
 
@@ -564,7 +569,6 @@ void VSInteractorStyleFilterCamera::beginScaling()
       currentDelta[i] = currentMousePos[i] - disp_obj_center[i];
     }
 
-    int* initialMousePos = this->Interactor->GetEventPosition();
     m_InitialCenter = m_ActiveFilter->getTransform()->getPosition();
     m_LastDistance = sqrt((currentDelta[0] * currentDelta[0]) + (currentDelta[1] * currentDelta[1]));
     m_ScaleAmt = 1.0;
