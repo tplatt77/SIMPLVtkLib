@@ -63,6 +63,7 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
   m_InteractorStyle->setViewWidget(this);
 
   connectSlots();
+  updateClosable();
 }
 
 // -----------------------------------------------------------------------------
@@ -79,6 +80,7 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
   copyFilters(other.getAllFilterViewSettings());
 
   connectSlots();
+  updateClosable();
 }
 
 // -----------------------------------------------------------------------------
@@ -166,4 +168,12 @@ void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bo
   scalarBarWidget->SetEnabled(showScalarBar);
 
   renderView();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::updateClosable()
+{
+  m_Internals->closeBtn->setEnabled(isClosable());
 }

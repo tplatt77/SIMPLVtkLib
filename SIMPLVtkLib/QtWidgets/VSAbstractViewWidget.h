@@ -313,6 +313,16 @@ protected:
   virtual QSplitter* splitWidget(Qt::Orientation orientation);
 
   /**
+  * @brief Returns true if the widget is closable.  Returns false otherwise.
+  */
+  virtual bool isClosable();
+
+  /**
+   * @brief Updates whether or not the view widget can be closed.
+   */
+  virtual void updateClosable();
+
+  /**
    * @brief Handle mouse press events including marking the VSViewController as the active one
    * @param event
    */

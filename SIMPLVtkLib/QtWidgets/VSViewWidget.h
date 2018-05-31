@@ -90,6 +90,11 @@ protected:
    */
   void connectSlots();
 
+  /**
+  * @brief Updates whether or not the view widget can be closed.
+  */
+  void updateClosable() override;
+
 protected slots:
   /**
    * @brief ScalarBar visibility changed for filter

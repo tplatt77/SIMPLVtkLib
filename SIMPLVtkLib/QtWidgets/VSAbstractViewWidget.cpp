@@ -515,6 +515,9 @@ QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
   splitter->addWidget(this);
   splitter->addWidget(cloneWidget);
 
+  // Add property to signify that this splitter is used for multiple view widgets
+  splitter->setProperty("Visualization Splitter", true);
+
   if(Qt::Horizontal == orientation)
   {
     int newWidth = currentWidth / 2;
@@ -538,7 +541,32 @@ QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
   // Emit signal notifying the main widget of a new view widget
   emit viewWidgetCreated(cloneWidget);
 
+  updateClosable();
+  cloneWidget->updateClosable();
+
   return splitter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractViewWidget::isClosable()
+{
+  QSplitter* parentSplitter = dynamic_cast<QSplitter*>(parentWidget());
+  if(nullptr != parentSplitter)
+  {
+    QVariant var = parentSplitter->property("Visualization Splitter");
+    return var.isValid() && var.toBool();
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::updateClosable()
+{
 }
 
 // -----------------------------------------------------------------------------
@@ -546,6 +574,11 @@ QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::closeView()
 {
+  if(!isClosable())
+  {
+    return;
+  }
+
   emit viewWidgetClosed();
 
   QSplitter* splitter = dynamic_cast<QSplitter*>(parentWidget());
@@ -587,6 +620,13 @@ void VSAbstractViewWidget::closeView()
     }
 
     splitter->deleteLater();
+
+    // Check if other is a view widget
+    VSAbstractViewWidget* otherView = dynamic_cast<VSAbstractViewWidget*>(other);
+    if(otherView)
+    {
+      otherView->updateClosable();
+    }
   }
   else
   {
