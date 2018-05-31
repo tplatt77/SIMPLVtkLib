@@ -95,39 +95,66 @@
       <item>
        <widget class="QPushButton" name="splitHorizontalBtn">
         <property name="toolTip">
-         <string extracomment="Split Horizontally"/>
+         <string extracomment="Split Horizontally">Split Horizontally</string>
         </property>
         <property name="statusTip">
          <string/>
         </property>
         <property name="text">
-         <string>Split Horizontally</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../Resources/VtkSIMPL.qrc">
+          <normaloff>:/icons/pqSplitViewH12.png</normaloff>:/icons/pqSplitViewH12.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="splitVerticalBtn">
         <property name="toolTip">
-         <string extracomment="Split Vertically"/>
+         <string extracomment="Split Vertically">Split Vertically</string>
         </property>
         <property name="statusTip">
          <string/>
         </property>
         <property name="text">
-         <string>Split Vertically</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../Resources/VtkSIMPL.qrc">
+          <normaloff>:/icons/pqSplitViewV12.png</normaloff>:/icons/pqSplitViewV12.png</iconset>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="closeBtn">
         <property name="toolTip">
-         <string extracomment="Close View"/>
+         <string extracomment="Close View">Close</string>
         </property>
         <property name="statusTip">
          <string/>
         </property>
         <property name="text">
-         <string>Close</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../icons/images/Icons.qrc">
+          <normaloff>:/delete_plain.png</normaloff>:/delete_plain.png</iconset>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -146,6 +173,7 @@
  </customwidgets>
  <resources>
   <include location="../../../Resources/VtkSIMPL.qrc"/>
+  <include location="../../../icons/images/Icons.qrc"/>
  </resources>
  <connections/>
 </ui>

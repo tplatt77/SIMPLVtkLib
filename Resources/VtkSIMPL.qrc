@@ -1,68 +1,48 @@
- <!DOCTYPE RCC>
- <RCC version="1.0">
- <qresource>
+<RCC>
+  <qresource>
+    <file>icons/pqSplitViewH12.png</file>
+    <file>icons/pqSplitViewV12.png</file>
     <file>icons/pqClip.png</file>
     <file>icons/pqClip@2x.png</file>
-
     <file>icons/pqColorBar.png</file>
     <file>icons/pqColorBar@2x.png</file>
-
     <file>icons/pqEyeball.png</file>
     <file>icons/pqEyeball@2x.png</file>
-
     <file>icons/pqEyeballClosed.png</file>
     <file>icons/pqEyeballClosed@2x.png</file>
-
     <file>icons/pqFitToData.png</file>
     <file>icons/pqFitToData@2x.png</file>
-
     <file>icons/pqRedo.png</file>
     <file>icons/pqRedo@2x.png</file>
-
     <file>icons/pqResetCenter.png</file>
     <file>icons/pqResetCenter@2x.png</file>
-
     <file>icons/pqShowCenter.png</file>
     <file>icons/pqShowCenter@2x.png</file>
-
     <file>icons/pqSlice.png</file>
     <file>icons/pqSlice@2x.png</file>
-
     <file>icons/pqThreshold.png</file>
     <file>icons/pqThreshold@2x.png</file>
-
     <file>icons/pqUndo.png</file>
     <file>icons/pqUndo@2x.png</file>
-
     <file>icons/pqXplus.png</file>
     <file>icons/pqXplus@2x.png</file>
-
     <file>icons/pqXminus.png</file>
     <file>icons/pqXminus@2x.png</file>
-
     <file>icons/pqYplus.png</file>
     <file>icons/pqYplus@2x.png</file>
-
     <file>icons/pqYminus.png</file>
     <file>icons/pqYminus@2x.png</file>
-
     <file>icons/pqZplus.png</file>
     <file>icons/pqZplus@2x.png</file>
-
     <file>icons/pqZminus.png</file>
     <file>icons/pqZminus@2x.png</file>
-
     <file>icons/pqSaveToFolder.png</file>
     <file>icons/pqSaveToFolder@2x.png</file>
-
     <file>icons/pqGear.png</file>
     <file>icons/pqGear@2x.png</file>
-
     <file>icons/pqPickCenter.png</file>
     <file>icons/pqPickCenter@2x.png</file>
- 
     <file>icons/pqShowAxis.png</file>
     <file>icons/pqShowAxis@2x.png</file>
-
- </qresource>
- </RCC>
+  </qresource>
+</RCC>
