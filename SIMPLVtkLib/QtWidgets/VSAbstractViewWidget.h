@@ -132,6 +132,8 @@ signals:
   void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
+  void applyCurrentFilter();
+  void resetCurrentFilter();
 
 public slots:
   /**
@@ -315,6 +317,12 @@ protected:
    * @param event
    */
   virtual void mousePressEvent(QMouseEvent* event) override;
+
+  /**
+   * @brief Handle key press events including applying or resetting the active filter
+   * @param event
+   */
+  void keyPressEvent(QKeyEvent* event) override;
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;

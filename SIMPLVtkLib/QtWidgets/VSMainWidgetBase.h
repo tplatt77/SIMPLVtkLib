@@ -225,6 +225,16 @@ protected slots:
   virtual void setCurrentFilter(VSAbstractFilter* filter);
 
   /**
+   * @brief Applies the current filter
+   */
+  virtual void applyCurrentFilter();
+
+  /**
+   * @brief Resets the current filter to the last applied values
+   */
+  virtual void resetCurrentFilter();
+
+  /**
    * @brief Deletes the given filter and its children from the model and
    * removes them from the view widgets
    * @param filter

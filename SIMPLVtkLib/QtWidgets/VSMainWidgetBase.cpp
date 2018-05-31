@@ -448,6 +448,8 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
     disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    disconnect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
+    disconnect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
   }
 
   m_ActiveViewWidget = viewWidget;
@@ -459,6 +461,8 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
     connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    connect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
+    connect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
 
     // Update filter check states to match the current view widget
     getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
@@ -518,6 +522,28 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
   }
 
   emit changedActiveFilter(m_CurrentFilter, filterWidget);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::applyCurrentFilter()
+{
+  if(m_InfoWidget)
+  {
+    m_InfoWidget->applyFilter();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::resetCurrentFilter()
+{
+  if(m_InfoWidget)
+  {
+    m_InfoWidget->resetFilter();
+  }
 }
 
 // -----------------------------------------------------------------------------

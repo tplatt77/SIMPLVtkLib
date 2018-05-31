@@ -35,6 +35,7 @@
 
 #include "VSViewWidget.h"
 
+#include <QtGui/QKeyEvent>
 #include <QtWidgets/QLayout>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
@@ -434,6 +435,23 @@ void VSAbstractViewWidget::mousePressed()
 void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
 {
   mousePressed();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::keyPressEvent(QKeyEvent* event)
+{
+  QFrame::keyPressEvent(event);
+
+  if(event->key() == Qt::Key::Key_Return)
+  {
+    emit applyCurrentFilter();
+  }
+  else if(event->key() == Qt::Key::Key_Escape)
+  {
+    emit resetCurrentFilter();
+  }
 }
 
 // -----------------------------------------------------------------------------
