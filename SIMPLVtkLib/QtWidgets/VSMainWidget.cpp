@@ -318,7 +318,16 @@ void VSMainWidget::createFilterMenu()
 // -----------------------------------------------------------------------------
 void VSMainWidget::importNumFilters(int max)
 {
-  m_Internals->progressBar->setMaximum(max);
+  if(max == 0)
+  {
+    m_Internals->progressBar->setMaximum(1);
+  }
+  else
+  {
+    m_Internals->progressBar->setMaximum(max);
+  }
+
+  m_Internals->progressBar->reset();
 }
 
 // -----------------------------------------------------------------------------
