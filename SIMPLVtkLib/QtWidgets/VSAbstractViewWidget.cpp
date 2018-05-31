@@ -37,6 +37,7 @@
 
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QLayout>
+#include <QtWidgets/QStyle>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 
@@ -710,9 +711,21 @@ VSController* VSAbstractViewWidget::getController() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSAbstractViewWidget::isActive()
+{
+  return m_Active;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractViewWidget::setActive(bool active)
 {
-  Q_UNUSED(active)
+  m_Active = active;
+
+  style()->unpolish(this);
+  style()->polish(this);
+  repaint();
 }
 
 // -----------------------------------------------------------------------------

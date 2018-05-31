@@ -62,8 +62,7 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
   m_InteractorStyle->setViewWidget(this);
 
-  connectSlots();
-  updateClosable();
+  setupGui();
 }
 
 // -----------------------------------------------------------------------------
@@ -79,8 +78,26 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
   getVisualizationWidget()->copy(other.getVisualizationWidget());
   copyFilters(other.getAllFilterViewSettings());
 
+  setupGui();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::setupGui()
+{
   connectSlots();
   updateClosable();
+
+  QString styleString;
+  QTextStream ss(&styleString);
+
+  ss << "VSViewWidget[Active=\"true\"] {";
+  ss << "border: 1px solid #0500ff;";
+  ss << "padding: 1px;";
+  ss << "}";
+
+  setStyleSheet(styleString);
 }
 
 // -----------------------------------------------------------------------------
@@ -118,40 +135,6 @@ VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
   }
 
   return m_Internals->visualizationWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setActive(bool active)
-{
-  (active) ? toActiveState() : toInactiveState();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toActiveState()
-{
-  QString styleString;
-  QTextStream ss(&styleString);
-
-  ss << "VSViewWidget {";
-
-  ss << "border: 1px solid #0500ff;";
-  ss << "padding: 1px;";
-
-  ss << "}";
-
-  setStyleSheet(styleString);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::toInactiveState()
-{
-  setStyleSheet("");
 }
 
 // -----------------------------------------------------------------------------

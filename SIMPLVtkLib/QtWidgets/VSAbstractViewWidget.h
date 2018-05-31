@@ -57,6 +57,8 @@ class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QFrame
   Q_OBJECT
 
 public:
+  Q_PROPERTY(bool Active READ isActive WRITE setActive)
+
   /**
    * @brief Deconstructor
    */
@@ -97,6 +99,12 @@ public:
    * @param controller
    */
   void setController(VSController* controller);
+
+  /**
+  * @brief Returns true if the view is active.  Returns false otherwise.
+  * @return 
+  */
+  virtual bool isActive();
 
   /**
    * @brief setActive
@@ -339,4 +347,5 @@ private:
   VSFilterViewSettings::Map m_FilterViewSettings;
   VSController* m_Controller = nullptr;
   bool m_BlockRender = false;
+  bool m_Active = false;
 };

@@ -78,13 +78,12 @@ public:
    */
   virtual VSVisualizationWidget* getVisualizationWidget() const override;
 
-  /**
-   * @brief setActive
-   * @param active
-   */
-  void setActive(bool active) override;
-
 protected:
+  /**
+   * @brief Performs initial setup work for the GUI
+   */
+  void setupGui();
+
   /**
    * @brief Connect Qt signals and slots
    */
@@ -107,14 +106,4 @@ private:
   class VSInternals;
   VSInternals* m_Internals;
   VSInteractorStyleFilterCamera* m_InteractorStyle;
-
-  /**
-   * @brief toActiveState
-   */
-  void toActiveState();
-
-  /**
-   * @brief toInactiveState
-   */
-  void toInactiveState();
 };
