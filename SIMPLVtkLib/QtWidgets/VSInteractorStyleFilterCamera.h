@@ -223,6 +223,11 @@ protected:
   */
   bool dragFilterKey();
 
+  /**
+   * @brief Updates any linked vtkRenderWindows for the current view widget
+   */
+  void updateLinkedRenderWindows();
+
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;

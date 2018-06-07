@@ -36,6 +36,8 @@
 #include "VSVisualizationWidget.h"
 
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QAction>
 
 #include <vtkAutoInit.h>
 #include <vtkInteractionStyleModule.h>
@@ -60,6 +62,8 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkRenderer.h>
 #include <vtkWindowToImageFilter.h>
 
+VSVisualizationWidget* VSVisualizationWidget::m_LinkingWidget = nullptr;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -75,6 +79,10 @@ VSVisualizationWidget::VSVisualizationWidget(QWidget* parent, unsigned int numLa
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::setupGui()
 {
+  this->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+    this, SLOT(showContextMenu(const QPoint&)));
+
   initializeRendererAndAxes();
 }
 
@@ -450,4 +458,64 @@ void VSVisualizationWidget::mousePressEvent(QMouseEvent* event)
   QVTKOpenGLWidget::mousePressEvent(event);
 
   emit mousePressed();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::focusInEvent(QFocusEvent* event)
+{
+  if(m_LinkingWidget && m_LinkingWidget != this)
+  {
+    linkCameraWith(m_LinkingWidget);
+  }
+
+  m_LinkingWidget = nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::showContextMenu(const QPoint& pos)
+{
+  QMenu contextMenu("Visualization", this);
+
+  QAction linkCameraAction("Link Cameras", this);
+  connect(&linkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
+  contextMenu.addAction(&linkCameraAction);
+
+  contextMenu.exec(mapToGlobal(pos));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::startLinkCameras()
+{
+  // TODO: Link current camera to target camera
+  m_LinkingWidget = this;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::linkCameraWith(VSVisualizationWidget* widget)
+{
+  getRenderer()->SetActiveCamera(widget->getRenderer()->GetActiveCamera());
+
+  LinkedRenderWindowType widgetLinkedRenderWindows = widget->getLinkedRenderWindows();
+  m_LinkedRenderWindows.insert(widgetLinkedRenderWindows.begin(), widgetLinkedRenderWindows.end());
+  m_LinkedRenderWindows.insert(widget->GetRenderWindow());
+  m_LinkedRenderWindows.insert(GetRenderWindow());
+  widget->m_LinkedRenderWindows = m_LinkedRenderWindows;
+
+  m_LinkingWidget = nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSVisualizationWidget::LinkedRenderWindowType VSVisualizationWidget::getLinkedRenderWindows()
+{
+  return m_LinkedRenderWindows;
 }

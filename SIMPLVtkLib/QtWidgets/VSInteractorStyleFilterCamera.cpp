@@ -39,6 +39,7 @@
 
 #include <vtkCamera.h>
 #include <vtkPropPicker.h>
+#include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
@@ -60,6 +61,7 @@ void VSInteractorStyleFilterCamera::OnLeftButtonDown()
   else
   {
     vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+    updateLinkedRenderWindows();
   }
 }
 
@@ -69,6 +71,7 @@ void VSInteractorStyleFilterCamera::OnLeftButtonDown()
 void VSInteractorStyleFilterCamera::OnRightButtonDown()
 {
   vtkInteractorStyleTrackballCamera::OnRightButtonDown();
+  updateLinkedRenderWindows();
 
   // Cancel the current action
   cancelAction();
@@ -101,6 +104,28 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
   else
   {
     vtkInteractorStyleTrackballCamera::OnMouseMove();
+    updateLinkedRenderWindows();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::updateLinkedRenderWindows()
+{
+  if(nullptr == m_ViewWidget)
+  {
+    return;
+  }
+  if(nullptr == m_ViewWidget->getVisualizationWidget())
+  {
+    return;
+  }
+
+  VSVisualizationWidget::LinkedRenderWindowType linkedRenderWindows = m_ViewWidget->getVisualizationWidget()->getLinkedRenderWindows();
+  for(VTK_PTR(vtkRenderWindow) renderWindow : linkedRenderWindows)
+  {
+    renderWindow->Render();
   }
 }
 

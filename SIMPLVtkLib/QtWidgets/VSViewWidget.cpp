@@ -71,8 +71,11 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
 VSViewWidget::VSViewWidget(const VSViewWidget& other)
 : VSAbstractViewWidget(nullptr)
 , m_Internals(new VSInternals())
+, m_InteractorStyle(VSInteractorStyleFilterCamera::New())
 {
   m_Internals->setupUi(this);
+  m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
+  m_InteractorStyle->setViewWidget(this);
 
   setController(other.getController());
   getVisualizationWidget()->copy(other.getVisualizationWidget());

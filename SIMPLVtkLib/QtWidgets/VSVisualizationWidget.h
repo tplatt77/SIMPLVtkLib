@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include <set>
+
 #include <QVTKOpenGLWidget.h>
 #include <vtkInteractorStyle.h>
 #include <vtkOrientationMarkerWidget.h>
@@ -54,6 +56,8 @@ class SIMPLVtkLib_EXPORT VSVisualizationWidget : public QVTKOpenGLWidget
   Q_OBJECT
 
 public:
+  using LinkedRenderWindowType = std::set<VTK_PTR(vtkRenderWindow)>;
+
   /**
    * @brief Constructor
    * @param parent
@@ -89,6 +93,12 @@ public:
   * @param style
   */
   void setInteractorStyle(vtkInteractorStyle* style);
+
+  /**
+   * @brief Returns a set of linked vtkRenderWindows
+   * @return
+   */
+  LinkedRenderWindowType getLinkedRenderWindows();
 
 signals:
   void mousePressed();
@@ -168,9 +178,27 @@ protected:
    */
   virtual void mousePressEvent(QMouseEvent* event) override;
 
+  /**
+   * @brief Check if linking cameras
+   * @param event
+   */
+  virtual void focusInEvent(QFocusEvent* event) override;
+
+  /**
+  * @brief Links the rendering camera with the given visualization widget.
+  */
+  void linkCameraWith(VSVisualizationWidget* widget);
+
+protected slots:
+  virtual void showContextMenu(const QPoint&);
+  virtual void startLinkCameras();
+
 private:
   VTK_PTR(vtkOrientationMarkerWidget) m_OrientationWidget = nullptr;
   VTK_PTR(vtkRenderer) m_Renderer = nullptr;
+  LinkedRenderWindowType m_LinkedRenderWindows;
 
   unsigned int m_NumRenderLayers;
+
+  static VSVisualizationWidget* m_LinkingWidget;
 };
