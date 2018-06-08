@@ -76,17 +76,17 @@ protected slots:
   /**
    * @brief Updates the translation spin boxes to match the transformation's local values
    */
-  void translationSpinBoxesChanged();
+  void translationEditChanged();
 
   /**
    * @brief Updates the rotation spin boxes to match the transformation's local values
    */
-  void rotationSpinBoxesChanged();
+  void rotationEditChanged();
 
   /**
    * @brief Updates the scale spin boxes to match the transformation's local values
    */
-  void scaleSpinBoxesChanged();
+  void scaleEditChanged();
 
   /**
    * @brief Updates the translation labels to match the transformation's global values

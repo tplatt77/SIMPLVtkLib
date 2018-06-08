@@ -65,17 +65,29 @@ VSTransformWidget::VSTransformWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSTransformWidget::setupGui()
 {
-  connect(m_Internals->posXSpinBox, SIGNAL(editingFinished()), this, SLOT(translationSpinBoxesChanged()));
-  connect(m_Internals->posYSpinBox, SIGNAL(editingFinished()), this, SLOT(translationSpinBoxesChanged()));
-  connect(m_Internals->posZSpinBox, SIGNAL(editingFinished()), this, SLOT(translationSpinBoxesChanged()));
+  m_Internals->posXEdit->setValidator(new QDoubleValidator());
+  m_Internals->posYEdit->setValidator(new QDoubleValidator());
+  m_Internals->posZEdit->setValidator(new QDoubleValidator());
 
-  connect(m_Internals->rotXSpinBox, SIGNAL(editingFinished()), this, SLOT(rotationSpinBoxesChanged()));
-  connect(m_Internals->rotYSpinBox, SIGNAL(editingFinished()), this, SLOT(rotationSpinBoxesChanged()));
-  connect(m_Internals->rotZSpinBox, SIGNAL(editingFinished()), this, SLOT(rotationSpinBoxesChanged()));
+  m_Internals->rotXEdit->setValidator(new QDoubleValidator());
+  m_Internals->rotYEdit->setValidator(new QDoubleValidator());
+  m_Internals->rotZEdit->setValidator(new QDoubleValidator());
 
-  connect(m_Internals->scaleXSpinBox, SIGNAL(editingFinished()), this, SLOT(scaleSpinBoxesChanged()));
-  connect(m_Internals->scaleYSpinBox, SIGNAL(editingFinished()), this, SLOT(scaleSpinBoxesChanged()));
-  connect(m_Internals->scaleZSpinBox, SIGNAL(editingFinished()), this, SLOT(scaleSpinBoxesChanged()));
+  m_Internals->scaleXEdit->setValidator(new QDoubleValidator());
+  m_Internals->scaleYEdit->setValidator(new QDoubleValidator());
+  m_Internals->scaleZEdit->setValidator(new QDoubleValidator());
+
+  connect(m_Internals->posXEdit, SIGNAL(editingFinished()), this, SLOT(translationEditChanged()));
+  connect(m_Internals->posYEdit, SIGNAL(editingFinished()), this, SLOT(translationEditChanged()));
+  connect(m_Internals->posZEdit, SIGNAL(editingFinished()), this, SLOT(translationEditChanged()));
+
+  connect(m_Internals->rotXEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
+  connect(m_Internals->rotYEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
+  connect(m_Internals->rotZEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
+
+  connect(m_Internals->scaleXEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
+  connect(m_Internals->scaleYEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
+  connect(m_Internals->scaleZEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
 }
 
 // -----------------------------------------------------------------------------
@@ -107,15 +119,15 @@ void VSTransformWidget::setTransform(VSTransform* transform)
   if(transformExists)
   {
     // Enable Widgets
-    m_Internals->posXSpinBox->setEnabled(true);
-    m_Internals->posYSpinBox->setEnabled(true);
-    m_Internals->posZSpinBox->setEnabled(true);
-    m_Internals->rotXSpinBox->setEnabled(true);
-    m_Internals->rotYSpinBox->setEnabled(true);
-    m_Internals->rotZSpinBox->setEnabled(true);
-    m_Internals->scaleXSpinBox->setEnabled(true);
-    m_Internals->scaleYSpinBox->setEnabled(true);
-    m_Internals->scaleZSpinBox->setEnabled(true);
+    m_Internals->posXEdit->setEnabled(true);
+    m_Internals->posYEdit->setEnabled(true);
+    m_Internals->posZEdit->setEnabled(true);
+    m_Internals->rotXEdit->setEnabled(true);
+    m_Internals->rotYEdit->setEnabled(true);
+    m_Internals->rotZEdit->setEnabled(true);
+    m_Internals->scaleXEdit->setEnabled(true);
+    m_Internals->scaleYEdit->setEnabled(true);
+    m_Internals->scaleZEdit->setEnabled(true);
 
     m_Internals->posXLabel->setEnabled(true);
     m_Internals->posYLabel->setEnabled(true);
@@ -136,19 +148,19 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 
     // local
     double* localPos = transform->getLocalPosition();
-    m_Internals->posXSpinBox->setValue(localPos[0]);
-    m_Internals->posYSpinBox->setValue(localPos[1]);
-    m_Internals->posZSpinBox->setValue(localPos[2]);
+    m_Internals->posXEdit->setText(QString::number(localPos[0]));
+    m_Internals->posYEdit->setText(QString::number(localPos[1]));
+    m_Internals->posZEdit->setText(QString::number(localPos[2]));
 
     double* localRot = transform->getLocalRotation();
-    m_Internals->rotXSpinBox->setValue(localRot[0]);
-    m_Internals->rotYSpinBox->setValue(localRot[1]);
-    m_Internals->rotZSpinBox->setValue(localRot[2]);
+    m_Internals->rotXEdit->setText(QString::number(localRot[0]));
+    m_Internals->rotYEdit->setText(QString::number(localRot[1]));
+    m_Internals->rotZEdit->setText(QString::number(localRot[2]));
 
     double* localScale = transform->getLocalScale();
-    m_Internals->scaleXSpinBox->setValue(localScale[0]);
-    m_Internals->scaleYSpinBox->setValue(localScale[1]);
-    m_Internals->scaleZSpinBox->setValue(localScale[2]);
+    m_Internals->scaleXEdit->setText(QString::number(localScale[0]));
+    m_Internals->scaleYEdit->setText(QString::number(localScale[1]));
+    m_Internals->scaleZEdit->setText(QString::number(localScale[2]));
 
     // global
     double* globalPos = transform->getPosition();
@@ -163,17 +175,17 @@ void VSTransformWidget::setTransform(VSTransform* transform)
   else
   {
     // local
-    m_Internals->posXSpinBox->setValue(0.0);
-    m_Internals->posYSpinBox->setValue(0.0);
-    m_Internals->posZSpinBox->setValue(0.0);
+    m_Internals->posXEdit->setText(QString::number(0.0));
+    m_Internals->posYEdit->setText(QString::number(0.0));
+    m_Internals->posZEdit->setText(QString::number(0.0));
 
-    m_Internals->rotXSpinBox->setValue(0.0);
-    m_Internals->rotYSpinBox->setValue(0.0);
-    m_Internals->rotZSpinBox->setValue(0.0);
+    m_Internals->rotXEdit->setText(QString::number(0.0));
+    m_Internals->rotYEdit->setText(QString::number(0.0));
+    m_Internals->rotZEdit->setText(QString::number(0.0));
 
-    m_Internals->scaleXSpinBox->setValue(0.0);
-    m_Internals->scaleYSpinBox->setValue(0.0);
-    m_Internals->scaleZSpinBox->setValue(0.0);
+    m_Internals->scaleXEdit->setText(QString::number(0.0));
+    m_Internals->scaleYEdit->setText(QString::number(0.0));
+    m_Internals->scaleZEdit->setText(QString::number(0.0));
 
     // global
     double* globalPos = new double[3];
@@ -196,15 +208,15 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     delete[] globalScale;
 
     // Disable widgets
-    m_Internals->posXSpinBox->setEnabled(false);
-    m_Internals->posYSpinBox->setEnabled(false);
-    m_Internals->posZSpinBox->setEnabled(false);
-    m_Internals->rotXSpinBox->setEnabled(false);
-    m_Internals->rotYSpinBox->setEnabled(false);
-    m_Internals->rotZSpinBox->setEnabled(false);
-    m_Internals->scaleXSpinBox->setEnabled(false);
-    m_Internals->scaleYSpinBox->setEnabled(false);
-    m_Internals->scaleZSpinBox->setEnabled(false);
+    m_Internals->posXEdit->setEnabled(false);
+    m_Internals->posYEdit->setEnabled(false);
+    m_Internals->posZEdit->setEnabled(false);
+    m_Internals->rotXEdit->setEnabled(false);
+    m_Internals->rotYEdit->setEnabled(false);
+    m_Internals->rotZEdit->setEnabled(false);
+    m_Internals->scaleXEdit->setEnabled(false);
+    m_Internals->scaleYEdit->setEnabled(false);
+    m_Internals->scaleZEdit->setEnabled(false);
 
     m_Internals->posXLabel->setEnabled(false);
     m_Internals->posYLabel->setEnabled(false);
@@ -221,7 +233,7 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::translationSpinBoxesChanged()
+void VSTransformWidget::translationEditChanged()
 {
   if(nullptr == m_Transform)
   {
@@ -229,9 +241,9 @@ void VSTransformWidget::translationSpinBoxesChanged()
   }
 
   double position[3];
-  position[0] = m_Internals->posXSpinBox->value();
-  position[1] = m_Internals->posYSpinBox->value();
-  position[2] = m_Internals->posZSpinBox->value();
+  position[0] = m_Internals->posXEdit->text().toDouble();
+  position[1] = m_Internals->posYEdit->text().toDouble();
+  position[2] = m_Internals->posZEdit->text().toDouble();
 
   m_Transform->setLocalPosition(position);
 }
@@ -239,7 +251,7 @@ void VSTransformWidget::translationSpinBoxesChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::rotationSpinBoxesChanged()
+void VSTransformWidget::rotationEditChanged()
 {
   if(nullptr == m_Transform)
   {
@@ -247,9 +259,9 @@ void VSTransformWidget::rotationSpinBoxesChanged()
   }
 
   double rotation[3];
-  rotation[0] = m_Internals->rotXSpinBox->value();
-  rotation[1] = m_Internals->rotYSpinBox->value();
-  rotation[2] = m_Internals->rotZSpinBox->value();
+  rotation[0] = m_Internals->rotXEdit->text().toDouble();
+  rotation[1] = m_Internals->rotYEdit->text().toDouble();
+  rotation[2] = m_Internals->rotZEdit->text().toDouble();
 
   m_Transform->setLocalRotation(rotation);
 }
@@ -257,7 +269,7 @@ void VSTransformWidget::rotationSpinBoxesChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::scaleSpinBoxesChanged()
+void VSTransformWidget::scaleEditChanged()
 {
   if(nullptr == m_Transform)
   {
@@ -265,9 +277,9 @@ void VSTransformWidget::scaleSpinBoxesChanged()
   }
 
   double scale[3];
-  scale[0] = m_Internals->scaleXSpinBox->value();
-  scale[1] = m_Internals->scaleYSpinBox->value();
-  scale[2] = m_Internals->scaleZSpinBox->value();
+  scale[0] = m_Internals->scaleXEdit->text().toDouble();
+  scale[1] = m_Internals->scaleYEdit->text().toDouble();
+  scale[2] = m_Internals->scaleZEdit->text().toDouble();
 
   m_Transform->setLocalScale(scale);
 }
@@ -340,9 +352,9 @@ void VSTransformWidget::updateScaleLabels(double* scale)
 // -----------------------------------------------------------------------------
 void VSTransformWidget::updateLocalTranslation(double* position)
 {
-  m_Internals->posXSpinBox->setValue(position[0]);
-  m_Internals->posYSpinBox->setValue(position[1]);
-  m_Internals->posZSpinBox->setValue(position[2]);
+  m_Internals->posXEdit->setText(QString::number(position[0]));
+  m_Internals->posYEdit->setText(QString::number(position[1]));
+  m_Internals->posZEdit->setText(QString::number(position[2]));
 }
 
 // -----------------------------------------------------------------------------
@@ -350,9 +362,9 @@ void VSTransformWidget::updateLocalTranslation(double* position)
 // -----------------------------------------------------------------------------
 void VSTransformWidget::updateLocalRotation(double* rotation)
 {
-  m_Internals->rotXSpinBox->setValue(rotation[0]);
-  m_Internals->rotYSpinBox->setValue(rotation[1]);
-  m_Internals->rotZSpinBox->setValue(rotation[2]);
+  m_Internals->rotXEdit->setText(QString::number(rotation[0]));
+  m_Internals->rotYEdit->setText(QString::number(rotation[1]));
+  m_Internals->rotZEdit->setText(QString::number(rotation[2]));
 }
 
 // -----------------------------------------------------------------------------
@@ -360,7 +372,7 @@ void VSTransformWidget::updateLocalRotation(double* rotation)
 // -----------------------------------------------------------------------------
 void VSTransformWidget::updateLocalScale(double* scale)
 {
-  m_Internals->scaleXSpinBox->setValue(scale[0]);
-  m_Internals->scaleYSpinBox->setValue(scale[1]);
-  m_Internals->scaleZSpinBox->setValue(scale[2]);
+  m_Internals->scaleXEdit->setText(QString::number(scale[0]));
+  m_Internals->scaleYEdit->setText(QString::number(scale[1]));
+  m_Internals->scaleZEdit->setText(QString::number(scale[2]));
 }
