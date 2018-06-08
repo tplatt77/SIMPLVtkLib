@@ -190,19 +190,19 @@ public:
    * @brief Returns the actor property representation
    * @return
    */
-  Representation getRepresentation();
+  Representation getRepresentation() const;
 
   /**
    * @brief Returns the actor property representation as an integer
    * @return
    */
-  int getRepresentationi();
+  int getRepresentationi() const;
 
   /**
    * @brief Returns the actor property representation as an enum
    * @return
    */
-  ActorType getActorType();
+  ActorType getActorType() const;
 
   /**
    * @brief Returns true if the actor should be using point data instead of cell data.  

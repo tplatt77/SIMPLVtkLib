@@ -1013,7 +1013,7 @@ void VSFilterViewSettings::setSolidColor(double color[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation()
+VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation() const
 {
   return m_Representation;
 }
@@ -1021,7 +1021,7 @@ VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSFilterViewSettings::getRepresentationi()
+int VSFilterViewSettings::getRepresentationi() const
 {
   return static_cast<int>(getRepresentation());
 }
@@ -1029,7 +1029,7 @@ int VSFilterViewSettings::getRepresentationi()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::ActorType VSFilterViewSettings::getActorType()
+VSFilterViewSettings::ActorType VSFilterViewSettings::getActorType() const
 {
   return m_ActorType;
 }
