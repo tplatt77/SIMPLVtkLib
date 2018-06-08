@@ -165,8 +165,19 @@ int VSFilterViewSettings::getNumberOfComponents(int arrayIndex)
     return -1;
   }
 
-  vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
-  vtkAbstractArray* array = cellData->GetAbstractArray(arrayIndex);
+  vtkAbstractArray* array = nullptr;
+
+  if(isPointData())
+  {
+    vtkPointData* pointData = m_Filter->getOutput()->GetPointData();
+    array = pointData->GetAbstractArray(arrayIndex);
+  }
+  else
+  {
+    vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
+    array = cellData->GetAbstractArray(arrayIndex);
+  }
+  
   if(array)
   {
     return array->GetNumberOfComponents();
@@ -185,9 +196,19 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
   }
 
   const char* name = arrayName.toLatin1();
+  vtkAbstractArray* array = nullptr;
 
-  vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
-  vtkAbstractArray* array = cellData->GetAbstractArray(name);
+  if(isPointData())
+  {
+    vtkPointData* pointData = m_Filter->getOutput()->GetPointData();
+    array = pointData->GetAbstractArray(name);
+  }
+  else
+  {
+    vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
+    array = cellData->GetAbstractArray(name);
+  }
+  
   if(array)
   {
     return array->GetNumberOfComponents();
@@ -329,9 +350,19 @@ vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
     return nullptr;
   }
 
-  if(dataSet && dataSet->GetCellData())
+  if(isPointData())
   {
-    return dataSet->GetCellData()->GetArray(index);
+    if(dataSet->GetPointData())
+    {
+      return dataSet->GetPointData()->GetArray(index);
+    }
+  }
+  else
+  {
+    if(dataSet->GetCellData())
+    {
+      return dataSet->GetCellData()->GetArray(index);
+    }
   }
 
   return nullptr;
@@ -403,7 +434,15 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
   int numComponents = dataArray->GetNumberOfComponents();
   mapper->ColorByArrayComponent(m_ActiveArray, index);
-  mapper->SetScalarModeToUseCellFieldData();
+  
+  if(isPointData())
+  {
+    mapper->SetScalarModeToUsePointFieldData();
+  }
+  else
+  {
+    mapper->SetScalarModeToUseCellFieldData();
+  }
   updateColorMode();
 
   if(numComponents == 1)
@@ -792,8 +831,19 @@ void VSFilterViewSettings::setupDataSetActors()
   mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
   actor->SetMapper(mapper);
 
+  // Check if there are any arrays to use
+  bool hasArrays = false;
+  if(isPointData())
+  {
+    hasArrays = outputData->GetPointData()->GetNumberOfArrays() > 0;
+  }
+  else
+  {
+    hasArrays = outputData->GetCellData()->GetNumberOfArrays() > 0;
+  }
+
   // Set Mapper to use the active array and component
-  if(outputData->GetCellData()->GetNumberOfArrays() > 0)
+  if(hasArrays)
   {
     if(m_HadNoArrays)
     {
@@ -982,6 +1032,14 @@ int VSFilterViewSettings::getRepresentationi()
 VSFilterViewSettings::ActorType VSFilterViewSettings::getActorType()
 {
   return m_ActorType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isPointData()
+{
+  return m_Filter->isPointData();
 }
 
 // -----------------------------------------------------------------------------

@@ -227,6 +227,13 @@ public:
   virtual dataType_t getOutputType();
 
   /**
+  * @brief Returns true if the resulting data should use point data instead of cell data
+  * Returns false otherwise.
+  * @return
+  */
+  bool isPointData();
+
+  /**
    * @brief Returns true if the input dataType_t is compatible with a given required type
    * @param inputType
    * @param requiredType

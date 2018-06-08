@@ -42,9 +42,11 @@
 #include <vtkAlgorithm.h>
 #include <vtkCellData.h>
 #include <vtkGenericDataObjectWriter.h>
+#include <vtkPointData.h>
 #include <vtkPointSet.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
@@ -232,6 +234,36 @@ VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSAbstractFilter::isPointData()
+{
+  // Check for output types
+  if(VSAbstractFilter::dataType_t::POINT_DATA == getOutputType())
+  {
+    return true;
+  }
+
+  // Check for class types
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(nullptr == dataSet)
+  {
+    return false;
+  }
+
+  if(vtkPointSet::SafeDownCast(dataSet))
+  {
+    return true;
+  }
+  else if(VSVertexGrid::SafeDownCast(dataSet))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QStringList VSAbstractFilter::getArrayNames()
 {
   QStringList arrayNames;
@@ -239,10 +271,21 @@ QStringList VSAbstractFilter::getArrayNames()
   VTK_PTR(vtkDataSet) dataSet = getOutput();
   if(dataSet)
   {
-    int numArrays = dataSet->GetCellData()->GetNumberOfArrays();
-    for(int i = 0; i < numArrays; i++)
+    if(isPointData())
     {
-      arrayNames.push_back(dataSet->GetCellData()->GetAbstractArray(i)->GetName());
+      int numPointArrays = dataSet->GetPointData()->GetNumberOfArrays();
+      for(int i = 0; i < numPointArrays; i++)
+      {
+        arrayNames.push_back(dataSet->GetPointData()->GetAbstractArray(i)->GetName());
+      }
+    }
+    else
+    {
+      int numCellArrays = dataSet->GetCellData()->GetNumberOfArrays();
+      for(int i = 0; i < numCellArrays; i++)
+      {
+        arrayNames.push_back(dataSet->GetCellData()->GetAbstractArray(i)->GetName());
+      }
     }
   }
 
@@ -260,7 +303,15 @@ QStringList VSAbstractFilter::getComponentList(QString arrayName)
   if(dataSet)
   {
     const char* charName = arrayName.toLatin1();
-    VTK_PTR(vtkAbstractArray) array = dataSet->GetCellData()->GetAbstractArray(charName);
+    VTK_PTR(vtkAbstractArray) array = nullptr;
+    if(isPointData())
+    {
+      array = dataSet->GetPointData()->GetAbstractArray(charName);
+    }
+    else
+    {
+      array = dataSet->GetCellData()->GetAbstractArray(charName);
+    }
     componentNames = getComponentList(array);
   }
 
@@ -277,7 +328,16 @@ QStringList VSAbstractFilter::getComponentList(int arrayIndex)
   VTK_PTR(vtkDataSet) dataSet = getOutput();
   if(dataSet)
   {
-    VTK_PTR(vtkAbstractArray) array = dataSet->GetCellData()->GetAbstractArray(arrayIndex);
+    VTK_PTR(vtkAbstractArray) array = nullptr;
+    if(isPointData())
+    {
+      array = dataSet->GetPointData()->GetAbstractArray(arrayIndex);
+    }
+    else
+    {
+      array = dataSet->GetCellData()->GetAbstractArray(arrayIndex);
+    }
+    // Get component names from the array
     componentNames = getComponentList(array);
   }
 

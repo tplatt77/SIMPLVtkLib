@@ -205,6 +205,13 @@ public:
   ActorType getActorType();
 
   /**
+   * @brief Returns true if the actor should be using point data instead of cell data.  
+   * Return false otherwise.
+   * @return
+   */
+  bool isPointData();
+
+  /**
    * @brief Copies another VSFilterViewSettings for everything but the active filter
    * @param filter
    */

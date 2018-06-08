@@ -85,6 +85,7 @@ public:
   {
     VTK_PTR(vtkDataSet) m_DataSet;
     WrappedDataArrayPtrCollection m_CellData;
+    WrappedDataArrayPtrCollection m_PointData;
     QString m_Name;
     DataContainer::Pointer m_DataContainer;
     double m_Origin[3] = { 0.0, 0.0, 0.0 };
@@ -105,7 +106,7 @@ public:
    * @param dca
    * @return
    */
-  static WrappedDataContainerPtrCollection WrapDataContainerArrayAsStruct(DataContainerArray::Pointer dca, AttributeMatrix::Types types = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell));
+  static WrappedDataContainerPtrCollection WrapDataContainerArrayAsStruct(DataContainerArray::Pointer dca);
 
   /**
    * @brief Wraps a DataContainer from SIMPLib in a vtkDataSet if applicable and returns a WrappedDataContainerPtr
@@ -116,7 +117,7 @@ public:
    * @param types
    * @return
    */
-  static WrappedDataContainerPtr WrapDataContainerAsStruct(DataContainer::Pointer dc, AttributeMatrix::Types types = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell));
+  static WrappedDataContainerPtr WrapDataContainerAsStruct(DataContainer::Pointer dc);
 
   /**
    * @brief Wraps a DataContainer geometry from SIMPLib in a vtkDataSet if applicable and returns a WrappeddataContainerPtr
@@ -125,13 +126,13 @@ public:
    * @param types
    * @return
    */
-  static WrappedDataContainerPtr WrapGeometryPtr(DataContainer::Pointer dc, AttributeMatrix::Types types = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell));
+  static WrappedDataContainerPtr WrapGeometryPtr(DataContainer::Pointer dc);
 
   /**
    * @brief Finish wrapping the given DataContainer
    * @param wrappedDc
    */
-  static void FinishWrappingDataContainerStruct(WrappedDataContainerPtr wrappedDc, AttributeMatrix::Types types = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell));
+  static void FinishWrappingDataContainerStruct(WrappedDataContainerPtr wrappedDc);
 
   /**
    * @brief Wraps the DataArrays contained within SIMPLib's AttributeMatrix in vtkDataArrays for use in VTK
