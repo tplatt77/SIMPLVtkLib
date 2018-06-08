@@ -117,7 +117,7 @@ public:
    * @brief Returns true if the VSFilterViewSettings can be displayed and false otherwise
    * @return
    */
-  bool isValid();
+  bool isValid() const;
 
   /**
    * @brief Returns true if the filter is displayed in for this view.  Returns false otherwise
@@ -184,7 +184,7 @@ public:
    * @brief Returns the color used when no scalar data exists as a double*
    * @return
    */
-  double* getSolidColor();
+  double* getSolidColor() const;
 
   /**
    * @brief Returns the actor property representation
@@ -348,28 +348,28 @@ protected:
    * Returns nullptr otherwise.
    * @return
    */
-  vtkDataSetMapper* getDataSetMapper();
+  vtkDataSetMapper* getDataSetMapper() const;
 
   /**
    * @brief Returns the vtkActor if the ActorType is DataSet and the settings are valid.
    * Returns nullptr otherwise.
    * @return
    */
-  vtkActor* getDataSetActor();
+  vtkActor* getDataSetActor() const;
 
   /**
    * @brief Returns the vtkImageSliceMapper if the ActorType is Image2D and the settings are valid.
    * Returns nullptr otherwise.
    * @return
    */
-  vtkImageSliceMapper* getImageMapper();
+  vtkImageSliceMapper* getImageMapper() const;
 
   /**
    * @brief Returns the vtkImageSlice if the ActorType is Image2D and the settings are valid.
    * Returns nullptr otherwise.
    * @return
    */
-  vtkImageSlice* getImageSliceActor();
+  vtkImageSlice* getImageSliceActor() const;
 
   /**
    * @brief Returns true if data set is a 2D image.  Returns false otherwise.

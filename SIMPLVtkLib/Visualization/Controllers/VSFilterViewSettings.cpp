@@ -85,6 +85,10 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 {
   connectFilter(copy.m_Filter);
   setupActors();
+  setRepresentation(copy.getRepresentation());
+  setActiveArrayIndex(copy.m_ActiveArray);
+  setActiveComponentIndex(copy.m_ActiveComponent);
+  setSolidColor(copy.getSolidColor());
 
   if(copy.m_LookupTable)
   {
@@ -125,7 +129,7 @@ VSAbstractFilter* VSFilterViewSettings::getFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isValid()
+bool VSFilterViewSettings::isValid() const
 {
   bool valid = m_Mapper && m_Actor;
   return valid;
@@ -251,7 +255,7 @@ VTK_PTR(vtkProp3D) VSFilterViewSettings::getActor()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper()
+vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper() const
 {
   if(ActorType::DataSet == m_ActorType && isValid())
   {
@@ -264,7 +268,7 @@ vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkActor* VSFilterViewSettings::getDataSetActor()
+vtkActor* VSFilterViewSettings::getDataSetActor() const
 {
   if(ActorType::DataSet == m_ActorType && isValid())
   {
@@ -277,7 +281,7 @@ vtkActor* VSFilterViewSettings::getDataSetActor()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkImageSliceMapper* VSFilterViewSettings::getImageMapper()
+vtkImageSliceMapper* VSFilterViewSettings::getImageMapper() const
 {
   if(ActorType::Image2D == m_ActorType && isValid())
   {
@@ -290,7 +294,7 @@ vtkImageSliceMapper* VSFilterViewSettings::getImageMapper()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkImageSlice* VSFilterViewSettings::getImageSliceActor()
+vtkImageSlice* VSFilterViewSettings::getImageSliceActor() const
 {
   if(ActorType::Image2D == m_ActorType && isValid())
   {
@@ -982,7 +986,7 @@ void VSFilterViewSettings::filterDeleted()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSFilterViewSettings::getSolidColor()
+double* VSFilterViewSettings::getSolidColor() const
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
