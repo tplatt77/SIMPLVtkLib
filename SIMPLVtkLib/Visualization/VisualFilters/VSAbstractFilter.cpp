@@ -249,11 +249,7 @@ bool VSAbstractFilter::isPointData()
     return false;
   }
 
-  if(vtkPointSet::SafeDownCast(dataSet))
-  {
-    return true;
-  }
-  else if(VSVertexGrid::SafeDownCast(dataSet))
+  if(VSVertexGrid::SafeDownCast(dataSet))
   {
     return true;
   }
