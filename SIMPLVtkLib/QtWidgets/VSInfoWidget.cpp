@@ -35,6 +35,8 @@
 
 #include "VSInfoWidget.h"
 
+#include <QtGui/QIntValidator>
+
 #include "SIMPLVtkLib/QtWidgets/VSMainWidget.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
@@ -80,9 +82,15 @@ void VSInfoWidget::setupGui()
 {
   m_presetsDialog = new ColorPresetsDialog();
 
+  QIntValidator* pointSizeValidator = new QIntValidator(this);
+  pointSizeValidator->setBottom(1);
+  m_Internals->pointSizeEdit->setValidator(pointSizeValidator);
+
   connect(m_Internals->representationCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setRepresentationIndex(int)));
   connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveArrayIndex(int)));
   connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveComponentIndex(int)));
+  connect(m_Internals->pointSizeEdit, SIGNAL(textChanged(QString)), this, SLOT(updatePointSize(QString)));
+  connect(m_Internals->pointSphereCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateRenderPointSpheres(int)));
   connect(m_Internals->mapScalarsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarsMapped(int)));
   connect(m_Internals->showScalarBarCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarBarVisible(int)));
   connect(m_Internals->invertColorScaleBtn, SIGNAL(clicked()), this, SLOT(invertScalarBar()));
@@ -243,14 +251,16 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
 {
   if(m_ViewSettings)
   {
-    disconnect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
+    disconnect(m_ViewSettings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
                SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
-    disconnect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
-    disconnect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
-    disconnect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    disconnect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
-    disconnect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
-    disconnect(settings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)), this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
+    disconnect(m_ViewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
+    disconnect(m_ViewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
+    disconnect(m_ViewSettings, SIGNAL(pointSizeChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSize(VSFilterViewSettings*, int)));
+    disconnect(m_ViewSettings, SIGNAL(renderPointSpheresChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSphere(VSFilterViewSettings*, int)));
+    disconnect(m_ViewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
+    disconnect(m_ViewSettings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
+    disconnect(m_ViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewSettings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)), this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
   }
 
   m_ViewSettings = settings;
@@ -261,6 +271,8 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
             SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
     connect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
     connect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
+    connect(settings, SIGNAL(pointSizeChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSize(VSFilterViewSettings*, int)));
+    connect(settings, SIGNAL(renderPointSpheresChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSphere(VSFilterViewSettings*, int)));
     connect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
     connect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
     connect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
@@ -305,6 +317,18 @@ void VSInfoWidget::updateFilterInfo()
     {
       int activeIndex = m_ViewSettings->getActiveArrayIndex();
       m_Internals->activeArrayCombo->setCurrentIndex(activeIndex + 1);
+
+      m_Internals->pointSizeEdit->blockSignals(true);
+      m_Internals->pointSphereCheckBox->blockSignals(true);
+
+      int pointSize = m_ViewSettings->getPointSize();
+      m_Internals->pointSizeEdit->setText(QString::number(pointSize));
+
+      bool renderPointSpheres = m_ViewSettings->renderPointsAsSpheres();
+      m_Internals->pointSphereCheckBox->setChecked(renderPointSpheres ? Qt::Checked : Qt::Unchecked);
+
+      m_Internals->pointSizeEdit->blockSignals(false);
+      m_Internals->pointSphereCheckBox->blockSignals(false);
     }
     else
     {
@@ -331,6 +355,8 @@ void VSInfoWidget::updateViewSettingInfo()
 
     m_Internals->viewSettingsContainer->setEnabled(m_Filter);
     m_Internals->viewSettingsWidget->setEnabled(false);
+
+    updatePointSettingVisibility();
     return;
   }
 
@@ -356,6 +382,12 @@ void VSInfoWidget::updateViewSettingInfo()
     m_Internals->activeComponentCombo->setCurrentIndex(activeComponentIndex);
   }
 
+  // Point Size
+  m_Internals->pointSizeEdit->setText(QString::number(m_ViewSettings->getPointSize()));
+  bool renderingPointSpheres = m_ViewSettings->renderPointsAsSpheres();
+  Qt::CheckState pointSphereCheckState = renderingPointSpheres ? Qt::Checked : Qt::Unchecked;
+  m_Internals->pointSphereCheckBox->setCheckState(pointSphereCheckState);
+
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
   m_Internals->mapScalarsCheckBox->setCheckState(m_ViewSettings->getMapColors());
   m_Internals->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
@@ -366,6 +398,25 @@ void VSInfoWidget::updateViewSettingInfo()
     QColor newColor = QColor::fromRgbF(solidColor[0], solidColor[1], solidColor[2]);
     m_Internals->colorBtn->setColor(newColor, false);
   }
+
+  updatePointSettingVisibility();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::updatePointSettingVisibility()
+{
+  bool visible = false;
+
+  if(m_ViewSettings)
+  {
+    visible = m_ViewSettings->isRenderingPoints();
+  }
+
+  m_Internals->pointRenderingWidget->setVisible(visible);
+  
+  update();
 }
 
 // -----------------------------------------------------------------------------
@@ -380,6 +431,8 @@ void VSInfoWidget::setRepresentationIndex(int index)
 
   VSFilterViewSettings::Representation rep = static_cast<VSFilterViewSettings::Representation>(index);
   m_ViewSettings->setRepresentation(rep);
+
+  updatePointSettingVisibility();
 }
 
 // -----------------------------------------------------------------------------
@@ -439,6 +492,35 @@ void VSInfoWidget::updateActiveComponentIndex(int index)
 
     m_ViewSettings->setActiveComponentIndex(index);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::updatePointSize(QString pointSize)
+{
+  if(nullptr == m_ViewSettings)
+  {
+    return;
+  }
+
+  if(!pointSize.isEmpty())
+  {
+    m_ViewSettings->setPointSize(pointSize.toInt());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::updateRenderPointSpheres(int checkState)
+{
+  if(nullptr == m_ViewSettings)
+  {
+    return;
+  }
+
+  m_ViewSettings->setRenderPointsAsSpheres(Qt::Checked == checkState);
 }
 
 // -----------------------------------------------------------------------------
@@ -544,7 +626,9 @@ void VSInfoWidget::colorButtonChanged(QColor color)
 void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep)
 {
   int index = static_cast<int>(rep);
+  m_Internals->representationCombo->blockSignals(true);
   m_Internals->representationCombo->setCurrentIndex(index);
+  m_Internals->representationCombo->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -552,7 +636,9 @@ void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFi
 // -----------------------------------------------------------------------------
 void VSInfoWidget::listenArrayIndex(VSFilterViewSettings* settings, int index)
 {
+  m_Internals->activeArrayCombo->blockSignals(true);
   m_Internals->activeArrayCombo->setCurrentIndex(index + 1);
+  m_Internals->activeArrayCombo->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -568,9 +654,31 @@ void VSInfoWidget::listenComponentIndex(VSFilterViewSettings* settings, int inde
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSInfoWidget::listenPointSize(VSFilterViewSettings* settings, int size)
+{
+  m_Internals->pointSizeEdit->blockSignals(true);
+  m_Internals->pointSizeEdit->setText(QString::number(size));
+  m_Internals->pointSizeEdit->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres)
+{
+  m_Internals->pointSphereCheckBox->blockSignals(true);
+  m_Internals->pointSphereCheckBox->setChecked(renderAsSpheres ? Qt::Checked : Qt::Unchecked);
+  m_Internals->pointSphereCheckBox->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, Qt::CheckState state)
 {
+  m_Internals->mapScalarsCheckBox->blockSignals(true);
   m_Internals->mapScalarsCheckBox->setCheckState(state);
+  m_Internals->mapScalarsCheckBox->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -578,7 +686,9 @@ void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, Qt::CheckStat
 // -----------------------------------------------------------------------------
 void VSInfoWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
 {
+  m_Internals->alphaSlider->blockSignals(true);
   m_Internals->alphaSlider->setValue(alpha * 100);
+  m_Internals->alphaSlider->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -586,7 +696,9 @@ void VSInfoWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
 // -----------------------------------------------------------------------------
 void VSInfoWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
 {
+  m_Internals->showScalarBarCheckBox->blockSignals(true);
   m_Internals->showScalarBarCheckBox->setChecked(show);
+  m_Internals->showScalarBarCheckBox->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------

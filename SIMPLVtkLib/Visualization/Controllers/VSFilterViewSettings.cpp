@@ -89,6 +89,7 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
   setActiveArrayIndex(copy.m_ActiveArray);
   setActiveComponentIndex(copy.m_ActiveComponent);
   setSolidColor(copy.getSolidColor());
+  setPointSize(copy.getPointSize());
 
   if(copy.m_LookupTable)
   {
@@ -1049,6 +1050,66 @@ bool VSFilterViewSettings::isPointData()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isRenderingPoints()
+{
+  return isPointData() || Representation::Points == getRepresentation();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterViewSettings::getPointSize() const
+{
+  if(ActorType::DataSet == getActorType() && getDataSetActor())
+  {
+    return getDataSetActor()->GetProperty()->GetPointSize();
+  }
+
+  return -1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setPointSize(int pointSize)
+{
+  if(ActorType::DataSet == getActorType() && getDataSetActor())
+  {
+    getDataSetActor()->GetProperty()->SetPointSize(pointSize);
+    emit pointSizeChanged(this, pointSize);
+    emit requiresRender();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::renderPointsAsSpheres() const
+{
+  if(ActorType::DataSet == getActorType() && getDataSetActor())
+  {
+    return getDataSetActor()->GetProperty()->GetRenderPointsAsSpheres();
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setRenderPointsAsSpheres(bool renderSpheres)
+{
+  if(ActorType::DataSet == getActorType() && getDataSetActor())
+  {
+    getDataSetActor()->GetProperty()->SetRenderPointsAsSpheres(renderSpheres);
+    emit renderPointSpheresChanged(this, renderSpheres);
+    emit requiresRender();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::setRepresentation(Representation type)
 {
   vtkActor* actor = getDataSetActor();
@@ -1146,6 +1207,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setAlpha(copy->m_Alpha);
   setSolidColor(copy->getSolidColor());
   setRepresentation(copy->getRepresentation());
+  setPointSize(copy->getPointSize());
 
   if(hasUi && m_ScalarBarWidget)
   {

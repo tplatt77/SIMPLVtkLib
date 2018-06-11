@@ -212,6 +212,37 @@ public:
   bool isPointData();
 
   /**
+  * @brief Returns true if the current actor is set to render points.
+  * @return
+  */
+  bool isRenderingPoints();
+
+  /**
+  * @brief Returns the point size from the actor.
+  * If ActorType is Image2D or Invalid, returns -1.
+  * @return
+  */
+  int getPointSize() const;
+
+  /**
+  * @brief Sets the point size for the vtkActor. Does nothing for Image2D ActorTypes.
+  * @param pointSize
+  */
+  void setPointSize(int pointSize);
+
+  /**
+   * @brief Returns true if the current actor renders points as spheres. Returns false otherwise.
+   * @return
+   */
+  bool renderPointsAsSpheres() const;
+
+  /**
+   * @brief Sets whether or not points are rendered as spheres
+   * @param renderSpheres
+   */
+  void setRenderPointsAsSpheres(bool renderSpheres);
+
+  /**
    * @brief Copies another VSFilterViewSettings for everything but the active filter
    * @param filter
    */
@@ -320,6 +351,8 @@ signals:
   void solidColorChanged(VSFilterViewSettings*, double*);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
+  void pointSizeChanged(VSFilterViewSettings*, int);
+  void renderPointSpheresChanged(VSFilterViewSettings*, bool);
   void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);

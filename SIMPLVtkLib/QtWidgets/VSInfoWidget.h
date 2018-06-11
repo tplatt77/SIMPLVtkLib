@@ -120,6 +120,18 @@ protected slots:
   void updateActiveComponentIndex(int index);
 
   /**
+  * @brief Handle changes to the point size through the user interface
+  * @param pointSize
+  */
+  void updatePointSize(QString pointSize);
+
+  /**
+   * @brief Handles changes to rendering point spheres through the user interface
+   * @param renderSpheres
+   */
+  void updateRenderPointSpheres(int checkState);
+
+  /**
    * @brief Slot for handling user interaction with the mapScalarsCheckBox
    * @param checkState
    */
@@ -182,6 +194,20 @@ protected slots:
   void listenComponentIndex(VSFilterViewSettings* settings, int index);
 
   /**
+   * @brief Listens for the active VSFilterViewSettings point size to change
+   * @param settings
+   * @param size
+   */
+  void listenPointSize(VSFilterViewSettings* settings, int size);
+
+  /**
+  * @brief Listens for the active VSFilterViewSettings render point spheres setting to change
+  * @param settings
+  * @param renderAsSpheres
+  */
+  void listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres);
+
+  /**
    * @brief Listens for the active VSFilterViewSettings map colors value to change
    * @param settings
    * @param state
@@ -228,6 +254,11 @@ protected:
    * @brief Updates the information on the VSFilterViewSettings
    */
   void updateViewSettingInfo();
+
+  /**
+   * @brief Updates the visibility settings for widgets related to point rendering;
+   */
+  void updatePointSettingVisibility();
 
   /**
    * @brief Connects to the given VSFilterViewSettings to take advantage of its signals and slots
