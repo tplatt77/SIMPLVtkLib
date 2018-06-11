@@ -201,7 +201,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="6" column="0">
            <widget class="QWidget" name="transparencyWidget" native="true">
             <layout class="QGridLayout" name="gridLayout_10">
              <property name="leftMargin">
@@ -242,7 +242,7 @@
             </layout>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QWidget" name="mappingWidget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -272,7 +272,7 @@
              <property name="spacing">
               <number>4</number>
              </property>
-             <item row="0" column="0">
+             <item row="1" column="0">
               <widget class="QCheckBox" name="mapScalarsCheckBox">
                <property name="text">
                 <string>Map Scalars</string>
@@ -282,14 +282,14 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QCheckBox" name="showScalarBarCheckBox">
                <property name="text">
                 <string>Show Scalar Bar</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QWidget" name="colorPresetWidget" native="true">
                <layout class="QGridLayout" name="gridLayout_9">
                 <property name="leftMargin">
@@ -322,6 +322,19 @@
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="colorMapLabel">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Color Mapping</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -474,7 +487,7 @@
             </layout>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QWidget" name="pointRenderingWidget" native="true">
             <layout class="QGridLayout" name="gridLayout_3">
              <property name="leftMargin">
@@ -510,7 +523,7 @@
               </widget>
              </item>
              <item row="0" column="0" colspan="2">
-              <widget class="QLabel" name="label">
+              <widget class="QLabel" name="pointSettingsLabel">
                <property name="font">
                 <font>
                  <weight>75</weight>
