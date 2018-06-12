@@ -377,6 +377,7 @@ signals:
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void requiresRender();
   void actorsUpdated();
+  void dataLoaded();
   void swappingActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
 protected:

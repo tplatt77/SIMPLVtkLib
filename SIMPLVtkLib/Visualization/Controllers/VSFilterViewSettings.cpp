@@ -1216,6 +1216,8 @@ void VSFilterViewSettings::importedData()
     setRepresentation(Representation::Surface);
     emit requiresRender();
   }
+
+  emit dataLoaded();
 }
 
 // -----------------------------------------------------------------------------
@@ -1234,6 +1236,7 @@ void VSFilterViewSettings::reloadedData()
 {
   setupActors(false);
   emit actorsUpdated();
+  emit dataLoaded();
 }
 
 // -----------------------------------------------------------------------------

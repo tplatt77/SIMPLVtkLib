@@ -262,6 +262,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     disconnect(m_ViewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
     disconnect(m_ViewSettings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenSolidColor);
     disconnect(m_ViewSettings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::dataLoaded, this, &VSInfoWidget::updateFilterInfo);
   }
 
   m_ViewSettings = settings;
@@ -277,6 +278,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     connect(settings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
     connect(settings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
     connect(settings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
+    connect(settings, &VSFilterViewSettings::dataLoaded, this, &VSInfoWidget::updateFilterInfo);
   }
 }
 
@@ -306,6 +308,7 @@ void VSInfoWidget::updateFilterInfo()
 {
   // Add and set the array / component combo box values
   m_Internals->activeArrayCombo->blockSignals(true);
+  m_Internals->activeComponentCombo->blockSignals(true);
   m_Internals->activeArrayCombo->clear();
 
   if(m_Filter)
@@ -316,8 +319,10 @@ void VSInfoWidget::updateFilterInfo()
 
     if(m_ViewSettings)
     {
-      int activeIndex = m_ViewSettings->getActiveArrayIndex();
-      m_Internals->activeArrayCombo->setCurrentIndex(activeIndex + 1);
+      int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
+      int activeCompIndex = m_ViewSettings->getActiveComponentIndex();
+      m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex + 1);
+      m_Internals->activeComponentCombo->setCurrentIndex(activeCompIndex + 1);
 
       m_Internals->pointSizeEdit->blockSignals(true);
       m_Internals->pointSphereCheckBox->blockSignals(true);
@@ -338,6 +343,7 @@ void VSInfoWidget::updateFilterInfo()
   }
 
   m_Internals->activeArrayCombo->blockSignals(false);
+  m_Internals->activeComponentCombo->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
