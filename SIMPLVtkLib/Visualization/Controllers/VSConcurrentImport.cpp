@@ -306,7 +306,7 @@ void VSConcurrentImport::applyDataFilters()
 
     if(m_LoadType == LoadType::Reload)
     {
-      emit filter->dataReloaded();
+      filter->reloadWrappingFinished();
     }
 
     // Lock semaphore before the while statement is checked again

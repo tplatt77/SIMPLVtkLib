@@ -162,6 +162,11 @@ public slots:
   */
   void apply();
 
+  /**
+  * @brief This slot is called when a data container is finished being wrapped on a separate thread
+  */
+  void reloadWrappingFinished();
+
 signals:
   void finishedWrapping();
 
@@ -170,12 +175,6 @@ protected:
    * @brief Initializes the trivial producer and connects it to the vtkMapper
    */
   void createFilter() override;
-
-private slots:
-  /**
-   * @brief This slot is called when a data container is finished being wrapped on a separate thread
-   */
-  void reloadWrappingFinished();
 
 private:
   SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
