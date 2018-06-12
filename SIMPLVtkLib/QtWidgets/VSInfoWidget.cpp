@@ -89,21 +89,21 @@ void VSInfoWidget::setupGui()
   connect(m_Internals->representationCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setRepresentationIndex(int)));
   connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveArrayIndex(int)));
   connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveComponentIndex(int)));
-  connect(m_Internals->pointSizeEdit, SIGNAL(textChanged(QString)), this, SLOT(updatePointSize(QString)));
-  connect(m_Internals->pointSphereCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateRenderPointSpheres(int)));
-  connect(m_Internals->mapScalarsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarsMapped(int)));
-  connect(m_Internals->showScalarBarCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setScalarBarVisible(int)));
-  connect(m_Internals->invertColorScaleBtn, SIGNAL(clicked()), this, SLOT(invertScalarBar()));
-  connect(m_Internals->alphaSlider, SIGNAL(valueChanged(int)), this, SLOT(alphaSliderMoved(int)));
-  connect(m_Internals->selectPresetColorsBtn, SIGNAL(clicked()), this, SLOT(selectPresetColors()));
-  connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)), this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
-  connect(m_Internals->viewAxesGridCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setAxesGridVisible(int)));
+  connect(m_Internals->pointSizeEdit, &QLineEdit::textChanged, this, &VSInfoWidget::updatePointSize);
+  connect(m_Internals->pointSphereCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::updateRenderPointSpheres);
+  connect(m_Internals->mapScalarsCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::setScalarsMapped);
+  connect(m_Internals->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::setScalarBarVisible);
+  connect(m_Internals->invertColorScaleBtn, &QPushButton::clicked, this, &VSInfoWidget::invertScalarBar);
+  connect(m_Internals->alphaSlider, &QSlider::valueChanged, this, &VSInfoWidget::alphaSliderMoved);
+  connect(m_Internals->selectPresetColorsBtn, &QPushButton::clicked, this, &VSInfoWidget::selectPresetColors);
+  connect(m_presetsDialog, &ColorPresetsDialog::applyPreset, this, &VSInfoWidget::loadPresetColors);
+  connect(m_Internals->viewAxesGridCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::setAxesGridVisible);
 
-  connect(m_Internals->applyBtn, SIGNAL(clicked()), this, SLOT(applyFilter()));
-  connect(m_Internals->resetBtn, SIGNAL(clicked()), this, SLOT(resetFilter()));
-  connect(m_Internals->deleteBtn, SIGNAL(clicked()), this, SLOT(deleteFilter()));
+  connect(m_Internals->applyBtn, &QPushButton::clicked, this, &VSInfoWidget::applyFilter);
+  connect(m_Internals->resetBtn, &QPushButton::clicked, this, &VSInfoWidget::resetFilter);
+  connect(m_Internals->deleteBtn, &QPushButton::clicked, this, &VSInfoWidget::deleteFilter);
 
-  connect(m_Internals->colorBtn, SIGNAL(changedColor(QColor)), this, SLOT(colorButtonChanged(QColor)));
+  connect(m_Internals->colorBtn, &VSColorButton::changedColor, this, &VSInfoWidget::colorButtonChanged);
 
   m_Internals->applyBtn->setDisabled(true);
   m_Internals->resetBtn->setDisabled(true);
@@ -252,33 +252,31 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
 {
   if(m_ViewSettings)
   {
-    disconnect(m_ViewSettings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
-               SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
-    disconnect(m_ViewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
-    disconnect(m_ViewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
-    disconnect(m_ViewSettings, SIGNAL(pointSizeChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSize(VSFilterViewSettings*, int)));
-    disconnect(m_ViewSettings, SIGNAL(renderPointSpheresChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSphere(VSFilterViewSettings*, int)));
-    disconnect(m_ViewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    disconnect(m_ViewSettings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
-    disconnect(m_ViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
-    disconnect(m_ViewSettings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)), this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
-    disconnect(m_ViewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(listenAxesGridVisible(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewSettings, &VSFilterViewSettings::representationChanged, this, &VSInfoWidget::listenRepresentationType);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::activeArrayIndexChanged, this, &VSInfoWidget::listenArrayIndex);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSInfoWidget::listenComponentIndex);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::pointSizeChanged, this, &VSInfoWidget::listenPointSize);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSInfoWidget::listenPointSphere);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::mapColorsChanged, this, &VSInfoWidget::listenMapColors);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenSolidColor);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
   }
 
   m_ViewSettings = settings;
 
   if(m_ViewSettings)
   {
-    connect(settings, SIGNAL(representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation)), this,
-            SLOT(listenRepresentationType(VSFilterViewSettings*, VSFilterViewSettings::Representation)));
-    connect(settings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenArrayIndex(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(listenComponentIndex(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(pointSizeChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSize(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(renderPointSpheresChanged(VSFilterViewSettings*, int)), this, SLOT(listenPointSphere(VSFilterViewSettings*, int)));
-    connect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    connect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
-    connect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
-    connect(settings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(listenAxesGridVisible(VSFilterViewSettings*, bool)));
+    connect(settings, &VSFilterViewSettings::representationChanged, this, &VSInfoWidget::listenRepresentationType);
+    connect(settings, &VSFilterViewSettings::activeArrayIndexChanged, this, &VSInfoWidget::listenArrayIndex);
+    connect(settings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSInfoWidget::listenComponentIndex);
+    connect(settings, &VSFilterViewSettings::pointSizeChanged, this, &VSInfoWidget::listenPointSize);
+    connect(settings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSInfoWidget::listenPointSphere);
+    connect(settings, &VSFilterViewSettings::mapColorsChanged, this, &VSInfoWidget::listenMapColors);
+    connect(settings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
+    connect(settings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
+    connect(settings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
   }
 }
 
