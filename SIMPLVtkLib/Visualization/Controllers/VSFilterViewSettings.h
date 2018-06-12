@@ -43,6 +43,7 @@
 
 #include <vtkAbstractMapper3D.h>
 #include <vtkActor.h>
+#include <vtkCubeAxesActor.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkOutlineFilter.h>
 #include <vtkScalarBarActor.h>
@@ -120,10 +121,15 @@ public:
   bool isValid() const;
 
   /**
-   * @brief Returns true if the filter is displayed in for this view.  Returns false otherwise
+   * @brief Returns true if the filter is displayed for this view.  Returns false otherwise
    * @return
    */
   bool isVisible();
+
+  /**
+  * @brief Returns true if the axes grid is displayed for this view.  Returns false otherwise.
+  */
+  bool isGridVisible();
 
   /**
    * @brief Returns the active array index used to render the filter
@@ -179,6 +185,12 @@ public:
    * @return
    */
   VTK_PTR(vtkScalarBarWidget) getScalarBarWidget();
+
+  /**
+  * @brief Returns the vtkCubeAxesActor used for showing the axes grid
+  * @return
+  */
+  VTK_PTR(vtkCubeAxesActor) getCubeAxesActor();
 
   /**
    * @brief Returns the color used when no scalar data exists as a double*
@@ -266,6 +278,12 @@ public slots:
   void setVisible(bool visible);
 
   /**
+  * @brief Sets the vtkCubeAxesActor's visibility for this view
+  * @param visible
+  */
+  void setGridVisible(bool visible);
+
+  /**
    * @brief Updates the active array index for this view
    * @param index
    */
@@ -347,6 +365,7 @@ public slots:
 
 signals:
   void visibilityChanged(VSFilterViewSettings*, bool);
+  void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation);
   void solidColorChanged(VSFilterViewSettings*, double*);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
@@ -375,6 +394,11 @@ protected:
    * @brief Creates a vtkDataSetMapper and vtkActor for displaying generic vtkDataSets
    */
   void setupDataSetActors();
+
+  /**
+  * @brief Creates a vtkAxisActor for displaying the axis grid
+  */
+  void setupCubeAxesActor();
 
   /**
    * @brief Returns the vtkDataSetMapper if the ActorType is DataSet and the settings are valid.
@@ -479,6 +503,8 @@ private:
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
   VTK_PTR(vtkScalarBarWidget) m_ScalarBarWidget = nullptr;
   bool m_HadNoArrays = false;
+  VTK_PTR(vtkCubeAxesActor) m_CubeAxesActor = nullptr;
+  bool m_GridVisible = false;
 
   static double* NULL_COLOR;
 };

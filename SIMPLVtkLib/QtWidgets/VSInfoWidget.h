@@ -173,6 +173,12 @@ protected slots:
   void colorButtonChanged(QColor color);
 
   /**
+  * @brief Slot for handling user interaction with the viewGridCheckBox
+  * @param checkState
+  */
+  void setAxesGridVisible(int checkState);
+
+  /**
    * @brief Listens for the active VSFilterViewSettings representation type to change
    * @param settings
    * @param rep
@@ -234,6 +240,13 @@ protected slots:
    * @param color
    */
   void listenSolidColor(VSFilterViewSettings* settings, double* color);
+
+  /**
+   * @brief Listens for the active VSFilterViewSettings axes grid visibility to change
+   * @param settings
+   * @param show
+   */
+  void listenAxesGridVisible(VSFilterViewSettings* settings, double show);
 
   /**
    * @brief Enables the Apply and Reset buttons when the current filter widget has changes waiting

@@ -73,6 +73,7 @@ void VSAbstractViewWidget::copyFilters(VSFilterViewSettings::Map filters)
     connect(filter, &VSAbstractFilter::removeFilter, this, [=] { filterRemoved(filter); });
 
     connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
     connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
     connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
     connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
@@ -237,6 +238,7 @@ VSFilterViewSettings* VSAbstractViewWidget::createFilterViewSettings(VSAbstractF
   connect(filter, &VSAbstractFilter::removeFilter, this, [=] { filterRemoved(filter); });
 
   connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+  connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
   connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
   connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
   connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
@@ -293,10 +295,18 @@ void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSetting
     {
       viewSettings->getScalarBarWidget()->SetEnabled(1);
     }
+    // Do not show the grid if the filter is not visible
+    if(viewSettings->isGridVisible())
+    {
+      VTK_PTR(vtkCubeAxesActor) cubeAxesActor = viewSettings->getCubeAxesActor();
+      cubeAxesActor->SetCamera(getVisualizationWidget()->getRenderer()->GetActiveCamera());
+      getVisualizationWidget()->getRenderer()->AddViewProp(cubeAxesActor);
+    }
   }
   else
   {
     getVisualizationWidget()->getRenderer()->RemoveViewProp(viewSettings->getActor());
+    getVisualizationWidget()->getRenderer()->RemoveViewProp(viewSettings->getCubeAxesActor());
 
     if(viewSettings->isScalarBarVisible())
     {
@@ -305,6 +315,49 @@ void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSetting
   }
 
   emit visibilityChanged(viewSettings, filterVisible);
+  renderView();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::setGridVisibility(VSFilterViewSettings* viewSettings, bool gridVisible)
+{
+  if(nullptr == viewSettings)
+  {
+    return;
+  }
+  if(false == viewSettings->isValid())
+  {
+    return;
+  }
+
+  if(nullptr == getVisualizationWidget())
+  {
+    return;
+  }
+
+  if(nullptr == getVisualizationWidget()->getRenderer())
+  {
+    return;
+  }
+
+  if(gridVisible)
+  {
+    // Do not show the grid if the filter is not visible
+    if(viewSettings->isVisible())
+    {
+      VTK_PTR(vtkCubeAxesActor) cubeAxesActor = viewSettings->getCubeAxesActor();
+      cubeAxesActor->SetCamera(getVisualizationWidget()->getRenderer()->GetActiveCamera());
+      getVisualizationWidget()->getRenderer()->AddViewProp(cubeAxesActor);
+    }
+  }
+  else
+  {
+    getVisualizationWidget()->getRenderer()->RemoveViewProp(viewSettings->getCubeAxesActor());
+  }
+
+  emit gridVisibilityChanged(viewSettings, gridVisible);
   renderView();
 }
 

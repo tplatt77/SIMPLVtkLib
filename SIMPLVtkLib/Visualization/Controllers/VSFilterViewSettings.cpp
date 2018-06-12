@@ -147,6 +147,14 @@ bool VSFilterViewSettings::isVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isGridVisible()
+{
+  return m_GridVisible;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int VSFilterViewSettings::getActiveArrayIndex()
 {
   return m_ActiveArray;
@@ -316,6 +324,14 @@ VTK_PTR(vtkScalarBarWidget) VSFilterViewSettings::getScalarBarWidget()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VTK_PTR(vtkCubeAxesActor) VSFilterViewSettings::getCubeAxesActor()
+{
+  return m_CubeAxesActor;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::show()
 {
   setVisible(true);
@@ -342,6 +358,21 @@ void VSFilterViewSettings::setVisible(bool visible)
   m_ShowFilter = visible;
 
   emit visibilityChanged(this, m_ShowFilter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setGridVisible(bool visible)
+{
+  if(false == isValid())
+  {
+    return;
+  }
+
+  m_GridVisible = visible;
+
+  emit gridVisibilityChanged(this, m_GridVisible);
 }
 
 // -----------------------------------------------------------------------------
@@ -688,6 +719,8 @@ void VSFilterViewSettings::setupActors(bool outline)
     }
   }
 
+  setupCubeAxesActor();
+
   if(outline)
   {
     setRepresentation(Representation::Outline);
@@ -878,6 +911,27 @@ void VSFilterViewSettings::setupDataSetActors()
 
   m_ActorType = ActorType::DataSet;
   updateTransform();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setupCubeAxesActor()
+{
+  if(nullptr == m_CubeAxesActor)
+  {
+    m_CubeAxesActor = VTK_PTR(vtkCubeAxesActor)::New();
+
+    m_CubeAxesActor->XAxisMinorTickVisibilityOff();
+    m_CubeAxesActor->YAxisMinorTickVisibilityOff();
+    m_CubeAxesActor->ZAxisMinorTickVisibilityOff();
+  }
+
+  if(m_Filter && m_Filter->getOutput())
+  {
+    double* bounds = m_Filter->getOutput()->GetBounds();
+    m_CubeAxesActor->SetBounds(bounds);
+  }
 }
 
 // -----------------------------------------------------------------------------

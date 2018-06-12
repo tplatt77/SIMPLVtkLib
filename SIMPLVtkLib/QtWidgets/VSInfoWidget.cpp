@@ -97,6 +97,7 @@ void VSInfoWidget::setupGui()
   connect(m_Internals->alphaSlider, SIGNAL(valueChanged(int)), this, SLOT(alphaSliderMoved(int)));
   connect(m_Internals->selectPresetColorsBtn, SIGNAL(clicked()), this, SLOT(selectPresetColors()));
   connect(m_presetsDialog, SIGNAL(applyPreset(const QJsonObject&, const QPixmap&)), this, SLOT(loadPresetColors(const QJsonObject&, const QPixmap&)));
+  connect(m_Internals->viewAxesGridCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setAxesGridVisible(int)));
 
   connect(m_Internals->applyBtn, SIGNAL(clicked()), this, SLOT(applyFilter()));
   connect(m_Internals->resetBtn, SIGNAL(clicked()), this, SLOT(resetFilter()));
@@ -261,6 +262,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     disconnect(m_ViewSettings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
     disconnect(m_ViewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
     disconnect(m_ViewSettings, SIGNAL(solidColorChanged(VSFilterViewSettings*, double*)), this, SLOT(listenSolidColor(VSFilterViewSettings*, double*)));
+    disconnect(m_ViewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(listenAxesGridVisible(VSFilterViewSettings*, bool)));
   }
 
   m_ViewSettings = settings;
@@ -276,6 +278,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     connect(settings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(listenMapColors(VSFilterViewSettings*, Qt::CheckState)));
     connect(settings, SIGNAL(alphaChanged(VSFilterViewSettings*, double)), this, SLOT(listenAlpha(VSFilterViewSettings*, double)));
     connect(settings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(listenScalarBar(VSFilterViewSettings*, bool)));
+    connect(settings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(listenAxesGridVisible(VSFilterViewSettings*, bool)));
   }
 }
 
@@ -623,6 +626,20 @@ void VSInfoWidget::colorButtonChanged(QColor color)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSInfoWidget::setAxesGridVisible(int checkState)
+{
+  if(nullptr == m_ViewSettings)
+  {
+    return;
+  }
+
+  bool gridVisible = (checkState == Qt::Checked);
+  m_ViewSettings->setGridVisible(gridVisible);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep)
 {
   int index = static_cast<int>(rep);
@@ -713,6 +730,16 @@ void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* colo
 
   QColor newColor = QColor::fromRgbF(color[0], color[1], color[2]);
   m_Internals->colorBtn->setColor(newColor, false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::listenAxesGridVisible(VSFilterViewSettings* settings, double show)
+{
+  m_Internals->viewAxesGridCheckBox->blockSignals(true);
+  m_Internals->viewAxesGridCheckBox->setCheckState(show ? Qt::Checked : Qt::Unchecked);
+  m_Internals->viewAxesGridCheckBox->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------

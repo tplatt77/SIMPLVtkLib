@@ -135,6 +135,7 @@ signals:
   void markActive(VSAbstractViewWidget*);
   void viewWidgetCreated(VSAbstractViewWidget*);
   void visibilityChanged(VSFilterViewSettings*, bool);
+  void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
   void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
@@ -205,6 +206,13 @@ protected slots:
    * @param filterVisible
    */
   void setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
+
+  /**
+  * @brief Change filter grid visibility
+  * @param viewSettings
+  * @param gridVisible
+  */
+  void setGridVisibility(VSFilterViewSettings* viewSettings, bool gridVisible);
 
   /**
    * @brief Removes the old prop from the renderer if applicable and adds the new one
