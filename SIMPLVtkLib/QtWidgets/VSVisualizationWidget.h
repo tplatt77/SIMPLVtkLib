@@ -44,6 +44,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 /**
  * @class VisualizationWidget VisualizationWidget.h SIMPLVtkLib/QtWidgets/VisualizationWidget.h
@@ -99,6 +100,25 @@ public:
    * @return
    */
   LinkedRenderWindowType getLinkedRenderWindows();
+
+  /**
+  * @brief Returns the QAction for linking this widget's camera with another.
+  * @return
+  */
+  QAction* getLinkCamerasAction();
+
+  /**
+  * @brief Returns the visualization filter found at the given screen coordinates
+  * @param pos
+  * @return
+  */
+  VSAbstractFilter* getFilterFromScreenCoords(int pos[2]);
+
+  /**
+   * @brief Sets whether this widget uses its own context menu or one created by another widget.
+   * @param own
+   */
+  void useOwnContextMenu(bool own);
 
 signals:
   void mousePressed();
@@ -197,6 +217,8 @@ private:
   VTK_PTR(vtkOrientationMarkerWidget) m_OrientationWidget = nullptr;
   VTK_PTR(vtkRenderer) m_Renderer = nullptr;
   LinkedRenderWindowType m_LinkedRenderWindows;
+  QAction* m_LinkCameraAction = nullptr;
+  bool m_OwnContextMenu = true;
 
   unsigned int m_NumRenderLayers;
 

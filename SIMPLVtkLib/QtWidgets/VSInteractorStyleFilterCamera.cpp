@@ -199,15 +199,29 @@ bool VSInteractorStyleFilterCamera::dragFilterKey()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilterFromScreenCoords(int pos[2])
+{
+  vtkRenderer* renderer = this->GetDefaultRenderer();
+
+  FilterProp filterProp;
+
+  VTK_NEW(vtkPropPicker, picker);
+  picker->Pick(pos[0], pos[1], 0, renderer);
+  filterProp.first = picker->GetProp3D();
+  filterProp.second = m_ViewWidget->getFilterFromProp(filterProp.first);
+
+  return filterProp;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::grabFilter()
 {
   int* clickPos = this->GetInteractor()->GetEventPosition();
-  vtkRenderer* renderer = this->GetDefaultRenderer();
-
-  VTK_NEW(vtkPropPicker, picker);
-  picker->Pick(clickPos[0], clickPos[1], 0, renderer);
-  vtkProp3D* prop = picker->GetProp3D();
-  VSAbstractFilter* filter = m_ViewWidget->getFilterFromProp(prop);
+  vtkProp3D* prop = nullptr;
+  VSAbstractFilter* filter = nullptr;
+  std::tie(prop, filter) = getFilterFromScreenCoords(clickPos);
 
   if(nullptr == prop || nullptr == filter)
   {

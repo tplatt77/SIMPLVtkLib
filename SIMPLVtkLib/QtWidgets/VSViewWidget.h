@@ -78,6 +78,25 @@ public:
    */
   virtual VSVisualizationWidget* getVisualizationWidget() const override;
 
+  /**
+  * @brief Returns the visualization filter based on the given mouse coordinates.
+  * @param pos
+  * @return
+  */
+  VSAbstractFilter* getFilterAtMousePos(const QPoint& point) override;
+
+  /**
+  * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
+  * @param pos
+  * @return
+  */
+  VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) override;
+
+  void showOnlyFilter(VSFilterViewSettings* settings);
+  void showAllFilters();
+  void showOnlyScalarBar(VSFilterViewSettings* settings);
+  void hideAllScalarBars();
+
 protected:
   /**
    * @brief Performs initial setup work for the GUI
@@ -93,6 +112,12 @@ protected:
   * @brief Updates whether or not the view widget can be closed.
   */
   void updateClosable() override;
+
+  /**
+  * @brief Creates a context menu for the VSVisualizationWidget
+  * @param pos
+  */
+  void showVisualizationContextMenu(const QPoint& pos);
 
 protected slots:
   /**

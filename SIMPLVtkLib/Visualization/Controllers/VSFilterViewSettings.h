@@ -40,6 +40,8 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QColor>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMenu>
 
 #include <vtkAbstractMapper3D.h>
 #include <vtkActor.h>
@@ -172,7 +174,7 @@ public:
    * @brief Returns true if the ScalarBarWidget is visible.  Returns false otherwise
    * @return
    */
-  bool isScalarBarVisible();
+  bool isScalarBarVisible() const;
 
   /**
    * @brief Returns the vtkActor used to render the filter
@@ -197,6 +199,12 @@ public:
    * @return
    */
   double* getSolidColor() const;
+
+  /**
+  * @brief Returns the color used when no scalar data exists as a QColor
+  * @return
+  */
+  QColor getSolidQColor() const;
 
   /**
    * @brief Returns the actor property representation
@@ -259,6 +267,13 @@ public:
    * @param filter
    */
   void copySettings(VSFilterViewSettings* other);
+
+  QMenu* getRepresentationMenu();
+  QMenu* getColorByMenu();
+  QMenu* getMapScalarsMenu();
+  QAction* getSetColorAction();
+  QAction* getSetOpacityAction();
+  QAction* getToggleScalarBarAction();
 
 public slots:
   /**
@@ -332,6 +347,12 @@ public slots:
   void setSolidColor(double color[3]);
 
   /**
+  * @brief Sets the color to use when there are no scalar values to map
+  * @param color
+  */
+  void setSolidQColor(QColor color);
+
+  /**
    * @brief Sets the actor property representation
    * @param type
    */
@@ -397,9 +418,14 @@ protected:
   void setupDataSetActors();
 
   /**
-  * @brief Creates a vtkAxisActor for displaying the axis grid
-  */
+   * @brief Creates a vtkAxisActor for displaying the axis grid
+   */
   void setupCubeAxesActor();
+
+  /**
+   * @brief Creates and initializes QActions
+   */
+  void setupActions();
 
   /**
    * @brief Returns the vtkDataSetMapper if the ActorType is DataSet and the settings are valid.
@@ -498,7 +524,6 @@ private:
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
-  bool m_ShowScalarBar = true;
   VSLookupTableController* m_LookupTable = nullptr;
   double m_Alpha = 1.0;
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
@@ -506,6 +531,10 @@ private:
   bool m_HadNoArrays = false;
   VTK_PTR(vtkCubeAxesActor) m_CubeAxesActor = nullptr;
   bool m_GridVisible = false;
+
+  QAction* m_SetColorAction = nullptr;
+  QAction* m_SetOpacityAction = nullptr;
+  QAction* m_ToggleScalarBarAction = nullptr;
 
   static double* NULL_COLOR;
 };

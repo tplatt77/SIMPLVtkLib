@@ -71,7 +71,6 @@ VSLookupTableController::VSLookupTableController()
 // -----------------------------------------------------------------------------
 VSLookupTableController::~VSLookupTableController()
 {
-  m_ColorTransferFunction->Delete();
   delete[] m_Range;
   delete[] m_BaseRange;
 }

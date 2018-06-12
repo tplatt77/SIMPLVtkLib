@@ -130,6 +130,20 @@ public:
   */
   virtual VSAbstractFilter* getFilterFromProp(vtkProp3D* prop);
 
+  /**
+  * @brief Returns the visualization filter based on the given mouse coordinates.
+  * @param pos
+  * @return
+  */
+  virtual VSAbstractFilter* getFilterAtMousePos(const QPoint& point) = 0;
+
+  /**
+  * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
+  * @param pos
+  * @return
+  */
+  virtual VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) = 0;
+
 signals:
   void viewWidgetClosed();
   void markActive(VSAbstractViewWidget*);

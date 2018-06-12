@@ -36,6 +36,8 @@
 #include "VSViewWidget.h"
 
 #include <QtGui/QPainter>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMenu>
 
 #include "ui_VSViewWidget.h"
 
@@ -92,6 +94,9 @@ void VSViewWidget::setupGui()
   connectSlots();
   updateClosable();
 
+  // Disable the visualization widget's context menu
+  getVisualizationWidget()->useOwnContextMenu(false);
+
   QString styleString;
   QTextStream ss(&styleString);
 
@@ -116,6 +121,10 @@ void VSViewWidget::connectSlots()
   connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
   connect(m_Internals->splitVerticalBtn, SIGNAL(clicked()), this, SLOT(mousePressed()));
   connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
+
+  // Control the visualization widget's context menu
+  connect(getVisualizationWidget(), &VSVisualizationWidget::customContextMenuRequested,
+    this, &VSViewWidget::showVisualizationContextMenu);
 }
 
 // -----------------------------------------------------------------------------
@@ -143,6 +152,81 @@ VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
+{
+  QMenu menu("Visualization", this);
+
+  VSFilterViewSettings* settings = getFilterViewSettingsAtMousePos(point);
+  if(settings)
+  {
+    QString filterName = settings->getFilter()->getFilterName();
+    
+    QAction* selectFilterAction = menu.addAction("Select '" + filterName + "'");
+    connect(selectFilterAction, &QAction::triggered, [=] { selectFilter(settings->getFilter()); });
+
+    menu.addSeparator();
+
+    // Visibility Settings
+    QAction* hideFilterAction = menu.addAction("Hide '" + filterName + "'");
+    connect(hideFilterAction, &QAction::triggered, [=] { settings->setVisible(false); });
+
+    QAction* showOnlyFilterAction = menu.addAction("Show only '" + filterName + "'");
+    connect(showOnlyFilterAction, &QAction::triggered, [=] { showOnlyFilter(settings); });
+
+    QAction* showAllFiltersAction = menu.addAction("Show all");
+    connect(showAllFiltersAction, &QAction::triggered, this, &VSViewWidget::showAllFilters);
+
+    menu.addSeparator();
+
+    // Scalar Bar Menu
+    {
+      QMenu* scalarBarMenu = menu.addMenu("Scalar Bars");
+
+      QAction* hideAllScalarBarsAction = scalarBarMenu->addAction("Hide all");
+      connect(hideAllScalarBarsAction, &QAction::triggered, this, &VSViewWidget::hideAllScalarBars);
+
+      QAction* showOnlyScalarBarsAction = scalarBarMenu->addAction("Show only '" + filterName + "'");
+      connect(showOnlyScalarBarsAction, &QAction::triggered, [=] { showOnlyScalarBar(settings); });
+
+      scalarBarMenu->addAction(settings->getToggleScalarBarAction());
+    }
+
+    menu.addSeparator();
+    
+
+    // Rendering Settings from VSFilterViewSettings
+    {
+      // Set Color and Alpha
+      menu.addAction(settings->getSetColorAction());
+      menu.addAction(settings->getSetOpacityAction());
+
+      menu.addSeparator();
+
+      // Representation menu
+      QMenu* representationMenu = settings->getRepresentationMenu();
+      menu.addMenu(representationMenu);
+
+      // Color By Array menu
+      QMenu* arrayMenu = settings->getColorByMenu();
+      menu.addMenu(arrayMenu);
+    }
+    
+    menu.addSeparator();
+
+    QAction* deleteFilterAction = menu.addAction("Delete '" + filterName + "'");
+    connect(deleteFilterAction, &QAction::triggered, [=] { settings->getFilter()->deleteFilter(); });
+    
+    menu.addSeparator();
+  }
+
+  menu.addAction(getVisualizationWidget()->getLinkCamerasAction());
+
+  menu.exec(getVisualizationWidget()->mapToGlobal(point));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
 {
   if(false == (viewSettings && viewSettings->getScalarBarWidget()))
@@ -162,4 +246,79 @@ void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bo
 void VSViewWidget::updateClosable()
 {
   m_Internals->closeBtn->setEnabled(isClosable());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSViewWidget::getFilterAtMousePos(const QPoint& point)
+{
+  if(nullptr == getVisualizationWidget())
+  {
+    return nullptr;
+  }
+
+  int pos[2];
+  pos[0] = point.x();
+  pos[1] = point.y();
+
+  return getVisualizationWidget()->getFilterFromScreenCoords(pos);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings* VSViewWidget::getFilterViewSettingsAtMousePos(const QPoint& point)
+{
+  return getFilterViewSettings(getFilterAtMousePos(point));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::showOnlyFilter(VSFilterViewSettings* settings)
+{
+  VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
+  for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
+  {
+    VSFilterViewSettings* iterSettings = (*iter).second;
+    (*iter).second->setVisible(iterSettings == settings);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::showAllFilters()
+{
+  VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
+  for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
+  {
+    (*iter).second->setVisible(true);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::showOnlyScalarBar(VSFilterViewSettings* settings)
+{
+  VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
+  for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
+  {
+    VSFilterViewSettings* iterSettings = (*iter).second;
+    (*iter).second->setScalarBarVisible(iterSettings == settings);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::hideAllScalarBars()
+{
+  VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
+  for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
+  {
+    (*iter).second->setScalarBarVisible(false);
+  }
 }

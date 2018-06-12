@@ -277,6 +277,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     connect(settings, &VSFilterViewSettings::mapColorsChanged, this, &VSInfoWidget::listenMapColors);
     connect(settings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
     connect(settings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
+    connect(settings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenSolidColor);
     connect(settings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
     connect(settings, &VSFilterViewSettings::dataLoaded, this, &VSInfoWidget::updateFilterInfo);
   }

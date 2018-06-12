@@ -62,6 +62,8 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkRenderer.h>
 #include <vtkWindowToImageFilter.h>
 
+#include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
+
 VSVisualizationWidget* VSVisualizationWidget::m_LinkingWidget = nullptr;
 
 // -----------------------------------------------------------------------------
@@ -477,13 +479,24 @@ void VSVisualizationWidget::focusInEvent(QFocusEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSVisualizationWidget::useOwnContextMenu(bool own)
+{
+  m_OwnContextMenu = own;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSVisualizationWidget::showContextMenu(const QPoint& pos)
 {
-  QMenu contextMenu("Visualization", this);
+  // If context menu is created by another widget, do nothing
+  if(!m_OwnContextMenu)
+  {
+    return;
+  }
 
-  QAction linkCameraAction("Link Cameras", this);
-  connect(&linkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
-  contextMenu.addAction(&linkCameraAction);
+  QMenu contextMenu("Visualization", this);
+  contextMenu.addAction(getLinkCamerasAction());
 
   contextMenu.exec(mapToGlobal(pos));
 }
@@ -493,7 +506,7 @@ void VSVisualizationWidget::showContextMenu(const QPoint& pos)
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::startLinkCameras()
 {
-  // TODO: Link current camera to target camera
+  // Link current camera to target camera
   m_LinkingWidget = this;
 }
 
@@ -519,4 +532,38 @@ void VSVisualizationWidget::linkCameraWith(VSVisualizationWidget* widget)
 VSVisualizationWidget::LinkedRenderWindowType VSVisualizationWidget::getLinkedRenderWindows()
 {
   return m_LinkedRenderWindows;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* VSVisualizationWidget::getLinkCamerasAction()
+{
+  if(nullptr == m_LinkCameraAction)
+  {
+    m_LinkCameraAction = new QAction("Link Cameras", this);
+    connect(m_LinkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
+  }
+  
+  return m_LinkCameraAction;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSVisualizationWidget::getFilterFromScreenCoords(int pos[2])
+{
+  vtkInteractorObserver* obs = GetRenderWindow()->GetInteractor()->GetInteractorStyle();
+  VSInteractorStyleFilterCamera* style = VSInteractorStyleFilterCamera::SafeDownCast(obs);
+  if(nullptr == style)
+  {
+    return nullptr;
+  }
+
+  vtkProp3D* prop = nullptr;
+  VSAbstractFilter* filter = nullptr;
+  std::tie(prop, filter) = style->getFilterFromScreenCoords(pos);
+  
+  render();
+  return filter;
 }

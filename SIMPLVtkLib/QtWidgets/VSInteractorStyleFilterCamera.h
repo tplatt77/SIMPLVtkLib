@@ -36,6 +36,7 @@
 #pragma once
 
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkProp3D.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -53,6 +54,8 @@ class SIMPLVtkLib_EXPORT VSInteractorStyleFilterCamera : public vtkInteractorSty
 public:
   static VSInteractorStyleFilterCamera* New();
   vtkTypeMacro(VSInteractorStyleFilterCamera, vtkInteractorStyleTrackballCamera);
+
+  using FilterProp = std::pair<vtkProp3D*, VSAbstractFilter*>;
 
   /**
   * @brief Handles left mouse button presses
@@ -79,6 +82,13 @@ public:
   * @param viewWidget
   */
   void setViewWidget(VSAbstractViewWidget* viewWidget);
+
+  /**
+  * @brief Returns the visualization filter and vtkProp3D rendered at the given screen coordinates
+  * @param pos
+  * @return
+  */
+  FilterProp getFilterFromScreenCoords(int pos[2]);
 
 protected:
   enum class ActionType

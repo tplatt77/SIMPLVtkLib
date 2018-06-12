@@ -35,6 +35,9 @@
 
 #include "VSFilterViewSettings.h"
 
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QInputDialog>
+
 #include <vtkAbstractArray.h>
 #include <vtkActor.h>
 #include <vtkCellData.h>
@@ -60,9 +63,9 @@ double* VSFilterViewSettings::NULL_COLOR = new double[3]{0.0, 0.0, 0.0};
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 : QObject(nullptr)
 , m_ShowFilter(true)
-, m_ShowScalarBar(true)
 {
   connectFilter(filter);
+  setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
   if(false == isSIMPL)
@@ -80,11 +83,12 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 , m_ActiveArray(copy.m_ActiveArray)
 , m_ActiveComponent(copy.m_ActiveComponent)
 , m_MapColors(copy.m_MapColors)
-, m_ShowScalarBar(copy.m_ShowScalarBar)
 , m_Alpha(copy.m_Alpha)
 {
   connectFilter(copy.m_Filter);
+  setupActions();
   setupActors();
+  setScalarBarVisible(copy.isScalarBarVisible());
   setRepresentation(copy.getRepresentation());
   setActiveArrayIndex(copy.m_ActiveArray);
   setActiveComponentIndex(copy.m_ActiveComponent);
@@ -134,6 +138,35 @@ bool VSFilterViewSettings::isValid() const
 {
   bool valid = m_Mapper && m_Actor;
   return valid;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setupActions()
+{
+  m_SetColorAction = new QAction("Set Color", this);
+  connect(m_SetColorAction, &QAction::triggered, [=] {
+    QColor color = QColorDialog::getColor(getSolidQColor());
+    if(color.isValid())
+    {
+      setSolidQColor(color);
+    }
+  });
+
+  m_SetOpacityAction = new QAction("Set Opacity", this);
+  connect(m_SetOpacityAction, &QAction::triggered, [=] {
+    setAlpha(QInputDialog::getDouble(nullptr,
+      "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity",
+      getAlpha(), 0.0, 1.0, 2, nullptr, Qt::WindowFlags(), 0.1));
+  });
+
+  m_ToggleScalarBarAction = new QAction("Enable Scalar Bar", this);
+  m_ToggleScalarBarAction->setCheckable(true);
+  m_ToggleScalarBarAction->setChecked(true);
+  connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) {
+    setScalarBarVisible(checked);
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -248,9 +281,9 @@ double VSFilterViewSettings::getAlpha()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isScalarBarVisible()
+bool VSFilterViewSettings::isScalarBarVisible() const
 {
-  return m_ShowScalarBar && m_ScalarBarWidget;
+  return m_ScalarBarWidget && m_ToggleScalarBarAction->isChecked();
 }
 
 // -----------------------------------------------------------------------------
@@ -688,9 +721,9 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
     return;
   }
 
-  m_ShowScalarBar = visible;
-
-  emit showScalarBarChanged(this, m_ShowScalarBar);
+  m_ToggleScalarBarAction->setChecked(visible);
+  
+  emit showScalarBarChanged(this, visible);
 }
 
 // -----------------------------------------------------------------------------
@@ -1072,6 +1105,30 @@ void VSFilterViewSettings::setSolidColor(double color[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QColor VSFilterViewSettings::getSolidQColor() const
+{
+  QColor colorOut;
+  double* color = getSolidColor();
+  colorOut.setRgbF(color[0], color[1], color[2]);
+  return colorOut;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setSolidQColor(QColor color)
+{
+  double dColor[3];
+  dColor[0] = color.redF();
+  dColor[1] = color.greenF();
+  dColor[2] = color.blueF();
+
+  setSolidColor(dColor);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterViewSettings::Representation VSFilterViewSettings::getRepresentation() const
 {
   return m_Representation;
@@ -1260,7 +1317,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setActiveArrayIndex(copy->m_ActiveArray);
   setActiveComponentIndex(copy->m_ActiveComponent);
   setMapColors(copy->m_MapColors);
-  setScalarBarVisible(copy->m_ShowScalarBar);
+  setScalarBarVisible(copy->m_ToggleScalarBarAction->isChecked());
   setAlpha(copy->m_Alpha);
   setSolidColor(copy->getSolidColor());
   setRepresentation(copy->getRepresentation());
@@ -1272,4 +1329,94 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   }
 
   emit requiresRender();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSFilterViewSettings::getRepresentationMenu()
+{
+  QMenu* representationMenu = new QMenu("Representation");
+
+  QAction* outlineAction = representationMenu->addAction("Outline");
+  connect(outlineAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Outline); });
+
+  QAction* pointsAction = representationMenu->addAction("Points");
+  connect(pointsAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Points); });
+
+  QAction* wireframeAction = representationMenu->addAction("WireFrame");
+  connect(wireframeAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Wireframe); });
+
+  QAction* surfaceAction = representationMenu->addAction("Surface");
+  connect(surfaceAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Surface); });
+
+  QAction* surfEdgesAction = representationMenu->addAction("Surface with Edges");
+  connect(surfEdgesAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::SurfaceWithEdges); });
+
+  return representationMenu;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSFilterViewSettings::getColorByMenu()
+{
+  QMenu* arrayMenu = new QMenu("Colory By");
+  QStringList arrayNames = getFilter()->getArrayNames();
+  int numArrays = arrayNames.size();
+
+  QAction* colorAction = arrayMenu->addAction("Solid Color");
+  connect(colorAction, &QAction::triggered, [=] { setActiveArrayIndex(-1); });
+
+  for(int i = 0; i < numArrays; i++)
+  {
+    int currentIndex = i;
+    QAction* arrayAction = arrayMenu->addAction(arrayNames[i]);
+    connect(arrayAction, &QAction::triggered, [=] { setActiveArrayIndex(currentIndex); });
+  }
+
+  return arrayMenu;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSFilterViewSettings::getMapScalarsMenu()
+{
+  QMenu* mapScalarsMenu = new QMenu("Map Scalars");
+
+  QAction* mapAllAction = mapScalarsMenu->addAction("Map All Arrays");
+  connect(mapAllAction, &QAction::triggered, [=] { setMapColors(Qt::Checked); });
+
+  QAction* noMapAction = mapScalarsMenu->addAction("Do Not Map Arrays");
+  connect(noMapAction, &QAction::triggered, [=] { setMapColors(Qt::Unchecked); });
+
+  QAction* semiMapAction = mapScalarsMenu->addAction("Map Non-Color Arrays");
+  connect(semiMapAction, &QAction::triggered, [=] { setMapColors(Qt::PartiallyChecked); });
+
+  return mapScalarsMenu;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* VSFilterViewSettings::getSetColorAction()
+{
+  return m_SetColorAction;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* VSFilterViewSettings::getSetOpacityAction()
+{
+  return m_SetOpacityAction;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* VSFilterViewSettings::getToggleScalarBarAction()
+{
+  return m_ToggleScalarBarAction;
 }
