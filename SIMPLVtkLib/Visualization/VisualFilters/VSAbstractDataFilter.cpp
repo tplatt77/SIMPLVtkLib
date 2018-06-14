@@ -76,6 +76,7 @@ VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
   case VTK_STRUCTURED_POINTS:
     return dataType_t::POINT_DATA;
   case VTK_UNSTRUCTURED_GRID:
+  case VTK_UNSTRUCTURED_GRID_BASE:
     return dataType_t::UNSTRUCTURED_GRID;
   case VTK_POLY_DATA:
     return dataType_t::POLY_DATA;
