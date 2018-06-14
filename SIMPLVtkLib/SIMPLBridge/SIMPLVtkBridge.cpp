@@ -266,6 +266,49 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void SIMPLVtkBridge::HandleArrayNameCollisions(WrappedDataArrayPtrCollection& collection1, WrappedDataArrayPtrCollection& collection2)
+{
+  WrappedDataArrayPtrCollection allWrappings;
+  allWrappings.insert(allWrappings.end(), collection1.begin(), collection1.end());
+  allWrappings.insert(allWrappings.end(), collection2.begin(), collection2.end());
+
+  // Check for array name collisions
+  bool hasCollision = false;
+  int totalCount = allWrappings.size();
+  for(int i = 1; i < totalCount && !hasCollision; i++)
+  {
+    for(int j = 0; j < i && !hasCollision; j++)
+    {
+      hasCollision = (allWrappings[i]->m_ArrayName == allWrappings[j]->m_ArrayName);
+    }
+  }
+
+  // Handle Collisions
+  if(hasCollision)
+  {
+    for(WrappedDataArrayPtr wrappedArray : allWrappings)
+    {
+      // Collision handling requires an AttributeMatrix
+      if(nullptr == wrappedArray->m_AttributeMatrix)
+      {
+        continue;
+      }
+
+      QString matrixPrefix = wrappedArray->m_AttributeMatrix->getName() + ": ";
+      QString arrayName = wrappedArray->m_ArrayName;
+      if(!arrayName.startsWith(matrixPrefix))
+      {
+        arrayName.prepend(matrixPrefix);
+        wrappedArray->m_ArrayName = arrayName;
+        wrappedArray->m_VtkArray->SetName(qPrintable(arrayName));
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrapping, const WrappedDataArrayPtrCollection& newWrapping)
 {
   bool compatible = true;
@@ -321,13 +364,6 @@ bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, Attri
     // Merge the new cell data into the existing data
     if(MergeWrappedArrays(wrappedDcStruct->m_CellData, newCellData))
     {
-      // Add vtkDataArrays to the vtkDataSet
-      vtkCellData* cellData = dataSet->GetCellData();
-      for(WrappedDataArrayPtr wrappedCellData : newCellData)
-      {
-        cellData->AddArray(wrappedCellData->m_VtkArray);
-      }
-
       return true;
     }
   }
@@ -413,6 +449,22 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     WrapPointData(wrappedDcStruct, (*attrMat));
   }
 
+  // Handle Array Collisons before adding them to the vtkDataSet
+  HandleArrayNameCollisions(wrappedDcStruct->m_CellData, wrappedDcStruct->m_PointData);
+
+  // Add CellData to the vtkDataSet
+  vtkCellData* cellData = dataSet->GetCellData();
+  for(WrappedDataArrayPtr wrappedCellData : wrappedDcStruct->m_CellData)
+  {
+    cellData->AddArray(wrappedCellData->m_VtkArray);
+  }
+  // Add PointData to the vtkDataSet
+  vtkPointData* pointData = dataSet->GetPointData();
+  for(WrappedDataArrayPtr wrappedPointData : wrappedDcStruct->m_PointData)
+  {
+    pointData->AddArray(wrappedPointData->m_VtkArray);
+  }
+
   // Create PointData from CellData
   if(wrappedDcStruct->m_CellData.size() > 0)
   {
@@ -451,13 +503,11 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
   }
 
   // Set the active cell / point data scalars
-  vtkPointData* pointData = dataSet->GetPointData();
   if(pointData->GetNumberOfArrays() > 0)
   {
     pointData->SetActiveScalars(pointData->GetArray(0)->GetName());
   }
 
-  vtkCellData* cellData = dataSet->GetCellData();
   if(cellData->GetNumberOfArrays() > 0)
   {
     cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
@@ -489,6 +539,7 @@ SIMPLVtkBridge::WrappedDataArrayPtrCollection SIMPLVtkBridge::WrapAttributeMatri
     WrappedDataArrayPtr wrappedDataArray = WrapIDataArrayAsStruct(array);
     if(wrappedDataArray)
     {
+      wrappedDataArray->m_AttributeMatrix = attrMat;
       wrappedDataArrays.push_back(wrappedDataArray);
     }
   }

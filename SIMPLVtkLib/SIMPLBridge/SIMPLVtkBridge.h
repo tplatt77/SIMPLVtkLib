@@ -74,8 +74,9 @@ public:
   struct WrappedDataArray
   {
     QString m_ArrayName;
-    IDataArray::Pointer m_SIMPLArray;
-    VTK_PTR(vtkDataArray) m_VtkArray;
+    AttributeMatrix::Pointer m_AttributeMatrix = nullptr;
+    IDataArray::Pointer m_SIMPLArray = nullptr;
+    VTK_PTR(vtkDataArray) m_VtkArray = nullptr;
   };
 
   using WrappedDataArrayPtr = std::shared_ptr<WrappedDataArray>;
@@ -83,11 +84,11 @@ public:
 
   struct WrappedDataContainer
   {
-    VTK_PTR(vtkDataSet) m_DataSet;
+    VTK_PTR(vtkDataSet) m_DataSet = nullptr;
     WrappedDataArrayPtrCollection m_CellData;
     WrappedDataArrayPtrCollection m_PointData;
     QString m_Name;
-    DataContainer::Pointer m_DataContainer;
+    DataContainer::Pointer m_DataContainer = nullptr;
     double m_Origin[3] = { 0.0, 0.0, 0.0 };
   };
 
@@ -250,6 +251,14 @@ protected:
    * @brief Constructor
    */
   SIMPLVtkBridge();
+
+  /**
+   * @brief Checks for and handles DataArrays with the same name between two collections.
+   * This is called after wrapping both cell and point data to prevent the two from listing the same array.
+   * @param collection1
+   * @param collection2
+   */
+  static void HandleArrayNameCollisions(WrappedDataArrayPtrCollection& collection1, WrappedDataArrayPtrCollection& collection2);
 
   /**
    * @brief Merges the WrappedDataArrayPtrCollection from the given AttributeMatrix into the wrapped DataContainer
