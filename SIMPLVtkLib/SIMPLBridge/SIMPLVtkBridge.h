@@ -251,6 +251,27 @@ protected:
    */
   SIMPLVtkBridge();
 
+  /**
+   * @brief Merges the WrappedDataArrayPtrCollection from the given AttributeMatrix into the wrapped DataContainer
+   * @param wrappedDc
+   * @param am
+   */
+  static bool MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrapping, const WrappedDataArrayPtrCollection& newWrapping);
+
+  /**
+   * @brief Wraps the cell data from the given AttributeMatrix and merges it into the wrapped DataContainer
+   * @param wrappedDcStruct
+   * @param am
+   */
+  static bool WrapCellData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer am);
+
+  /**
+   * @brief Wraps the point data from the given AttributeMatrix and merges it into the wrapped DataContainer
+   * @param wrappedDcStruct
+   * @param am
+   */
+  static bool WrapPointData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer am);
+
 private:
   SIMPLVtkBridge(const SIMPLVtkBridge&); // Copy Constructor Not Implemented
   void operator=(const SIMPLVtkBridge&); // Operator '=' Not Implemented

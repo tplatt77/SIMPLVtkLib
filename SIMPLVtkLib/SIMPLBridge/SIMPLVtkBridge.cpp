@@ -266,6 +266,127 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrapping, const WrappedDataArrayPtrCollection& newWrapping)
+{
+  bool compatible = true;
+
+  if(oldWrapping.size() > 0 && newWrapping.size() > 0)
+  {
+    IDataArray::Pointer oldArray = oldWrapping[0]->m_SIMPLArray;
+    IDataArray::Pointer newArray = newWrapping[0]->m_SIMPLArray;
+
+    compatible = oldArray->getNumberOfTuples() == newArray->getNumberOfTuples();
+  }
+
+  if(compatible)
+  {
+    oldWrapping.insert(oldWrapping.end(), newWrapping.begin(), newWrapping.end());
+  }
+  
+  return compatible;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer attrMat)
+{
+  if(nullptr == attrMat)
+  {
+    return false;
+  }
+
+  VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
+  int numCells = dataSet->GetNumberOfCells();
+
+  int numTuples = 0;
+  QVector<size_t> tupleDims = attrMat->getTupleDimensions();
+  int count = tupleDims.size();
+  for(int i = 0; i < count; i++)
+  {
+    if(i == 0)
+    {
+      numTuples = tupleDims[i];
+    }
+    else
+    {
+      numTuples *= tupleDims[i];
+    }
+  }
+
+  if(AttributeMatrix::Type::Cell == attrMat->getType() && numCells == numTuples)
+  {
+    WrappedDataArrayPtrCollection newCellData = WrapAttributeMatrixAsStructs(attrMat);
+
+    // Merge the new cell data into the existing data
+    if(MergeWrappedArrays(wrappedDcStruct->m_CellData, newCellData))
+    {
+      // Add vtkDataArrays to the vtkDataSet
+      vtkCellData* cellData = dataSet->GetCellData();
+      for(WrappedDataArrayPtr wrappedCellData : newCellData)
+      {
+        cellData->AddArray(wrappedCellData->m_VtkArray);
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool SIMPLVtkBridge::WrapPointData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer attrMat)
+{
+  if(nullptr == attrMat)
+  {
+    return false;
+  }
+
+  VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
+  int numPoints = dataSet->GetNumberOfPoints();
+
+  int numTuples = 0;
+  QVector<size_t> tupleDims = attrMat->getTupleDimensions();
+  int count = tupleDims.size();
+  for(int i = 0; i < count; i++)
+  {
+    if(i == 0)
+    {
+      numTuples = tupleDims[i];
+    }
+    else
+    {
+      numTuples *= tupleDims[i];
+    }
+  }
+
+  if(AttributeMatrix::Type::Vertex == attrMat->getType() && numPoints == numTuples)
+  {
+    WrappedDataArrayPtrCollection newPointData = WrapAttributeMatrixAsStructs(attrMat);
+    
+    // Merge the new point data into the existing data
+    if(MergeWrappedArrays(wrappedDcStruct->m_PointData, newPointData))
+    {
+      // Add vtkDataArrays to the vtkDataSet
+      vtkPointData* pointData = dataSet->GetPointData();
+      for(WrappedDataArrayPtr wrappedPointData : wrappedDcStruct->m_PointData)
+      {
+        pointData->AddArray(wrappedPointData->m_VtkArray);
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr wrappedDcStruct)
 {
   if(nullptr == wrappedDcStruct)
@@ -282,81 +403,64 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     {
       continue;
     }
-    // Wrap Cell data
-    if(AttributeMatrix::Type::Cell == (*attrMat)->getType())
-    {
-      wrappedDcStruct->m_CellData = WrapAttributeMatrixAsStructs((*attrMat));
-
-      // Add vtkDataArrays to the vtkDataSet
-      vtkCellData* cellData = dataSet->GetCellData();
-      for(WrappedDataArrayPtr wrappedCellData : wrappedDcStruct->m_CellData)
-      {
-        cellData->AddArray(wrappedCellData->m_VtkArray);
-      }
-
-      // Create point data from cell data
-      VTK_NEW(vtkCellDataToPointData, cell2Point);
-      cell2Point->SetInputData(dataSet);
-      cell2Point->PassCellDataOn();
-      cell2Point->Update();
-
-      VTK_PTR(vtkDataSet) pointDataSet = nullptr;
-      switch(dataSet->GetDataObjectType())
-      {
-      case VTK_IMAGE_DATA:
-        pointDataSet = cell2Point->GetImageDataOutput();
-        break;
-      case VTK_STRUCTURED_GRID:
-        pointDataSet = cell2Point->GetUnstructuredGridOutput();
-        break;
-      case VTK_RECTILINEAR_GRID:
-        pointDataSet = cell2Point->GetRectilinearGridOutput();
-        break;
-      case VTK_STRUCTURED_POINTS:
-        pointDataSet = cell2Point->GetStructuredPointsOutput();
-        break;
-      case VTK_UNSTRUCTURED_GRID:
-        pointDataSet = cell2Point->GetUnstructuredGridOutput();
-        break;
-      case VTK_POLY_DATA:
-        pointDataSet = cell2Point->GetPolyDataOutput();
-        break;
-      default:
-        pointDataSet = cell2Point->GetOutput();
-        break;
-      }
-
-      dataSet->DeepCopy(pointDataSet);
-    }
-    // Wrap Vertex data
-    else if(AttributeMatrix::Type::Vertex == (*attrMat)->getType())
-    {
-      wrappedDcStruct->m_PointData = WrapAttributeMatrixAsStructs((*attrMat));
-
-      // Add vtkDataArrays to the vtkDataSet
-      vtkPointData* pointData = dataSet->GetPointData();
-      for(WrappedDataArrayPtr wrappedPointData : wrappedDcStruct->m_PointData)
-      {
-        pointData->AddArray(wrappedPointData->m_VtkArray);
-      }
-    }
-    else
+    if((*attrMat)->getTupleDimensions().size() == 0)
     {
       continue;
     }
 
-    // Set the active cell / point data scalars
-    vtkPointData* pointData = dataSet->GetPointData();
-    if(pointData->GetNumberOfArrays() > 0)
+    // Wrap Cell / Point Data
+    WrapCellData(wrappedDcStruct, (*attrMat));
+    WrapPointData(wrappedDcStruct, (*attrMat));
+  }
+
+  // Create PointData from CellData
+  if(wrappedDcStruct->m_CellData.size() > 0)
+  {
+    VTK_NEW(vtkCellDataToPointData, cell2Point);
+    cell2Point->SetInputData(dataSet);
+    cell2Point->PassCellDataOn();
+    cell2Point->Update();
+
+    VTK_PTR(vtkDataSet) pointDataSet = nullptr;
+    switch(dataSet->GetDataObjectType())
     {
-      pointData->SetActiveScalars(pointData->GetArray(0)->GetName());
+    case VTK_IMAGE_DATA:
+      pointDataSet = cell2Point->GetImageDataOutput();
+      break;
+    case VTK_STRUCTURED_GRID:
+      pointDataSet = cell2Point->GetUnstructuredGridOutput();
+      break;
+    case VTK_RECTILINEAR_GRID:
+      pointDataSet = cell2Point->GetRectilinearGridOutput();
+      break;
+    case VTK_STRUCTURED_POINTS:
+      pointDataSet = cell2Point->GetStructuredPointsOutput();
+      break;
+    case VTK_UNSTRUCTURED_GRID:
+      pointDataSet = cell2Point->GetUnstructuredGridOutput();
+      break;
+    case VTK_POLY_DATA:
+      pointDataSet = cell2Point->GetPolyDataOutput();
+      break;
+    default:
+      pointDataSet = cell2Point->GetOutput();
+      break;
     }
 
-    vtkCellData* cellData = dataSet->GetCellData();
-    if(cellData->GetNumberOfArrays() > 0)
-    {
-      cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
-    }
+    dataSet->DeepCopy(pointDataSet);
+  }
+
+  // Set the active cell / point data scalars
+  vtkPointData* pointData = dataSet->GetPointData();
+  if(pointData->GetNumberOfArrays() > 0)
+  {
+    pointData->SetActiveScalars(pointData->GetArray(0)->GetName());
+  }
+
+  vtkCellData* cellData = dataSet->GetCellData();
+  if(cellData->GetNumberOfArrays() > 0)
+  {
+    cellData->SetActiveScalars(cellData->GetArray(0)->GetName());
   }
 }
 
