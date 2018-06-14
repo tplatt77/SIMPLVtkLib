@@ -155,10 +155,18 @@ void VSFilterViewSettings::setupActions()
   });
 
   m_SetOpacityAction = new QAction("Set Opacity", this);
+
+  // The step variable was introduced somewhere between v5.9 and v5.10.1
+  // As the only valid values are between 0.0 and 1.0, step values of 1.0 do not make sense.
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,1)
   connect(m_SetOpacityAction, &QAction::triggered, [=] {
     setAlpha(QInputDialog::getDouble(nullptr,
       "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity",
       getAlpha(), 0.0, 1.0, 2, nullptr, Qt::WindowFlags(), 0.1));
+#else
+  connect(m_SetOpacityAction, &QAction::triggered, [=] {
+    setAlpha(QInputDialog::getDouble(nullptr, "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity", getAlpha(), 0.0, 1.0, 2));
+#endif
   });
 
   m_ToggleScalarBarAction = new QAction("Enable Scalar Bar", this);
