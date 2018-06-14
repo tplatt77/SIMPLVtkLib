@@ -115,12 +115,12 @@ void VSController::reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataCo
   VSPipelineFilter* parentFilter = dynamic_cast<VSPipelineFilter*>(getFilterModel()->getPipelineFilter(pipeline));
   if(parentFilter)
   {
-    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Reload);
+    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::SemiReload);
     m_ImportObject->addDataContainerArray(parentFilter, dca);
   }
   else
   {
-    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
+    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Geometry);
     m_ImportObject->addDataContainerArray(pipeline, dca);
   }
 

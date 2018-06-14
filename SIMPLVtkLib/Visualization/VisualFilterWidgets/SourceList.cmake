@@ -11,6 +11,7 @@ set(VSVisualFilterWidgets
 
 set(VSVisualFilterWidgets_NoUi
   VSAbstractFilterWidget
+  VSParentFilterWidget
 )
 
 # --------------------------------------------------------------------

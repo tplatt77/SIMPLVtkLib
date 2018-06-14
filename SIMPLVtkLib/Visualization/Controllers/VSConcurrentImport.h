@@ -63,7 +63,9 @@ public:
   enum class LoadType : unsigned int
   {
     Import,
-    Reload
+    Reload,
+    Geometry,
+    SemiReload
   };
 
   using DcaGenericPair = std::pair<VSTextFilter*, DataContainerArray::Pointer>;

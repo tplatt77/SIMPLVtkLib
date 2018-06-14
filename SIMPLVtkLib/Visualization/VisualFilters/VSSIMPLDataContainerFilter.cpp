@@ -387,28 +387,40 @@ QString VSSIMPLDataContainerFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::apply()
 {
-  // Do not lock the main thread trying to apply a filter that is already being applied.
-  if(m_ApplyLock.tryAcquire())
+  // finishWrapping aquires the apply lock and emits a signal that calls apply().
+  // finishWrapping will not execute a second time until reaching the end of apply()
+  // where the apply lock is released.
+  if(finishWrapping())
   {
-    m_ApplyLock.release();
-
     emit dataImported();
   }
+  m_ApplyLock.release();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSSIMPLDataContainerFilter::finishWrapping()
+bool VSSIMPLDataContainerFilter::finishWrapping()
 {
   // Do not lock the main thread trying to apply a filter that is already being applied.
   if(m_ApplyLock.tryAcquire())
   {
     SIMPLVtkBridge::FinishWrappingDataContainerStruct(m_WrappedDataContainer);
-    m_ApplyLock.release();
+    m_FullyWrapped = true;
 
     emit finishedWrapping();
+    return true;
   }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSIMPLDataContainerFilter::dataFullyLoaded()
+{
+  return m_FullyWrapped;
 }
 
 // -----------------------------------------------------------------------------
@@ -425,6 +437,7 @@ SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDa
 void VSSIMPLDataContainerFilter::setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
 {
   m_WrappedDataContainer = wrappedDc;
+  m_FullyWrapped = false;
 }
 
 // -----------------------------------------------------------------------------

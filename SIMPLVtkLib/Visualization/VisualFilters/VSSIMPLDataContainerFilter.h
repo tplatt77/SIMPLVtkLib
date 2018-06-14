@@ -109,9 +109,11 @@ public:
   static QUuid GetUuid();
 
   /**
-   * @brief finishWrapping
+   * @brief Attempts to finish wrapping the DataContainer. Returns true if it succeeded.
+   * This method is not thread safe.
+   * @return
    */
-  void finishWrapping();
+  bool finishWrapping();
 
   /**
    * @brief Returns the WrappedDataContainerPtr used by the filter
@@ -149,6 +151,12 @@ public:
   void reloadData(DataContainer::Pointer dc);
 
   /**
+  * @brief Returns true if the data has been fully wrapped and loaded into a vtkDataSet. Returns false otherwise.
+  * @return
+  */
+  bool dataFullyLoaded();
+
+  /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
    * @param
@@ -158,8 +166,9 @@ public:
 
 public slots:
   /**
-  * @brief Wrap the entire DataContainer
-  */
+   * @brief Wrap the entire DataContainer
+   * This method is not thread safe.
+   */
   void apply();
 
   /**
@@ -182,4 +191,5 @@ private:
   QFutureWatcher<void> m_WrappingWatcher;
   QSemaphore m_ApplyLock;
   bool m_WrappingTransform = false;
+  bool m_FullyWrapped = false;
 };

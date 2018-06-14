@@ -139,7 +139,7 @@ void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
   m_DataParentFilter = genericPair.first;
   DataContainerArray::Pointer dca = genericPair.second;
 
-  if(m_LoadType == LoadType::Import)
+  if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry)
   {
     m_Controller->getFilterModel()->addFilter(m_DataParentFilter);
   }
@@ -176,10 +176,13 @@ void VSConcurrentImport::partialWrappingThreadFinished()
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
       VSSIMPLDataContainerFilter* filter = nullptr;
+      // Do not fully load for LoadType::Geometry
+      bool fullLoad = (m_LoadType != LoadType::Geometry);
       
       // Reload existing data and search for old DataContainers that no longer exist
-      if(m_LoadType == LoadType::Reload)
+      if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
       {
+        // Find the DataContainer filter from the parent container
         for(int i = 0; i < childFilters.size(); i++)
         {
           VSAbstractFilter* childFilter = childFilters[i];
@@ -191,6 +194,12 @@ void VSConcurrentImport::partialWrappingThreadFinished()
           filter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
           if(filter)
           {
+            if(m_LoadType == LoadType::SemiReload)
+            {
+              // If the filter exists and was not fully loaded, remain so.
+              fullLoad = filter->dataFullyLoaded();
+            }
+
             filter->setWrappedDataContainer(wrappedDc);
             // Remove from the list of childFilters
             int index = childFilters.indexOf(filter);
@@ -200,14 +209,20 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       }
 
       // Import data if it was not there to reload
-      if(m_LoadType == LoadType::Import || nullptr == filter)
+      if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry || nullptr == filter)
       {
         filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
         m_Controller->getFilterModel()->addFilter(filter, false);
+
+        // SemiReload differs from Reload in that it does not fully load new filters
+        if(m_LoadType == LoadType::SemiReload)
+        {
+          fullLoad = false;
+        }
       }
 
       // Do not append a nullptr to the list to be applied later
-      if(filter)
+      if(filter && (m_LoadType != LoadType::Geometry && fullLoad))
       {
         // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
         m_UnappliedDataFilterLock.acquire();
@@ -217,7 +232,7 @@ void VSConcurrentImport::partialWrappingThreadFinished()
     }
 
     // When reloading, delete any extra data that no longer exists
-    if(m_LoadType == LoadType::Reload)
+    if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
     {
       int count = childFilters.size();
       for(int i = 0; i < count; i++)
@@ -304,7 +319,7 @@ void VSConcurrentImport::applyDataFilters()
     emit dataFilterApplied(++m_AppliedFilterCount);
     m_AppliedFilterCountLock.release();
 
-    if(m_LoadType == LoadType::Reload)
+    if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
     {
       filter->reloadWrappingFinished();
     }

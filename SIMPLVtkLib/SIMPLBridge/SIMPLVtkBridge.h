@@ -129,7 +129,8 @@ public:
   static WrappedDataContainerPtr WrapGeometryPtr(DataContainer::Pointer dc);
 
   /**
-   * @brief Finish wrapping the given DataContainer
+   * @brief Finish wrapping the given DataContainer.
+   * This should never be called outside the main thread.
    * @param wrappedDc
    */
   static void FinishWrappingDataContainerStruct(WrappedDataContainerPtr wrappedDc);
@@ -232,9 +233,9 @@ public:
 
     for(int i = 0; i < vtkArray->GetNumberOfComponents(); i++)
     {
-      int strlen = std::strlen(array->getName().toStdString().c_str()) + ((i + 1) / 10 + 1) + 2;
+      int strlen = std::strlen(qPrintable(array->getName())) + ((i + 1) / 10 + 1) + 2;
       char* componentName = new char[strlen];
-      std::strcpy(componentName, array->getName().toStdString().c_str());
+      std::strcpy(componentName, qPrintable(array->getName()));
       std::strcat(componentName, "_");
       std::strcat(componentName, std::to_string(i).c_str());
 

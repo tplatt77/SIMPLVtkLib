@@ -54,13 +54,16 @@
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSParentFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
@@ -252,6 +255,11 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
   {
     VSThresholdFilter* vsFilter = dynamic_cast<VSThresholdFilter*>(filter);
     fw = new VSThresholdFilterWidget(vsFilter, interactor, this);
+  }
+  else if(dynamic_cast<VSFileNameFilter*>(filter) != nullptr || dynamic_cast<VSPipelineFilter*>(filter) != nullptr)
+  {
+    VSTextFilter* vsFilter = dynamic_cast<VSTextFilter*>(filter);
+    fw = new VSParentFilterWidget(vsFilter, this);
   }
 
   if(fw != nullptr)
