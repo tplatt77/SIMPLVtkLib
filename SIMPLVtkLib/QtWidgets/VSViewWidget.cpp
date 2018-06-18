@@ -260,7 +260,7 @@ VSAbstractFilter* VSViewWidget::getFilterAtMousePos(const QPoint& point)
 
   int pos[2];
   pos[0] = point.x();
-  pos[1] = point.y();
+  pos[1] = getVisualizationWidget()->height() - point.y();
 
   return getVisualizationWidget()->getFilterFromScreenCoords(pos);
 }
