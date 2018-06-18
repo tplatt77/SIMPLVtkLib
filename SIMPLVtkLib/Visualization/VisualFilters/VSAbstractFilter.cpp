@@ -296,17 +296,16 @@ QStringList VSAbstractFilter::getComponentList(QString arrayName)
   QStringList componentNames;
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
-  if(dataSet)
+  if(dataSet && !arrayName.isNull())
   {
-    const char* charName = arrayName.toLatin1();
     VTK_PTR(vtkAbstractArray) array = nullptr;
     if(isPointData())
     {
-      array = dataSet->GetPointData()->GetAbstractArray(charName);
+      array = dataSet->GetPointData()->GetAbstractArray(qPrintable(arrayName));
     }
     else
     {
-      array = dataSet->GetCellData()->GetAbstractArray(charName);
+      array = dataSet->GetCellData()->GetAbstractArray(qPrintable(arrayName));
     }
     componentNames = getComponentList(array);
   }

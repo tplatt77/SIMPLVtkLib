@@ -561,7 +561,7 @@ SIMPLVtkBridge::WrappedDataArrayPtr SIMPLVtkBridge::WrapIDataArrayAsStruct(IData
     WrappedDataArrayPtr wrappedDataArray(new WrappedDataArray());
 
     QString arrayName = dataArray->getName();
-    vtkArray->SetName(arrayName.toStdString().c_str());
+    vtkArray->SetName(qPrintable(arrayName));
 
     wrappedDataArray->m_ArrayName = arrayName;
     wrappedDataArray->m_SIMPLArray = dataArray;
