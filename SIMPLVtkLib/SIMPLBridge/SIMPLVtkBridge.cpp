@@ -429,7 +429,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
     AttributeMatrix::Type amType = attrMat->getType();
 
-    AttributeMatrix::Types cellTypes = {AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face};
+    AttributeMatrix::Types cellTypes = {AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face, AttributeMatrix::Type::Edge};
     AttributeMatrix::Types pointTypes = {AttributeMatrix::Type::Vertex};
     if(cellTypes.contains(amType))
     {
