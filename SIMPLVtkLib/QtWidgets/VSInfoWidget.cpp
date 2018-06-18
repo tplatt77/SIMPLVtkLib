@@ -55,6 +55,11 @@
 
 #include "ui_VSInfoWidget.h"
 
+namespace
+{
+QString SolidColorStr = "Solid Color";
+}
+
 class VSInfoWidget::VSInternals : public Ui::VSInfoWidget
 {
 public:
@@ -87,7 +92,7 @@ void VSInfoWidget::setupGui()
   m_Internals->pointSizeEdit->setValidator(pointSizeValidator);
 
   connect(m_Internals->representationCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setRepresentationIndex(int)));
-  connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveArrayIndex(int)));
+  connect(m_Internals->activeArrayCombo, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updateActiveArrayName(const QString&)));
   connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveComponentIndex(int)));
   connect(m_Internals->pointSizeEdit, &QLineEdit::textChanged, this, &VSInfoWidget::updatePointSize);
   connect(m_Internals->pointSphereCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::updateRenderPointSpheres);
@@ -253,7 +258,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
   if(m_ViewSettings)
   {
     disconnect(m_ViewSettings, &VSFilterViewSettings::representationChanged, this, &VSInfoWidget::listenRepresentationType);
-    disconnect(m_ViewSettings, &VSFilterViewSettings::activeArrayIndexChanged, this, &VSInfoWidget::listenArrayIndex);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSInfoWidget::listenArrayName);
     disconnect(m_ViewSettings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSInfoWidget::listenComponentIndex);
     disconnect(m_ViewSettings, &VSFilterViewSettings::pointSizeChanged, this, &VSInfoWidget::listenPointSize);
     disconnect(m_ViewSettings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSInfoWidget::listenPointSphere);
@@ -270,7 +275,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
   if(m_ViewSettings)
   {
     connect(settings, &VSFilterViewSettings::representationChanged, this, &VSInfoWidget::listenRepresentationType);
-    connect(settings, &VSFilterViewSettings::activeArrayIndexChanged, this, &VSInfoWidget::listenArrayIndex);
+    connect(settings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSInfoWidget::listenArrayName);
     connect(settings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSInfoWidget::listenComponentIndex);
     connect(settings, &VSFilterViewSettings::pointSizeChanged, this, &VSInfoWidget::listenPointSize);
     connect(settings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSInfoWidget::listenPointSphere);
@@ -314,7 +319,7 @@ void VSInfoWidget::updateFilterInfo()
 
   if(m_Filter)
   {
-    m_Internals->activeArrayCombo->addItem(m_ViewSettings->getSolidColorIcon(), "Solid Color");
+    m_Internals->activeArrayCombo->addItem(m_ViewSettings->getSolidColorIcon(), ::SolidColorStr);
 
     QStringList arrayNames = m_Filter->getArrayNames();
     QIcon arrayIcon = m_Filter->isPointData() ? m_ViewSettings->getPointDataIcon() : m_ViewSettings->getCellDataIcon();
@@ -325,9 +330,9 @@ void VSInfoWidget::updateFilterInfo()
 
     if(m_ViewSettings)
     {
-      int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
+      QString activeArrayName = m_ViewSettings->getActiveArrayName();
       int activeCompIndex = m_ViewSettings->getActiveComponentIndex();
-      m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex + 1);
+      setComboArrayName(activeArrayName);
       m_Internals->activeComponentCombo->setCurrentIndex(activeCompIndex + 1);
 
       m_Internals->pointSizeEdit->blockSignals(true);
@@ -381,15 +386,15 @@ void VSInfoWidget::updateViewSettingInfo()
   // Representation
   m_Internals->representationCombo->setCurrentIndex(m_ViewSettings->getRepresentationi());
 
-  int activeArrayIndex = m_ViewSettings->getActiveArrayIndex();
+  QString activeArrayName = m_ViewSettings->getActiveArrayName();
   int activeComponentIndex = m_ViewSettings->getActiveComponentIndex() + 1;
 
   // Array
-  m_Internals->activeArrayCombo->setCurrentIndex(activeArrayIndex + 1);
-  updateActiveArrayIndex(activeArrayIndex + 1);
+  setComboArrayName(activeArrayName);
+  updateActiveArrayName(activeArrayName);
 
   // Components
-  int numComponents = m_ViewSettings->getNumberOfComponents(activeArrayIndex);
+  int numComponents = m_ViewSettings->getNumberOfComponents(activeArrayName);
   if(numComponents > 1)
   {
     m_Internals->activeComponentCombo->setCurrentIndex(activeComponentIndex);
@@ -451,18 +456,21 @@ void VSInfoWidget::setRepresentationIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::updateActiveArrayIndex(int index)
+void VSInfoWidget::updateActiveArrayName(QString name)
 {
-  index--;
+  if(::SolidColorStr == name && m_Internals->activeArrayCombo->currentIndex() == 0)
+  {
+    name = QString::null;
+  }
 
-  bool isColor = index == -1;
+  bool isColor = name.isNull();
   m_Internals->colorBtn->setVisible(isColor);
   m_Internals->colorLabel->setVisible(isColor);
   m_Internals->componentLabel->setVisible(!isColor);
   m_Internals->activeComponentCombo->setVisible(!isColor);
 
   int componentIndex = 0;
-  if(m_ViewSettings && m_ViewSettings->getActiveArrayIndex() == index)
+  if(m_ViewSettings && m_ViewSettings->getActiveArrayName() == name)
   {
     componentIndex = m_ViewSettings->getActiveComponentIndex();
   }
@@ -470,7 +478,7 @@ void VSInfoWidget::updateActiveArrayIndex(int index)
   // Set the active component combo box values
   m_Internals->activeComponentCombo->clear();
 
-  QStringList componentList = m_Filter->getComponentList(index);
+  QStringList componentList = m_Filter->getComponentList(name);
   bool multiComponents = componentList.size() > 1;
   m_Internals->activeComponentCombo->setEnabled(multiComponents);
 
@@ -487,7 +495,7 @@ void VSInfoWidget::updateActiveArrayIndex(int index)
 
   if(m_ViewSettings)
   {
-    m_ViewSettings->setActiveArrayIndex(index);
+    m_ViewSettings->setActiveArrayName(name);
   }
 }
 
@@ -650,6 +658,21 @@ void VSInfoWidget::setAxesGridVisible(int checkState)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSInfoWidget::setComboArrayName(QString arrayName)
+{
+  if(arrayName.isNull())
+  {
+    m_Internals->activeArrayCombo->setCurrentText(::SolidColorStr);
+  }
+  else
+  {
+    m_Internals->activeArrayCombo->setCurrentText(arrayName);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep)
 {
   int index = static_cast<int>(rep);
@@ -661,10 +684,17 @@ void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenArrayIndex(VSFilterViewSettings* settings, int index)
+void VSInfoWidget::listenArrayName(VSFilterViewSettings* settings, QString arrayName)
 {
   m_Internals->activeArrayCombo->blockSignals(true);
-  m_Internals->activeArrayCombo->setCurrentIndex(index + 1);
+  if(arrayName.isNull())
+  {
+    m_Internals->activeArrayCombo->setCurrentText(::SolidColorStr);
+  }
+  else
+  {
+    m_Internals->activeArrayCombo->setCurrentText(arrayName);
+  }
   m_Internals->activeArrayCombo->blockSignals(false);
 }
 

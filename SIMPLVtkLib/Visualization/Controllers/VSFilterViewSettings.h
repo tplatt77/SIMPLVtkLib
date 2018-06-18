@@ -135,10 +135,10 @@ public:
   bool isGridVisible();
 
   /**
-   * @brief Returns the active array index used to render the filter
+   * @brief Returns the active array name used to render the filter
    * @return
    */
-  int getActiveArrayIndex();
+  QString getActiveArrayName();
 
   /**
    * @brief Returns the active array component used to render the filter
@@ -347,10 +347,10 @@ public slots:
   void setGridVisible(bool visible);
 
   /**
-   * @brief Updates the active array index for this view
-   * @param index
+   * @brief Updates the active array name for this view
+   * @param name
    */
-  void setActiveArrayIndex(int index);
+  void setActiveArrayName(QString name);
 
   /**
    * @brief Updates the active component index for this view
@@ -437,7 +437,7 @@ signals:
   void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation);
   void solidColorChanged(VSFilterViewSettings*, double*);
-  void activeArrayIndexChanged(VSFilterViewSettings*, int);
+  void activeArrayNameChanged(VSFilterViewSettings*, QString);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
   void pointSizeChanged(VSFilterViewSettings*, int);
   void renderPointSpheresChanged(VSFilterViewSettings*, bool);
@@ -542,11 +542,25 @@ protected:
   void filterDeleted();
 
   /**
+   * @brief Returns the array name based on the given index
+   * @param index
+   * @return
+   */
+  QString getArrayNameByIndex(int index);
+
+  /**
    * @brief Returns the array at the given index
    * @param index
    * @return
    */
   vtkDataArray* getArrayAtIndex(int index);
+
+  /**
+   * @brief Returns the array with the given name
+   * @param name
+   * @return
+   */
+  vtkDataArray* getArrayByName(QString name);
 
   /**
    * @brief Updates the mapper color mode to match variable values
@@ -570,7 +584,7 @@ private:
   ActorType m_ActorType = ActorType::Invalid;
   VTK_PTR(vtkDataSetSurfaceFilter) m_DataSetFilter = nullptr;
   bool m_ShowFilter = true;
-  int m_ActiveArray = 0;
+  QString m_ActiveArrayName;
   int m_ActiveComponent = -1;
   Qt::CheckState m_MapColors = Qt::Checked;
   Representation m_Representation = Representation::Default;

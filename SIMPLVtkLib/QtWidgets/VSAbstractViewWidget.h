@@ -236,10 +236,10 @@ protected slots:
   void swapActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
   /**
-   * @brief Change the active filter's array index
-   * @param index
+   * @brief Change the active filter's array name
+   * @param name
    */
-  void changeFilterArrayIndex(int index);
+  void changeFilterArrayName(QString name);
 
   /**
    * @brief Change the active filter's component index

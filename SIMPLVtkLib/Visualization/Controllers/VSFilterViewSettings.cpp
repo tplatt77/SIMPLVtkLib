@@ -85,7 +85,7 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
 : QObject(nullptr)
 , m_ShowFilter(copy.m_ShowFilter)
-, m_ActiveArray(copy.m_ActiveArray)
+, m_ActiveArrayName(copy.m_ActiveArrayName)
 , m_ActiveComponent(copy.m_ActiveComponent)
 , m_MapColors(copy.m_MapColors)
 , m_Alpha(copy.m_Alpha)
@@ -95,7 +95,7 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
   setupActors();
   setScalarBarVisible(copy.isScalarBarVisible());
   setRepresentation(copy.getRepresentation());
-  setActiveArrayIndex(copy.m_ActiveArray);
+  setActiveArrayName(copy.m_ActiveArrayName);
   setActiveComponentIndex(copy.m_ActiveComponent);
   setSolidColor(copy.getSolidColor());
   setPointSize(copy.getPointSize());
@@ -218,9 +218,9 @@ bool VSFilterViewSettings::isGridVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSFilterViewSettings::getActiveArrayIndex()
+QString VSFilterViewSettings::getActiveArrayName()
 {
-  return m_ActiveArray;
+  return m_ActiveArrayName;
 }
 
 // -----------------------------------------------------------------------------
@@ -441,6 +441,25 @@ void VSFilterViewSettings::setGridVisible(bool visible)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString VSFilterViewSettings::getArrayNameByIndex(int index)
+{
+  if(nullptr == m_Filter || index < 0)
+  {
+    return QString::null;
+  }
+
+  QStringList arrayNames = m_Filter->getArrayNames();
+  if(index < arrayNames.size())
+  {
+    return arrayNames[index];
+  }
+  
+  return QString::null;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 {
   vtkDataSet* dataSet = m_Filter->getOutput();
@@ -470,33 +489,62 @@ vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setActiveArrayIndex(int index)
+vtkDataArray* VSFilterViewSettings::getArrayByName(QString name)
+{
+  vtkDataSet* dataSet = m_Filter->getOutput();
+  if(nullptr == dataSet)
+  {
+    return nullptr;
+  }
+
+  if(isPointData())
+  {
+    if(dataSet->GetPointData())
+    {
+      return dataSet->GetPointData()->GetArray(qPrintable(name));
+    }
+  }
+  else
+  {
+    if(dataSet->GetCellData())
+    {
+      return dataSet->GetCellData()->GetArray(qPrintable(name));
+    }
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setActiveArrayName(QString name)
 {
   if(nullptr == getDataSetMapper())
   {
     return;
   }
 
-  // Draw a solid color if index is -1
-  if(index == -1)
+  // Check for Solid Color
+  if(name.isNull())
   {
     getDataSetMapper()->SelectColorArray(-1);
-    m_ActiveArray = -1;
+    m_ActiveArrayName = QString::null;
 
-    emit activeArrayIndexChanged(this, m_ActiveArray);
+    emit activeArrayNameChanged(this, m_ActiveArrayName);
     emit requiresRender();
     return;
   }
 
-  VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(index);
+  VTK_PTR(vtkDataArray) dataArray = getArrayByName(name);
   if(nullptr == dataArray)
   {
     return;
   }
 
-  m_ActiveArray = index;
+  m_ActiveArrayName = name;
 
-  emit activeArrayIndexChanged(this, m_ActiveArray);
+  emit activeArrayNameChanged(this, m_ActiveArrayName);
   setActiveComponentIndex(-1);
 
   if(isColorArray(dataArray) && m_MapColors == Qt::Checked)
@@ -519,7 +567,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   m_ActiveComponent = index;
 
   VTK_PTR(vtkScalarsToColors) lookupTable = mapper->GetLookupTable();
-  VTK_PTR(vtkDataArray) dataArray = getArrayAtIndex(m_ActiveArray);
+  VTK_PTR(vtkDataArray) dataArray = getArrayByName(m_ActiveArrayName);
   if(nullptr == dataArray)
   {
     return;
@@ -532,7 +580,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   }
 
   int numComponents = dataArray->GetNumberOfComponents();
-  mapper->ColorByArrayComponent(m_ActiveArray, index);
+  mapper->ColorByArrayComponent(qPrintable(m_ActiveArrayName), index);
 
   if(isPointData())
   {
@@ -581,7 +629,7 @@ vtkDataArray* VSFilterViewSettings::getDataArray()
     return nullptr;
   }
 
-  return getArrayAtIndex(m_ActiveArray);
+  return getArrayByName(m_ActiveArrayName);
 }
 
 // -----------------------------------------------------------------------------
@@ -948,12 +996,12 @@ void VSFilterViewSettings::setupDataSetActors()
   {
     if(m_HadNoArrays)
     {
-      setActiveArrayIndex(0);
+      setActiveArrayName(getArrayNameByIndex(0));
       m_HadNoArrays = false;
     }
     else
     {
-      setActiveArrayIndex(m_ActiveArray);
+      setActiveArrayName(m_ActiveArrayName);
       setActiveComponentIndex(m_ActiveComponent);
     }
   }
@@ -1076,7 +1124,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     {
       setScalarBarVisible(false);
       setMapColors(Qt::Unchecked);
-      m_ActiveArray = -1;
+      m_ActiveArrayName = QString::null;
       m_HadNoArrays = true;
     }
     else
@@ -1344,7 +1392,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   }
 
   setVisible(copy->m_ShowFilter);
-  setActiveArrayIndex(copy->m_ActiveArray);
+  setActiveArrayName(copy->m_ActiveArrayName);
   setActiveComponentIndex(copy->m_ActiveComponent);
   setMapColors(copy->m_MapColors);
   setScalarBarVisible(copy->m_ToggleScalarBarAction->isChecked());
@@ -1397,15 +1445,15 @@ QMenu* VSFilterViewSettings::getColorByMenu()
 
   QAction* colorAction = arrayMenu->addAction("Solid Color");
   colorAction->setIcon(getSolidColorIcon());
-  connect(colorAction, &QAction::triggered, [=] { setActiveArrayIndex(-1); });
+  connect(colorAction, &QAction::triggered, [=] { setActiveArrayName(QString::null); });
 
   QIcon arrayIcon = isPointData() ? getPointDataIcon() : getCellDataIcon();
   for(int i = 0; i < numArrays; i++)
   {
-    int currentIndex = i;
-    QAction* arrayAction = arrayMenu->addAction(arrayNames[i]);
+    QString arrayName = arrayNames[i];
+    QAction* arrayAction = arrayMenu->addAction(arrayName);
     arrayAction->setIcon(arrayIcon);
-    connect(arrayAction, &QAction::triggered, [=] { setActiveArrayIndex(currentIndex); });
+    connect(arrayAction, &QAction::triggered, [=] { setActiveArrayName(arrayName); });
   }
 
   return arrayMenu;

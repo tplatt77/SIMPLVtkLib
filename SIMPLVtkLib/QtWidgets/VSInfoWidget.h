@@ -111,7 +111,7 @@ protected slots:
    * @brief Handles the active array combo box being changed
    * @param index
    */
-  void updateActiveArrayIndex(int index);
+  void updateActiveArrayName(QString name);
 
   /**
    * @brief Handles the active component combo box being changed
@@ -186,11 +186,11 @@ protected slots:
   void listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep);
 
   /**
-   * @brief Listens for the active VSFilterViewSettings active array index to change
+   * @brief Listens for the active VSFilterViewSettings active array name to change
    * @param settings
-   * @param index
+   * @param name
    */
-  void listenArrayIndex(VSFilterViewSettings* settings, int index);
+  void listenArrayName(VSFilterViewSettings* settings, QString name);
 
   /**
    * @brief Listens for the active VSFilterViewSettings active component index to change
@@ -278,6 +278,12 @@ protected:
    * @param settings
    */
   void connectFilterViewSettings(VSFilterViewSettings* settings);
+
+  /**
+  * @brief Updates the active array combo box
+  * @param arrayName
+  */
+  void setComboArrayName(QString arrayName);
 
 private:
   class VSInternals;

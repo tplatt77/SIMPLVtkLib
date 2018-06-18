@@ -434,11 +434,11 @@ void VSAbstractViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSett
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterArrayIndex(int index)
+void VSAbstractViewWidget::changeFilterArrayName(QString name)
 {
   if(m_ActiveFilterSettings)
   {
-    m_ActiveFilterSettings->setActiveArrayIndex(index);
+    m_ActiveFilterSettings->setActiveArrayName(name);
   }
 }
 
