@@ -253,6 +253,12 @@ protected:
   SIMPLVtkBridge();
 
   /**
+   * @brief Appends the AttributeMatrix name to the wrapped DataArray names
+   * @param wrappedArrays
+   */
+  static void AppendAttrMatrixToNames(WrappedDataArrayPtrCollection& wrappedArrays);
+
+  /**
    * @brief Checks for and handles DataArrays with the same name between two collections.
    * This is called after wrapping both cell and point data to prevent the two from listing the same array.
    * @param collection1
@@ -268,18 +274,13 @@ protected:
   static bool MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrapping, const WrappedDataArrayPtrCollection& newWrapping);
 
   /**
-   * @brief Wraps the cell data from the given AttributeMatrix and merges it into the wrapped DataContainer
+   * @brief Wraps the given AttributeMatrix and merges it into the given collection if it matches the required tuple count
    * @param wrappedDcStruct
    * @param am
+   * @param wrappedCollection
+   * @param tuplesReq
    */
-  static bool WrapCellData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer am);
-
-  /**
-   * @brief Wraps the point data from the given AttributeMatrix and merges it into the wrapped DataContainer
-   * @param wrappedDcStruct
-   * @param am
-   */
-  static bool WrapPointData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer am);
+  static bool WrapAttrMatrixData(AttributeMatrix::Pointer am, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq);
 
 private:
   SIMPLVtkBridge(const SIMPLVtkBridge&); // Copy Constructor Not Implemented

@@ -72,6 +72,11 @@
 #include "SIMPLVtkLib/SIMPLBridge/VSTriangleGeom.h"
 #include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
 
+#define AM_COLLISIONS 1
+#define AM_MULTIPLE 2
+#define AM_ALWAYS 3
+#define AM_APPEND AM_MULTIPLE
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -266,12 +271,37 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void SIMPLVtkBridge::AppendAttrMatrixToNames(WrappedDataArrayPtrCollection& wrappedArrays)
+{
+  for(WrappedDataArrayPtr wrappedArray : wrappedArrays)
+  {
+    // Renaming requires an AttributeMatrix
+    if(nullptr == wrappedArray->m_AttributeMatrix)
+    {
+      continue;
+    }
+
+    QString matrixPrefix = " [" + wrappedArray->m_AttributeMatrix->getName() + "]";
+    QString arrayName = wrappedArray->m_SIMPLArray->getName();
+    if(!arrayName.startsWith(matrixPrefix))
+    {
+      arrayName.append(matrixPrefix);
+      wrappedArray->m_ArrayName = arrayName;
+      wrappedArray->m_VtkArray->SetName(qPrintable(arrayName));
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void SIMPLVtkBridge::HandleArrayNameCollisions(WrappedDataArrayPtrCollection& collection1, WrappedDataArrayPtrCollection& collection2)
 {
   WrappedDataArrayPtrCollection allWrappings;
   allWrappings.insert(allWrappings.end(), collection1.begin(), collection1.end());
   allWrappings.insert(allWrappings.end(), collection2.begin(), collection2.end());
 
+#if AM_APPEND == AM_COLLISIONS
   // Check for array name collisions
   bool hasCollision = false;
   int totalCount = allWrappings.size();
@@ -282,27 +312,18 @@ void SIMPLVtkBridge::HandleArrayNameCollisions(WrappedDataArrayPtrCollection& co
       hasCollision = (allWrappings[i]->m_ArrayName == allWrappings[j]->m_ArrayName);
     }
   }
+#elif AM_APPEND == AM_ALWAYS
+  bool hasCollision = true;
+#else
+  bool hasCollision = false;
+  return;
+#endif
+
 
   // Handle Collisions
   if(hasCollision)
   {
-    for(WrappedDataArrayPtr wrappedArray : allWrappings)
-    {
-      // Collision handling requires an AttributeMatrix
-      if(nullptr == wrappedArray->m_AttributeMatrix)
-      {
-        continue;
-      }
-
-      QString matrixPrefix = wrappedArray->m_AttributeMatrix->getName() + ": ";
-      QString arrayName = wrappedArray->m_ArrayName;
-      if(!arrayName.startsWith(matrixPrefix))
-      {
-        arrayName.prepend(matrixPrefix);
-        wrappedArray->m_ArrayName = arrayName;
-        wrappedArray->m_VtkArray->SetName(qPrintable(arrayName));
-      }
-    }
+    AppendAttrMatrixToNames(allWrappings);
   }
 }
 
@@ -312,8 +333,9 @@ void SIMPLVtkBridge::HandleArrayNameCollisions(WrappedDataArrayPtrCollection& co
 bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrapping, const WrappedDataArrayPtrCollection& newWrapping)
 {
   bool compatible = true;
+  bool multipleAm = (oldWrapping.size() > 0 && newWrapping.size() > 0);
 
-  if(oldWrapping.size() > 0 && newWrapping.size() > 0)
+  if(multipleAm)
   {
     IDataArray::Pointer oldArray = oldWrapping[0]->m_SIMPLArray;
     IDataArray::Pointer newArray = newWrapping[0]->m_SIMPLArray;
@@ -324,6 +346,13 @@ bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrappi
   if(compatible)
   {
     oldWrapping.insert(oldWrapping.end(), newWrapping.begin(), newWrapping.end());
+
+#if AM_APPEND == AM_MULTIPLE
+    if(multipleAm)
+    {
+      AppendAttrMatrixToNames(oldWrapping);
+    }
+#endif
   }
   
   return compatible;
@@ -332,21 +361,12 @@ bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrappi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer attrMat)
+bool SIMPLVtkBridge::WrapAttrMatrixData(AttributeMatrix::Pointer attrMat, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq)
 {
   if(nullptr == attrMat)
   {
     return false;
   }
-
-  AttributeMatrix::Types types = { AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face };
-  if(!types.contains(attrMat->getType()))
-  {
-    return false;
-  }
-
-  VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
-  int numCells = dataSet->GetNumberOfCells();
 
   int numTuples = 0;
   QVector<size_t> tupleDims = attrMat->getTupleDimensions();
@@ -363,70 +383,13 @@ bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, Attri
     }
   }
 
-  if(numCells == numTuples)
+  if(tuplesReq == numTuples)
   {
-    WrappedDataArrayPtrCollection newCellData = WrapAttributeMatrixAsStructs(attrMat);
+    WrappedDataArrayPtrCollection newCollectionData = WrapAttributeMatrixAsStructs(attrMat);
 
     // Merge the new cell data into the existing data
-    if(MergeWrappedArrays(wrappedDcStruct->m_CellData, newCellData))
+    if(MergeWrappedArrays(wrappedCollection, newCollectionData))
     {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool SIMPLVtkBridge::WrapPointData(WrappedDataContainerPtr wrappedDcStruct, AttributeMatrix::Pointer attrMat)
-{
-  if(nullptr == attrMat)
-  {
-    return false;
-  }
-  AttributeMatrix::Types types = { AttributeMatrix::Type::Vertex };
-  if(!types.contains(attrMat->getType()))
-  {
-    return false;
-  }
-  {
-    return false;
-  }
-
-  VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
-  int numPoints = dataSet->GetNumberOfPoints();
-
-  int numTuples = 0;
-  QVector<size_t> tupleDims = attrMat->getTupleDimensions();
-  int count = tupleDims.size();
-  for(int i = 0; i < count; i++)
-  {
-    if(i == 0)
-    {
-      numTuples = tupleDims[i];
-    }
-    else
-    {
-      numTuples *= tupleDims[i];
-    }
-  }
-
-  if(numPoints == numTuples)
-  {
-    WrappedDataArrayPtrCollection newPointData = WrapAttributeMatrixAsStructs(attrMat);
-    
-    // Merge the new point data into the existing data
-    if(MergeWrappedArrays(wrappedDcStruct->m_PointData, newPointData))
-    {
-      // Add vtkDataArrays to the vtkDataSet
-      vtkPointData* pointData = dataSet->GetPointData();
-      for(WrappedDataArrayPtr wrappedPointData : wrappedDcStruct->m_PointData)
-      {
-        pointData->AddArray(wrappedPointData->m_VtkArray);
-      }
-
       return true;
     }
   }
@@ -447,22 +410,37 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
   VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
   wrappedDcStruct->m_CellData.clear();
   wrappedDcStruct->m_PointData.clear();
-  DataContainer::AttributeMatrixMap_t attrMats = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
+  DataContainer::AttributeMatrixMap_t amMap = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
 
-  for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
+  for(DataContainer::AttributeMatrixMap_t::Iterator amIter = amMap.begin(); amIter != amMap.end(); ++amIter)
   {
-    if(!(*attrMat))
+    AttributeMatrix::Pointer attrMat = (*amIter);
+
+    if(!attrMat)
     {
       continue;
     }
-    if((*attrMat)->getTupleDimensions().size() == 0)
+    if(attrMat->getTupleDimensions().size() == 0)
     {
       continue;
     }
 
     // Wrap Cell / Point Data
-    WrapCellData(wrappedDcStruct, (*attrMat));
-    WrapPointData(wrappedDcStruct, (*attrMat));
+    VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
+    AttributeMatrix::Type amType = attrMat->getType();
+
+    AttributeMatrix::Types cellTypes = {AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face};
+    AttributeMatrix::Types pointTypes = {AttributeMatrix::Type::Vertex};
+    if(cellTypes.contains(amType))
+    {
+      int numCells = dataSet->GetNumberOfCells();
+      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_CellData, numCells);
+    }
+    else if(pointTypes.contains(amType))
+    {
+      int numPoints = dataSet->GetNumberOfPoints();
+      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_PointData, numPoints);
+    }
   }
 
   // Handle Array Collisons before adding them to the vtkDataSet
