@@ -459,6 +459,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     pointData->AddArray(wrappedPointData->m_VtkArray);
   }
 
+#if 0
   // Create PointData from CellData
   if(wrappedDcStruct->m_CellData.size() > 0)
   {
@@ -495,6 +496,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
 
     dataSet->DeepCopy(pointDataSet);
   }
+#endif
 
   // Set the active cell / point data scalars
   if(pointData->GetNumberOfArrays() > 0)
