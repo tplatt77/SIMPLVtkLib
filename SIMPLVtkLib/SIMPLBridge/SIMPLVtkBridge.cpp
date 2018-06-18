@@ -339,6 +339,12 @@ bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, Attri
     return false;
   }
 
+  AttributeMatrix::Types types = { AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face };
+  if(!types.contains(attrMat->getType()))
+  {
+    return false;
+  }
+
   VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
   int numCells = dataSet->GetNumberOfCells();
 
@@ -357,7 +363,7 @@ bool SIMPLVtkBridge::WrapCellData(WrappedDataContainerPtr wrappedDcStruct, Attri
     }
   }
 
-  if(AttributeMatrix::Type::Cell == attrMat->getType() && numCells == numTuples)
+  if(numCells == numTuples)
   {
     WrappedDataArrayPtrCollection newCellData = WrapAttributeMatrixAsStructs(attrMat);
 
@@ -380,6 +386,14 @@ bool SIMPLVtkBridge::WrapPointData(WrappedDataContainerPtr wrappedDcStruct, Attr
   {
     return false;
   }
+  AttributeMatrix::Types types = { AttributeMatrix::Type::Vertex };
+  if(!types.contains(attrMat->getType()))
+  {
+    return false;
+  }
+  {
+    return false;
+  }
 
   VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
   int numPoints = dataSet->GetNumberOfPoints();
@@ -399,7 +413,7 @@ bool SIMPLVtkBridge::WrapPointData(WrappedDataContainerPtr wrappedDcStruct, Attr
     }
   }
 
-  if(AttributeMatrix::Type::Vertex == attrMat->getType() && numPoints == numTuples)
+  if(numPoints == numTuples)
   {
     WrappedDataArrayPtrCollection newPointData = WrapAttributeMatrixAsStructs(attrMat);
     
@@ -431,6 +445,8 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
   }
 
   VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
+  wrappedDcStruct->m_CellData.clear();
+  wrappedDcStruct->m_PointData.clear();
   DataContainer::AttributeMatrixMap_t attrMats = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
 
   for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
