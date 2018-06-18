@@ -314,9 +314,14 @@ void VSInfoWidget::updateFilterInfo()
 
   if(m_Filter)
   {
+    m_Internals->activeArrayCombo->addItem(m_ViewSettings->getSolidColorIcon(), "Solid Color");
+
     QStringList arrayNames = m_Filter->getArrayNames();
-    arrayNames.prepend("Solid Color");
-    m_Internals->activeArrayCombo->addItems(arrayNames);
+    QIcon arrayIcon = m_Filter->isPointData() ? m_ViewSettings->getPointDataIcon() : m_ViewSettings->getCellDataIcon();
+    for(QString arrayName : arrayNames)
+    {
+      m_Internals->activeArrayCombo->addItem(arrayIcon, arrayName);
+    }
 
     if(m_ViewSettings)
     {

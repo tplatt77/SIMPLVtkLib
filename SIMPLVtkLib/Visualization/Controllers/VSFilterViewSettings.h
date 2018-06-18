@@ -38,6 +38,7 @@
 #include <map>
 #include <vector>
 
+#include <QtGui/QIcon>
 #include <QtCore/QObject>
 #include <QtGui/QColor>
 #include <QtWidgets/QAction>
@@ -129,8 +130,8 @@ public:
   bool isVisible();
 
   /**
-  * @brief Returns true if the axes grid is displayed for this view.  Returns false otherwise.
-  */
+   * @brief Returns true if the axes grid is displayed for this view.  Returns false otherwise.
+   */
   bool isGridVisible();
 
   /**
@@ -189,9 +190,9 @@ public:
   VTK_PTR(vtkScalarBarWidget) getScalarBarWidget();
 
   /**
-  * @brief Returns the vtkCubeAxesActor used for showing the axes grid
-  * @return
-  */
+   * @brief Returns the vtkCubeAxesActor used for showing the axes grid
+   * @return
+   */
   VTK_PTR(vtkCubeAxesActor) getCubeAxesActor();
 
   /**
@@ -201,9 +202,9 @@ public:
   double* getSolidColor() const;
 
   /**
-  * @brief Returns the color used when no scalar data exists as a QColor
-  * @return
-  */
+   * @brief Returns the color used when no scalar data exists as a QColor
+   * @return
+   */
   QColor getSolidQColor() const;
 
   /**
@@ -225,29 +226,29 @@ public:
   ActorType getActorType() const;
 
   /**
-   * @brief Returns true if the actor should be using point data instead of cell data.  
+   * @brief Returns true if the actor should be using point data instead of cell data.
    * Return false otherwise.
    * @return
    */
   bool isPointData();
 
   /**
-  * @brief Returns true if the current actor is set to render points.
-  * @return
-  */
+   * @brief Returns true if the current actor is set to render points.
+   * @return
+   */
   bool isRenderingPoints();
 
   /**
-  * @brief Returns the point size from the actor.
-  * If ActorType is Image2D or Invalid, returns -1.
-  * @return
-  */
+   * @brief Returns the point size from the actor.
+   * If ActorType is Image2D or Invalid, returns -1.
+   * @return
+   */
   int getPointSize() const;
 
   /**
-  * @brief Sets the point size for the vtkActor. Does nothing for Image2D ActorTypes.
-  * @param pointSize
-  */
+   * @brief Sets the point size for the vtkActor. Does nothing for Image2D ActorTypes.
+   * @param pointSize
+   */
   void setPointSize(int pointSize);
 
   /**
@@ -268,12 +269,59 @@ public:
    */
   void copySettings(VSFilterViewSettings* other);
 
+  /**
+   * @brief Returns the data representation menu
+   * @return
+   */
   QMenu* getRepresentationMenu();
+
+  /**
+   * @brief Returns the ColorBy menu
+   * @return
+   */
   QMenu* getColorByMenu();
+
+  /**
+   * @brief Returns the scalar mapping menu
+   * @return
+   */
   QMenu* getMapScalarsMenu();
+
+  /**
+   * @brief Returns an action allowing the user to pick the solid color.
+   * @return
+   */
   QAction* getSetColorAction();
+
+  /**
+   * @brief Returns an action allowing the user to set the object's opacity
+   * @return
+   */
   QAction* getSetOpacityAction();
+
+  /**
+   * @brief Returns an action allowing the user to turn off the scalar bar widget
+   * @return
+   */
   QAction* getToggleScalarBarAction();
+
+  /**
+   * @brief Returns the QIcon used for solid colors
+   * @return
+   */
+  QIcon getSolidColorIcon();
+
+  /**
+   * @brief Returns the QIcon used for cell data
+   * @return
+   */
+  QIcon getCellDataIcon();
+
+  /**
+   * @brief Returns the QIcon used for point data
+   * @return
+   */
+  QIcon getPointDataIcon();
 
 public slots:
   /**
@@ -293,9 +341,9 @@ public slots:
   void setVisible(bool visible);
 
   /**
-  * @brief Sets the vtkCubeAxesActor's visibility for this view
-  * @param visible
-  */
+   * @brief Sets the vtkCubeAxesActor's visibility for this view
+   * @param visible
+   */
   void setGridVisible(bool visible);
 
   /**
@@ -347,9 +395,9 @@ public slots:
   void setSolidColor(double color[3]);
 
   /**
-  * @brief Sets the color to use when there are no scalar values to map
-  * @param color
-  */
+   * @brief Sets the color to use when there are no scalar values to map
+   * @param color
+   */
   void setSolidQColor(QColor color);
 
   /**
@@ -402,6 +450,11 @@ signals:
   void swappingActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
 protected:
+  /**
+   * @brief Creates the static icons used used.
+   */
+  void setupStaticIcons();
+
   /**
    * @brief Performs initial setup commands for any actors used in the view settings
    */
@@ -535,6 +588,9 @@ private:
   QAction* m_SetColorAction = nullptr;
   QAction* m_SetOpacityAction = nullptr;
   QAction* m_ToggleScalarBarAction = nullptr;
+  static QIcon* m_SolidColorIcon;
+  static QIcon* m_CellDataIcon;
+  static QIcon* m_PointDataIcon;
 
   static double* NULL_COLOR;
 };

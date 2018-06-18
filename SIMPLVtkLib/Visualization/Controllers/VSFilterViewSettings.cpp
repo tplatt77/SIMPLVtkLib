@@ -56,6 +56,9 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
 double* VSFilterViewSettings::NULL_COLOR = new double[3]{0.0, 0.0, 0.0};
+QIcon* VSFilterViewSettings::m_SolidColorIcon = nullptr;
+QIcon* VSFilterViewSettings::m_CellDataIcon = nullptr;
+QIcon* VSFilterViewSettings::m_PointDataIcon = nullptr;
 
 // -----------------------------------------------------------------------------
 //
@@ -64,6 +67,8 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 : QObject(nullptr)
 , m_ShowFilter(true)
 {
+  setupStaticIcons();
+
   connectFilter(filter);
   setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
@@ -126,6 +131,27 @@ VSFilterViewSettings::~VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterViewSettings::setupStaticIcons()
+{
+  if(nullptr == m_SolidColorIcon)
+  {
+    m_SolidColorIcon = new QIcon(":icons/pqSolidColor.png");
+  }
+
+  if(nullptr == m_CellDataIcon)
+  {
+    m_CellDataIcon = new QIcon(":icons/pqCellData.png");
+  }
+
+  if(nullptr == m_PointDataIcon)
+  {
+    m_PointDataIcon = new QIcon(":icons/pqPointData.png");
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterViewSettings::getFilter()
 {
   return m_Filter;
@@ -158,11 +184,9 @@ void VSFilterViewSettings::setupActions()
 
   // The step variable was introduced somewhere between v5.9 and v5.10.1
   // As the only valid values are between 0.0 and 1.0, step values of 1.0 do not make sense.
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,1)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 1)
   connect(m_SetOpacityAction, &QAction::triggered, [=] {
-    setAlpha(QInputDialog::getDouble(nullptr,
-      "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity",
-      getAlpha(), 0.0, 1.0, 2, nullptr, Qt::WindowFlags(), 0.1));
+    setAlpha(QInputDialog::getDouble(nullptr, "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity", getAlpha(), 0.0, 1.0, 2, nullptr, Qt::WindowFlags(), 0.1));
 #else
   connect(m_SetOpacityAction, &QAction::triggered, [=] {
     setAlpha(QInputDialog::getDouble(nullptr, "Set Opacity for '" + getFilter()->getFilterName() + "'", "Opacity", getAlpha(), 0.0, 1.0, 2));
@@ -172,9 +196,7 @@ void VSFilterViewSettings::setupActions()
   m_ToggleScalarBarAction = new QAction("Enable Scalar Bar", this);
   m_ToggleScalarBarAction->setCheckable(true);
   m_ToggleScalarBarAction->setChecked(true);
-  connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) {
-    setScalarBarVisible(checked);
-  });
+  connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) { setScalarBarVisible(checked); });
 }
 
 // -----------------------------------------------------------------------------
@@ -231,7 +253,7 @@ int VSFilterViewSettings::getNumberOfComponents(int arrayIndex)
     vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
     array = cellData->GetAbstractArray(arrayIndex);
   }
-  
+
   if(array)
   {
     return array->GetNumberOfComponents();
@@ -262,7 +284,7 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
     vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
     array = cellData->GetAbstractArray(name);
   }
-  
+
   if(array)
   {
     return array->GetNumberOfComponents();
@@ -511,7 +533,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
   int numComponents = dataArray->GetNumberOfComponents();
   mapper->ColorByArrayComponent(m_ActiveArray, index);
-  
+
   if(isPointData())
   {
     mapper->SetScalarModeToUsePointFieldData();
@@ -730,7 +752,7 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
   }
 
   m_ToggleScalarBarAction->setChecked(visible);
-  
+
   emit showScalarBarChanged(this, visible);
 }
 
@@ -1374,12 +1396,15 @@ QMenu* VSFilterViewSettings::getColorByMenu()
   int numArrays = arrayNames.size();
 
   QAction* colorAction = arrayMenu->addAction("Solid Color");
+  colorAction->setIcon(getSolidColorIcon());
   connect(colorAction, &QAction::triggered, [=] { setActiveArrayIndex(-1); });
 
+  QIcon arrayIcon = isPointData() ? getPointDataIcon() : getCellDataIcon();
   for(int i = 0; i < numArrays; i++)
   {
     int currentIndex = i;
     QAction* arrayAction = arrayMenu->addAction(arrayNames[i]);
+    arrayAction->setIcon(arrayIcon);
     connect(arrayAction, &QAction::triggered, [=] { setActiveArrayIndex(currentIndex); });
   }
 
@@ -1427,4 +1452,43 @@ QAction* VSFilterViewSettings::getSetOpacityAction()
 QAction* VSFilterViewSettings::getToggleScalarBarAction()
 {
   return m_ToggleScalarBarAction;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QIcon VSFilterViewSettings::getSolidColorIcon()
+{
+  if(m_SolidColorIcon)
+  {
+    return *m_SolidColorIcon;
+  }
+  
+  return QIcon();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QIcon VSFilterViewSettings::getCellDataIcon() 
+{
+  if(m_CellDataIcon)
+  {
+    return *m_CellDataIcon;
+  }
+
+  return QIcon();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QIcon VSFilterViewSettings::getPointDataIcon()
+{
+  if(m_PointDataIcon)
+  {
+    return *m_PointDataIcon;
+  }
+
+  return QIcon();
 }

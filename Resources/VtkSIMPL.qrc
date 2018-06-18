@@ -1,5 +1,8 @@
 <RCC>
   <qresource>
+    <file>icons/pqSolidColor.png</file>
+    <file>icons/pqCellData.png</file>
+    <file>icons/pqPointData.png</file>
     <file>icons/pqSplitViewH12.png</file>
     <file>icons/pqSplitViewV12.png</file>
     <file>icons/pqClip.png</file>
