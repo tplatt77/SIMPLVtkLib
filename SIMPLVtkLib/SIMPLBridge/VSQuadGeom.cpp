@@ -86,6 +86,7 @@ VSQuadGeom::VSQuadGeom()
 void VSQuadGeom::SetGeometry(QuadGeom::Pointer geom)
 {
   m_Geom = geom;
+  m_Geom->findElementsContainingVert();
 }
 
 // -----------------------------------------------------------------------------

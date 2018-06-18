@@ -85,6 +85,7 @@ VSEdgeGeom::VSEdgeGeom()
 void VSEdgeGeom::SetGeometry(EdgeGeom::Pointer geom)
 {
   m_Geom = geom;
+  m_Geom->findElementsContainingVert();
 }
 
 // -----------------------------------------------------------------------------
