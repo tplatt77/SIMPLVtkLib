@@ -272,7 +272,7 @@ QStringList VSAbstractFilter::getArrayNames()
       int numPointArrays = dataSet->GetPointData()->GetNumberOfArrays();
       for(int i = 0; i < numPointArrays; i++)
       {
-        arrayNames.push_back(dataSet->GetPointData()->GetAbstractArray(i)->GetName());
+        arrayNames.push_back(dataSet->GetPointData()->GetArrayName(i));
       }
     }
     else
@@ -280,7 +280,7 @@ QStringList VSAbstractFilter::getArrayNames()
       int numCellArrays = dataSet->GetCellData()->GetNumberOfArrays();
       for(int i = 0; i < numCellArrays; i++)
       {
-        arrayNames.push_back(dataSet->GetCellData()->GetAbstractArray(i)->GetName());
+        arrayNames.push_back(dataSet->GetCellData()->GetArrayName(i));
       }
     }
   }
