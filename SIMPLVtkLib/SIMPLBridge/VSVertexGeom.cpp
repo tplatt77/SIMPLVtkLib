@@ -130,14 +130,12 @@ void VSVertexGeom::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 // -----------------------------------------------------------------------------
 void VSVertexGeom::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
-  ElementDynamicList::Pointer elementsContainingList = m_Geom->getElementsContainingVert();
+  // No implementation in VertexGeom
+  int count = m_Geom->getVertices()->getNumberOfTuples();
 
-  DynamicListArray<uint16_t, int64_t>::ElementList listArray = elementsContainingList->getElementList(ptId);
-
-  cellIds->SetNumberOfIds(listArray.ncells);
-  for(int i = 0; i < listArray.ncells; i++)
+  for(int i = 0; i < count; i++)
   {
-    cellIds->SetId(i, listArray.cells[i]);
+    cellIds->SetId(i, i);
   }
 }
 
