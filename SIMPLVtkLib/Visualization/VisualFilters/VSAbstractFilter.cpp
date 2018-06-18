@@ -349,28 +349,28 @@ QStringList VSAbstractFilter::getComponentList(vtkAbstractArray* array)
 
   if(array)
   {
+    bool isCharArray = array->IsA("vtkUnsignedCharArray");
+    bool isFloatArray = array->IsA("vtkFloatArray");
     int numComponent = array->GetNumberOfComponents();
-    bool isCharArray = array->IsA("vtkCharArray");
     if(isCharArray && numComponent == 3)
     {
       componentNames.push_back("R");
       componentNames.push_back("G");
       componentNames.push_back("B");
     }
-    else if(isCharArray && numComponent == 4)
+    else if(isFloatArray && numComponent == 3)
     {
-      componentNames.push_back("R");
-      componentNames.push_back("G");
-      componentNames.push_back("B");
-      componentNames.push_back("A");
+      componentNames.push_back("X");
+      componentNames.push_back("Y");
+      componentNames.push_back("Z");
     }
     else
     {
       for(int i = 0; i < numComponent; i++)
       {
-        componentNames.push_back("Comp_" + QString::number(i + 1));
+        componentNames.push_back("Comp " + QString::number(i + 1));
       }
-    }
+      }
 
     if(numComponent > 1)
     {

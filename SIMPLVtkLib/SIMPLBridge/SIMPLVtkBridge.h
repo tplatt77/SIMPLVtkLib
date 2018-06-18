@@ -232,15 +232,30 @@ public:
 
     vtkArray->SetVoidArray(array->getVoidPointer(0), array->getSize(), 1);
 
-    for(int i = 0; i < vtkArray->GetNumberOfComponents(); i++)
+    int numComp = vtkArray->GetNumberOfComponents();
+    bool isCharArray = vtkArray->IsA("vtkUnsignedCharArray");
+    bool isFloatArray = vtkArray->IsA("vtkFloatArray");
+    if(isCharArray && numComp == 3)
     {
-      int strlen = std::strlen(qPrintable(array->getName())) + ((i + 1) / 10 + 1) + 2;
-      char* componentName = new char[strlen];
-      std::strcpy(componentName, qPrintable(array->getName()));
-      std::strcat(componentName, "_");
-      std::strcat(componentName, std::to_string(i).c_str());
-
-      vtkArray->SetComponentName(i, componentName);
+      QString arrayName = array->getName();
+      vtkArray->SetComponentName(0, qPrintable(arrayName + " R"));
+      vtkArray->SetComponentName(1, qPrintable(arrayName + " G"));
+      vtkArray->SetComponentName(2, qPrintable(arrayName + " B"));
+    }
+    else if(isFloatArray && numComp == 3)
+    {
+      QString arrayName = array->getName();
+      vtkArray->SetComponentName(0, qPrintable(arrayName + " X"));
+      vtkArray->SetComponentName(1, qPrintable(arrayName + " Y"));
+      vtkArray->SetComponentName(2, qPrintable(arrayName + " Z"));
+    }
+    else
+    {
+      for(int i = 0; i < numComp; i++)
+      {
+        QString compName = array->getName() + " Comp_" + QString::number(i+1);
+        vtkArray->SetComponentName(i, qPrintable(compName));
+      }
     }
 
     return vtkArray;
