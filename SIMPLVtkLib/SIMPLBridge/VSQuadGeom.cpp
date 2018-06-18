@@ -218,7 +218,6 @@ vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
 // -----------------------------------------------------------------------------
 vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
 {
-  vtkErrorMacro("Read only container.");
   return -1;
 }
 

@@ -212,8 +212,6 @@ vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptId
 vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
 {
   // VertexGeometry should probably not be modified by VTK calls
-  // Do nothing
-  vtkErrorMacro("Read only container.");
   return -1;
 }
 

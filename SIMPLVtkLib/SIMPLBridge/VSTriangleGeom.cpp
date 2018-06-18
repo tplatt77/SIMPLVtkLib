@@ -221,8 +221,7 @@ vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* pt
 vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
 {
   // TriangleGeometry should probably not be modified by VTK calls
-  // Do nothing
-  vtkErrorMacro("Read only container.");
+  // To prevent spamming errors when loading this data, do not call vtkErrorMacro
   return -1;
 }
 
