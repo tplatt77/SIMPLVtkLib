@@ -271,18 +271,17 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
     return -1;
   }
 
-  const char* name = arrayName.toLatin1();
   vtkAbstractArray* array = nullptr;
 
   if(isPointData())
   {
     vtkPointData* pointData = m_Filter->getOutput()->GetPointData();
-    array = pointData->GetAbstractArray(name);
+    array = pointData->GetAbstractArray(qPrintable(arrayName));
   }
   else
   {
     vtkCellData* cellData = m_Filter->getOutput()->GetCellData();
-    array = cellData->GetAbstractArray(name);
+    array = cellData->GetAbstractArray(qPrintable(arrayName));
   }
 
   if(array)
@@ -290,6 +289,15 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
     return array->GetNumberOfComponents();
   }
   return 0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::hasMulipleComponents()
+{
+  int numComp = getNumberOfComponents(getActiveArrayName());
+  return numComp > 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -1418,18 +1426,28 @@ QMenu* VSFilterViewSettings::getRepresentationMenu()
   QMenu* representationMenu = new QMenu("Representation");
 
   QAction* outlineAction = representationMenu->addAction("Outline");
+  outlineAction->setCheckable(true);
+  outlineAction->setChecked(getRepresentation() == VSFilterViewSettings::Representation::Outline);
   connect(outlineAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Outline); });
 
   QAction* pointsAction = representationMenu->addAction("Points");
+  pointsAction->setCheckable(true);
+  pointsAction->setChecked(getRepresentation() == VSFilterViewSettings::Representation::Points);
   connect(pointsAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Points); });
 
   QAction* wireframeAction = representationMenu->addAction("WireFrame");
+  wireframeAction->setCheckable(true);
+  wireframeAction->setChecked(getRepresentation() == VSFilterViewSettings::Representation::Wireframe);
   connect(wireframeAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Wireframe); });
 
   QAction* surfaceAction = representationMenu->addAction("Surface");
+  surfaceAction->setCheckable(true);
+  surfaceAction->setChecked(getRepresentation() == VSFilterViewSettings::Representation::Surface);
   connect(surfaceAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::Surface); });
 
   QAction* surfEdgesAction = representationMenu->addAction("Surface with Edges");
+  surfEdgesAction->setCheckable(true);
+  surfEdgesAction->setChecked(getRepresentation() == VSFilterViewSettings::Representation::SurfaceWithEdges);
   connect(surfEdgesAction, &QAction::triggered, [=] { setRepresentation(VSFilterViewSettings::Representation::SurfaceWithEdges); });
 
   return representationMenu;
@@ -1445,6 +1463,8 @@ QMenu* VSFilterViewSettings::getColorByMenu()
   int numArrays = arrayNames.size();
 
   QAction* colorAction = arrayMenu->addAction("Solid Color");
+  colorAction->setCheckable(true);
+  colorAction->setChecked(getActiveArrayName() == QString::null);
   colorAction->setIcon(getSolidColorIcon());
   connect(colorAction, &QAction::triggered, [=] { setActiveArrayName(QString::null); });
 
@@ -1454,10 +1474,37 @@ QMenu* VSFilterViewSettings::getColorByMenu()
     QString arrayName = arrayNames[i];
     QAction* arrayAction = arrayMenu->addAction(arrayName);
     arrayAction->setIcon(arrayIcon);
+    arrayAction->setCheckable(true);
+    arrayAction->setChecked(getActiveArrayName() == arrayName);
     connect(arrayAction, &QAction::triggered, [=] { setActiveArrayName(arrayName); });
   }
 
   return arrayMenu;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSFilterViewSettings::getArrayComponentMenu()
+{
+  QMenu* componentMenu = new QMenu("Array Component");
+  QStringList componentList = m_Filter->getComponentList(getActiveArrayName());
+  int count = componentList.size();
+  int offset = count > 1 ? 1 : 0;
+
+  // Individual components
+  for(int i = 0; i < count; i++)
+  {
+    QString componentName = componentList[i];
+    int index = i - offset; // Account for Magnitude at -1
+
+    QAction* compAction = componentMenu->addAction(componentName);
+    compAction->setCheckable(true);
+    compAction->setChecked(getActiveComponentIndex() == index);
+    connect(compAction, &QAction::triggered, [=] { setActiveComponentIndex(index); });
+  }
+
+  return componentMenu;
 }
 
 // -----------------------------------------------------------------------------

@@ -168,6 +168,12 @@ public:
   int getNumberOfComponents(QString name);
 
   /**
+  * @brief Returns true if the active array has multiple components
+  * @return
+  */
+  bool hasMulipleComponents();
+
+  /**
    * @brief Returns the ColorMapping value for mapping filter values to a lookup table.
    * @return
    */
@@ -287,6 +293,12 @@ public:
    * @return
    */
   QMenu* getColorByMenu();
+
+  /**
+   * @brief Returns the ArrayComponent menu
+   * @return
+   */
+  QMenu* getArrayComponentMenu();
 
   /**
    * @brief Returns the scalar mapping menu

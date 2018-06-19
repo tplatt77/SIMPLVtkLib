@@ -123,8 +123,7 @@ void VSViewWidget::connectSlots()
   connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
 
   // Control the visualization widget's context menu
-  connect(getVisualizationWidget(), &VSVisualizationWidget::customContextMenuRequested,
-    this, &VSViewWidget::showVisualizationContextMenu);
+  connect(getVisualizationWidget(), &VSVisualizationWidget::customContextMenuRequested, this, &VSViewWidget::showVisualizationContextMenu);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,7 +159,7 @@ void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
   if(settings)
   {
     QString filterName = settings->getFilter()->getFilterName();
-    
+
     QAction* selectFilterAction = menu.addAction("Select '" + filterName + "'");
     connect(selectFilterAction, &QAction::triggered, [=] { selectFilter(settings->getFilter()); });
 
@@ -194,7 +193,6 @@ void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
     }
 
     menu.addSeparator();
-    
 
     // Rendering Settings from VSFilterViewSettings
     {
@@ -205,19 +203,23 @@ void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
       menu.addSeparator();
 
       // Representation menu
-      QMenu* representationMenu = settings->getRepresentationMenu();
-      menu.addMenu(representationMenu);
+      menu.addMenu(settings->getRepresentationMenu());
 
       // Color By Array menu
-      QMenu* arrayMenu = settings->getColorByMenu();
-      menu.addMenu(arrayMenu);
+      menu.addMenu(settings->getColorByMenu());
+
+      // Color by Component menu
+      if(settings->hasMulipleComponents())
+      {
+        menu.addMenu(settings->getArrayComponentMenu());
+      }
     }
-    
+
     menu.addSeparator();
 
     QAction* deleteFilterAction = menu.addAction("Delete '" + filterName + "'");
     connect(deleteFilterAction, &QAction::triggered, [=] { settings->getFilter()->deleteFilter(); });
-    
+
     menu.addSeparator();
   }
 
