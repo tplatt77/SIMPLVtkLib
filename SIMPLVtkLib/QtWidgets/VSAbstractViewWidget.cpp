@@ -456,7 +456,7 @@ void VSAbstractViewWidget::changeFilterComponentIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterMapColors(Qt::CheckState mapColorState)
+void VSAbstractViewWidget::changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState)
 {
   if(m_ActiveFilterSettings)
   {

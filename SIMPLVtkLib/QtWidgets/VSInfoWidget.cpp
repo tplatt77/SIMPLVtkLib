@@ -96,7 +96,7 @@ void VSInfoWidget::setupGui()
   connect(m_Internals->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateActiveComponentIndex(int)));
   connect(m_Internals->pointSizeEdit, &QLineEdit::textChanged, this, &VSInfoWidget::updatePointSize);
   connect(m_Internals->pointSphereCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::updateRenderPointSpheres);
-  connect(m_Internals->mapScalarsCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::setScalarsMapped);
+  connect(m_Internals->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
   connect(m_Internals->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSInfoWidget::setScalarBarVisible);
   connect(m_Internals->invertColorScaleBtn, &QPushButton::clicked, this, &VSInfoWidget::invertScalarBar);
   connect(m_Internals->alphaSlider, &QSlider::valueChanged, this, &VSInfoWidget::alphaSliderMoved);
@@ -369,7 +369,7 @@ void VSInfoWidget::updateViewSettingInfo()
     m_Internals->activeComponentCombo->setCurrentIndex(-1);
 
     m_Internals->showScalarBarCheckBox->setChecked(Qt::Unchecked);
-    m_Internals->mapScalarsCheckBox->setChecked(Qt::Unchecked);
+    m_Internals->mapScalarsComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ColorMapping::None));
 
     m_Internals->viewSettingsContainer->setEnabled(m_Filter);
     m_Internals->viewSettingsWidget->setEnabled(false);
@@ -407,7 +407,7 @@ void VSInfoWidget::updateViewSettingInfo()
   m_Internals->pointSphereCheckBox->setCheckState(pointSphereCheckState);
 
   m_Internals->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
-  m_Internals->mapScalarsCheckBox->setCheckState(m_ViewSettings->getMapColors());
+  m_Internals->mapScalarsComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getMapColors()));
   m_Internals->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
 
   if(m_ViewSettings->isValid())
@@ -547,14 +547,14 @@ void VSInfoWidget::updateRenderPointSpheres(int checkState)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setScalarsMapped(int checkState)
+void VSInfoWidget::setScalarsMapped(int index)
 {
   if(nullptr == m_ViewSettings)
   {
     return;
   }
 
-  m_ViewSettings->setMapColors(static_cast<Qt::CheckState>(checkState));
+  m_ViewSettings->setMapColors(static_cast<VSFilterViewSettings::ColorMapping>(index));
 }
 
 // -----------------------------------------------------------------------------
@@ -731,11 +731,11 @@ void VSInfoWidget::listenPointSphere(VSFilterViewSettings* settings, bool render
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, Qt::CheckState state)
+void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping state)
 {
-  m_Internals->mapScalarsCheckBox->blockSignals(true);
-  m_Internals->mapScalarsCheckBox->setCheckState(state);
-  m_Internals->mapScalarsCheckBox->blockSignals(false);
+  m_Internals->mapScalarsComboBox->blockSignals(true);
+  m_Internals->mapScalarsComboBox->setCurrentIndex(static_cast<int>(state));
+  m_Internals->mapScalarsComboBox->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------

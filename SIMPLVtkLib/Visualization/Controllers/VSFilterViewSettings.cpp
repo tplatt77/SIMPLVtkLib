@@ -295,7 +295,7 @@ int VSFilterViewSettings::getNumberOfComponents(QString arrayName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Qt::CheckState VSFilterViewSettings::getMapColors()
+VSFilterViewSettings::ColorMapping VSFilterViewSettings::getMapColors()
 {
   return m_MapColors;
 }
@@ -547,9 +547,9 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
   emit activeArrayNameChanged(this, m_ActiveArrayName);
   setActiveComponentIndex(-1);
 
-  if(isColorArray(dataArray) && m_MapColors == Qt::Checked)
+  if(isColorArray(dataArray) && m_MapColors == ColorMapping::Always)
   {
-    setMapColors(Qt::CheckState::PartiallyChecked);
+    setMapColors(ColorMapping::NonColors);
   }
 }
 
@@ -667,8 +667,9 @@ void VSFilterViewSettings::updateColorMode()
 
   vtkDataArray* dataArray = getDataArray();
   bool unmapColorArray = isColorArray(dataArray) && (m_ActiveComponent == -1);
+  bool mapColors = (ColorMapping::NonColors == m_MapColors && !unmapColorArray) || ColorMapping::Always == m_MapColors;
 
-  if(m_MapColors && !unmapColorArray)
+  if(mapColors)
   {
     mapper->SetColorModeToMapScalars();
   }
@@ -683,14 +684,14 @@ void VSFilterViewSettings::updateColorMode()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setMapColors(Qt::CheckState mapColorState)
+void VSFilterViewSettings::setMapColors(ColorMapping mapColors)
 {
   if(false == isValid())
   {
     return;
   }
 
-  m_MapColors = mapColorState;
+  m_MapColors = mapColors;
 
   updateColorMode();
   emit mapColorsChanged(this, m_MapColors);
@@ -908,7 +909,7 @@ void VSFilterViewSettings::setupImageActors()
     actor = vtkImageSlice::New();
     actor->SetMapper(mapper);
 
-    setMapColors(Qt::Unchecked);
+    setMapColors(ColorMapping::None);
     setScalarBarVisible(false);
   }
   else
@@ -1007,7 +1008,7 @@ void VSFilterViewSettings::setupDataSetActors()
   }
   else
   {
-    setMapColors(Qt::Unchecked);
+    setMapColors(ColorMapping::None);
     setScalarBarVisible(false);
     m_HadNoArrays = true;
   }
@@ -1123,7 +1124,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     if(filter->getArrayNames().size() < 1)
     {
       setScalarBarVisible(false);
-      setMapColors(Qt::Unchecked);
+      setMapColors(ColorMapping::None);
       m_ActiveArrayName = QString::null;
       m_HadNoArrays = true;
     }
@@ -1466,14 +1467,20 @@ QMenu* VSFilterViewSettings::getMapScalarsMenu()
 {
   QMenu* mapScalarsMenu = new QMenu("Map Scalars");
 
-  QAction* mapAllAction = mapScalarsMenu->addAction("Map All Arrays");
-  connect(mapAllAction, &QAction::triggered, [=] { setMapColors(Qt::Checked); });
+  QAction* mapAllAction = mapScalarsMenu->addAction("Always");
+  mapAllAction->setCheckable(true);
+  mapAllAction->setChecked(getMapColors() == ColorMapping::Always);
+  connect(mapAllAction, &QAction::triggered, [=] { setMapColors(ColorMapping::Always); });
 
-  QAction* noMapAction = mapScalarsMenu->addAction("Do Not Map Arrays");
-  connect(noMapAction, &QAction::triggered, [=] { setMapColors(Qt::Unchecked); });
+  QAction* semiMapAction = mapScalarsMenu->addAction("Non-Color Arrays");
+  semiMapAction->setCheckable(true);
+  semiMapAction->setChecked(getMapColors() == ColorMapping::NonColors);
+  connect(semiMapAction, &QAction::triggered, [=] { setMapColors(ColorMapping::NonColors); });
 
-  QAction* semiMapAction = mapScalarsMenu->addAction("Map Non-Color Arrays");
-  connect(semiMapAction, &QAction::triggered, [=] { setMapColors(Qt::PartiallyChecked); });
+  QAction* noMapAction = mapScalarsMenu->addAction("Never");
+  noMapAction->setCheckable(true);
+  noMapAction->setChecked(getMapColors() == ColorMapping::None);
+  connect(noMapAction, &QAction::triggered, [=] { setMapColors(ColorMapping::None); });
 
   return mapScalarsMenu;
 }

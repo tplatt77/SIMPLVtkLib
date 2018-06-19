@@ -287,7 +287,7 @@
               <height>0</height>
              </size>
             </property>
-            <layout class="QGridLayout" name="gridLayout_2">
+            <layout class="QGridLayout" name="colorMappingLayout">
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -303,24 +303,33 @@
              <property name="spacing">
               <number>4</number>
              </property>
-             <item row="1" column="0">
-              <widget class="QCheckBox" name="mapScalarsCheckBox">
-               <property name="text">
-                <string>Map Scalars</string>
+             <item row="0" column="0" colspan="2">
+              <widget class="QLabel" name="colorMapLabel">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
                </property>
-               <property name="tristate">
-                <bool>true</bool>
+               <property name="text">
+                <string>Color Mapping</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QCheckBox" name="showScalarBarCheckBox">
+              <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
-                <string>Show Scalar Bar</string>
+                <string>Map Scalars</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="4" column="0" colspan="3">
               <widget class="QWidget" name="colorPresetWidget" native="true">
                <layout class="QGridLayout" name="gridLayout_9">
                 <property name="leftMargin">
@@ -338,33 +347,52 @@
                 <property name="spacing">
                  <number>4</number>
                 </property>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="selectPresetColorsBtn">
-                  <property name="text">
-                   <string>Select Preset Colors</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
+                <item row="1" column="1">
                  <widget class="QPushButton" name="invertColorScaleBtn">
                   <property name="text">
                    <string>Invert Color Scale</string>
                   </property>
                  </widget>
                 </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="selectPresetColorsBtn">
+                  <property name="text">
+                   <string>Select Preset Colors</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="colorMapLabel">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
+             <item row="2" column="1" colspan="2">
+              <widget class="QComboBox" name="mapScalarsComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
+               <item>
+                <property name="text">
+                 <string>Always</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Non-Colors</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Never</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="2">
+              <widget class="QCheckBox" name="showScalarBarCheckBox">
                <property name="text">
-                <string>Color Mapping</string>
+                <string>Show Scalar Bar</string>
                </property>
               </widget>
              </item>

@@ -132,10 +132,10 @@ protected slots:
   void updateRenderPointSpheres(int checkState);
 
   /**
-   * @brief Slot for handling user interaction with the mapScalarsCheckBox
-   * @param checkState
+   * @brief Slot for handling user interaction with the mapScalarsComboBox
+   * @param colorMappingIndex
    */
-  void setScalarsMapped(int checkState);
+  void setScalarsMapped(int colorMappingIndex);
 
   /**
    * @brief Slot for handling user interaction with the showScalarBarCheckBox
@@ -216,9 +216,9 @@ protected slots:
   /**
    * @brief Listens for the active VSFilterViewSettings map colors value to change
    * @param settings
-   * @param state
+   * @param colorMapping
    */
-  void listenMapColors(VSFilterViewSettings* settings, Qt::CheckState state);
+  void listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping colorMapping);
 
   /**
    * @brief Listens for the active VSFilterViewSettings alpha value to change

@@ -189,6 +189,8 @@ void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
       connect(showOnlyScalarBarsAction, &QAction::triggered, [=] { showOnlyScalarBar(settings); });
 
       scalarBarMenu->addAction(settings->getToggleScalarBarAction());
+
+      menu.addMenu(settings->getMapScalarsMenu());
     }
 
     menu.addSeparator();

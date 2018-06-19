@@ -94,6 +94,13 @@ public:
     Image2D = 1
   };
 
+  enum class ColorMapping : int
+  {
+    Always = 0,
+    NonColors,
+    None
+  };
+
   /**
    * @brief Constructor
    * @param filter
@@ -161,10 +168,10 @@ public:
   int getNumberOfComponents(QString name);
 
   /**
-   * @brief Returns the check state for mapping filter values to a lookup table.
+   * @brief Returns the ColorMapping value for mapping filter values to a lookup table.
    * @return
    */
-  Qt::CheckState getMapColors();
+  ColorMapping getMapColors();
 
   /**
    * @brief Returns tha alpha transparency used for the displaying the actor
@@ -362,7 +369,7 @@ public slots:
    * @brief Updates whether or not the data values are mapped to the lookup table for this view
    * @param mapColors
    */
-  void setMapColors(Qt::CheckState mapColorState);
+  void setMapColors(ColorMapping mapColors);
 
   /**
    * @brief Sets the object's alpha transparency
@@ -441,7 +448,7 @@ signals:
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
   void pointSizeChanged(VSFilterViewSettings*, int);
   void renderPointSpheresChanged(VSFilterViewSettings*, bool);
-  void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
+  void mapColorsChanged(VSFilterViewSettings*, ColorMapping);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void requiresRender();
@@ -586,7 +593,7 @@ private:
   bool m_ShowFilter = true;
   QString m_ActiveArrayName;
   int m_ActiveComponent = -1;
-  Qt::CheckState m_MapColors = Qt::Checked;
+  ColorMapping m_MapColors = ColorMapping::NonColors;
   Representation m_Representation = Representation::Default;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;

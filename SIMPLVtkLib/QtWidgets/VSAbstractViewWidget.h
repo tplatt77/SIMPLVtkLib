@@ -251,7 +251,7 @@ protected slots:
    * @brief Change the active filter's color map setting
    * @param mapColorState
    */
-  void changeFilterMapColors(Qt::CheckState mapColorState);
+  void changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState);
 
   /**
    * @brief Change the active filter's scalar bar visibility
