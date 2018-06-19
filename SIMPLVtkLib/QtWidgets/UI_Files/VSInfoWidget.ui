@@ -325,7 +325,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Map Scalars</string>
+                <string>Map Scalars:</string>
                </property>
               </widget>
              </item>
