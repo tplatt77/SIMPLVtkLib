@@ -72,6 +72,8 @@ VSQuickWidget::VSQuickWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSQuickWidget::setupGui()
 {
+  setFormat(QVTKOpenGLWidget::defaultFormat());
+
   m_InteractorAdaptor = new QVTKInteractorAdapter(this);
   m_InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio());
 

@@ -81,6 +81,8 @@ VSVisualizationWidget::VSVisualizationWidget(QWidget* parent, unsigned int numLa
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::setupGui()
 {
+  setFormat(QVTKOpenGLWidget::defaultFormat());
+
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
     this, SLOT(showContextMenu(const QPoint&)));
