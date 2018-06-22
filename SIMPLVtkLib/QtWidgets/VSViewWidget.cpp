@@ -37,6 +37,7 @@
 
 #include <QQmlError>
 
+#include <QtCore/QPoint>
 #include <QtGui/QPainter>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
@@ -65,6 +66,7 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
   m_Internals->setupUi(this);
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
   m_Internals->quickWidget->setInteractorStyle(m_InteractorStyle);
+  m_Internals->quickWidget->setViewWidget(this);
   m_InteractorStyle->setViewWidget(this);
 
   setupGui();
@@ -126,7 +128,7 @@ void VSViewWidget::connectSlots()
   connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
 
   // Control the visualization widget's context menu
-  connect(getVisualizationWidget(), &VSVisualizationWidget::customContextMenuRequested, this, &VSViewWidget::showVisualizationContextMenu);
+  connect(getVisualizationWidget(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showVisualizationContextMenu(const QPoint&)));
 }
 
 // -----------------------------------------------------------------------------

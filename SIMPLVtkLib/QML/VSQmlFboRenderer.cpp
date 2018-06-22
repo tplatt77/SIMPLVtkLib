@@ -62,8 +62,8 @@ void VSQmlFboRenderer::setupGui()
 {
   if(!m_QmlRenderWindow->GetInteractor())
   {
-    VTK_NEW(vtkWin32RenderWindowInteractor, interactor);
-    //VTK_NEW(vtkRenderWindowInteractor, interactor);
+    //VTK_NEW(vtkWin32RenderWindowInteractor, interactor);
+    VTK_NEW(vtkRenderWindowInteractor, interactor);
     VTK_NEW(VSInteractorStyleFilterCamera, interactorStyle);
 
     interactor->SetUseTDx(false);

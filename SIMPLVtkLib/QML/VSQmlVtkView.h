@@ -54,6 +54,8 @@
 
 class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
 {
+  Q_OBJECT
+
 public:
   //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
 
@@ -68,6 +70,9 @@ public:
 
   vtkRenderer* getRenderer();
   vtkCamera* getCamera();
+
+signals:
+  void rendererCreated() const;
 
 private:
   VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;

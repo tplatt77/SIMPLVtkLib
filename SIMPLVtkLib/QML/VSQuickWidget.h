@@ -63,6 +63,8 @@ public:
 
   vtkRenderWindowInteractor* GetInteractor();
 
+  void setViewWidget(VSAbstractViewWidget* view);
+
   /**
   * @brief Saves a screenshot to a given file path
   * @param fileName
@@ -209,12 +211,15 @@ protected:
 protected slots:
   virtual void showContextMenu(const QPoint&);
   virtual void startLinkCameras();
+  void finishInit();
+  void updatedStatus(QQuickWidget::Status);
 
 private:
   QVTKInteractorAdapter* m_InteractorAdaptor;
   LinkedRenderWindowType m_LinkedRenderWindows;
   QAction* m_LinkCameraAction = nullptr;
   bool m_OwnContextMenu = true;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
 
   unsigned int m_NumRenderLayers;
 

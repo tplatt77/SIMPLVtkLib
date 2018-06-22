@@ -201,9 +201,19 @@ bool VSInteractorStyleFilterCamera::dragFilterKey()
 // -----------------------------------------------------------------------------
 VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilterFromScreenCoords(int pos[2])
 {
+  FilterProp filterProp;
+
+  if(!m_ViewWidget)
+  {
+    filterProp.first = nullptr;
+    filterProp.second = nullptr;
+
+    return filterProp;
+  }
+
   vtkRenderer* renderer = this->GetDefaultRenderer();
 
-  FilterProp filterProp;
+  
 
   VTK_NEW(vtkPropPicker, picker);
   picker->Pick(pos[0], pos[1], 0, renderer);

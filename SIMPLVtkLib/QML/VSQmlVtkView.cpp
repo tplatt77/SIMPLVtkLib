@@ -99,7 +99,7 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
   m_Renderer->SetBackground(bgColor);
 
   m_FBO = new VSQmlFboRenderer(m_RenderWindow);
-
+  
 #if 0
   VSInteractorStyleFilterCamera* camera = m_RenderWindow->getInteractorStyle();
   if(camera)
@@ -108,6 +108,7 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
   }
 #endif
 
+  emit rendererCreated();
   return m_FBO;
 }
 

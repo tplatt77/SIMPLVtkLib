@@ -72,11 +72,16 @@ VSQuickWidget::VSQuickWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSQuickWidget::setupGui()
 {
+  // Set the widget formatting so that VTK can interface with it.
   setFormat(QVTKOpenGLWidget::defaultFormat());
 
+  // Create the QVTKInteractorAdapter so that Qt and VTK can interact
   m_InteractorAdaptor = new QVTKInteractorAdapter(this);
   m_InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio());
 
+  connect(this, &QQuickWidget::statusChanged, this, &VSQuickWidget::updatedStatus);
+
+  // Register required QML types
   static bool initialized = false;
   if(!initialized)
   {
@@ -85,9 +90,47 @@ void VSQuickWidget::setupGui()
     initialized = true;
   }
 
+  // Set Source
   setResizeMode(QQuickWidget::SizeRootObjectToView);
-
   setSource(QUrl("qrc:/QML/VSVtk.qml"));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQuickWidget::finishInit()
+{
+  // Context menu
+  this->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+    this, SLOT(showContextMenu(const QPoint&)));
+
+  // Set Camera's VSViewWidget
+  VSInteractorStyleFilterCamera* interactorStyle;
+  interactorStyle = VSInteractorStyleFilterCamera::SafeDownCast(getVtkView()->GetRenderWindow()->getInteractorStyle());
+  if(interactorStyle)
+  {
+    interactorStyle->setViewWidget(m_ViewWidget);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQuickWidget::updatedStatus(QQuickWidget::Status status)
+{
+  if(QQuickWidget::Status::Ready == status)
+  {
+    connect(getVtkView(), SIGNAL(rendererCreated()), this, SLOT(finishInit()));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQuickWidget::setViewWidget(VSAbstractViewWidget* view)
+{
+  m_ViewWidget = view;
 }
 
 // -----------------------------------------------------------------------------
@@ -163,6 +206,8 @@ vtkRenderWindowInteractor* VSQuickWidget::GetInteractor()
 // -----------------------------------------------------------------------------
 void VSQuickWidget::copy(VSQuickWidget* other)
 {
+  return;
+
   // Copy camera values from another visualization widget
   vtkCamera* otherCamera = other->getVtkView()->getRenderer()->GetActiveCamera();
   vtkCamera* thisCamera = getVtkView()->getRenderer()->GetActiveCamera();
@@ -657,6 +702,8 @@ VSAbstractFilter* VSQuickWidget::getFilterFromScreenCoords(int pos[2])
   {
     return nullptr;
   }
+
+  //style->setViewWidget(m_ViewWidget);
 
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
