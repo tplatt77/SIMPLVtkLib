@@ -148,6 +148,7 @@ foreach(h ${SIMPLVtkLib_Generated_RC_SRCS})
 endforeach()
 
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/SourceList.cmake)
+include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QML/SourceList.cmake)
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/SourceList.cmake)
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/SourceList.cmake)
 
@@ -194,6 +195,9 @@ set(Project_SRCS
   ${${PROJECT_NAME}_QtWidgets_SRCS}
   ${${PROJECT_NAME}_QtWidgets_Generated_UI_HDRS}
 
+  ${${PROJECT_NAME}_QML_HDRS}
+  ${${PROJECT_NAME}_QML_SRCS}
+
   ${${PROJECT_NAME}_Dialogs_Moc_HDRS}
   ${${PROJECT_NAME}_Dialogs_HDRS}
   ${${PROJECT_NAME}_Dialogs_SRCS}
@@ -217,6 +221,7 @@ set(SIMPLVtk_VtkComponents
     vtkFiltersSources
     vtkGUISupportQt
     vtkRenderingCore
+    vtkRenderingExternal
     vtkRenderingFreeType
     vtkRenderingImage
     vtkRenderingOpenGL2

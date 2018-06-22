@@ -106,7 +106,7 @@ void VSMainWidget::renderAll()
   QVector<VSAbstractViewWidget*> viewWidgets = getAllViewWidgets();
   for(auto iter = viewWidgets.begin(); iter != viewWidgets.end(); iter++)
   {
-    VSVisualizationWidget* visualizationWidget = (*iter)->getVisualizationWidget();
+    VSQuickWidget* visualizationWidget = (*iter)->getVisualizationWidget();
     if(visualizationWidget)
     {
       // Render the VTK widget

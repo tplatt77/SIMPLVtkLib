@@ -45,6 +45,8 @@
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
+#include "SIMPLVtkLib/QML/VSQuickWidget.h"
+
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
@@ -121,7 +123,7 @@ public:
   /**
    * @brief Returns the VSVisualizationWidget used
    */
-  virtual VSVisualizationWidget* getVisualizationWidget() const = 0;
+  virtual VSQuickWidget* getVisualizationWidget() const = 0;
 
   /**
   * @brief Returns the corresponding VSAbstractFilter for the given prop

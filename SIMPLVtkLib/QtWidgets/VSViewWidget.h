@@ -39,6 +39,8 @@
 #include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+#include "SIMPLVtkLib/QML/VSQuickWidget.h"
+
 /**
  * @class VSViewWidget VSViewWidget.h SIMPLVtkLib/QtWidgets/VSViewWidget.h
  * @brief This class handles a single visualization widget and any corresponding
@@ -76,7 +78,7 @@ public:
   /**
    * @brief Returns the VSVisualizationWidget used
    */
-  virtual VSVisualizationWidget* getVisualizationWidget() const override;
+  virtual VSQuickWidget* getVisualizationWidget() const override;
 
   /**
   * @brief Returns the visualization filter based on the given mouse coordinates.

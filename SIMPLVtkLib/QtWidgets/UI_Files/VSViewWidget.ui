@@ -30,15 +30,26 @@
     <number>4</number>
    </property>
    <item row="3" column="2">
-    <widget class="VSVisualizationWidget" name="visualizationWidget" native="true">
+    <widget class="VSQuickWidget" name="quickWidget" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>1</horstretch>
        <verstretch>1</verstretch>
       </sizepolicy>
      </property>
-     <property name="styleSheet">
-      <string notr="true"/>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="VSVisualizationWidget" name="visualizationWidget" native="true">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -168,6 +179,12 @@
    <class>VSVisualizationWidget</class>
    <extends>QWidget</extends>
    <header>VSVisualizationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VSQuickWidget</class>
+   <extends>QWidget</extends>
+   <header>SIMPLVtkLib/QML/VSQuickWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

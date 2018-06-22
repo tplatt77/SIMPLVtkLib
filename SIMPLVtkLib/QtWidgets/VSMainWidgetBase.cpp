@@ -209,11 +209,11 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
-  QVTKInteractor* interactor = nullptr;
+  vtkRenderWindowInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
   if(activeViewWidget != nullptr)
   {
-    VSVisualizationWidget* vizWidget = activeViewWidget->getVisualizationWidget();
+    VSQuickWidget* vizWidget = activeViewWidget->getVisualizationWidget();
     if(vizWidget != nullptr)
     {
       interactor = vizWidget->GetInteractor();

@@ -35,6 +35,8 @@
 
 #include "VSViewWidget.h"
 
+#include <QQmlError>
+
 #include <QtGui/QPainter>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
@@ -62,6 +64,7 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
 {
   m_Internals->setupUi(this);
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
+  m_Internals->quickWidget->setInteractorStyle(m_InteractorStyle);
   m_InteractorStyle->setViewWidget(this);
 
   setupGui();
@@ -138,14 +141,14 @@ VSAbstractViewWidget* VSViewWidget::clone()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSVisualizationWidget* VSViewWidget::getVisualizationWidget() const
+VSQuickWidget* VSViewWidget::getVisualizationWidget() const
 {
   if(nullptr == m_Internals)
   {
     return nullptr;
   }
 
-  return m_Internals->visualizationWidget;
+  return m_Internals->quickWidget;
 }
 
 // -----------------------------------------------------------------------------
