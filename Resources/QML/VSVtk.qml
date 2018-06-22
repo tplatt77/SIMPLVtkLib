@@ -6,7 +6,7 @@ import VSQml 1.0
 Rectangle {
   id: root;
 	
-  /* color:Qt.rgba(0.5, 0.5, 0.35, 0.5) */
+  color:Qt.rgba(0.3, 0.3, 0.35, 1.0)
   
   VSQmlVtkView {
     id: vtkView
