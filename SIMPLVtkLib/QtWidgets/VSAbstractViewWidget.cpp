@@ -74,9 +74,9 @@ void VSAbstractViewWidget::copyFilters(VSFilterViewSettings::Map filters)
 
     connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
+    connect(viewSettings, SIGNAL(activeArrayNameChanged(VSFilterViewSettings*, QString)), this, SLOT(setFilterArrayName(VSFilterViewSettings*, QString)));
     connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
+    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping)));
     connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
     connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
     connect(viewSettings, SIGNAL(actorsUpdated()), this, SLOT(updateScene()));
@@ -373,7 +373,7 @@ void VSAbstractViewWidget::swapActors(vtkProp3D* oldProp, vtkProp3D* newProp)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterArrayIndex(VSFilterViewSettings* viewSettings, int index)
+void VSAbstractViewWidget::setFilterArrayName(VSFilterViewSettings* viewSettings, QString name)
 {
   // Handle in subclasses
 }

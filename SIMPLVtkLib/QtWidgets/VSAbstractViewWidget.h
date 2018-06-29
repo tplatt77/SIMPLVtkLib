@@ -266,7 +266,7 @@ protected slots:
    * @param viewSettings
    * @param index
    */
-  virtual void setFilterArrayIndex(VSFilterViewSettings* viewSettings, int index);
+  virtual void setFilterArrayName(VSFilterViewSettings* viewSettings, QString name);
 
   /**
    * @brief Active array component changed for filter
