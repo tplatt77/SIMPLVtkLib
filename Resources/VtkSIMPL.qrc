@@ -1,7 +1,8 @@
 <RCC>
   <qresource>
-    <file>QML/VSVtk.qml</file>
     <file>icons/pqSolidColor.png</file>
+    <file>VSQml/VSPalette.qml</file>
+    <file>VSQml/VSVtk.qml</file>
     <file>icons/pqCellData.png</file>
     <file>icons/pqPointData.png</file>
     <file>icons/pqSplitViewH12.png</file>

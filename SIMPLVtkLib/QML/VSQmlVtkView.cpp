@@ -75,7 +75,7 @@ void VSQmlVtkView::update()
 // -----------------------------------------------------------------------------
 VSQmlRenderWindow* VSQmlVtkView::GetRenderWindow() const
 {
-  return m_RenderWindow;
+  return m_RenderWindow.Get();
 }
 
 // -----------------------------------------------------------------------------
@@ -117,7 +117,7 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
 // -----------------------------------------------------------------------------
 vtkRenderer* VSQmlVtkView::getRenderer()
 {
-  return m_Renderer;
+  return m_Renderer.Get();
 }
 
 // -----------------------------------------------------------------------------

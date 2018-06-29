@@ -1,240 +1,104 @@
 /* ============================================================================
- * Copyright (c) 2009-2018 BlueQuartz Software, LLC
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
- * contributors may be used to endorse or promote products derived from this software
- * without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The code contained herein was partially funded by the followig contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
- *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Prime Contract Navy N00173-07-C-2068
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+* Copyright (c) 2009-2018 BlueQuartz Software, LLC
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+* Redistributions of source code must retain the above copyright notice, this
+* list of conditions and the following disclaimer.
+*
+* Redistributions in binary form must reproduce the above copyright notice, this
+* list of conditions and the following disclaimer in the documentation and/or
+* other materials provided with the distribution.
+*
+* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+* contributors may be used to endorse or promote products derived from this software
+* without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* The code contained herein was partially funded by the followig contracts:
+*    United States Air Force Prime Contract FA8650-07-D-5800
+*    United States Air Force Prime Contract FA8650-10-D-5210
+*    United States Prime Contract Navy N00173-07-C-2068
+*
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSQuickWidget.h"
+#include "VSVisualizationController.h"
 
-#include <QQmlError>
-#include <QQuickItem>
-
-#include "SIMPLVtkLib/QML/QmlMacros.h"
-
-#include <vtkPointPicker.h>
-#include <vtkAxesActor.h>
-#include <vtkWindowToImageFilter.h>
-#include <vtkImageWriter.h>
-#include <vtkPNGWriter.h>
-#include <vtkBMPWriter.h>
-#include <vtkJPEGWriter.h>
-
+#include <QtCore/QObject>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 
-#include "SIMPLVtkLib/QML/VSQmlLoader.h"
-#include "VSInteractorStyleFilterCamera.h"
+#include <vtkAxesActor.h>
+#include <vtkCamera.h>
+#include <vtkPointPicker.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderWindowInteractor.h>
 
-VSQuickWidget* VSQuickWidget::m_LinkingWidget = nullptr;
+#include <vtkWindowToImageFilter.h>
+#include <vtkImageWriter.h>
+#include <vtkBMPWriter.h>
+#include <vtkJPEGWriter.h>
+#include <vtkPNGWriter.h>
+
+#include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
+
+VSVisualizationController* VSVisualizationController::m_LinkingWidget = nullptr;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSQuickWidget::VSQuickWidget(QWidget* parent)
-: QQuickWidget(parent)
+VSVisualizationController::VSVisualizationController(QObject* parent, unsigned int numLayers)
+: QObject(parent)
+, m_NumRenderLayers(numLayers)
 {
-  setupGui();
-
-  //initializeRendererAndAxes();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::setupGui()
+vtkRenderWindowInteractor* VSVisualizationController::getInteractor()
 {
-  // Set the widget formatting so that VTK can interface with it.
-  setFormat(QVTKOpenGLWidget::defaultFormat());
-
-  // Create the QVTKInteractorAdapter so that Qt and VTK can interact
-  m_InteractorAdaptor = new QVTKInteractorAdapter(this);
-  m_InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio());
-
-  connect(this, &QQuickWidget::statusChanged, this, &VSQuickWidget::updatedStatus);
-
-  // Register required QML types
-  VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
-  qmlLoader->setEngine(engine());
-
-  setClearColor(QColor(77, 77, 89, 255));
-
-  // Set Source
-  setResizeMode(QQuickWidget::SizeRootObjectToView);
-  setSource(VSQmlLoader::GetVtkViewUrl());
-
-  QList<QQmlError> errors = this->errors();
-  for(QQmlError error : errors)
+  if(getRenderWindow())
   {
-    qDebug() << error.toString();
-  }
-
-  qmlLoader->setRoot(rootObject());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::finishInit()
-{
-  // Context menu
-  this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-    this, SLOT(showContextMenu(const QPoint&)));
-
-  // Set Camera's VSViewWidget
-  VSInteractorStyleFilterCamera* interactorStyle;
-  interactorStyle = VSInteractorStyleFilterCamera::SafeDownCast(getVtkView()->GetRenderWindow()->getInteractorStyle());
-  if(interactorStyle)
-  {
-    interactorStyle->setViewWidget(m_ViewWidget);
-  }
-
-  
-  VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
-  QQuickItem* item = qmlLoader->loadPalette();
-  
-  if(item)
-  {
-    item->setProperty("title", "Created Title");
-    item->setParent(getVtkView());
-    item->setX(500);
-    item->setY(500);
-    item->setZ(7);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::updatedStatus(QQuickWidget::Status status)
-{
-  if(QQuickWidget::Status::Ready == status)
-  {
-    connect(getVtkView(), SIGNAL(rendererCreated()), this, SLOT(finishInit()));
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::setViewWidget(VSAbstractViewWidget* view)
-{
-  m_ViewWidget = view;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSQmlVtkView* VSQuickWidget::getVtkView()
-{
-  return rootObject()->findChild<VSQmlVtkView*>();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkRenderWindowInteractor* VSQuickWidget::GetInteractor()
-{
-  if(getVtkView() && getVtkView()->GetRenderWindow())
-  {
-    return getVtkView()->GetRenderWindow()->GetInteractor();
+    return getRenderWindow()->GetInteractor();
   }
   
   return nullptr;
 }
 
-//// -----------------------------------------------------------------------------
-////
-//// -----------------------------------------------------------------------------
-//void VSQuickWidget::initializeRendererAndAxes()
-//{
-//  if(nullptr == getRenderer().Get())
-//  {
-//    //getRenderer() = VTK_PTR(vtkRenderer)::New();
-//    //getRenderer()->SetLayer(0);
-//
-//    //double bgColor[3] = { 0.3, 0.3, 0.35 };
-//    //getRenderer()->SetBackground(bgColor);
-//
-//    VTK_PTR(vtkPointPicker) pointPicker = VTK_PTR(vtkPointPicker)::New();
-//    pointPicker->SetTolerance(0.00025);
-//
-//    //vtkGenericOpenGLRenderWindow* ren = vtkGenericOpenGLRenderWindow::New();
-//    //SetRenderWindow(ren);
-//    //ren->Finalize();
-//    //ren->SetMapped(1);
-//    //ren->SetSize(width(), height());
-//    //ren->SetPosition(x(), y());
-//
-//    //QVTKInteractor* iren = QVTKInteractor::New();
-//    //iren->SetUseTDx(false);
-//    //ren->SetInteractor(iren);
-//    //iren->Initialize();
-//
-//    //vtkInteractorStyle* style = vtkInteractorStyleTrackballCamera::New();
-//    //iren->SetInteractorStyle(style);
-//
-//    //iren->Delete();
-//    //style->Delete();
-//
-//    getVtkView()->GetRenderWindow()->GetInteractor()->SetPicker(pointPicker);
-//    //GetRenderWindow()->SetNumberOfLayers(m_NumRenderLayers);
-//    //GetRenderWindow()->AddRenderer(getRenderer());
-//  }
-//
-//  if(nullptr == m_OrientationWidget.Get())
-//  {
-//    VTK_NEW(vtkAxesActor, axes);
-//
-//    m_OrientationWidget = vtkOrientationMarkerWidget::New();
-//    m_OrientationWidget->SetOutlineColor(0.93, 0.57, 0.13);
-//    m_OrientationWidget->SetOrientationMarker(axes);
-//    m_OrientationWidget->SetInteractor(GetInteractor());
-//    m_OrientationWidget->SetEnabled(1);
-//    m_OrientationWidget->InteractiveOff();
-//  }
-//}
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::copy(VSQuickWidget* other)
+VTK_PTR(vtkRenderer) VSVisualizationController::getRenderer()
 {
-  return;
+  if(getRenderWindow())
+  {
+    return getRenderWindow()->GetRenderers()->GetFirstRenderer();
+  }
 
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationController::copy(VSVisualizationController* other)
+{
   // Copy camera values from another visualization widget
-  vtkCamera* otherCamera = other->getVtkView()->getRenderer()->GetActiveCamera();
-  vtkCamera* thisCamera = getVtkView()->getRenderer()->GetActiveCamera();
+  vtkCamera* otherCamera = other->getRenderer()->GetActiveCamera();
+  vtkCamera* thisCamera = getRenderer()->GetActiveCamera();
 
   thisCamera->SetPosition(otherCamera->GetPosition());
   thisCamera->SetFocalPoint(otherCamera->GetFocalPoint());
@@ -246,15 +110,7 @@ void VSQuickWidget::copy(VSQuickWidget* other)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkRenderer* VSQuickWidget::getRenderer()
-{
-  return getVtkView()->getRenderer();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::setInteractorStyle(vtkInteractorStyle* style)
+void VSVisualizationController::setInteractorStyle(vtkInteractorStyle* style)
 {
   //if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
   {
@@ -266,32 +122,32 @@ void VSQuickWidget::setInteractorStyle(vtkInteractorStyle* style)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::render()
+void VSVisualizationController::renderVtk()
 {
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
+  if(getRenderWindow() && getInteractor())
   {
-    getVtkView()->GetRenderWindow()->GetInteractor()->Render();
+    getInteractor()->Render();
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::clearRenderWindow()
+void VSVisualizationController::clearRenderWindow()
 {
   getRenderer()->RemoveAllViewProps();
   getRenderer()->Render();
-  getVtkView()->GetRenderWindow()->GetInteractor()->Render();
+  getInteractor()->Render();
   getRenderer()->ResetCamera();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::saveScreenshot(QString fileName)
+void VSVisualizationController::saveScreenshot(QString fileName)
 {
   VTK_NEW(vtkWindowToImageFilter, screenshotFilter);
-  screenshotFilter->SetInput(getVtkView()->getRenderer()->GetRenderWindow());
+  screenshotFilter->SetInput(getRenderWindow());
   screenshotFilter->SetInputBufferTypeToRGBA();
   screenshotFilter->ReadFrontBufferOff();
   screenshotFilter->Update();
@@ -323,11 +179,11 @@ void VSQuickWidget::saveScreenshot(QString fileName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::saveScreenshotPath()
+void VSVisualizationController::saveScreenshotPath()
 {
   QString filter = "PNG Image Data (*.png);;JPEG Image Data (*jpg);;Bitmap Image Data(*bmp)";
 
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save Screenshot"), QDir::currentPath(), filter);
+  QString fileName = QFileDialog::getSaveFileName(getWidget(), tr("Save Screenshot"), QDir::currentPath(), filter);
 
   if(fileName.isEmpty())
   {
@@ -343,19 +199,19 @@ void VSQuickWidget::saveScreenshotPath()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::resetCamera()
+void VSVisualizationController::resetCamera()
 {
   if(getRenderer())
   {
     getRenderer()->ResetCamera();
-    render();
+    renderVtk();
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::getCameraFocalPointAndDistance(double* focalPoint, double& distance)
+void VSVisualizationController::getCameraFocalPointAndDistance(double* focalPoint, double& distance)
 {
   if(nullptr == getRenderer())
   {
@@ -376,7 +232,7 @@ void VSQuickWidget::getCameraFocalPointAndDistance(double* focalPoint, double& d
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camXPlus()
+void VSVisualizationController::camXPlus()
 {
   if(nullptr == getRenderer())
   {
@@ -405,7 +261,7 @@ void VSQuickWidget::camXPlus()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camYPlus()
+void VSVisualizationController::camYPlus()
 {
   if(nullptr == getRenderer())
   {
@@ -434,7 +290,7 @@ void VSQuickWidget::camYPlus()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camZPlus()
+void VSVisualizationController::camZPlus()
 {
   if(nullptr == getRenderer())
   {
@@ -463,7 +319,7 @@ void VSQuickWidget::camZPlus()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camXMinus()
+void VSVisualizationController::camXMinus()
 {
   if(nullptr == getRenderer())
   {
@@ -492,7 +348,7 @@ void VSQuickWidget::camXMinus()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camYMinus()
+void VSVisualizationController::camYMinus()
 {
   if(nullptr == getRenderer())
   {
@@ -519,7 +375,7 @@ void VSQuickWidget::camYMinus()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::camZMinus()
+void VSVisualizationController::camZMinus()
 {
   if(nullptr == getRenderer())
   {
@@ -543,39 +399,11 @@ void VSQuickWidget::camZMinus()
   }
 }
 
+#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSQuickWidget::event(QEvent* evt)
-{
-  switch(evt->type())
-  {
-  case QEvent::MouseMove:
-  case QEvent::MouseButtonPress:
-  case QEvent::MouseButtonRelease:
-  case QEvent::MouseButtonDblClick:
-    // skip events that are explicitly handled by overrides to avoid duplicate
-    // calls to InteractorAdaptor->ProcessEvent().
-    break;
-
-  case QEvent::Resize:
-    // we don't let QVTKInteractorAdapter process resize since we handle it
-    // in this->recreateFBO().
-    break;
-
-  default:
-    if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-    {
-      m_InteractorAdaptor->ProcessEvent(evt, getVtkView()->GetRenderWindow()->GetInteractor());
-    }
-  }
-  return QQuickWidget::event(evt);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::mousePressEvent(QMouseEvent* event)
+void VSVisualizationBase::mousePressEvent(QMouseEvent* event)
 {
   QQuickWidget::mousePressEvent(event);
 
@@ -591,7 +419,7 @@ void VSQuickWidget::mousePressEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::mouseMoveEvent(QMouseEvent* event)
+void VSVisualizationBase::mouseMoveEvent(QMouseEvent* event)
 {
   QQuickWidget::mouseMoveEvent(event);
 
@@ -605,7 +433,7 @@ void VSQuickWidget::mouseMoveEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::mouseReleaseEvent(QMouseEvent* event)
+void VSVisualizationBase::mouseReleaseEvent(QMouseEvent* event)
 {
   QQuickWidget::mouseReleaseEvent(event);
 
@@ -619,7 +447,7 @@ void VSQuickWidget::mouseReleaseEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::mouseDoubleClickEvent(QMouseEvent* event)
+void VSVisualizationBase::mouseDoubleClickEvent(QMouseEvent* event)
 {
   QQuickWidget::mouseDoubleClickEvent(event);
 
@@ -629,11 +457,12 @@ void VSQuickWidget::mouseDoubleClickEvent(QMouseEvent* event)
       getVtkView()->GetRenderWindow()->GetInteractor());
   }
 }
+#endif
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::focusInEvent(QFocusEvent* event)
+void VSVisualizationController::focusInEvent(QFocusEvent* event)
 {
   if(m_LinkingWidget && m_LinkingWidget != this)
   {
@@ -646,7 +475,7 @@ void VSQuickWidget::focusInEvent(QFocusEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::useOwnContextMenu(bool own)
+void VSVisualizationController::useOwnContextMenu(bool own)
 {
   m_OwnContextMenu = own;
 }
@@ -654,24 +483,24 @@ void VSQuickWidget::useOwnContextMenu(bool own)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::showContextMenu(const QPoint& pos)
+void VSVisualizationController::showContextMenu(const QPoint& pos)
 {
-  // If context menu is created by another widget, do nothing
+  // If context menu should not be created by this widget, do nothing
   if(!m_OwnContextMenu)
   {
     return;
   }
 
-  QMenu contextMenu("Visualization", this);
+  QMenu contextMenu("Visualization", getWidget());
   contextMenu.addAction(getLinkCamerasAction());
 
-  contextMenu.exec(mapToGlobal(pos));
+  contextMenu.exec(getWidget()->mapToGlobal(pos));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::startLinkCameras()
+void VSVisualizationController::startLinkCameras()
 {
   // Link current camera to target camera
   m_LinkingWidget = this;
@@ -680,14 +509,14 @@ void VSQuickWidget::startLinkCameras()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::linkCameraWith(VSQuickWidget* widget)
+void VSVisualizationController::linkCameraWith(VSVisualizationController* widget)
 {
   getRenderer()->SetActiveCamera(widget->getRenderer()->GetActiveCamera());
 
   LinkedRenderWindowType widgetLinkedRenderWindows = widget->getLinkedRenderWindows();
   m_LinkedRenderWindows.insert(widgetLinkedRenderWindows.begin(), widgetLinkedRenderWindows.end());
-  m_LinkedRenderWindows.insert(widget->getVtkView()->GetRenderWindow());
-  m_LinkedRenderWindows.insert(getVtkView()->GetRenderWindow());
+  m_LinkedRenderWindows.insert(widget->getRenderWindow());
+  m_LinkedRenderWindows.insert(getRenderWindow());
   widget->m_LinkedRenderWindows = m_LinkedRenderWindows;
 
   m_LinkingWidget = nullptr;
@@ -696,7 +525,7 @@ void VSQuickWidget::linkCameraWith(VSQuickWidget* widget)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSQuickWidget::LinkedRenderWindowType VSQuickWidget::getLinkedRenderWindows()
+VSVisualizationController::LinkedRenderWindowType VSVisualizationController::getLinkedRenderWindows()
 {
   return m_LinkedRenderWindows;
 }
@@ -704,12 +533,12 @@ VSQuickWidget::LinkedRenderWindowType VSQuickWidget::getLinkedRenderWindows()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QAction* VSQuickWidget::getLinkCamerasAction()
+QAction* VSVisualizationController::getLinkCamerasAction()
 {
   if(nullptr == m_LinkCameraAction)
   {
-    m_LinkCameraAction = new QAction("Link Cameras", this);
-    connect(m_LinkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
+    m_LinkCameraAction = new QAction("Link Cameras", getWidget());
+    connect(m_LinkCameraAction, SIGNAL(triggered()), getWidget(), SLOT(startLinkCameras()));
   }
 
   return m_LinkCameraAction;
@@ -718,21 +547,19 @@ QAction* VSQuickWidget::getLinkCamerasAction()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter* VSQuickWidget::getFilterFromScreenCoords(int pos[2])
+VSAbstractFilter* VSVisualizationController::getFilterFromScreenCoords(int pos[2])
 {
-  vtkInteractorObserver* obs = getVtkView()->GetRenderWindow()->GetInteractor()->GetInteractorStyle();
+  vtkInteractorObserver* obs = getInteractor()->GetInteractorStyle();
   VSInteractorStyleFilterCamera* style = VSInteractorStyleFilterCamera::SafeDownCast(obs);
   if(nullptr == style)
   {
     return nullptr;
   }
 
-  //style->setViewWidget(m_ViewWidget);
-
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
   std::tie(prop, filter) = style->getFilterFromScreenCoords(pos);
 
-  render();
+  renderVtk();
   return filter;
 }

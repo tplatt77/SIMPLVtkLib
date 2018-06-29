@@ -81,7 +81,7 @@ public:
   * @brief Returns the renderer
   * @return
   */
-  VTK_PTR(vtkRenderer) getRenderer();
+  vtkRenderer* getRenderer();
 
   /**
   * @brief Sets the renderer's vtkInteractorStyle
