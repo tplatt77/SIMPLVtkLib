@@ -53,6 +53,7 @@ VSQmlFboRenderer::VSQmlFboRenderer(VSQmlRenderWindow* QmlRenderWindow)
   , m_QmlRenderWindow(QmlRenderWindow)
 {
   setupGui();
+  QmlRenderWindow->Register(nullptr);
 }
 
 // -----------------------------------------------------------------------------
@@ -62,15 +63,15 @@ void VSQmlFboRenderer::setupGui()
 {
   if(!m_QmlRenderWindow->GetInteractor())
   {
-    //VTK_NEW(vtkWin32RenderWindowInteractor, interactor);
-    VTK_NEW(vtkRenderWindowInteractor, interactor);
+    //m_Interactor = VTK_PTR(vtkWin32RenderWindowInteractor)::New();
+    m_Interactor = VTK_PTR(vtkRenderWindowInteractor)::New();
     VTK_NEW(VSInteractorStyleFilterCamera, interactorStyle);
 
-    interactor->SetUseTDx(false);
-    interactor->SetRenderWindow(m_QmlRenderWindow);
-    m_QmlRenderWindow->SetInteractor(interactor);
-    interactor->Initialize();
-    interactor->SetInteractorStyle(interactorStyle);
+    m_Interactor->SetUseTDx(false);
+    m_Interactor->SetRenderWindow(m_QmlRenderWindow);
+    m_QmlRenderWindow->SetInteractor(m_Interactor);
+    m_Interactor->Initialize();
+    m_Interactor->SetInteractorStyle(interactorStyle);
 
     interactorStyle->SetDefaultRenderer(m_QmlRenderWindow->getRenderer());
   }

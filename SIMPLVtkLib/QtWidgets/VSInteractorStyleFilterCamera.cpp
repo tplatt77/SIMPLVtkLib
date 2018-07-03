@@ -56,7 +56,7 @@ void VSInteractorStyleFilterCamera::OnLeftButtonDown()
   endAction();
   if(m_MousePress >= 2)
   {
-    grabFilter();
+    //grabFilter();
   }
   else
   {
@@ -211,13 +211,24 @@ VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilt
     return filterProp;
   }
 
-  vtkRenderer* renderer = this->GetDefaultRenderer();
+  vtkRenderer* renderer = this->GetCurrentRenderer();
+  if(!renderer)
+  {
+    return filterProp;
+  }
 
-  
+  VSQmlRenderWindow* renderWindow = dynamic_cast<VSQmlRenderWindow*>(renderer->GetRenderWindow());
+  if(renderWindow)
+  {
+    // Use the VTK thread if QML is involved
+    //return renderWindow->getFilterPropFromScreenCoords(pos);
+  }
 
-  VTK_NEW(vtkPropPicker, picker);
-  picker->Pick(pos[0], pos[1], 0, renderer);
-  filterProp.first = picker->GetProp3D();
+  // Default prop picker
+  VTK_NEW(vtkPropPicker, propPicker);
+  propPicker->Pick(pos[0], pos[1], 0, renderer);
+  filterProp.first = propPicker->GetProp3D();
+  //filterProp.first = dynamic_cast<vtkProp3D*>(propPicker->GetViewProp());
   filterProp.second = m_ViewWidget->getFilterFromProp(filterProp.first);
 
   return filterProp;

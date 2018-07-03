@@ -119,18 +119,23 @@ void VSQuickWidget::finishInit()
     interactorStyle->setViewWidget(m_ViewWidget);
   }
 
-  
-  VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
-  QQuickItem* item = qmlLoader->loadPalette();
-  
-  if(item)
+  VSQmlRenderWindow* renderWindow = dynamic_cast<VSQmlRenderWindow*>(getVtkView()->GetRenderWindow());
+  if(renderWindow)
   {
-    item->setProperty("title", "Created Title");
-    item->setParent(getVtkView());
-    item->setX(500);
-    item->setY(500);
-    item->setZ(7);
+    renderWindow->setViewWidget(m_ViewWidget);
   }
+
+  //VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
+  //QQuickItem* item = qmlLoader->loadPalette();
+  //
+  //if(item)
+  //{
+  //  item->setProperty("title", "Created Title");
+  //  item->setParent(getVtkView());
+  //  item->setX(500);
+  //  item->setY(500);
+  //  item->setZ(7);
+  //}
 }
 
 // -----------------------------------------------------------------------------
@@ -248,29 +253,23 @@ void VSQuickWidget::copy(VSQuickWidget* other)
 // -----------------------------------------------------------------------------
 vtkRenderer* VSQuickWidget::getRenderer()
 {
-  return getVtkView()->getRenderer();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::setInteractorStyle(vtkInteractorStyle* style)
-{
-  //if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
+  if(getVtkView())
   {
-    //getVtkView()->GetRenderWindow()->GetInteractor()->SetInteractorStyle(style);
-    //style->SetDefaultRenderer(getRenderer());
+    return getVtkView()->getRenderer();
   }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::render()
+void VSQuickWidget::renderVtk()
 {
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
+  if(getVtkView() && getVtkView()->GetRenderWindow())
   {
-    getVtkView()->GetRenderWindow()->GetInteractor()->Render();
+    //getVtkView()->GetRenderWindow()->Render();
+    //getVtkView()->GetRenderWindow()->GetInteractor()->Render();
   }
 }
 
@@ -280,9 +279,10 @@ void VSQuickWidget::render()
 void VSQuickWidget::clearRenderWindow()
 {
   getRenderer()->RemoveAllViewProps();
-  getRenderer()->Render();
-  getVtkView()->GetRenderWindow()->GetInteractor()->Render();
-  getRenderer()->ResetCamera();
+  renderVtk();
+  //getRenderer()->Render();
+  //getVtkView()->GetRenderWindow()->GetInteractor()->Render();
+  //getRenderer()->ResetCamera();
 }
 
 // -----------------------------------------------------------------------------
@@ -348,7 +348,7 @@ void VSQuickWidget::resetCamera()
   if(getRenderer())
   {
     getRenderer()->ResetCamera();
-    render();
+    renderVtk();
   }
 }
 
@@ -396,10 +396,7 @@ void VSQuickWidget::camXPlus()
 
   delete[] focalPoint;
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -425,10 +422,7 @@ void VSQuickWidget::camYPlus()
 
   delete[] focalPoint;
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -454,10 +448,7 @@ void VSQuickWidget::camZPlus()
 
   delete[] focalPoint;
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -483,10 +474,7 @@ void VSQuickWidget::camXMinus()
 
   delete[] focalPoint;
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -510,10 +498,7 @@ void VSQuickWidget::camYMinus()
   camera->SetPosition(focalPoint[0], focalPoint[1] + distance, focalPoint[2]);
   camera->SetViewUp(0.0, 0.0, 1.0);
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -537,10 +522,7 @@ void VSQuickWidget::camZMinus()
   camera->SetPosition(focalPoint[0], focalPoint[1], focalPoint[2] + distance);
   camera->SetViewUp(0.0, 1.0, 0.0);
 
-  if(getRenderer()->GetRenderWindow() && getRenderer()->GetRenderWindow()->GetInteractor())
-  {
-    getRenderer()->GetRenderWindow()->GetInteractor()->Render();
-  }
+  renderVtk();
 }
 
 // -----------------------------------------------------------------------------
@@ -564,10 +546,7 @@ bool VSQuickWidget::event(QEvent* evt)
     break;
 
   default:
-    if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-    {
-      m_InteractorAdaptor->ProcessEvent(evt, getVtkView()->GetRenderWindow()->GetInteractor());
-    }
+    renderVtk();
   }
   return QQuickWidget::event(evt);
 }
@@ -648,7 +627,7 @@ void VSQuickWidget::focusInEvent(QFocusEvent* event)
 // -----------------------------------------------------------------------------
 void VSQuickWidget::useOwnContextMenu(bool own)
 {
-  m_OwnContextMenu = own;
+  //m_OwnContextMenu = own;
 }
 
 // -----------------------------------------------------------------------------
@@ -662,10 +641,15 @@ void VSQuickWidget::showContextMenu(const QPoint& pos)
     return;
   }
 
-  QMenu contextMenu("Visualization", this);
-  contextMenu.addAction(getLinkCamerasAction());
+  if(getVtkView() && getVtkView()->GetRenderWindow())
+  {
+    getVtkView()->GetRenderWindow()->createContextMenuCommand(pos);
+  }
 
-  contextMenu.exec(mapToGlobal(pos));
+  //QMenu contextMenu("Visualization", this);
+  //contextMenu.addAction(getLinkCamerasAction());
+
+  //contextMenu.exec(mapToGlobal(pos));
 }
 
 // -----------------------------------------------------------------------------
@@ -733,6 +717,6 @@ VSAbstractFilter* VSQuickWidget::getFilterFromScreenCoords(int pos[2])
   VSAbstractFilter* filter = nullptr;
   std::tie(prop, filter) = style->getFilterFromScreenCoords(pos);
 
-  render();
+  renderVtk();
   return filter;
 }

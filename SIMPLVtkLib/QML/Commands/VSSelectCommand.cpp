@@ -33,53 +33,52 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSSelectCommand.h"
 
-//#include "quickQmlRegister.hpp"
+#include "SIMPLVtkLib/QML/VSQmlLoader.h"
+#include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 
-#include <QtQuick/QQuickFramebufferObject>
-#include <QtGui/QMouseEvent>
-
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
-
-#include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
-#include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSelectCommand::VSSelectCommand(vtkRenderWindow* renWin, VSQmlVtkView* view, QPoint point)
+: VSAbstractCommand(renWin)
+, m_View(view)
+, m_Point(point)
 {
-  Q_OBJECT
+}
 
-public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSSelectCommand::~VSSelectCommand()
+{
+}
 
-  VSQmlVtkView(QQuickItem* parent = nullptr);
-  virtual ~VSQmlVtkView() = default;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSelectCommand::exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget)
+{
+  if(false == (interactorStyle && getRenderWindow() && viewWidget))
+  {
+    return;
+  }
 
-  void init();
-  void update();
+  int* mousePos = pointToRenderCoord(m_Point);
 
-  Renderer* createRenderer() const override;
-  VSQmlRenderWindow* GetRenderWindow() const;
+  VSAbstractFilter* filter = getFilterAtCoord(interactorStyle, mousePos);
+  viewWidget->selectFilter(filter);
 
-  vtkRenderer* getRenderer();
-  vtkCamera* getCamera();
+  // VSQmlLoader* instance = VSQmlLoader::GetInstance();
+  // QQuickItem* palette = instance->loadPalette();
+  // palette->setPosition(m_Point);
 
-  QQuickItem* createPalette(QPoint point);
+  if(filter)
+  {
+    QQuickItem* palette = m_View->createPalette(m_Point);
+    palette->setProperty("title", filter->getFilterName());
+  }
 
-signals:
-  void rendererCreated() const;
-
-protected:
-  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-
-private:
-  mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
-  mutable VSQmlFboRenderer* m_FBO = nullptr;
-  mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
-};
+  delete mousePos;
+}

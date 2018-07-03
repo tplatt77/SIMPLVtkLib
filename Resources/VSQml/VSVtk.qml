@@ -13,12 +13,13 @@ Item {
 
     anchors.fill: parent
     /*layer.enabled: true*/
+  }
 
-    /*
-    height: 200
-    width: 200
-    x: 200
-    y: 200
-    */
+  VSPalette
+  {
+    id: test
+
+    x: 50
+    y: 50
   }
 }

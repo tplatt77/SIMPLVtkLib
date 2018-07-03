@@ -49,6 +49,9 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
+class VSQmlVtkView;
+class VSAbstractViewWidget;
+
 class SIMPLVtkLib_EXPORT VSQuickWidget: public QQuickWidget
 {
   Q_OBJECT
@@ -84,12 +87,6 @@ public:
   vtkRenderer* getRenderer();
 
   /**
-  * @brief Sets the renderer's vtkInteractorStyle
-  * @param style
-  */
-  void setInteractorStyle(vtkInteractorStyle* style);
-
-  /**
   * @brief Returns a set of linked vtkRenderWindows
   * @return
   */
@@ -118,7 +115,7 @@ public slots:
   /**
   * @brief Renders the VTK context
   */
-  void render();
+  void renderVtk();
 
   /**
   * @brief Resets the camera's position, rotation, and zoom
@@ -215,13 +212,13 @@ protected slots:
   void updatedStatus(QQuickWidget::Status);
 
 private:
-  QVTKInteractorAdapter* m_InteractorAdaptor;
+  QVTKInteractorAdapter* m_InteractorAdaptor = nullptr;
   LinkedRenderWindowType m_LinkedRenderWindows;
   QAction* m_LinkCameraAction = nullptr;
   bool m_OwnContextMenu = true;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
 
-  unsigned int m_NumRenderLayers;
+  unsigned int m_NumRenderLayers = 1;
 
   static VSQuickWidget* m_LinkingWidget;
 };

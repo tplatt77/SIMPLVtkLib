@@ -10,9 +10,12 @@ Rectangle
 
   transformOrigin: Item.TopLeft
 
-  z: 2
+  //z: 2
 
   //opacity: activeFocus ? 1 : 0.5
+  opacity: 1
+
+  //layer.enabled: true
 
   property string title: "Untitled"
   property bool pinned: false
@@ -31,14 +34,29 @@ Rectangle
   property int titleMargin: 10
   property int contentMargin: 5
 
+  signal removeObject()
+  function remove() {
+    console.log("Delete Palette")
+    removeObject()
+    destroy();
+  }
+
+  function checkFocus() {
+    if(!pinned && !activeFocus)
+    {
+      console.log("Focus Lost")
+      remove();
+    }
+  }
+
   // If focus lost and not pinned, destroy the object
-  onActiveFocusChanged:
+  /*onActiveFocusChanged:
   {
     if(!pinned && !activeFocus)
     {
-      destroy();
+      //remove();
     }
-  }
+  }*/
 
   radius: palette.backgroundRadius
   border.width: palette.backgroundBorderWidth
@@ -105,7 +123,7 @@ Rectangle
 
           iconSource: "qrc:///SIMPL/icons/images/circle-x.png"
 
-          onClicked: palette.destroy()
+          onClicked: palette.remove()
         }
 
         ToolButton
@@ -141,8 +159,60 @@ Rectangle
       }
     }
 
+    FocusScope
+    {
+      id: contentScope
 
-    Text
+      Layout.fillWidth: true
+      Layout.minimumHeight: 10
+      Layout.margins: palette.contentMargin
+
+      focus: true
+
+      onActiveFocusChanged:
+      {
+          if(!activeFocus)
+          {
+              palette.checkFocus()
+          }
+      }
+
+      ColumnLayout
+      {
+        id: testLayout
+
+        anchors.fill: parent
+
+        spacing: 4
+
+          TextInput
+          {
+            id: testInput1
+
+            Layout.fillWidth: true
+            Layout.minimumHeight: 10
+            Layout.margins: palette.contentMargin
+
+            color: "#ff0000"
+            text: "Hello, World"
+          }
+
+          TextInput
+          {
+            id: testInput2
+
+            Layout.fillWidth: true
+            Layout.minimumHeight: 10
+            Layout.margins: palette.contentMargin
+
+            color: "#ff0000"
+            text: "Hello, World"
+          }
+      }
+
+   }
+
+    /*Text
     {
       id: contentsContainer
 
@@ -152,7 +222,7 @@ Rectangle
 
       color: "#ff0000"
       text: "Hello, World"
-    }
+    }*/
 
     height: paletteLayout.height
   }

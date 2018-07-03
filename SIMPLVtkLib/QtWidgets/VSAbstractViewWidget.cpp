@@ -239,7 +239,7 @@ VSFilterViewSettings* VSAbstractViewWidget::createFilterViewSettings(VSAbstractF
 
   connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
   connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
-  connect(viewSettings, SIGNAL(activeArrayNameChanged(VSFilterViewSettings*, QString)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, QString)));
+  connect(viewSettings, SIGNAL(activeArrayNameChanged(VSFilterViewSettings*, QString)), this, SLOT(setFilterArrayName(VSFilterViewSettings*, QString)));
   connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
   connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping)));
   connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
@@ -389,7 +389,7 @@ void VSAbstractViewWidget::setFilterComponentIndex(VSFilterViewSettings* viewSet
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState)
+void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, VSFilterViewSettings::ColorMapping mapColorState)
 {
   renderView();
 }
@@ -563,7 +563,7 @@ QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
   }
 
   VSAbstractViewWidget* cloneWidget = clone();
-  cloneWidget->getVisualizationWidget()->render();
+  cloneWidget->getVisualizationWidget()->renderVtk();
 
   // Fill the splitter with both the view widget and a clone of it
   splitter->addWidget(this);
@@ -722,7 +722,7 @@ void VSAbstractViewWidget::renderView()
   VSQuickWidget* visualizationWidget = getVisualizationWidget();
   if(visualizationWidget)
   {
-    visualizationWidget->render();
+    //visualizationWidget->render();
   }
 }
 
@@ -740,7 +740,7 @@ void VSAbstractViewWidget::resetCamera()
   if(visualizationWidget && visualizationWidget->getRenderer())
   {
     visualizationWidget->getRenderer()->ResetCamera();
-    visualizationWidget->render();
+    visualizationWidget->renderVtk();
   }
 }
 

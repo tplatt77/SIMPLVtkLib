@@ -35,51 +35,21 @@
 
 #pragma once
 
-//#include "quickQmlRegister.hpp"
+#include "SIMPLVtkLib/QML/Commands/VSAbstractCommand.h"
 
-#include <QtQuick/QQuickFramebufferObject>
-#include <QtGui/QMouseEvent>
+#include <QtCore/QPoint>
 
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
+class VSQmlVtkView;
 
-#include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
-#include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
+class SIMPLVtkLib_EXPORT VSSelectCommand : public VSAbstractCommand
 {
-  Q_OBJECT
-
 public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
+  VSSelectCommand(vtkRenderWindow* renWin, VSQmlVtkView* view, QPoint point);
+  virtual ~VSSelectCommand();
 
-  VSQmlVtkView(QQuickItem* parent = nullptr);
-  virtual ~VSQmlVtkView() = default;
-
-  void init();
-  void update();
-
-  Renderer* createRenderer() const override;
-  VSQmlRenderWindow* GetRenderWindow() const;
-
-  vtkRenderer* getRenderer();
-  vtkCamera* getCamera();
-
-  QQuickItem* createPalette(QPoint point);
-
-signals:
-  void rendererCreated() const;
-
-protected:
-  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+  void exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget) override;
 
 private:
-  mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
-  mutable VSQmlFboRenderer* m_FBO = nullptr;
-  mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
+  QPoint m_Point;
+  VSQmlVtkView* m_View = nullptr;
 };

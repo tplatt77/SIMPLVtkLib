@@ -99,6 +99,8 @@ public:
   void showOnlyScalarBar(VSFilterViewSettings* settings);
   void hideAllScalarBars();
 
+  QMenu* getContextMenu(VSAbstractFilter* filter) override;
+
 protected:
   /**
    * @brief Performs initial setup work for the GUI
@@ -115,12 +117,6 @@ protected:
   */
   void updateClosable() override;
 
-  /**
-  * @brief Creates a context menu for the VSVisualizationWidget
-  * @param pos
-  */
-  void showVisualizationContextMenu(const QPoint& pos);
-
 protected slots:
   /**
    * @brief ScalarBar visibility changed for filter
@@ -128,6 +124,12 @@ protected slots:
    * @param showScalarBar
    */
   void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
+
+  /**
+  * @brief Creates a context menu for the VSVisualizationWidget
+  * @param pos
+  */
+  void showVisualizationContextMenu(const QPoint& pos);
 
 private:
   class VSInternals;

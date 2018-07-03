@@ -98,12 +98,13 @@ QQuickItem* VSQmlLoader::loadItem(QUrl url)
     return nullptr;
   }
 
-  QQmlComponent component(m_Engine);
-  component.loadUrl(url);
-  QObject* obj = component.create(m_Engine->rootContext());
+  QQmlComponent* component = new QQmlComponent(m_Engine);
+  component->setObjectName("Component");
+  component->loadUrl(url);
+  QObject* obj = component->create(m_Engine->rootContext());
   QQuickItem* item = dynamic_cast<QQuickItem*>(obj);
 
-  QList<QQmlError> errors = component.errors();
+  QList<QQmlError> errors = component->errors();
   for(QQmlError error : errors)
   {
     qDebug() << error.toString();
@@ -113,6 +114,7 @@ QQuickItem* VSQmlLoader::loadItem(QUrl url)
   {
     QQmlEngine::setObjectOwnership(item, QQmlEngine::CppOwnership);
     item->setParentItem(m_Root);
+    item->setParent(component);
   }
   
   return item;

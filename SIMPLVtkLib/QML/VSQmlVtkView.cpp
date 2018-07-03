@@ -36,11 +36,14 @@
 #include "VSQmlVtkView.h"
 
 #include <vtkRenderer.h>
+#include <vtkExternalOpenGLCamera.h>
 
 #include <vtkActor.h>
 #include <vtkDataSetMapper.h>
 #include <vtkMapper.h>
 #include <vtkConeSource.h>
+
+#include "SIMPLVtkLib/QML/VSQmlLoader.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -50,6 +53,9 @@ VSQmlVtkView::VSQmlVtkView(QQuickItem* parent)
 {
   m_RenderWindow = VTK_PTR(VSQmlRenderWindow)::New();
   setMirrorVertically(true);
+
+  setActiveFocusOnTab(true);
+  setAcceptedMouseButtons(Qt::MouseButton::LeftButton | Qt::MouseButton::RightButton);
 }
 
 // -----------------------------------------------------------------------------
@@ -83,7 +89,6 @@ VSQmlRenderWindow* VSQmlVtkView::GetRenderWindow() const
 // -----------------------------------------------------------------------------
 QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
 {
-  //bool hasRenderer = m_RenderWindow->getRenderer();
   if(m_RenderWindow->getRenderer())
   {
     m_Renderer = m_RenderWindow->getRenderer();
@@ -91,6 +96,7 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
   else
   {
     m_Renderer = VTK_PTR(vtkRenderer)::New();
+    m_Renderer->SetActiveCamera(vtkExternalOpenGLCamera::New());
     m_Renderer->SetLayer(0);
     m_RenderWindow->AddRenderer(m_Renderer);
   }
@@ -117,7 +123,12 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
 // -----------------------------------------------------------------------------
 vtkRenderer* VSQmlVtkView::getRenderer()
 {
-  return m_Renderer.Get();
+  if(m_Renderer)
+  {
+    return m_Renderer.Get();
+  }
+  
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -126,4 +137,40 @@ vtkRenderer* VSQmlVtkView::getRenderer()
 vtkCamera* VSQmlVtkView::getCamera()
 {
   return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::mouseDoubleClickEvent(QMouseEvent* event)
+{
+  if(m_RenderWindow)
+  {
+    //createPalette(event->pos());
+    m_RenderWindow->createSelectionCommand(this, event->pos());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QQuickItem* VSQmlVtkView::createPalette(QPoint point)
+{
+  QQmlEngine* engine = qmlEngine(this);
+  QQmlComponent component(engine, VSQmlLoader::GetPaletteUrl());
+  QQuickItem* childItem = dynamic_cast<QQuickItem*>(component.create());
+  childItem->setParentItem(this);
+
+  QList<QQmlError> errors = component.errors();
+  for(QQmlError error : errors)
+  {
+    qDebug() << error.toString();
+  }
+
+  childItem->setPosition(point);
+  childItem->setVisible(true);
+
+  connect(childItem, SIGNAL(removeObject()), childItem, SLOT(deleteLater()));
+
+  return childItem;
 }

@@ -65,7 +65,7 @@ VSViewWidget::VSViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
 {
   m_Internals->setupUi(this);
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
-  m_Internals->quickWidget->setInteractorStyle(m_InteractorStyle);
+  //m_Internals->quickWidget->setInteractorStyle(m_InteractorStyle);
   m_Internals->quickWidget->setViewWidget(this);
   m_InteractorStyle->setViewWidget(this);
 
@@ -128,7 +128,7 @@ void VSViewWidget::connectSlots()
   connect(getVisualizationWidget(), SIGNAL(mousePressed()), this, SLOT(mousePressed()));
 
   // Control the visualization widget's context menu
-  connect(getVisualizationWidget(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showVisualizationContextMenu(const QPoint&)));
+  //connect(getVisualizationWidget(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showVisualizationContextMenu(const QPoint&)));
 }
 
 // -----------------------------------------------------------------------------
@@ -151,6 +151,86 @@ VSQuickWidget* VSViewWidget::getVisualizationWidget() const
   }
 
   return m_Internals->quickWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QMenu* VSViewWidget::getContextMenu(VSAbstractFilter* filter)
+{
+  QMenu* menu = new QMenu("Visualization", this);
+
+  VSFilterViewSettings* settings = getFilterViewSettings(filter);
+  if(settings)
+  {
+    QString filterName = settings->getFilter()->getFilterName();
+
+    QAction* selectFilterAction = menu->addAction("Select '" + filterName + "'");
+    connect(selectFilterAction, &QAction::triggered, [=] { selectFilter(settings->getFilter()); });
+
+    menu->addSeparator();
+
+    // Visibility Settings
+    QAction* hideFilterAction = menu->addAction("Hide '" + filterName + "'");
+    connect(hideFilterAction, &QAction::triggered, [=] { settings->setVisible(false); });
+
+    QAction* showOnlyFilterAction = menu->addAction("Show only '" + filterName + "'");
+    connect(showOnlyFilterAction, &QAction::triggered, [=] { showOnlyFilter(settings); });
+
+    QAction* showAllFiltersAction = menu->addAction("Show all");
+    connect(showAllFiltersAction, &QAction::triggered, this, &VSViewWidget::showAllFilters);
+
+    menu->addSeparator();
+
+    // Scalar Bar Menu
+    {
+      QMenu* scalarBarMenu = menu->addMenu("Scalar Bars");
+
+      QAction* hideAllScalarBarsAction = scalarBarMenu->addAction("Hide all");
+      connect(hideAllScalarBarsAction, &QAction::triggered, this, &VSViewWidget::hideAllScalarBars);
+
+      QAction* showOnlyScalarBarsAction = scalarBarMenu->addAction("Show only '" + filterName + "'");
+      connect(showOnlyScalarBarsAction, &QAction::triggered, [=] { showOnlyScalarBar(settings); });
+
+      scalarBarMenu->addAction(settings->getToggleScalarBarAction());
+
+      menu->addMenu(settings->getMapScalarsMenu());
+    }
+
+    menu->addSeparator();
+
+    // Rendering Settings from VSFilterViewSettings
+    {
+      // Set Color and Alpha
+      menu->addAction(settings->getSetColorAction());
+      menu->addAction(settings->getSetOpacityAction());
+
+      menu->addSeparator();
+
+      // Representation menu
+      menu->addMenu(settings->getRepresentationMenu());
+
+      // Color By Array menu
+      menu->addMenu(settings->getColorByMenu());
+
+      // Color by Component menu
+      if(settings->hasMulipleComponents())
+      {
+        menu->addMenu(settings->getArrayComponentMenu());
+      }
+    }
+
+    menu->addSeparator();
+
+    QAction* deleteFilterAction = menu->addAction("Delete '" + filterName + "'");
+    connect(deleteFilterAction, &QAction::triggered, [=] { settings->getFilter()->deleteFilter(); });
+
+    menu->addSeparator();
+  }
+
+  menu->addAction(getVisualizationWidget()->getLinkCamerasAction());
+
+  return menu;
 }
 
 // -----------------------------------------------------------------------------

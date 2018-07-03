@@ -125,7 +125,7 @@ void VSMainWidget2::renderAll()
     if(visualizationWidget)
     {
       // Render the VTK widget
-      visualizationWidget->render();
+      visualizationWidget->renderVtk();
     }
   }
 }

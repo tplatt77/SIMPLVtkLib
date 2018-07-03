@@ -33,53 +33,51 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSAbstractCommand.h"
 
-//#include "quickQmlRegister.hpp"
-
-#include <QtQuick/QQuickFramebufferObject>
-#include <QtGui/QMouseEvent>
-
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
-
-#include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
-#include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractCommand::VSAbstractCommand(vtkRenderWindow* renderWindow)
+: m_RenderWindow(renderWindow)
+, m_ScreenSize(renderWindow->GetActualSize())
 {
-  Q_OBJECT
+}
 
-public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractCommand::getFilterAtCoord(VSInteractorStyleFilterCamera* interactorStyle, int* coord)
+{
+  if(false == (interactorStyle && m_RenderWindow))
+  {
+    return nullptr;
+  }
 
-  VSQmlVtkView(QQuickItem* parent = nullptr);
-  virtual ~VSQmlVtkView() = default;
+  vtkProp3D* prop3D = nullptr;
+  VSAbstractFilter* filter = nullptr;
+  std::tie(prop3D, filter) = interactorStyle->getFilterFromScreenCoords(coord);
 
-  void init();
-  void update();
+  return filter;
+}
 
-  Renderer* createRenderer() const override;
-  VSQmlRenderWindow* GetRenderWindow() const;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int* VSAbstractCommand::pointToRenderCoord(QPoint point)
+{
+  int height = m_ScreenSize[1];
+  int* outputCoord = new int[2];
+  outputCoord[0] = point.x();
+  outputCoord[1] = height - point.y();
 
-  vtkRenderer* getRenderer();
-  vtkCamera* getCamera();
+  return outputCoord;
+}
 
-  QQuickItem* createPalette(QPoint point);
-
-signals:
-  void rendererCreated() const;
-
-protected:
-  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-
-private:
-  mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
-  mutable VSQmlFboRenderer* m_FBO = nullptr;
-  mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
-};
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkRenderWindow* VSAbstractCommand::getRenderWindow()
+{
+  return m_RenderWindow;
+}

@@ -35,51 +35,30 @@
 
 #pragma once
 
-//#include "quickQmlRegister.hpp"
+#include <QtCore/QPoint>
 
-#include <QtQuick/QQuickFramebufferObject>
-#include <QtGui/QMouseEvent>
-
-#include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
 
-#include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
-#include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
+class SIMPLVtkLib_EXPORT VSAbstractCommand
 {
-  Q_OBJECT
-
 public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
+  VSAbstractCommand(vtkRenderWindow* renderWindow);
+  virtual ~VSAbstractCommand() = default;
 
-  VSQmlVtkView(QQuickItem* parent = nullptr);
-  virtual ~VSQmlVtkView() = default;
-
-  void init();
-  void update();
-
-  Renderer* createRenderer() const override;
-  VSQmlRenderWindow* GetRenderWindow() const;
-
-  vtkRenderer* getRenderer();
-  vtkCamera* getCamera();
-
-  QQuickItem* createPalette(QPoint point);
-
-signals:
-  void rendererCreated() const;
+  virtual void exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget) = 0;
 
 protected:
-  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+  int* pointToRenderCoord(QPoint point);
+  VSAbstractFilter* getFilterAtCoord(VSInteractorStyleFilterCamera* interactorStyle, int* coord);
+  vtkRenderWindow* getRenderWindow();
 
 private:
-  mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
-  mutable VSQmlFboRenderer* m_FBO = nullptr;
-  mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
+  int* m_ScreenSize;
+  vtkRenderWindow* m_RenderWindow = nullptr;
 };

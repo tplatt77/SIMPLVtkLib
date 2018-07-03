@@ -110,7 +110,7 @@ void VSMainWidget::renderAll()
     if(visualizationWidget)
     {
       // Render the VTK widget
-      visualizationWidget->render();
+      visualizationWidget->renderVtk();
     }
   }
 }

@@ -37,12 +37,17 @@
 
 //#include "quickQmlRegister.hpp"
 
+#include <queue>
 #include <memory>
 
-#include <QOpenGLFunctions>
-#include <QQuickFrameBufferObject>
+#include <QtCore/QObject>
+#include <QtCore/QMutex>
+#include <QtGui/QOpenGLFunctions>
+#include <QtQuick/QQuickFrameBufferObject>
 
 #include <vtkExternalOpenGLRenderWindow.h>
+#include <vtkPropPicker.h>
+#include <vtkPointPicker.h>
 
 #include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
 
@@ -52,9 +57,15 @@
 #include <vtkOrientationMarkerWidget.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
+#include "SIMPLVtkLib/QML/Commands/VSAbstractCommand.h"
 
-class SIMPLVtkLib_EXPORT VSQmlRenderWindow : public vtkExternalOpenGLRenderWindow, protected QOpenGLFunctions
+class VSAbstractCommand;
+class VSQmlVtkView;
+
+class SIMPLVtkLib_EXPORT VSQmlRenderWindow : public QObject, public vtkExternalOpenGLRenderWindow, protected QOpenGLFunctions
 {
+  Q_OBJECT
+
 public:
   // static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
 
@@ -67,17 +78,36 @@ public:
 
   void setFramebufferObject(QOpenGLFramebufferObject* fbo);
 
-
+  int* pointToRenderCoord(QPoint pos);
   void initializeAxes();
   VSInteractorStyleFilterCamera* getInteractorStyle();
+  void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   vtkRenderer* getRenderer(int index = 0);
 
+  VSInteractorStyleFilterCamera::FilterProp getFilterPropFromScreenCoords(int* pos);
+  VSAbstractFilter* getFilterFromScreenCoords(int* pos);
+
+  void createSelectionCommand(VSQmlVtkView* view, QPoint point);
+  void createContextMenuCommand(QPoint point);
+
+signals:
+  void internal_PropPickPosition(int* pos);
+
 protected:
   VSQmlRenderWindow();
+
+protected slots:
+  void internal_GetFilterFromScreenCoords(int* pos);
 
 private:
   VSQmlFboRenderer* m_FboRenderer = nullptr;
 
   VTK_PTR(vtkOrientationMarkerWidget) m_OrientationWidget = nullptr;
+  VTK_PTR(vtkPropPicker) m_PropPicker = nullptr;
+  VTK_PTR(vtkPointPicker) m_PointPicker = nullptr;
+  VSInteractorStyleFilterCamera::FilterProp m_FilterProp;
+  QMutex m_PropPickMutex;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
+  std::queue<VSAbstractCommand*> m_CommandList;
 };

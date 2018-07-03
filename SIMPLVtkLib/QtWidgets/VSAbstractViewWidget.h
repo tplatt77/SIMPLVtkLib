@@ -49,6 +49,8 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSQuickWidget;
+
 /**
  * @class VSAbstractViewWidget VSAbstractViewWidget.h SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h
  * @brief This abstract class applies the VSViewController and VSFilterViewSettings to
@@ -146,6 +148,8 @@ public:
   */
   virtual VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) = 0;
 
+  virtual QMenu* getContextMenu(VSAbstractFilter* filter) = 0;
+
 signals:
   void viewWidgetClosed();
   void markActive(VSAbstractViewWidget*);
@@ -154,7 +158,7 @@ signals:
   void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
-  void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
+  void mapColorsChanged(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void applyCurrentFilter();
@@ -280,7 +284,7 @@ protected slots:
    * @param viewSettings
    * @param mapColors
    */
-  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState);
+  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, VSFilterViewSettings::ColorMapping mapColorState);
 
   /**
    * @brief ScalarBar visibility changed for filter

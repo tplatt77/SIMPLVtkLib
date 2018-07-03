@@ -41,19 +41,28 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkWin32RenderWindowInteractor.h>
+#include <vtkProp3DCollection.h>
 
 #include <vtkAxesActor.h>
 #include <vtkPointPicker.h>
 #include <vtkRendererCollection.h>
+#include <vtkAssemblyPath.h>
+#include <vtkAssemblyNode.h>
+
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/QML/Commands/VSSelectCommand.h"
+#include "SIMPLVtkLib/QML/Commands/VSContextMenuCommand.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSQmlRenderWindow::VSQmlRenderWindow()
- : vtkExternalOpenGLRenderWindow()
+: QObject(nullptr)
+, vtkExternalOpenGLRenderWindow()
 , m_FboRenderer(nullptr)
 {
   OffScreenRenderingOn();
+  connect(this, SIGNAL(internal_PropPickPosition(int*)), this, SLOT(internal_GetFilterFromScreenCoords(int*)));
 }
 
 // -----------------------------------------------------------------------------
@@ -72,9 +81,9 @@ void VSQmlRenderWindow::OpenGLInitState()
   vtkExternalOpenGLRenderWindow::OpenGLInitState();
   MakeCurrent();
   initializeOpenGLFunctions();
-  vtkExternalOpenGLRenderWindow::OpenGLInitState();
+  //vtkExternalOpenGLRenderWindow::OpenGLInitState();
 
-  //glUseProgram(0);
+  glUseProgram(0);
   //if(getRenderer())
   //{
   //  double* bgColor = getRenderer()->GetBackground();
@@ -83,8 +92,12 @@ void VSQmlRenderWindow::OpenGLInitState()
   //}
   //
   //glEnable(GL_BLEND);
+  //glEnable(GL_DEBUG_OUTPUT);
   //glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
   //glDepthMask(GL_TRUE);
+
+  glDisable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
 }
 
 // -----------------------------------------------------------------------------
@@ -104,6 +117,16 @@ void VSQmlRenderWindow::Render()
 // -----------------------------------------------------------------------------
 void VSQmlRenderWindow::internalRender()
 {
+  //createSelectionCommand(QPoint(50, 50));
+  while(!m_CommandList.empty())
+  {
+    VSAbstractCommand* command = m_CommandList.front();
+    m_CommandList.pop();
+    command->exec(getInteractorStyle(), m_ViewWidget);
+    
+    //delete command;
+  }
+
   // Render only on the FramebufferObject's request
   vtkExternalOpenGLRenderWindow::Render();
 }
@@ -141,8 +164,8 @@ void VSQmlRenderWindow::initializeAxes()
     //double bgColor[3] = { 0.3, 0.3, 0.35 };
     //getRenderer()->SetBackground(bgColor);
 
-    VTK_PTR(vtkPointPicker) pointPicker = VTK_PTR(vtkPointPicker)::New();
-    pointPicker->SetTolerance(0.00025);
+    m_PointPicker = VTK_PTR(vtkPointPicker)::New();
+    m_PointPicker->SetTolerance(0.00025);
 
     //vtkGenericOpenGLRenderWindow* ren = vtkGenericOpenGLRenderWindow::New();
     //SetRenderWindow(ren);
@@ -162,10 +185,13 @@ void VSQmlRenderWindow::initializeAxes()
     //iren->Delete();
     //style->Delete();
 
-    GetInteractor()->SetPicker(pointPicker);
+    //GetInteractor()->SetPicker(m_PointPicker);
     //GetRenderWindow()->SetNumberOfLayers(m_NumRenderLayers);
     //GetRenderWindow()->AddRenderer(getRenderer());
   }
+
+  m_PropPicker = VTK_PTR(vtkPropPicker)::New();
+  GetInteractor()->SetPicker(m_PropPicker);
 
   if(nullptr == m_OrientationWidget.Get())
   {
@@ -210,4 +236,140 @@ vtkRenderer* VSQmlRenderWindow::getRenderer(int index)
   }
 
   return renderer;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+//VTK_PTR(vtkPropPicker) VSQmlRenderWindow::getPropPicker()
+//{
+//  return m_PropPicker;
+//}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlRenderWindow::setViewWidget(VSAbstractViewWidget* viewWidget)
+{
+  m_ViewWidget = viewWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSInteractorStyleFilterCamera::FilterProp VSQmlRenderWindow::getFilterPropFromScreenCoords(int* pos)
+{
+  m_PropPickMutex.lock();
+
+  emit internal_PropPickPosition(pos);
+
+  // Hold the thread until the VTK thread handles the call
+  m_PropPickMutex.lock();
+  m_PropPickMutex.unlock();
+
+  return m_FilterProp;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSQmlRenderWindow::getFilterFromScreenCoords(int* pos)
+{
+  return getFilterPropFromScreenCoords(pos).second;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlRenderWindow::internal_GetFilterFromScreenCoords(int* pos)
+{
+  // Reset the FilterProp
+  m_FilterProp.first = nullptr;
+  m_FilterProp.second = nullptr;
+
+  vtkRenderer* renderer = getRenderer();
+
+#if 0
+  m_PointPicker->Pick(pos[0], pos[1], 0, renderer);
+  m_FilterProp.first = m_PointPicker->GetProp3Ds()->GetLastProp3D();
+#else
+  m_PropPicker->PickProp(pos[0], pos[1], renderer);
+  m_FilterProp.first = dynamic_cast<vtkProp3D*>(m_PropPicker->GetViewProp());
+#endif
+
+#if 0
+  vtkAssemblyPath* path = renderer->PickProp(pos[0], pos[1]);
+  if(path)
+  {
+    vtkAssemblyNode* node = path->GetFirstNode();
+    if(node)
+    {
+      vtkProp* prop = node->GetViewProp();
+      m_FilterProp.first = dynamic_cast<vtkProp3D*>(prop);
+    }
+  }
+#endif
+  
+  if(m_ViewWidget)
+  {
+    m_FilterProp.second = m_ViewWidget->getFilterFromProp(m_FilterProp.first);
+  }
+  
+  // Allow the caller thread to continue
+  m_PropPickMutex.unlock();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int* VSQmlRenderWindow::pointToRenderCoord(QPoint pos)
+{
+  int* screenSize = GetScreenSize();
+  int height = screenSize[1];
+  int* outputCoord = new int[2];
+  outputCoord[0] = pos.x();
+  outputCoord[1] = height - pos.y();
+
+  return outputCoord;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlRenderWindow::createSelectionCommand(VSQmlVtkView* view, QPoint pos)
+{
+  m_CommandList.push(new VSSelectCommand(this, view, pos));
+
+//  GetInteractor()->SetPicker(m_PropPicker);
+//  int* mouse = pointToRenderCoord(pos);
+//
+//  //m_PropPicker->PickProp(mouse[0], mouse[1], getRenderer());
+//#if 0
+//  // Getting the prop from the renderer throws OpenGL errors
+//  vtkAssemblyPath* path = getRenderer()->PickProp(mouse[0], mouse[1]);
+//  vtkAssemblyNode* node = path->GetLastNode();
+//  vtkProp* prop = node->GetViewProp();
+//#endif
+//
+//#if 1
+//  vtkProp3D* prop3D = nullptr;
+//  VSAbstractFilter* filter = nullptr;
+//  std::tie(prop3D, filter) = getInteractorStyle()->getFilterFromScreenCoords(mouse);
+//  
+//  if(filter)
+//  {
+//    m_ViewWidget->selectFilter(filter);
+//  }
+//  
+//#endif
+//
+//  delete mouse;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlRenderWindow::createContextMenuCommand(QPoint point)
+{
+  m_CommandList.push(new VSContextMenuCommand(this, point));
 }

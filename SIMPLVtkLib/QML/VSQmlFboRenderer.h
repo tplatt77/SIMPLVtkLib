@@ -37,6 +37,10 @@
 
 #include <QtQuick/QQuickFramebufferObject>
 
+#include <vtkRenderWindowInteractor.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
+
 class VSQmlRenderWindow;
 
 class VSQmlFboRenderer : public QQuickFramebufferObject::Renderer
@@ -57,4 +61,5 @@ protected:
 private:
   QOpenGLFramebufferObject* m_FBO = nullptr;
   VSQmlRenderWindow* m_QmlRenderWindow = nullptr;
+  VTK_PTR(vtkRenderWindowInteractor) m_Interactor = nullptr;
 };

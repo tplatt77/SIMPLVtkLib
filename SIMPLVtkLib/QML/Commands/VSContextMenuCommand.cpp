@@ -33,53 +33,30 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSContextMenuCommand.h"
 
-//#include "quickQmlRegister.hpp"
-
-#include <QtQuick/QQuickFramebufferObject>
-#include <QtGui/QMouseEvent>
-
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
-
-#include "SIMPLVtkLib/QML/VSQmlFboRenderer.h"
-#include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSContextMenuCommand::VSContextMenuCommand(vtkRenderWindow* renWin, QPoint point)
+: VSAbstractCommand(renWin)
+, m_Point(point)
 {
-  Q_OBJECT
+}
 
-public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSContextMenuCommand::exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget)
+{
+  if(false == (interactorStyle && getRenderWindow() && viewWidget))
+  {
+    return;
+  }
 
-  VSQmlVtkView(QQuickItem* parent = nullptr);
-  virtual ~VSQmlVtkView() = default;
+  int* mousePos = pointToRenderCoord(m_Point);
+  VSAbstractFilter* filter = getFilterAtCoord(interactorStyle, mousePos);
 
-  void init();
-  void update();
-
-  Renderer* createRenderer() const override;
-  VSQmlRenderWindow* GetRenderWindow() const;
-
-  vtkRenderer* getRenderer();
-  vtkCamera* getCamera();
-
-  QQuickItem* createPalette(QPoint point);
-
-signals:
-  void rendererCreated() const;
-
-protected:
-  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-
-private:
-  mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
-  mutable VSQmlFboRenderer* m_FBO = nullptr;
-  mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
-};
+  QMenu* menu = viewWidget->getContextMenu(filter);
+  menu->exec(viewWidget->mapToGlobal(m_Point));
+}
