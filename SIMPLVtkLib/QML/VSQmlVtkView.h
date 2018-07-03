@@ -72,6 +72,8 @@ public:
 
   QQuickItem* createPalette(QPoint point);
 
+  QQuickItem* createViewSettingPalette(QPoint point, VSAbstractFilter* filter);
+
 signals:
   void rendererCreated() const;
 

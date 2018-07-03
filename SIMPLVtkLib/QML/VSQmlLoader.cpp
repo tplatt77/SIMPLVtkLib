@@ -149,5 +149,13 @@ QUrl VSQmlLoader::GetVtkViewUrl()
 // -----------------------------------------------------------------------------
 QUrl VSQmlLoader::GetPaletteUrl()
 {
-  return QUrl("qrc:/VSQml/VSPalette.qml");
+  return QUrl("qrc:/VSQml/Palette.qml");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUrl VSQmlLoader::GetVisibilitySettingsUrl()
+{
+  return QUrl("qrc:/VSQml/VisibilitySettings.qml");
 }

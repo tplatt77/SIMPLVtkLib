@@ -14,12 +14,4 @@ Item {
     anchors.fill: parent
     /*layer.enabled: true*/
   }
-
-  VSPalette
-  {
-    id: test
-
-    x: 50
-    y: 50
-  }
 }

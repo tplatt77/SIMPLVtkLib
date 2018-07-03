@@ -42,7 +42,7 @@
 class SIMPLVtkLib_EXPORT VSContextMenuCommand : public VSAbstractCommand
 {
 public:
-  VSContextMenuCommand(vtkRenderWindow* renWin, QPoint point);
+  VSContextMenuCommand(vtkRenderWindow* renWin, VSQmlVtkView* view, QPoint point);
   virtual ~VSContextMenuCommand() = default;
 
   void exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget) override;

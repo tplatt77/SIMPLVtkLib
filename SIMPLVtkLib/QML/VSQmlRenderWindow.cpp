@@ -369,7 +369,7 @@ void VSQmlRenderWindow::createSelectionCommand(VSQmlVtkView* view, QPoint pos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQmlRenderWindow::createContextMenuCommand(QPoint point)
+void VSQmlRenderWindow::createContextMenuCommand(VSQmlVtkView* view, QPoint point)
 {
-  m_CommandList.push(new VSContextMenuCommand(this, point));
+  m_CommandList.push(new VSContextMenuCommand(this, view, point));
 }

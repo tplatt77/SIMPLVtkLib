@@ -59,6 +59,7 @@ public:
   static void Register();
   static QUrl GetVtkViewUrl();
   static QUrl GetPaletteUrl();
+  static QUrl GetVisibilitySettingsUrl();
 
 protected:
   VSQmlLoader();

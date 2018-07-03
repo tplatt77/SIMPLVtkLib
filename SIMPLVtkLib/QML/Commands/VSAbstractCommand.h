@@ -39,16 +39,19 @@
 
 #include <vtkRenderWindow.h>
 
+#include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSQmlVtkView;
+
 class SIMPLVtkLib_EXPORT VSAbstractCommand
 {
 public:
-  VSAbstractCommand(vtkRenderWindow* renderWindow);
+  VSAbstractCommand(vtkRenderWindow* renderWindow, VSQmlVtkView* view);
   virtual ~VSAbstractCommand() = default;
 
   virtual void exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbstractViewWidget* viewWidget) = 0;
@@ -57,8 +60,10 @@ protected:
   int* pointToRenderCoord(QPoint point);
   VSAbstractFilter* getFilterAtCoord(VSInteractorStyleFilterCamera* interactorStyle, int* coord);
   vtkRenderWindow* getRenderWindow();
+  VSQmlVtkView* getQmlView();
 
 private:
   int* m_ScreenSize;
   vtkRenderWindow* m_RenderWindow = nullptr;
+  VSQmlVtkView* m_QmlView = nullptr;
 };

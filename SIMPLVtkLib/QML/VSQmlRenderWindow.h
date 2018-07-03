@@ -89,7 +89,7 @@ public:
   VSAbstractFilter* getFilterFromScreenCoords(int* pos);
 
   void createSelectionCommand(VSQmlVtkView* view, QPoint point);
-  void createContextMenuCommand(QPoint point);
+  void createContextMenuCommand(VSQmlVtkView* view, QPoint point);
 
 signals:
   void internal_PropPickPosition(int* pos);

@@ -38,8 +38,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSContextMenuCommand::VSContextMenuCommand(vtkRenderWindow* renWin, QPoint point)
-: VSAbstractCommand(renWin)
+VSContextMenuCommand::VSContextMenuCommand(vtkRenderWindow* renWin, VSQmlVtkView* view, QPoint point)
+: VSAbstractCommand(renWin, view)
 , m_Point(point)
 {
 }
@@ -57,6 +57,13 @@ void VSContextMenuCommand::exec(VSInteractorStyleFilterCamera* interactorStyle, 
   int* mousePos = pointToRenderCoord(m_Point);
   VSAbstractFilter* filter = getFilterAtCoord(interactorStyle, mousePos);
 
+  if(filter)
+  {
+    getQmlView()->createViewSettingPalette(m_Point, filter);
+  }
+
+#if 0
   QMenu* menu = viewWidget->getContextMenu(filter);
   menu->exec(viewWidget->mapToGlobal(m_Point));
+#endif
 }

@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.2
 
 //import VSQml 1.0
 
-Rectangle
+ColumnLayout
 {
   id: palette
 
@@ -20,19 +20,21 @@ Rectangle
   property string title: "Untitled"
   property bool pinned: false
 
-  property real headerRadius: 10
-  property color headerColor: "#002c75"
-  property color titleColor: "#cee0ff"
+  property real headerRadius: 2
+  property color headerColor: "#4c8aff"
+  property color titleColor: "#e2edff"
   property real headerHeight: 30
 
   property real backgroundRadius: 20
-  property real backgroundBorderWidth: 2
-  property color backgroundBorderColor: "#515151"
-  //property color backgroundColor: "#bfbfbf"
-  property color backgroundColor: "#101010"
+  property real backgroundBorderWidth: 1
+  property color backgroundBorderColor: "#bababa"
+  property color backgroundColor: "#e5e5e5"
 
-  property int titleMargin: 10
+  property int titleMargin: 3
   property int contentMargin: 5
+  property int bottomMargin: 10
+
+  spacing: 4
 
   signal removeObject()
   function remove() {
@@ -58,22 +60,22 @@ Rectangle
     }
   }*/
 
-  radius: palette.backgroundRadius
-  border.width: palette.backgroundBorderWidth
-  border.color: palette.backgroundBorderColor
-  color: palette.backgroundColor
-
-  ColumnLayout
+  Rectangle
   {
-    id: paletteLayout
-    transformOrigin: Item.TopLeft
+      radius: palette.backgroundRadius
+      border.width: palette.backgroundBorderWidth
+      border.color: palette.backgroundBorderColor
+      color: palette.backgroundColor
 
-    //anchors.fill: parent
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
+      anchors.fill: parent
+  }
 
-    spacing: 4
+  FocusScope
+  {
+      id: focusScope
+
+      anchors.fill: parent
+  }
 
     Rectangle
     {
@@ -134,7 +136,7 @@ Rectangle
           Layout.minimumWidth: titleBar.height
           Layout.maximumWidth: titleBar.height
           Layout.preferredHeight: titleBar.height
-          Layout.rightMargin: palette.titleMargin
+          //Layout.rightMargin: palette.titleMargin
 
           iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
 
@@ -158,72 +160,4 @@ Rectangle
         }
       }
     }
-
-    FocusScope
-    {
-      id: contentScope
-
-      Layout.fillWidth: true
-      Layout.minimumHeight: 10
-      Layout.margins: palette.contentMargin
-
-      focus: true
-
-      onActiveFocusChanged:
-      {
-          if(!activeFocus)
-          {
-              palette.checkFocus()
-          }
-      }
-
-      ColumnLayout
-      {
-        id: testLayout
-
-        anchors.fill: parent
-
-        spacing: 4
-
-          TextInput
-          {
-            id: testInput1
-
-            Layout.fillWidth: true
-            Layout.minimumHeight: 10
-            Layout.margins: palette.contentMargin
-
-            color: "#ff0000"
-            text: "Hello, World"
-          }
-
-          TextInput
-          {
-            id: testInput2
-
-            Layout.fillWidth: true
-            Layout.minimumHeight: 10
-            Layout.margins: palette.contentMargin
-
-            color: "#ff0000"
-            text: "Hello, World"
-          }
-      }
-
-   }
-
-    /*Text
-    {
-      id: contentsContainer
-
-      Layout.fillWidth: true
-      Layout.minimumHeight: 10
-      Layout.margins: palette.contentMargin
-
-      color: "#ff0000"
-      text: "Hello, World"
-    }*/
-
-    height: paletteLayout.height
-  }
 }

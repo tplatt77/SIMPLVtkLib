@@ -38,9 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractCommand::VSAbstractCommand(vtkRenderWindow* renderWindow)
+VSAbstractCommand::VSAbstractCommand(vtkRenderWindow* renderWindow, VSQmlVtkView* view)
 : m_RenderWindow(renderWindow)
 , m_ScreenSize(renderWindow->GetActualSize())
+, m_QmlView(view)
 {
 }
 
@@ -80,4 +81,12 @@ int* VSAbstractCommand::pointToRenderCoord(QPoint point)
 vtkRenderWindow* VSAbstractCommand::getRenderWindow()
 {
   return m_RenderWindow;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSQmlVtkView* VSAbstractCommand::getQmlView()
+{
+  return m_QmlView;
 }

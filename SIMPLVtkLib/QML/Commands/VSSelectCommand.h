@@ -51,5 +51,4 @@ public:
 
 private:
   QPoint m_Point;
-  VSQmlVtkView* m_View = nullptr;
 };

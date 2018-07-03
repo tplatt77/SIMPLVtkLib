@@ -1,8 +1,15 @@
 <RCC>
   <qresource>
     <file>icons/pqSolidColor.png</file>
-    <file>VSQml/VSPalette.qml</file>
     <file>VSQml/VSVtk.qml</file>
+    <file>VSQml/ClipFilter.qml</file>
+    <file>VSQml/ColorButton.qml</file>
+    <file>VSQml/CropFilter.qml</file>
+    <file>VSQml/DataFilter.qml</file>
+    <file>VSQml/Palette.qml</file>
+    <file>VSQml/ThresholdFilter.qml</file>
+    <file>VSQml/Transform.qml</file>
+    <file>VSQml/VisibilitySettings.qml</file>
     <file>icons/pqCellData.png</file>
     <file>icons/pqPointData.png</file>
     <file>icons/pqSplitViewH12.png</file>

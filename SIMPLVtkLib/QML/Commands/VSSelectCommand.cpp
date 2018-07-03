@@ -42,8 +42,7 @@
 //
 // -----------------------------------------------------------------------------
 VSSelectCommand::VSSelectCommand(vtkRenderWindow* renWin, VSQmlVtkView* view, QPoint point)
-: VSAbstractCommand(renWin)
-, m_View(view)
+: VSAbstractCommand(renWin, view)
 , m_Point(point)
 {
 }
@@ -76,7 +75,7 @@ void VSSelectCommand::exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbs
 
   if(filter)
   {
-    QQuickItem* palette = m_View->createPalette(m_Point);
+    QQuickItem* palette = getQmlView()->createPalette(m_Point);
     palette->setProperty("title", filter->getFilterName());
   }
 

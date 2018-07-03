@@ -643,7 +643,7 @@ void VSQuickWidget::showContextMenu(const QPoint& pos)
 
   if(getVtkView() && getVtkView()->GetRenderWindow())
   {
-    getVtkView()->GetRenderWindow()->createContextMenuCommand(pos);
+    getVtkView()->GetRenderWindow()->createContextMenuCommand(getVtkView(), pos);
   }
 
   //QMenu contextMenu("Visualization", this);

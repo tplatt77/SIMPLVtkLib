@@ -168,9 +168,32 @@ QQuickItem* VSQmlVtkView::createPalette(QPoint point)
   }
 
   childItem->setPosition(point);
-  childItem->setVisible(true);
 
   connect(childItem, SIGNAL(removeObject()), childItem, SLOT(deleteLater()));
 
   return childItem;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QQuickItem* VSQmlVtkView::createViewSettingPalette(QPoint point, VSAbstractFilter* filter)
+{
+  QQmlEngine* engine = qmlEngine(this);
+  QQmlComponent component(engine, VSQmlLoader::GetVisibilitySettingsUrl());
+  QQuickItem* paletteItem = dynamic_cast<QQuickItem*>(component.create());
+
+  QList<QQmlError> errors = component.errors();
+  for(QQmlError error : errors)
+  {
+    qDebug() << error.toString();
+  }
+
+  paletteItem->setParentItem(this);
+  paletteItem->setPosition(point);
+  paletteItem->setProperty("title", filter->getFilterName());
+
+  connect(paletteItem, SIGNAL(removeObject()), paletteItem, SLOT(deleteLater()));
+
+  return paletteItem;
 }
