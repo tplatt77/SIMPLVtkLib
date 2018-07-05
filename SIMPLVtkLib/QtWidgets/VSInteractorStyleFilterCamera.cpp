@@ -70,7 +70,6 @@ void VSInteractorStyleFilterCamera::OnLeftButtonDown()
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::OnRightButtonDown()
 {
-  vtkInteractorStyleTrackballCamera::OnRightButtonDown();
   updateLinkedRenderWindows();
 
   // Cancel the current action
