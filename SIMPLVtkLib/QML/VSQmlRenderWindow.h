@@ -42,6 +42,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QMutex>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLFunctions>
 #include <QtQuick/QQuickFrameBufferObject>
 

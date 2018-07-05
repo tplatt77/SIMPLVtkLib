@@ -12,16 +12,15 @@ ColumnLayout
 
   //z: 2
 
-  //opacity: activeFocus ? 1 : 0.5
-  opacity: 1
-
-  //layer.enabled: true
+  //opacity: 1
 
   property string title: "Untitled"
   property bool pinned: false
+  //property real contentOpacity: activeFocus ? 1 : 0.5
 
   property real headerRadius: 2
   property color headerColor: "#4c8aff"
+  property color headerBorderColor: "#2869e2"
   property color titleColor: "#e2edff"
   property real headerHeight: 30
 
@@ -38,43 +37,47 @@ ColumnLayout
 
   signal removeObject()
   function remove() {
-    console.log("Delete Palette")
     removeObject()
     destroy();
   }
 
+  // If focus lost and not pinned, destroy the object
   function checkFocus() {
     if(!pinned && !activeFocus)
     {
-      console.log("Focus Lost")
-      remove();
+        console.log("Focus Lost on: " + palette.title);
+      //remove();
     }
   }
 
-  // If focus lost and not pinned, destroy the object
-  /*onActiveFocusChanged:
+  onActiveFocusChanged:
   {
-    if(!pinned && !activeFocus)
-    {
-      //remove();
-    }
-  }*/
+    console.log("Active Focus Changed")
+    checkFocus();
+  }
+
+//  onContentOpacityChanged:
+//  {
+//    for(var i = 0; i < children.length; i++)
+//    {
+//      if(children[i] != titleBar)
+//      {
+//        children[i].opacity = contentOpacity;
+//      }
+//    }
+//  }
 
   Rectangle
   {
+      id: backgroundRect
+
+      anchors.fill: parent
+
+      opacity: parent.activeFocus ? 1 : 0.5
       radius: palette.backgroundRadius
       border.width: palette.backgroundBorderWidth
       border.color: palette.backgroundBorderColor
       color: palette.backgroundColor
-
-      anchors.fill: parent
-  }
-
-  FocusScope
-  {
-      id: focusScope
-
-      anchors.fill: parent
   }
 
     Rectangle
@@ -88,6 +91,8 @@ ColumnLayout
 
       radius: palette.headerRadius
       color: palette.headerColor
+      border.color: palette.headerBorderColor
+      border.width: 1
 
       MouseArea
       {

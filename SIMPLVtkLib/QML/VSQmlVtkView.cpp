@@ -55,7 +55,12 @@ VSQmlVtkView::VSQmlVtkView(QQuickItem* parent)
   setMirrorVertically(true);
 
   setActiveFocusOnTab(true);
-  setAcceptedMouseButtons(Qt::MouseButton::LeftButton | Qt::MouseButton::RightButton);
+  setAcceptHoverEvents(true);
+  setAcceptedMouseButtons(Qt::AllButtons);
+  setFlags(flags() | QQuickItem::ItemHasContents | QQuickItem::ItemIsFocusScope | QQuickItem::ItemAcceptsInputMethod);
+
+  // Create the QVTKInteractorAdapter so that Qt and VTK can interact
+  m_InteractorAdapter = new QVTKInteractorAdapter(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -82,6 +87,14 @@ void VSQmlVtkView::update()
 VSQmlRenderWindow* VSQmlVtkView::GetRenderWindow() const
 {
   return m_RenderWindow.Get();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVTKInteractorAdapter* VSQmlVtkView::GetInteractorAdapter()
+{
+  return m_InteractorAdapter;
 }
 
 // -----------------------------------------------------------------------------
@@ -142,12 +155,96 @@ vtkCamera* VSQmlVtkView::getCamera()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSQmlVtkView::renderVtk()
+{
+  if(m_FBO)
+  {
+    m_FBO->update();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSQmlVtkView::event(QEvent* evt)
+{
+  switch(evt->type())
+  {
+  case QEvent::MouseMove:
+  case QEvent::MouseButtonPress:
+  case QEvent::MouseButtonRelease:
+  case QEvent::MouseButtonDblClick:
+    // skip events that are explicitly handled by overrides to avoid duplicate
+    // calls to InteractorAdaptor->ProcessEvent().
+    break;
+
+  case QEvent::Resize:
+    // we don't let QVTKInteractorAdapter process resize since we handle it
+    // in this->recreateFBO().
+    break;
+
+  default:
+    
+    break;
+  }
+
+  renderVtk();
+  return QQuickFramebufferObject::event(evt);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::mousePressEvent(QMouseEvent* event)
+{
+  forceActiveFocus();
+
+  passMouseEventToVtk(event);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::mouseMoveEvent(QMouseEvent* event)
+{
+  passMouseEventToVtk(event);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::mouseReleaseEvent(QMouseEvent* event)
+{
+  passMouseEventToVtk(event);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSQmlVtkView::mouseDoubleClickEvent(QMouseEvent* event)
 {
+  forceActiveFocus();
+
+  // Filter Selection
   if(m_RenderWindow)
   {
     //createPalette(event->pos());
     m_RenderWindow->createSelectionCommand(this, event->pos());
+  }
+
+  // QVTKInteractor
+  passMouseEventToVtk(event);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::passMouseEventToVtk(QMouseEvent* event)
+{
+  if(GetRenderWindow() && GetRenderWindow()->GetInteractor())
+  {
+    m_InteractorAdapter->ProcessEvent(event,
+      GetRenderWindow()->GetInteractor());
   }
 }
 
@@ -189,9 +286,11 @@ QQuickItem* VSQmlVtkView::createViewSettingPalette(QPoint point, VSAbstractFilte
     qDebug() << error.toString();
   }
 
-  paletteItem->setParentItem(this);
   paletteItem->setPosition(point);
   paletteItem->setProperty("title", filter->getFilterName());
+  paletteItem->setFlags(paletteItem->flags() | QQuickItem::Flag::ItemHasContents | QQuickItem::Flag::ItemIsFocusScope);
+  paletteItem->setParentItem(this);
+  paletteItem->forceActiveFocus();
 
   connect(paletteItem, SIGNAL(removeObject()), paletteItem, SLOT(deleteLater()));
 

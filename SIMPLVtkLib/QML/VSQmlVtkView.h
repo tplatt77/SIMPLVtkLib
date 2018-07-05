@@ -40,6 +40,7 @@
 #include <QtQuick/QQuickFramebufferObject>
 #include <QtGui/QMouseEvent>
 
+#include <QVTKInteractorAdapter.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -66,6 +67,7 @@ public:
 
   Renderer* createRenderer() const override;
   VSQmlRenderWindow* GetRenderWindow() const;
+  QVTKInteractorAdapter* GetInteractorAdapter();
 
   vtkRenderer* getRenderer();
   vtkCamera* getCamera();
@@ -78,10 +80,27 @@ signals:
   void rendererCreated() const;
 
 protected:
+  void renderVtk();
+
+  bool event(QEvent* evt) Q_DECL_OVERRIDE;
+
+  /**
+  * @brief Overrides the mousePressEvent
+  * @param event
+  */
+  void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
   void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  void passMouseEventToVtk(QMouseEvent* event);
 
 private:
   mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;
   mutable VSQmlFboRenderer* m_FBO = nullptr;
   mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
+  QVTKInteractorAdapter* m_InteractorAdapter = nullptr;
 };

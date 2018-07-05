@@ -76,10 +76,7 @@ void VSQuickWidget::setupGui()
   // Set the widget formatting so that VTK can interface with it.
   setFormat(QVTKOpenGLWidget::defaultFormat());
 
-  // Create the QVTKInteractorAdapter so that Qt and VTK can interact
-  m_InteractorAdaptor = new QVTKInteractorAdapter(this);
-  m_InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio());
-
+  setMouseTracking(false);
   connect(this, &QQuickWidget::statusChanged, this, &VSQuickWidget::updatedStatus);
 
   // Register required QML types
@@ -110,6 +107,8 @@ void VSQuickWidget::finishInit()
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
     this, SLOT(showContextMenu(const QPoint&)));
+
+  getVtkView()->GetInteractorAdapter()->SetDevicePixelRatio(devicePixelRatio());
 
   // Set Camera's VSViewWidget
   VSInteractorStyleFilterCamera* interactorStyle;
@@ -162,7 +161,10 @@ void VSQuickWidget::setViewWidget(VSAbstractViewWidget* view)
 // -----------------------------------------------------------------------------
 VSQmlVtkView* VSQuickWidget::getVtkView()
 {
-  return rootObject()->findChild<VSQmlVtkView*>();
+  QQuickItem* root = rootObject();
+  VSQmlVtkView* rootView = dynamic_cast<VSQmlVtkView*>(root);
+  return rootView;
+  //return rootObject()->findChild<VSQmlVtkView*>();
 }
 
 // -----------------------------------------------------------------------------
@@ -523,90 +525,6 @@ void VSQuickWidget::camZMinus()
   camera->SetViewUp(0.0, 1.0, 0.0);
 
   renderVtk();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSQuickWidget::event(QEvent* evt)
-{
-  switch(evt->type())
-  {
-  case QEvent::MouseMove:
-  case QEvent::MouseButtonPress:
-  case QEvent::MouseButtonRelease:
-  case QEvent::MouseButtonDblClick:
-    // skip events that are explicitly handled by overrides to avoid duplicate
-    // calls to InteractorAdaptor->ProcessEvent().
-    break;
-
-  case QEvent::Resize:
-    // we don't let QVTKInteractorAdapter process resize since we handle it
-    // in this->recreateFBO().
-    break;
-
-  default:
-    renderVtk();
-  }
-  return QQuickWidget::event(evt);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::mousePressEvent(QMouseEvent* event)
-{
-  QQuickWidget::mousePressEvent(event);
-
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-  {
-    m_InteractorAdaptor->ProcessEvent(event,
-      getVtkView()->GetRenderWindow()->GetInteractor());
-  }
-
-  emit mousePressed();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::mouseMoveEvent(QMouseEvent* event)
-{
-  QQuickWidget::mouseMoveEvent(event);
-
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-  {
-    m_InteractorAdaptor->ProcessEvent(event,
-      getVtkView()->GetRenderWindow()->GetInteractor());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::mouseReleaseEvent(QMouseEvent* event)
-{
-  QQuickWidget::mouseReleaseEvent(event);
-
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-  {
-    m_InteractorAdaptor->ProcessEvent(event,
-      getVtkView()->GetRenderWindow()->GetInteractor());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQuickWidget::mouseDoubleClickEvent(QMouseEvent* event)
-{
-  QQuickWidget::mouseDoubleClickEvent(event);
-
-  if(getVtkView() && getVtkView()->GetRenderWindow() && getVtkView()->GetRenderWindow()->GetInteractor())
-  {
-    m_InteractorAdaptor->ProcessEvent(event,
-      getVtkView()->GetRenderWindow()->GetInteractor());
-  }
 }
 
 // -----------------------------------------------------------------------------

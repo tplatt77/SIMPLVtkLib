@@ -40,7 +40,6 @@
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 
 #include <QVTKOpenGLWidget.h>
-#include <QVTKInteractorAdapter.h>
 #include <vtkInteractorStyle.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkRenderer.h>
@@ -168,8 +167,6 @@ signals:
 protected:
   void setupGui();
 
-  bool event(QEvent* evt) Q_DECL_OVERRIDE;
-
   /**
   * @brief Initializes the renderers and axes
   */
@@ -181,18 +178,6 @@ protected:
   * @param distance
   */
   void getCameraFocalPointAndDistance(double* focalPoint, double& distance);
-
-  /**
-  * @brief Overrides the mousePressEvent
-  * @param event
-  */
-  virtual void mousePressEvent(QMouseEvent* event) override;
-
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
-
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-
-  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
   /**
   * @brief Check if linking cameras
@@ -212,7 +197,6 @@ protected slots:
   void updatedStatus(QQuickWidget::Status);
 
 private:
-  QVTKInteractorAdapter* m_InteractorAdaptor = nullptr;
   LinkedRenderWindowType m_LinkedRenderWindows;
   QAction* m_LinkCameraAction = nullptr;
   bool m_OwnContextMenu = true;

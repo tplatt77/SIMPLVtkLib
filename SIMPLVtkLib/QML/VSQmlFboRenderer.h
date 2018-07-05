@@ -41,11 +41,13 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
+class VSQmlVtkView;
 class VSQmlRenderWindow;
 
 class VSQmlFboRenderer : public QQuickFramebufferObject::Renderer
 {
   friend class VSQmlRenderWindow;
+  friend class VSQmlVtkView;
 public:
   VSQmlFboRenderer(VSQmlRenderWindow* QmlRenderWindow);
   ~VSQmlFboRenderer() = default;

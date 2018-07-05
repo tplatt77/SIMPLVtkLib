@@ -869,11 +869,11 @@ bool VSFilterViewSettings::isFlatImage()
     return false;
   }
 
-  // Check extents
-  int* extent = imageData->GetExtent();
+  // Check dimensions
+  int* dims = imageData->GetDimensions();
   for(int i = 0; i < 3; i++)
   {
-    if(extent[2 * i + 1] - extent[2 * i] <= 1)
+    if(dims[i] <= 1)
     {
       return true;
     }

@@ -5,13 +5,9 @@ import QtQuick.Layouts 1.2
 import VSQml 1.0
 
 
-Item {
-  id: root;
-  
-  VSQmlVtkView {
-    id: vtkView
+VSQmlVtkView {
+  id: vtkView
 
-    anchors.fill: parent
-    /*layer.enabled: true*/
-  }
+  //anchors.fill: parent
+  /*layer.enabled: true*/
 }

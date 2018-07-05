@@ -40,10 +40,13 @@ Palette
 
         ComboBox {
             id: arraySelection
+            activeFocusOnTab: true
             Layout.columnSpan: 2
             Layout.fillWidth: true
 
             model: ["ColorArray"]
+            //focus: true
+            activeFocusOnPress: true
         }
 
         Label {
@@ -108,6 +111,7 @@ Palette
 
         ComboBox {
             id: mapScalarsSelection
+            activeFocusOnTab: true
             Layout.fillWidth: true
             Layout.columnSpan: 2
 
