@@ -301,7 +301,6 @@ QQuickItem* VSQmlVtkView::createViewSettingPalette(QPoint point, VSAbstractFilte
   }
 
   paletteItem->setPosition(point);
-  paletteItem->setProperty("title", filter->getFilterName() + ": Visibility");
   paletteItem->setFlags(paletteItem->flags() | QQuickItem::Flag::ItemHasContents | QQuickItem::Flag::ItemIsFocusScope);
   QQmlEngine::setObjectOwnership(paletteItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
   paletteItem->setParentItem(this);

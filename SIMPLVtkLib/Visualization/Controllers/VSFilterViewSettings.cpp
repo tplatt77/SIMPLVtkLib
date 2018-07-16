@@ -173,6 +173,21 @@ VSAbstractFilter* VSFilterViewSettings::getFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString VSFilterViewSettings::getFilterName() const
+{
+  if(m_Filter)
+  {
+    return m_Filter->getFilterName();
+  }
+  else
+  {
+    return "[Filter Missing]";
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isValid() const
 {
   if(nullptr == m_Filter)

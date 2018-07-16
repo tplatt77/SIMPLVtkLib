@@ -10,8 +10,6 @@ ColumnLayout
 
   transformOrigin: Item.TopLeft
 
-  //z: 2
-
   //opacity: 1
 
   property string title: "Untitled"
@@ -32,6 +30,12 @@ ColumnLayout
   property int titleMargin: 3
   property int contentMargin: 5
   property int bottomMargin: 10
+
+  property int baseZ: 2
+  property int focusZ: 3
+
+  // Changing the Z on active focus and the line parent = parent allows reordering the items even when focus is lost
+  z: activeFocus ? focusZ : baseZ
 
   spacing: 4
 
@@ -56,6 +60,11 @@ ColumnLayout
   {
     console.log("Active Focus Changed")
     checkFocus()
+
+      if(activeFocus && parent)
+      {
+          parent = parent
+      }
   }
 
 //  onContentOpacityChanged:
@@ -80,6 +89,14 @@ ColumnLayout
       border.width: palette.backgroundBorderWidth
       border.color: palette.backgroundBorderColor
       color: palette.backgroundColor
+
+      MouseArea
+      {
+          id: allMouseArea
+
+          anchors.fill: parent
+          onPressed: forceActiveFocus()
+      }
   }
 
     Rectangle
@@ -104,6 +121,7 @@ ColumnLayout
 
         drag.target: palette
         drag.axis: Drag.XAndYAxis
+        onPressed: forceActiveFocus()
       }
 
       RowLayout

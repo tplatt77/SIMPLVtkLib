@@ -76,6 +76,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
   Q_OBJECT
   Q_INTERFACES(QQmlPropertyValueSource)
 
+  Q_PROPERTY(QString filterName READ getFilterName)
   Q_PROPERTY(bool visibility READ isVisible WRITE setVisible NOTIFY visibilityChanged)
   Q_PROPERTY(bool gridVisibility READ isGridVisible WRITE setGridVisible NOTIFY gridVisibilityChanged)
   Q_PROPERTY(QString activeArrayName READ getActiveArrayName WRITE setActiveArrayName NOTIFY activeArrayNameChanged)
@@ -146,6 +147,13 @@ public:
    * @return
    */
   VSAbstractFilter* getFilter();
+
+  /**
+   * @brief getFilterName required for filterName property.
+   * Retrieves the value from the current filter.
+   * @return
+   */
+  QString getFilterName() const;
 
   /**
    * @brief Returns true if the VSFilterViewSettings can be displayed and false otherwise

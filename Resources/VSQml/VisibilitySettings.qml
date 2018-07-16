@@ -57,6 +57,7 @@ Palette
             onCurrentIndexChanged:
             {
                 palette.viewSettings.representation = currentIndex;
+                parent.forceActiveFocus()
             }
 
         }
@@ -90,6 +91,8 @@ Palette
                 {
                     palette.viewSettings.activeArrayName = currentText
                 }
+
+                parent.forceActiveFocus()
             }
         }
 
@@ -114,6 +117,7 @@ Palette
             }
             onCurrentIndexChanged: {
                 palette.viewSettings.activeComponentIndex = currentIndex - 1;
+                parent.forceActiveFocus()
             }
         }
 
@@ -169,6 +173,7 @@ Palette
             onCurrentIndexChanged:
             {
                 palette.viewSettings.mapColors = currentIndex
+                parent.forceActiveFocus()
             }
         }
 
@@ -191,6 +196,7 @@ Palette
             {
                 palette.viewSettings.showScalarBar = (checkedState == Qt.Checked)
             }
+            onClicked: forceActiveFocus()
         }
 
         Label {
@@ -205,6 +211,7 @@ Palette
             Layout.preferredHeight: 22
             Layout.preferredWidth: 148
             value: 1 // Default value
+            activeFocusOnPress: true
 
             Connections{
                 target: palette.viewSettings
@@ -240,7 +247,7 @@ Palette
             return
         }
 
-        console.log("Component: " + palette.viewSettings.activeComponentIndex);
+        title = palette.viewSettings.filterName + ": Visibility"
 
         representationSelection.currentIndex = palette.viewSettings.representation;
         arraySelection.currentIndex = arraySelection.find(palette.viewSettings.activeArrayName) + 1
