@@ -43,6 +43,8 @@
 #include <QtGui/QColor>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
+#include <QtQml/QQmlProperty>
+#include <QtQml/QQmlPropertyValueSource>
 
 #include <vtkAbstractMapper3D.h>
 #include <vtkActor.h>
@@ -69,9 +71,21 @@ class vtkImageSlice;
  * to color by, whether or not to map values to a lookup table, and the visibility of
  * both the vtkActor and vtkScalarBarWidget.
  */
-class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
+class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPropertyValueSource
 {
   Q_OBJECT
+  Q_INTERFACES(QQmlPropertyValueSource)
+
+  Q_PROPERTY(bool visibility READ isVisible WRITE setVisible NOTIFY visibilityChanged)
+  Q_PROPERTY(bool gridVisibility READ isGridVisible WRITE setGridVisible NOTIFY gridVisibilityChanged)
+  Q_PROPERTY(QString activeArrayName READ getActiveArrayName WRITE setActiveArrayName NOTIFY activeArrayNameChanged)
+  Q_PROPERTY(int activeComponentIndex READ getActiveComponentIndex WRITE setActiveComponentIndex NOTIFY activeComponentIndexChanged)
+  Q_PROPERTY(int pointSize READ getPointSize WRITE setPointSize NOTIFY pointSizeChanged)
+  Q_PROPERTY(double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged)
+  Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
+  Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+  Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
+  Q_PROPERTY(double* solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
@@ -100,6 +114,15 @@ public:
     NonColors,
     None
   };
+
+  Q_ENUMS(Representation)
+  Q_ENUMS(ActorType)
+  Q_ENUMS(ColorMapping)
+
+  Q_PROPERTY(Representation representation READ getRepresentation WRITE setRepresentation NOTIFY representationChanged)
+  Q_PROPERTY(ColorMapping mapColors READ getMapColors WRITE setMapColors NOTIFY mapColorsChanged)
+
+  VSFilterViewSettings();
 
   /**
    * @brief Constructor
@@ -134,24 +157,36 @@ public:
    * @brief Returns true if the filter is displayed for this view.  Returns false otherwise
    * @return
    */
-  bool isVisible();
+  bool isVisible() const;
 
   /**
    * @brief Returns true if the axes grid is displayed for this view.  Returns false otherwise.
    */
-  bool isGridVisible();
+  bool isGridVisible() const;
 
   /**
    * @brief Returns the active array name used to render the filter
    * @return
    */
-  QString getActiveArrayName();
+  QString getActiveArrayName() const;
 
   /**
    * @brief Returns the active array component used to render the filter
    * @return
    */
-  int getActiveComponentIndex();
+  int getActiveComponentIndex() const;
+
+  /**
+   * @brief Returns the array names that can be used to color the data
+   * @return
+   */
+  QStringList getArrayNames() const;
+
+  /**
+   * @brief Returns the component names available for the active array
+   * @return
+   */
+  QStringList getComponentNames();
 
   /**
    * @brief Returns the number of components for the given array
@@ -342,6 +377,12 @@ public:
    */
   QIcon getPointDataIcon();
 
+  /**
+   * @brief Handle QML property value source
+   * @param property
+   */
+  void setTarget(const QQmlProperty& property) override;
+
 public slots:
   /**
    * @brief Displays the vtkActor for this view
@@ -411,7 +452,7 @@ public slots:
    * @brief Sets the color to use when there are no scalar values to map
    * @param color
    */
-  void setSolidColor(double color[3]);
+  void setSolidColor(double* color);
 
   /**
    * @brief Sets the color to use when there are no scalar values to map
@@ -423,7 +464,7 @@ public slots:
    * @brief Sets the actor property representation
    * @param type
    */
-  void setRepresentation(Representation type);
+  void setRepresentation(const Representation& type);
 
   /**
    * @brief Checks the imported data type, changes the representation, and renders the changes
@@ -452,7 +493,23 @@ public slots:
   void updateTransform();
 
 signals:
-  void visibilityChanged(VSFilterViewSettings*, bool);
+  void visibilityChanged(const bool&);
+  void gridVisibilityChanged(const bool&);
+  void activeArrayNameChanged(const QString&);
+  void activeComponentIndexChanged(const int&);
+  void pointSizeChanged(const int&);
+  void alphaChanged(const double&);
+  void showScalarBarChanged(const bool&);
+  void arrayNamesChanged(const QStringList&);
+  void componentNamesChanged(const QStringList&);
+
+  void representationChanged(const Representation&);
+  void mapColorsChanged(const ColorMapping&);
+
+  void renderPointSpheresChanged(const bool&);
+  void solidColorChanged(const double*);
+
+  /*void visibilityChanged(VSFilterViewSettings*, bool);
   void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation);
   void solidColorChanged(VSFilterViewSettings*, double*);
@@ -462,7 +519,8 @@ signals:
   void renderPointSpheresChanged(VSFilterViewSettings*, bool);
   void mapColorsChanged(VSFilterViewSettings*, ColorMapping);
   void alphaChanged(VSFilterViewSettings*, double);
-  void showScalarBarChanged(VSFilterViewSettings*, bool);
+  void showScalarBarChanged(VSFilterViewSettings*, bool); */
+
   void requiresRender();
   void actorsUpdated();
   void dataLoaded();
@@ -617,6 +675,7 @@ private:
   bool m_HadNoArrays = false;
   VTK_PTR(vtkCubeAxesActor) m_CubeAxesActor = nullptr;
   bool m_GridVisible = false;
+  QQmlProperty m_TargetProperty;
 
   QAction* m_SetColorAction = nullptr;
   QAction* m_SetOpacityAction = nullptr;
@@ -627,3 +686,5 @@ private:
 
   static double* NULL_COLOR;
 };
+
+Q_DECLARE_METATYPE(VSFilterViewSettings)

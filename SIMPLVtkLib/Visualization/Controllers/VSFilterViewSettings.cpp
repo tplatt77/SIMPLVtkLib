@@ -63,6 +63,19 @@ QIcon* VSFilterViewSettings::m_PointDataIcon = nullptr;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewSettings::VSFilterViewSettings()
+: QObject(nullptr)
+, m_ShowFilter(false)
+, m_Filter(nullptr)
+, m_Representation(Representation::Invalid)
+, m_ActiveComponent(-1)
+{
+  setupStaticIcons();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 : QObject(nullptr)
 , m_ShowFilter(true)
@@ -162,6 +175,11 @@ VSAbstractFilter* VSFilterViewSettings::getFilter()
 // -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isValid() const
 {
+  if(nullptr == m_Filter)
+  {
+    return false;
+  }
+
   bool valid = m_Mapper && m_Actor;
   return valid;
 }
@@ -202,7 +220,7 @@ void VSFilterViewSettings::setupActions()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isVisible()
+bool VSFilterViewSettings::isVisible() const
 {
   return m_ShowFilter;
 }
@@ -210,7 +228,7 @@ bool VSFilterViewSettings::isVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isGridVisible()
+bool VSFilterViewSettings::isGridVisible() const
 {
   return m_GridVisible;
 }
@@ -218,7 +236,7 @@ bool VSFilterViewSettings::isGridVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSFilterViewSettings::getActiveArrayName()
+QString VSFilterViewSettings::getActiveArrayName() const
 {
   return m_ActiveArrayName;
 }
@@ -226,9 +244,25 @@ QString VSFilterViewSettings::getActiveArrayName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSFilterViewSettings::getActiveComponentIndex()
+int VSFilterViewSettings::getActiveComponentIndex() const
 {
   return m_ActiveComponent;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getArrayNames() const
+{
+  return m_Filter->getArrayNames();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getComponentNames()
+{
+  return m_Filter->getComponentList(getActiveArrayName());
 }
 
 // -----------------------------------------------------------------------------
@@ -428,7 +462,7 @@ void VSFilterViewSettings::setVisible(bool visible)
 
   m_ShowFilter = visible;
 
-  emit visibilityChanged(this, m_ShowFilter);
+  emit visibilityChanged(m_ShowFilter);
 }
 
 // -----------------------------------------------------------------------------
@@ -443,7 +477,7 @@ void VSFilterViewSettings::setGridVisible(bool visible)
 
   m_GridVisible = visible;
 
-  emit gridVisibilityChanged(this, m_GridVisible);
+  emit gridVisibilityChanged(m_GridVisible);
 }
 
 // -----------------------------------------------------------------------------
@@ -539,7 +573,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     getDataSetMapper()->SelectColorArray(-1);
     m_ActiveArrayName = QString::null;
 
-    emit activeArrayNameChanged(this, m_ActiveArrayName);
+    emit activeArrayNameChanged(m_ActiveArrayName);
     emit requiresRender();
     return;
   }
@@ -552,7 +586,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
 
   m_ActiveArrayName = name;
 
-  emit activeArrayNameChanged(this, m_ActiveArrayName);
+  emit activeArrayNameChanged(m_ActiveArrayName);
   setActiveComponentIndex(-1);
 
   if(isColorArray(dataArray) && m_MapColors == ColorMapping::Always)
@@ -624,7 +658,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
   m_Mapper->Update();
 
-  emit activeComponentIndexChanged(this, m_ActiveComponent);
+  emit activeComponentIndexChanged(m_ActiveComponent);
 }
 
 // -----------------------------------------------------------------------------
@@ -702,7 +736,7 @@ void VSFilterViewSettings::setMapColors(ColorMapping mapColors)
   m_MapColors = mapColors;
 
   updateColorMode();
-  emit mapColorsChanged(this, m_MapColors);
+  emit mapColorsChanged(m_MapColors);
   emit requiresRender();
 }
 
@@ -734,7 +768,7 @@ void VSFilterViewSettings::setAlpha(double alpha)
     return;
   }
 
-  emit alphaChanged(this, m_Alpha);
+  emit alphaChanged(m_Alpha);
   emit requiresRender();
 }
 
@@ -810,7 +844,7 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 
   m_ToggleScalarBarAction->setChecked(visible);
 
-  emit showScalarBarChanged(this, visible);
+  emit showScalarBarChanged(visible);
 }
 
 // -----------------------------------------------------------------------------
@@ -1175,7 +1209,7 @@ double* VSFilterViewSettings::getSolidColor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setSolidColor(double color[3])
+void VSFilterViewSettings::setSolidColor(double* color)
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1185,7 +1219,7 @@ void VSFilterViewSettings::setSolidColor(double color[3])
 
   actor->GetProperty()->SetColor(color);
 
-  emit solidColorChanged(this, color);
+  emit solidColorChanged(color);
   emit requiresRender();
 }
 
@@ -1274,7 +1308,7 @@ void VSFilterViewSettings::setPointSize(int pointSize)
   if(ActorType::DataSet == getActorType() && getDataSetActor())
   {
     getDataSetActor()->GetProperty()->SetPointSize(pointSize);
-    emit pointSizeChanged(this, pointSize);
+    emit pointSizeChanged(pointSize);
     emit requiresRender();
   }
 }
@@ -1300,7 +1334,7 @@ void VSFilterViewSettings::setRenderPointsAsSpheres(bool renderSpheres)
   if(ActorType::DataSet == getActorType() && getDataSetActor())
   {
     getDataSetActor()->GetProperty()->SetRenderPointsAsSpheres(renderSpheres);
-    emit renderPointSpheresChanged(this, renderSpheres);
+    emit renderPointSpheresChanged(renderSpheres);
     emit requiresRender();
   }
 }
@@ -1308,7 +1342,7 @@ void VSFilterViewSettings::setRenderPointsAsSpheres(bool renderSpheres)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setRepresentation(Representation type)
+void VSFilterViewSettings::setRepresentation(const Representation& type)
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1340,7 +1374,7 @@ void VSFilterViewSettings::setRepresentation(Representation type)
   }
 
   updateTransform();
-  emit representationChanged(this, type);
+  emit representationChanged(type);
   emit requiresRender();
 }
 
@@ -1593,4 +1627,12 @@ QIcon VSFilterViewSettings::getPointDataIcon()
   }
 
   return QIcon();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setTarget(const QQmlProperty& property)
+{
+  m_TargetProperty = property;
 }

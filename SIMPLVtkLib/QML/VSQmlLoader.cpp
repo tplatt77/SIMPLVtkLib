@@ -37,6 +37,7 @@
 
 //#include "SIMPLVtkLib/QML/VSPalette.h"
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 
 VSQmlLoader* VSQmlLoader::m_Instance = nullptr;
 
@@ -54,8 +55,9 @@ VSQmlLoader::VSQmlLoader()
 void VSQmlLoader::Register()
 {
   //QML_REGISTER(VSQmlVtkView);
-  qmlRegisterType<VSQmlVtkView>("VSQml", SIMPLVtkLib::Version::Major().toInt(), SIMPLVtkLib::Version::Minor().toInt(), "VSQmlVtkView");
+  qmlRegisterType<VSQmlVtkView>("VSQml", 1, 0, "VSQmlVtkView");
   //qmlRegisterType<VSPalette>("VSQml", SIMPLVtkLib::Version::Major().toInt(), SIMPLVtkLib::Version::Minor().toInt(), "VSPalette");
+  qmlRegisterType<VSFilterViewSettings>("VSQml", 1, 0, "VSFilterViewSettings");
 }
 
 // -----------------------------------------------------------------------------

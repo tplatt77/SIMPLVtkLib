@@ -118,10 +118,9 @@ void VSQuickWidget::finishInit()
     interactorStyle->setViewWidget(m_ViewWidget);
   }
 
-  VSQmlRenderWindow* renderWindow = dynamic_cast<VSQmlRenderWindow*>(getVtkView()->GetRenderWindow());
-  if(renderWindow)
+  if(getVtkView())
   {
-    renderWindow->setViewWidget(m_ViewWidget);
+    getVtkView()->setViewWidget(m_ViewWidget);
   }
 
   //VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();

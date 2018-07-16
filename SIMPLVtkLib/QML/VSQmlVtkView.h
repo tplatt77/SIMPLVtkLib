@@ -76,6 +76,8 @@ public:
 
   QQuickItem* createViewSettingPalette(QPoint point, VSAbstractFilter* filter);
 
+  void setViewWidget(VSAbstractViewWidget* viewWidget);
+
 signals:
   void rendererCreated() const;
 
@@ -103,4 +105,5 @@ private:
   mutable VSQmlFboRenderer* m_FBO = nullptr;
   mutable VTK_PTR(vtkRenderer) m_Renderer = nullptr;
   QVTKInteractorAdapter* m_InteractorAdapter = nullptr;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
 };

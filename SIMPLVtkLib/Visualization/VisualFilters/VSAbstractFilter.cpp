@@ -369,7 +369,7 @@ QStringList VSAbstractFilter::getComponentList(vtkAbstractArray* array)
       {
         componentNames.push_back("Comp " + QString::number(i + 1));
       }
-      }
+    }
 
     if(numComponent > 1)
     {

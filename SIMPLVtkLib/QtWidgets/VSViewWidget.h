@@ -123,7 +123,7 @@ protected slots:
    * @param viewSettings
    * @param showScalarBar
    */
-  void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
+  void setFilterShowScalarBar(const bool& showScalarBar) override;
 
   /**
   * @brief Creates a context menu for the VSVisualizationWidget

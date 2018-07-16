@@ -205,7 +205,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::ActorType::Invalid;
   if(m_ViewSettings && m_ViewSettings->isValid())
   {
-    listenSolidColor(m_ViewSettings, m_ViewSettings->getSolidColor());
+    listenSolidColor(m_ViewSettings->getSolidColor());
     actorType = m_ViewSettings->getActorType();
   }
 
@@ -673,7 +673,7 @@ void VSInfoWidget::setComboArrayName(QString arrayName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep)
+void VSInfoWidget::listenRepresentationType(const VSFilterViewSettings::Representation& rep)
 {
   int index = static_cast<int>(rep);
   m_Internals->representationCombo->blockSignals(true);
@@ -684,7 +684,7 @@ void VSInfoWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenArrayName(VSFilterViewSettings* settings, QString arrayName)
+void VSInfoWidget::listenArrayName(const QString& arrayName)
 {
   m_Internals->activeArrayCombo->blockSignals(true);
   if(arrayName.isNull())
@@ -701,7 +701,7 @@ void VSInfoWidget::listenArrayName(VSFilterViewSettings* settings, QString array
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenComponentIndex(VSFilterViewSettings* settings, int index)
+void VSInfoWidget::listenComponentIndex(const int& index)
 {
   m_Internals->activeComponentCombo->blockSignals(true);
   m_Internals->activeComponentCombo->setCurrentIndex(index+1);
@@ -711,7 +711,7 @@ void VSInfoWidget::listenComponentIndex(VSFilterViewSettings* settings, int inde
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenPointSize(VSFilterViewSettings* settings, int size)
+void VSInfoWidget::listenPointSize(const int& size)
 {
   m_Internals->pointSizeEdit->blockSignals(true);
   m_Internals->pointSizeEdit->setText(QString::number(size));
@@ -721,7 +721,7 @@ void VSInfoWidget::listenPointSize(VSFilterViewSettings* settings, int size)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres)
+void VSInfoWidget::listenPointSphere(const bool& renderAsSpheres)
 {
   m_Internals->pointSphereCheckBox->blockSignals(true);
   m_Internals->pointSphereCheckBox->setChecked(renderAsSpheres ? Qt::Checked : Qt::Unchecked);
@@ -731,7 +731,7 @@ void VSInfoWidget::listenPointSphere(VSFilterViewSettings* settings, bool render
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping state)
+void VSInfoWidget::listenMapColors(const VSFilterViewSettings::ColorMapping& state)
 {
   m_Internals->mapScalarsComboBox->blockSignals(true);
   m_Internals->mapScalarsComboBox->setCurrentIndex(static_cast<int>(state));
@@ -741,7 +741,7 @@ void VSInfoWidget::listenMapColors(VSFilterViewSettings* settings, VSFilterViewS
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
+void VSInfoWidget::listenAlpha(const double& alpha)
 {
   m_Internals->alphaSlider->blockSignals(true);
   m_Internals->alphaSlider->setValue(alpha * 100);
@@ -751,7 +751,7 @@ void VSInfoWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
+void VSInfoWidget::listenScalarBar(const bool& show)
 {
   m_Internals->showScalarBarCheckBox->blockSignals(true);
   m_Internals->showScalarBarCheckBox->setChecked(show);
@@ -761,7 +761,7 @@ void VSInfoWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* color)
+void VSInfoWidget::listenSolidColor(const double* color)
 {
   if(nullptr == color)
   {
@@ -775,7 +775,7 @@ void VSInfoWidget::listenSolidColor(VSFilterViewSettings* settings, double* colo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::listenAxesGridVisible(VSFilterViewSettings* settings, double show)
+void VSInfoWidget::listenAxesGridVisible(const double& show)
 {
   m_Internals->viewAxesGridCheckBox->blockSignals(true);
   m_Internals->viewAxesGridCheckBox->setCheckState(show ? Qt::Checked : Qt::Unchecked);

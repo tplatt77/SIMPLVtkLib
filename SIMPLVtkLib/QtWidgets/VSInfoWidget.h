@@ -180,73 +180,63 @@ protected slots:
 
   /**
    * @brief Listens for the active VSFilterViewSettings representation type to change
-   * @param settings
    * @param rep
    */
-  void listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep);
+  void listenRepresentationType(const VSFilterViewSettings::Representation& rep);
 
   /**
    * @brief Listens for the active VSFilterViewSettings active array name to change
-   * @param settings
    * @param name
    */
-  void listenArrayName(VSFilterViewSettings* settings, QString name);
+  void listenArrayName(const QString& name);
 
   /**
    * @brief Listens for the active VSFilterViewSettings active component index to change
-   * @param settings
    * @param index
    */
-  void listenComponentIndex(VSFilterViewSettings* settings, int index);
+  void listenComponentIndex(const int& index);
 
   /**
    * @brief Listens for the active VSFilterViewSettings point size to change
-   * @param settings
    * @param size
    */
-  void listenPointSize(VSFilterViewSettings* settings, int size);
+  void listenPointSize(const int& size);
 
   /**
   * @brief Listens for the active VSFilterViewSettings render point spheres setting to change
-  * @param settings
   * @param renderAsSpheres
   */
-  void listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres);
+  void listenPointSphere(const bool& renderAsSpheres);
 
   /**
    * @brief Listens for the active VSFilterViewSettings map colors value to change
-   * @param settings
    * @param colorMapping
    */
-  void listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping colorMapping);
+  void listenMapColors(const VSFilterViewSettings::ColorMapping& colorMapping);
 
   /**
    * @brief Listens for the active VSFilterViewSettings alpha value to change
-   * @param settings
    * @param alpha
    */
-  void listenAlpha(VSFilterViewSettings* settings, double alpha);
+  void listenAlpha(const double& alpha);
 
   /**
    * @brief Listens for the active VSFilterViewSettings scalar bar visibility to change
-   * @param settings
    * @param show
    */
-  void listenScalarBar(VSFilterViewSettings* settings, bool show);
+  void listenScalarBar(const bool& show);
 
   /**
    * @brief Listens for the active VSFilterViewSettings solid color to change
-   * @param settings
    * @param color
    */
-  void listenSolidColor(VSFilterViewSettings* settings, double* color);
+  void listenSolidColor(const double* color);
 
   /**
    * @brief Listens for the active VSFilterViewSettings axes grid visibility to change
-   * @param settings
    * @param show
    */
-  void listenAxesGridVisible(VSFilterViewSettings* settings, double show);
+  void listenAxesGridVisible(const double& show);
 
   /**
    * @brief Enables the Apply and Reset buttons when the current filter widget has changes waiting

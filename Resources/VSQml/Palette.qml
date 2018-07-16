@@ -35,6 +35,8 @@ ColumnLayout
 
   spacing: 4
 
+  // removeObject signal is important for cases when ownership is set to C++ and not JavaScript
+  // A C++ owned item cannot be deleted from the QML side using destroy()
   signal removeObject()
   function remove() {
     removeObject()
@@ -53,7 +55,7 @@ ColumnLayout
   onActiveFocusChanged:
   {
     console.log("Active Focus Changed")
-    checkFocus();
+    checkFocus()
   }
 
 //  onContentOpacityChanged:
@@ -73,7 +75,7 @@ ColumnLayout
 
       anchors.fill: parent
 
-      opacity: parent.activeFocus ? 1 : 0.5
+      //opacity: parent.activeFocus ? 1 : 0.5
       radius: palette.backgroundRadius
       border.width: palette.backgroundBorderWidth
       border.color: palette.backgroundBorderColor
@@ -141,7 +143,7 @@ ColumnLayout
           Layout.minimumWidth: titleBar.height
           Layout.maximumWidth: titleBar.height
           Layout.preferredHeight: titleBar.height
-          //Layout.rightMargin: palette.titleMargin
+          Layout.leftMargin: palette.titleMargin
 
           iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
 
@@ -164,5 +166,15 @@ ColumnLayout
           color: palette.titleColor
         }
       }
+    }
+
+    // Adjust minimumWidth with title length and button sizes
+    onTitleChanged:
+    {
+        var minimumWidth = pinBtn.width + closeBtn.width + paletteTitleText.width + (palette.spacing * 2 + palette.titleMargin * 3);
+        if(palette.width < minimumWidth)
+        {
+            palette.width = minimumWidth
+        }
     }
 }

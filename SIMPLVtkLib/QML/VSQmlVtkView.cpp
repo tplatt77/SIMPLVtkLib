@@ -35,6 +35,8 @@
 
 #include "VSQmlVtkView.h"
 
+#include <QtCore/QVariant>
+
 #include <vtkRenderer.h>
 #include <vtkExternalOpenGLCamera.h>
 
@@ -265,8 +267,7 @@ QQuickItem* VSQmlVtkView::createPalette(QPoint point)
   }
 
   childItem->setPosition(point);
-
-  connect(childItem, SIGNAL(removeObject()), childItem, SLOT(deleteLater()));
+  QQmlEngine::setObjectOwnership(childItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
 
   return childItem;
 }
@@ -276,6 +277,19 @@ QQuickItem* VSQmlVtkView::createPalette(QPoint point)
 // -----------------------------------------------------------------------------
 QQuickItem* VSQmlVtkView::createViewSettingPalette(QPoint point, VSAbstractFilter* filter)
 {
+  if(nullptr == m_ViewWidget)
+  {
+    return nullptr;
+  }
+
+  VSFilterViewSettings* filterViewSettings = m_ViewWidget->getFilterViewSettings(filter);
+
+  // Cannot display null VSFilterViewSettings
+  if(nullptr == filterViewSettings)
+  {
+    return nullptr;
+  }
+
   QQmlEngine* engine = qmlEngine(this);
   QQmlComponent component(engine, VSQmlLoader::GetVisibilitySettingsUrl());
   QQuickItem* paletteItem = dynamic_cast<QQuickItem*>(component.create());
@@ -287,12 +301,29 @@ QQuickItem* VSQmlVtkView::createViewSettingPalette(QPoint point, VSAbstractFilte
   }
 
   paletteItem->setPosition(point);
-  paletteItem->setProperty("title", filter->getFilterName());
+  paletteItem->setProperty("title", filter->getFilterName() + ": Visibility");
   paletteItem->setFlags(paletteItem->flags() | QQuickItem::Flag::ItemHasContents | QQuickItem::Flag::ItemIsFocusScope);
+  QQmlEngine::setObjectOwnership(paletteItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
   paletteItem->setParentItem(this);
   paletteItem->forceActiveFocus();
-
-  connect(paletteItem, SIGNAL(removeObject()), paletteItem, SLOT(deleteLater()));
+  
+  // Set View Settings
+  QVariant viewSettings;
+  viewSettings.setValue(filterViewSettings);
+  paletteItem->setProperty("viewSettings", viewSettings);
 
   return paletteItem;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::setViewWidget(VSAbstractViewWidget* viewWidget)
+{
+  m_ViewWidget = viewWidget;
+
+  if(GetRenderWindow())
+  {
+    GetRenderWindow()->setViewWidget(viewWidget);
+  }
 }

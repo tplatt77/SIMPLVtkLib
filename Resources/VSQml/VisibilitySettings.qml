@@ -2,16 +2,17 @@ import QtQuick 2.6
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.2
 
+import VSQml 1.0
+
 Palette
 {
     id: palette
 
+    property VSFilterViewSettings viewSettings: VSFilterViewSettings {}
+
     GridLayout {
         id: visibilityLayout
-        x: 0
-        y: 19
-        width: 240
-        height: 208
+
         rowSpacing: 4
         columnSpacing: 4
         rows: 9
@@ -19,6 +20,7 @@ Palette
 
         Layout.fillWidth: true
         Layout.minimumHeight: 10
+        Layout.minimumWidth: 240
         Layout.margins: palette.contentMargin
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
 
@@ -34,6 +36,32 @@ Palette
         }
 
         Label {
+            id: representationLabel
+            text: qsTr("Representation:")
+        }
+
+        ComboBox {
+            id: representationSelection
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+
+            model: ["Outline", "Points", "Wireframe", "Surface", "Surface with Edges"]
+            currentIndex: 0 // Default value
+
+            Connections{
+                target: palette.viewSettings
+                onRepresentationChanged:{
+                    representationSelection.currentIndex = palette.viewSettings.representation;
+                }
+            }
+            onCurrentIndexChanged:
+            {
+                palette.viewSettings.representation = currentIndex;
+            }
+
+        }
+
+        Label {
             id: arrayLabel
             text: qsTr("Array:")
         }
@@ -46,7 +74,23 @@ Palette
 
             model: ["ColorArray"]
             //focus: true
-            activeFocusOnPress: true
+
+            Connections{
+                target: palette.viewSettings
+                onActiveComponentIndexChanged:{
+                    arraySelection.currentIndex = arraySelection.find(palette.viewSettings.activeArrayName) + 1
+                }
+            }
+            onCurrentIndexChanged: {
+                if(currentIndex == 0)
+                {
+                    palette.viewSettings.activeArrayName = ""
+                }
+                else
+                {
+                    palette.viewSettings.activeArrayName = currentText
+                }
+            }
         }
 
         Label {
@@ -59,7 +103,18 @@ Palette
             Layout.columnSpan: 2
             Layout.fillWidth: true
 
-            model: ["Magnitude"]
+            model: ["Magnitude", "R", "G", "B"]
+            currentIndex: 1 // Default value
+
+            Connections{
+                target: palette.viewSettings
+                onActiveComponentIndexChanged:{
+                    componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1;
+                }
+            }
+            onCurrentIndexChanged: {
+                palette.viewSettings.activeComponentIndex = currentIndex - 1;
+            }
         }
 
         Label {
@@ -79,19 +134,6 @@ Palette
             Layout.preferredWidth: 125
 
             visible: false
-        }
-
-        Label {
-            id: representationLabel
-            text: qsTr("Representation:")
-        }
-
-        ComboBox {
-            id: representationSelection
-            Layout.columnSpan: 2
-            Layout.fillWidth: true
-
-            model: ["Surface"]
         }
 
         Label {
@@ -115,7 +157,19 @@ Palette
             Layout.fillWidth: true
             Layout.columnSpan: 2
 
-            model: ["Non-Colors"]
+            model: ["Always", "Non-Colors", "Never"]
+            currentIndex: 1 // Default value
+
+            Connections{
+                target: palette.viewSettings
+                onMapColorsChanged:{
+                    mapScalarsSelection.currentIndex = palette.viewSettings.mapColors
+                }
+            }
+            onCurrentIndexChanged:
+            {
+                palette.viewSettings.mapColors = currentIndex
+            }
         }
 
         CheckBox {
@@ -125,7 +179,18 @@ Palette
             Layout.preferredWidth: 210
             Layout.columnSpan: 3
 
-            checkedState: Qt.Checked
+            checkedState: Qt.Checked // Default value
+
+            Connections{
+                target: palette.viewSettings
+                onShowScalarBarChanged:{
+                    showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
+                }
+            }
+            onCheckedChanged:
+            {
+                palette.viewSettings.showScalarBar = (checkedState == Qt.Checked)
+            }
         }
 
         Label {
@@ -139,7 +204,18 @@ Palette
             Layout.columnSpan: 2
             Layout.preferredHeight: 22
             Layout.preferredWidth: 148
-            value: 1
+            value: 1 // Default value
+
+            Connections{
+                target: palette.viewSettings
+                onAlphaChanged:{
+                    alphaSlider.value = palette.viewSettings.alpha;
+                }
+            }
+
+            onValueChanged: {
+                palette.viewSettings.alpha = value
+            }
         }
     }
 
@@ -153,5 +229,26 @@ Palette
     {
         colorLabel.visible(show)
         colorButton.visible(show)
+    }
+
+    onViewSettingsChanged:
+    {
+        console.log("View Settings changed")
+        if(viewSettings == null)
+        {
+            console.log("Null ViewSettings")
+            return
+        }
+
+        console.log("Component: " + palette.viewSettings.activeComponentIndex);
+
+        representationSelection.currentIndex = palette.viewSettings.representation;
+        arraySelection.currentIndex = arraySelection.find(palette.viewSettings.activeArrayName) + 1
+        componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1
+        mapScalarsSelection.currentIndex = viewSettings.mapColors
+        showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
+        alphaSlider.value = palette.viewSettings.alpha;
+
+//        //colorButton.colorProp = viewSettings.solidColor
     }
 }

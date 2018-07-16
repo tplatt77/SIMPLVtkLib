@@ -316,8 +316,9 @@ void VSViewWidget::showVisualizationContextMenu(const QPoint& point)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
+void VSViewWidget::setFilterShowScalarBar(const bool& showScalarBar)
 {
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
   if(false == (viewSettings && viewSettings->getScalarBarWidget()))
   {
     return;

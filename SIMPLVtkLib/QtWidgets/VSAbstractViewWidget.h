@@ -222,17 +222,15 @@ protected slots:
 
   /**
    * @brief Change filter visibility
-   * @param viewSettings
    * @param filterVisible
    */
-  void setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
+  void setFilterVisibility(const bool& filterVisible);
 
   /**
   * @brief Change filter grid visibility
-  * @param viewSettings
   * @param gridVisible
   */
-  void setGridVisibility(VSFilterViewSettings* viewSettings, bool gridVisible);
+  void setGridVisibility(const bool& gridVisible);
 
   /**
    * @brief Removes the old prop from the renderer if applicable and adds the new one
@@ -267,31 +265,27 @@ protected slots:
 
   /**
    * @brief Active array changed for filter
-   * @param viewSettings
    * @param index
    */
-  virtual void setFilterArrayName(VSFilterViewSettings* viewSettings, QString name);
+  virtual void setFilterArrayName(const QString& name);
 
   /**
    * @brief Active array component changed for filter
-   * @param viewSettings
    * @param index
    */
-  virtual void setFilterComponentIndex(VSFilterViewSettings* viewSettings, int index);
+  virtual void setFilterComponentIndex(const int& index);
 
   /**
    * @brief Color mapping changed for filter
-   * @param viewSettings
    * @param mapColors
    */
-  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, VSFilterViewSettings::ColorMapping mapColorState);
+  virtual void setFilterMapColors(const VSFilterViewSettings::ColorMapping& mapColorState);
 
   /**
    * @brief ScalarBar visibility changed for filter
-   * @param viewSettings
    * @param showScalarBar
    */
-  virtual void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar);
+  virtual void setFilterShowScalarBar(const bool& showScalarBar);
 
   /**
    * @brief Sets the active ViewController when the mouse is pressed inside the widget();
@@ -311,6 +305,9 @@ protected:
    * @param other
    */
   VSAbstractViewWidget(const VSAbstractViewWidget& other);
+
+  void changeFilterVisibility(VSFilterViewSettings* settings, const bool& visibility);
+  void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
    * @brief Clears the filters from the view widget
