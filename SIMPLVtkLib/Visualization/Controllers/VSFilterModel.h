@@ -36,7 +36,7 @@
 #pragma once
 
 #include <QtCore/QSemaphore>
-#include <QtGui/QStandardItemModel>
+#include <QtCore/QAbstractItemModel>
 
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -45,15 +45,23 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSRootFilter;
+
 /**
  * @class VSFilterModel VSFilterModel.h SIMPLVtkLib/QtWidgets/VSFilterModel.h
  * @brief This class handles the visual filter model for the VSController.
  */
-class SIMPLVtkLib_EXPORT VSFilterModel : public QStandardItemModel
+class SIMPLVtkLib_EXPORT VSFilterModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 public:
+  
+  enum FilterDataRole : int
+  {
+    FilterRole = 0x100
+  };
+
   /**
    * @brief Constructor
    * @param parent
@@ -61,16 +69,28 @@ public:
   VSFilterModel(QObject* parent = nullptr);
 
   /**
+   * @brief Copy constructor
+   * @param model
+   */
+  VSFilterModel(const VSFilterModel& model);
+
+  /**
    * @brief Deconstructor
    */
   virtual ~VSFilterModel() = default;
+
+  /**
+   * @brief Returns the QObject parent since the parent() method is overloaded
+   * @return
+   */
+  QObject* parentObject() const;
 
   /**
    * @brief Returns the visual filter stored at the given index
    * @param index
    * @return
    */
-  VSAbstractFilter* getFilterFromIndex(QModelIndex index);
+  VSAbstractFilter* getFilterFromIndex(const QModelIndex& index) const;
 
   /**
    * @brief Returns the model index of the given filter
@@ -83,12 +103,12 @@ public:
    * @brief Returns a vector of top-level filters in the model
    * @return
    */
-  QVector<VSAbstractFilter*> getBaseFilters();
+  VSAbstractFilter::FilterListType getBaseFilters() const;
 
   /**
    * @brief Returns a vector of all visual filters in the model
    */
-  QVector<VSAbstractFilter*> getAllFilters();
+  VSAbstractFilter::FilterListType getAllFilters() const;
 
   /**
    * @brief Returns the first matching VSPipelineFilter with the given FilterPipeline
@@ -103,6 +123,24 @@ public:
    * @return
    */
   VSAbstractFilter* getPipelineFilter(QString pipelineName);
+
+  ////////////////////////////////
+  // QAbstractItemModel methods //
+  ////////////////////////////////
+  Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
+
+  int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
+  QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  //QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
+  
+  void beginInsertingFilter(VSAbstractFilter* parentFilter);
+  void endInsertingFilter();
+  void beginRemovingFilter(VSAbstractFilter* filter, int row);
+  void endRemovingFilter();
 
 signals:
   void filterAdded(VSAbstractFilter* filter, bool currentFilter);
@@ -134,6 +172,14 @@ private slots:
    */
   void deleteFilter(VSAbstractFilter* filter);
 
+protected:
+  void generateRoleNames();
+
 private:
   QSemaphore m_ModelLock;
+
+  VSRootFilter* m_RootFilter = nullptr;
+  QHash<int, QByteArray> m_RoleNames;
 };
+
+Q_DECLARE_METATYPE(VSFilterModel)

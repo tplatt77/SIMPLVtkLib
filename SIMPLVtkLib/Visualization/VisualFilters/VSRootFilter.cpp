@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2009-2018 BlueQuartz Software, LLC
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -33,133 +33,70 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSQmlLoader.h"
+#include "VSRootFilter.h"
 
-//#include "SIMPLVtkLib/QML/VSPalette.h"
-#include "SIMPLVtkLib/QML/VSQmlVtkView.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+#include <QtCore/QFileInfo>
+#include <QtCore/QUuid>
+
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 
-VSQmlLoader* VSQmlLoader::m_Instance = nullptr;
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSQmlLoader::VSQmlLoader()
+VSRootFilter::VSRootFilter(VSFilterModel* model)
+: VSTextFilter(nullptr, "Root Item", "This item should not be visible")
+, m_Model(model)
 {
-
+  setParent(model);
+  setCheckable(false);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQmlLoader::Register()
+VSFilterModel* VSRootFilter::getModel() const
 {
-  //QML_REGISTER(VSQmlVtkView);
-  qmlRegisterType<VSQmlVtkView>("VSQml", 1, 0, "VSQmlVtkView");
-  //qmlRegisterType<VSPalette>("VSQml", SIMPLVtkLib::Version::Major().toInt(), SIMPLVtkLib::Version::Minor().toInt(), "VSPalette");
-  qmlRegisterType<VSFilterViewSettings>("VSQml", 1, 0, "VSFilterViewSettings");
-  qmlRegisterType<VSFilterModel>("VSQml", 1, 0, "VSFilterModel");
+  return m_Model;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSQmlLoader* VSQmlLoader::GetInstance()
+QString VSRootFilter::getFilterName() const
 {
-  if(!m_Instance)
+  return "Root Item";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSRootFilter::writeJson(QJsonObject& json)
+{
+  VSTextFilter::writeJson(json);
+
+  json["Uuid"] = GetUuid().toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUuid VSRootFilter::GetUuid()
+{
+  return QUuid("{b02e564e-6ef9-58cb-a4a2-9d067f92bc7c}");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSRootFilter::compatibleWithParent(VSAbstractFilter* filter)
+{
+  if(nullptr == filter)
   {
-    m_Instance = new VSQmlLoader();
-    Register();
+    return true;
   }
 
-  return m_Instance;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQmlLoader::setEngine(QQmlEngine* engine)
-{
-  m_Engine = engine;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQmlLoader::setRoot(QQuickItem* root)
-{
-  m_Root = root;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadItem(QUrl url)
-{
-  if(!m_Engine)
-  {
-    return nullptr;
-  }
-
-  QQmlComponent* component = new QQmlComponent(m_Engine);
-  component->setObjectName("Component");
-  component->loadUrl(url);
-  QObject* obj = component->create(m_Engine->rootContext());
-  QQuickItem* item = dynamic_cast<QQuickItem*>(obj);
-
-  QList<QQmlError> errors = component->errors();
-  for(QQmlError error : errors)
-  {
-    qDebug() << error.toString();
-  }
-
-  if(item)
-  {
-    QQmlEngine::setObjectOwnership(item, QQmlEngine::CppOwnership);
-    item->setParentItem(m_Root);
-    item->setParent(component);
-  }
-  
-  return item;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadVtkView()
-{
-  return loadItem(GetVtkViewUrl());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadPalette()
-{
-  return loadItem(GetPaletteUrl());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QUrl VSQmlLoader::GetVtkViewUrl()
-{
-  return QUrl("qrc:/VSQml/VSVtk.qml");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QUrl VSQmlLoader::GetPaletteUrl()
-{
-  return QUrl("qrc:/VSQml/Palette.qml");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QUrl VSQmlLoader::GetVisibilitySettingsUrl()
-{
-  return QUrl("qrc:/VSQml/VisibilitySettings.qml");
+  return false;
 }

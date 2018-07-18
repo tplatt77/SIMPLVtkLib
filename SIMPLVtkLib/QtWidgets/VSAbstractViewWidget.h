@@ -102,7 +102,7 @@ public:
    * @brief Sets the VSController to use
    * @param controller
    */
-  void setController(VSController* controller);
+  virtual void setController(VSController* controller);
 
   /**
   * @brief Returns true if the view is active.  Returns false otherwise.

@@ -54,6 +54,7 @@
 #include <QtCore/QSemaphore>
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtGui/QFont>
 
 #include <QtGui/QStandardItemModel>
 
@@ -64,6 +65,7 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class VSAbstractDataFilter;
+class VSFilterModel;
 
 /**
  * @class VSAbstractFilter VSAbstractFilter.h
@@ -74,7 +76,7 @@ class VSAbstractDataFilter;
  * can be chained together to be more specific about what kind of data should be
  * shown by pushing the output of a filter as the input for each of its child filters.
  */
-class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject, public QStandardItem
+class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject
 {
   Q_OBJECT
 
@@ -91,6 +93,8 @@ public:
     INVALID_DATA
   };
 
+  using FilterListType = std::list<VSAbstractFilter*>;
+
   SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
   SIMPL_BOOL_PROPERTY(Initialized)
 
@@ -105,6 +109,12 @@ public:
   virtual void deleteFilter();
 
   /**
+   * @brief Returns the item flags for the filter
+   * @return
+   */
+  Qt::ItemFlags flags() const;
+
+  /**
    * @brief Returns the parent visual filter
    * @return
    */
@@ -117,16 +127,28 @@ public:
   void setParentFilter(VSAbstractFilter* parent);
 
   /**
+   * @brief Returns the index of this filter in its parent's child list
+   * @return
+   */
+  int getChildIndex() const;
+
+  /**
    * @brief Returns the highest-level ancestor
    * @return
    */
   VSAbstractFilter* getAncestor();
 
   /**
-   * @brief Returns a vector of all children filters
+   * @brief Returns a list of all children filters
    * @return
    */
-  QVector<VSAbstractFilter*> getChildren() const;
+  FilterListType getChildren() const;
+
+  /**
+   * @brief Returns the number of children this filter has
+   * @return
+   */
+  int getChildCount() const;
 
   /**
    * @brief Returns the child at the given index
@@ -140,13 +162,13 @@ public:
    * @param child
    * @return
    */
-  int getIndexOfChild(VSAbstractFilter* child) const;
+  int getIndexOfChild(const VSAbstractFilter* child) const;
 
   /**
    * @brief Returns a vector of all descendant filters
    * @return
    */
-  QVector<VSAbstractFilter*> getDescendants() const;
+  FilterListType getDescendants() const;
 
   /**
    * @brief Returns a list of array names
@@ -206,13 +228,13 @@ public:
    * @brief Returns the filter name
    * @return
    */
-  virtual const QString getFilterName() = 0;
+  virtual QString getFilterName() const = 0;
 
   /**
    * @brief Returns the tooltip to use for the filter
    * @return
    */
-  virtual QString getToolTip() const = 0;
+  virtual QString getToolTip() const;
 
   /**
    * @brief Save the vtkDataSet output to a file
@@ -252,6 +274,62 @@ public:
    * @param json
    */
   virtual void writeJson(QJsonObject& json);
+
+  /**
+   * @brief Returns the VSFilterModel that this item belongs to
+   * @return
+   */
+  virtual VSFilterModel* getModel() const;
+
+  /**
+   * @brief Returns the QModelIndex for this filter
+   * @return
+   */
+  QModelIndex getIndex();
+
+  /**
+  * @brief Returns the CheckState for the filter
+  * @return
+  */
+  bool isChecked();
+
+  /**
+  * @brief Sets whether or not the filter is checked
+  * @param checked
+  */
+  void setChecked(bool checked);
+
+  /**
+  * @brief Convenience method to return the Qt::CheckState from isChecked()
+  * @return
+  */
+  Qt::CheckState checkState();
+
+  /**
+   * @brief Returns the text to display for VSFilterModel
+   * @return
+   */
+  virtual QString getText() const;
+
+  virtual void setText(QString display);
+
+  /**
+   * @brief Sets the filter's tooltip
+   * @param tooltip
+   */
+  virtual void setToolTip(QString tooltip);
+
+  /**
+   * @brief Returns the filter's display font
+   * @return
+   */
+  QFont font() const;
+
+  /**
+   * @brief Sets the filter's display font
+   * @param font
+   */
+  void setFont(QFont font);
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
@@ -349,6 +427,30 @@ protected:
    */
   void setInputPort(VTK_PTR(vtkAlgorithmOutput) inputPort);
 
+  /**
+   * @Brief Sets whether or not the filter is checkable
+   * @param checkable
+   */
+  void setCheckable(bool checkable);
+
+  /**
+   * @brief Returns true if the filter is checkable. Returns false otherwise.
+   * @return
+   */
+  bool isCheckable() const;
+
+  /**
+   * @brief Returns true if the item is editable. Returns false otherwise.
+   * @return
+   */
+  bool isEditable() const;
+
+  /**
+  * @brief Sets the ItemIsEditable flag for the filter.
+  * @param editable
+  */
+  void setEditable(bool editable);
+
 private:
   /**
    * @brief Adds a child VSAbstractFilter
@@ -364,9 +466,16 @@ private:
 
   std::shared_ptr<VSTransform> m_Transform;
   VTK_PTR(vtkTransformFilter) m_TransformFilter;
-  QSemaphore m_ChildLock;
+  mutable QSemaphore m_ChildLock;
   bool m_ConnectedInput = false;
   VTK_PTR(vtkAlgorithmOutput) m_InputPort;
+
+  std::list<VSAbstractFilter*> m_Children;
+  bool m_Checked = false;
+  QString m_Tooltip;
+  QFont m_Font;
+  Qt::ItemFlags m_Flags;
+  QString m_DisplayText;
 };
 
 #ifdef __clang__

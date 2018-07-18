@@ -116,6 +116,19 @@ void VSViewWidget::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSViewWidget::setController(VSController* controller)
+{
+  VSAbstractViewWidget::setController(controller);
+
+  if(controller)
+  {
+    connect(controller, &VSController::filterAdded, [=] { m_Internals->quickWidget->applyFilterModel(); });
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSViewWidget::connectSlots()
 {
   connect(m_Internals->splitHorizontalBtn, SIGNAL(clicked()), this, SLOT(splitHorizontally()));

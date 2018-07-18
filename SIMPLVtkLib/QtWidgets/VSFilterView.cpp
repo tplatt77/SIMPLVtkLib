@@ -130,7 +130,7 @@ void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, boo
   VSAbstractFilter* filter = filterSettings->getFilter();
   if(filter)
   {
-    filter->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
+    filter->setChecked(visible);
   }
 }
 

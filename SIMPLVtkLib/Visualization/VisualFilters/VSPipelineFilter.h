@@ -87,7 +87,13 @@ public:
    * @brief Returns the file name
    * @return
    */
-  QString getPipelineName();
+  QString getPipelineName() const;
+
+  /**
+  * @brief Returns the filter's name
+  * @return
+  */
+  QString getFilterName() const override;
 
   /**
    * @brief getUuid

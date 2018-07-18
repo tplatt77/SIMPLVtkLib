@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.0
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.2
 
@@ -9,11 +9,17 @@ ColumnLayout
   id: palette
 
   transformOrigin: Item.TopLeft
+  clip: true
 
-  //opacity: 1
+  // PalettTypes
+  readonly property int paletteTypeDestructible: 0
+  readonly property int paletteTypeCollapsible: 1
+
+  property int paletteType: paletteTypeDestructible
 
   property string title: "Untitled"
   property bool pinned: false
+  property bool collapsed: false
   //property real contentOpacity: activeFocus ? 1 : 0.5
 
   property real headerRadius: 2
@@ -148,6 +154,8 @@ ColumnLayout
           Layout.preferredHeight: titleBar.height
           Layout.rightMargin: palette.titleMargin
 
+          visible: paletteType == paletteTypeDestructible
+
           iconSource: "qrc:///SIMPL/icons/images/circle-x.png"
 
           onClicked: palette.remove()
@@ -163,11 +171,32 @@ ColumnLayout
           Layout.preferredHeight: titleBar.height
           Layout.leftMargin: palette.titleMargin
 
+          visible: paletteType == paletteTypeDestructible
+
           iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
 
           checkable: true
           checked: palette.pinned
           onClicked: palette.pinned = checked
+        }
+
+        ToolButton
+        {
+          id: collapseBtn
+
+          Layout.fillWidth: false
+          Layout.minimumWidth: titleBar.height
+          Layout.maximumWidth: titleBar.height
+          Layout.preferredHeight: titleBar.height
+          Layout.leftMargin: palette.titleMargin
+
+          visible: paletteType == paletteTypeCollapsible
+
+          iconSource: "qrc:///SIMPL/icons/images/navigate_close.png"
+
+          checkable: true
+          checked: !palette.collapsed
+          onClicked: palette.collapsed = !checked
         }
 
         Text
@@ -193,6 +222,18 @@ ColumnLayout
         if(palette.width < minimumWidth)
         {
             palette.width = minimumWidth
+        }
+    }
+
+    onCollapsedChanged:
+    {
+        if(collapsed)
+        {
+            height = titleBar.height
+        }
+        else
+        {
+            height = implicitHeight
         }
     }
 }

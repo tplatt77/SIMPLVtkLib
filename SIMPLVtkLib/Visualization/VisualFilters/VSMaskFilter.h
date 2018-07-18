@@ -78,7 +78,7 @@ public:
    * Brief Returns the filter name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter

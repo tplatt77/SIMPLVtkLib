@@ -193,11 +193,9 @@ bool VSController::saveSession(const QString& sessionFilePath)
   {
     QJsonObject rootObj;
 
-    QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
-    for(int i = 0; i < baseFilters.size(); i++)
+    VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
+    for(VSAbstractFilter* filter : baseFilters)
     {
-      VSAbstractFilter* filter = baseFilters[i];
-
       saveFilter(filter, rootObj);
     }
 
@@ -227,10 +225,9 @@ void VSController::saveFilter(VSAbstractFilter* filter, QJsonObject& obj)
   // Write the children
   QJsonObject childrenObj;
 
-  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
-  for(int i = 0; i < childFilters.size(); i++)
+  VSAbstractFilter::FilterListType childFilters = filter->getChildren();
+  for(VSAbstractFilter* childFilter : childFilters)
   {
-    VSAbstractFilter* childFilter = childFilters[i];
     saveFilter(childFilter, childrenObj);
   }
 
@@ -331,7 +328,7 @@ void VSController::loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter)
     QJsonObject childrenObj = obj["Child Filters"].toObject();
 
     m_FilterModel->addFilter(newFilter, (childrenObj.size() == 0));
-    newFilter->setCheckState(static_cast<Qt::CheckState>(obj["CheckState"].toInt()));
+    newFilter->setChecked(obj["CheckState"].toInt() == Qt::Checked);
     emit filterCheckStateChanged(newFilter);
 
     for(QJsonObject::iterator iter = childrenObj.begin(); iter != childrenObj.end(); iter++)
@@ -347,12 +344,12 @@ void VSController::loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter)
 // -----------------------------------------------------------------------------
 VSFileNameFilter* VSController::getBaseFileNameFilter(QString text)
 {
-  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+  VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
   int count = baseFilters.size();
 
-  for(int i = 0; i < count; i++)
+  for(VSAbstractFilter* baseFilter : baseFilters)
   {
-    VSFileNameFilter* filter = dynamic_cast<VSFileNameFilter*>(baseFilters[i]);
+    VSFileNameFilter* filter = dynamic_cast<VSFileNameFilter*>(baseFilter);
     if(filter)
     {
       if(filter->getFilterName().compare(text) == 0)
@@ -368,7 +365,7 @@ VSFileNameFilter* VSController::getBaseFileNameFilter(QString text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSController::getBaseFilters()
+VSAbstractFilter::FilterListType VSController::getBaseFilters()
 {
   return m_FilterModel->getBaseFilters();
 }
@@ -376,7 +373,7 @@ QVector<VSAbstractFilter*> VSController::getBaseFilters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSController::getAllFilters()
+VSAbstractFilter::FilterListType VSController::getAllFilters()
 {
   return m_FilterModel->getAllFilters();
 }

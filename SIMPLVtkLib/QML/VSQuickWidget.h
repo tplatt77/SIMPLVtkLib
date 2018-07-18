@@ -63,6 +63,10 @@ public:
 
   VSQmlVtkView* getVtkView();
 
+  QQuickItem* getFilterTreeView();
+
+  void applyFilterModel();
+
   vtkRenderWindowInteractor* GetInteractor();
 
   void setViewWidget(VSAbstractViewWidget* view);

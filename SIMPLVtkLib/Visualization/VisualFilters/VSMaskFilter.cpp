@@ -50,8 +50,6 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
-  setText(getFilterName());
-  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
@@ -82,7 +80,7 @@ void VSMaskFilter::createFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSMaskFilter::getFilterName()
+QString VSMaskFilter::getFilterName() const
 {
   return "Mask";
 }

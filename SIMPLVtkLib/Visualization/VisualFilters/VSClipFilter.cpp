@@ -66,9 +66,6 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   m_LastClipType = VSClipFilter::ClipType::PLANE;
   m_LastPlaneInverted = false;
   m_LastBoxInverted = false;
-
-  setText(getFilterName());
-  setToolTip(getToolTip());
 }
 
 // -----------------------------------------------------------------------------
@@ -130,7 +127,7 @@ void VSClipFilter::createFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSClipFilter::getFilterName()
+QString VSClipFilter::getFilterName() const
 {
   return "Clip";
 }

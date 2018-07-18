@@ -35,69 +35,52 @@
 
 #pragma once
 
+#include <QtWidgets/QWidget>
+
+#include <vtkDataSet.h>
+#include <vtkTrivialProducer.h>
+
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class VSFilterModel;
+
 /**
- * @class VSFileNameFilter VSFileNameFilter.h
- * SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h
- * @brief This class handles the file path and contains additional settings in
- * addition to VSTextFilter's for displaying the file information in the filter
- * model. The file path and file name can always be retrieved even if the text
- * and tool tip are changed.
+ * @class VSRootFilter VSRootFilter.h
+ * SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h
+ * @brief This class stores a WrappedDataContainerPtr and provides an output port
+ * for other filters to connect to for converting SIMPLib DataContainers to something
+ * VTK can render.
  */
-class SIMPLVtkLib_EXPORT VSFileNameFilter : public VSTextFilter
+class SIMPLVtkLib_EXPORT VSRootFilter : public VSTextFilter
 {
   Q_OBJECT
 
 public:
   /**
    * @brief Constructor
-   * @param filePath
    * @param parent
    */
-  VSFileNameFilter(QString filePath, VSAbstractFilter* parent = nullptr);
+  VSRootFilter(VSFilterModel* model);
 
   /**
    * @brief Deconstructor
    */
-  virtual ~VSFileNameFilter() = default;
+  virtual ~VSRootFilter() = default;
 
   /**
-   * @brief Create
-   * @param json
+   * @brief Returns the VSFilterModel used for this tree of filters
    * @return
    */
-  static VSFileNameFilter* Create(QJsonObject& json, VSAbstractFilter* parent);
+  VSFilterModel* getModel() const override;
 
   /**
-   * @brief writeJson
-   * @param json
-   */
-  void writeJson(QJsonObject& json) override;
-
-  /**
-   * @brief Returns the stored file path
+   * @brief Returns the filter name
    * @return
    */
-  QString getFilePath();
-
-  /**
-   * @brief Returns the file name
-   * @return
-   */
-  QString getFileName();
-
-  /**
-  * @brief Returns the filter's name
-  * @return
-  */
   QString getFilterName() const override;
-
-  /**
-   * @brief getUuid
-   * @return
-   */
-  static QUuid GetUuid();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
@@ -107,6 +90,18 @@ public:
    */
   static bool compatibleWithParent(VSAbstractFilter* filter);
 
+  /**
+   * @brief Writes values to a json file from the filter
+   * @param json
+   */
+  void writeJson(QJsonObject& json) override;
+
+  /**
+   * @brief getUuid
+   * @return
+   */
+  static QUuid GetUuid();
+
 private:
-  QString m_FilePath;
+  VSFilterModel* m_Model = nullptr;
 };

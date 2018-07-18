@@ -64,7 +64,7 @@ void VSParentFilterWidget::setBounds(double* bounds)
 void VSParentFilterWidget::apply()
 {
   // Finish importing any VSSIMPLDataContainerFilters
-  QVector<VSAbstractFilter*> children = m_Filter->getChildren();
+  VSAbstractFilter::FilterListType children = m_Filter->getChildren();
   std::list<VSSIMPLDataContainerFilter*> dcFilters;
   for(VSAbstractFilter* child : children)
   {

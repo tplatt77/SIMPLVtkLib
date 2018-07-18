@@ -818,7 +818,7 @@ void VSAbstractViewWidget::setController(VSController* controller)
   // Clear old filter view settings and create new ones
   clearFilters();
 
-  QVector<VSAbstractFilter*> filters = controller->getAllFilters();
+  VSAbstractFilter::FilterListType filters = controller->getAllFilters();
   for(VSAbstractFilter* filter : filters)
   {
     VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);

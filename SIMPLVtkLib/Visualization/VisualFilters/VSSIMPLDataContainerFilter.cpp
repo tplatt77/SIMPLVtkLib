@@ -62,9 +62,6 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
 , m_ApplyLock(1)
 {
   createFilter();
-
-  setText(wrappedDataContainer->m_Name);
-  setToolTip(getToolTip());
   setParentFilter(parent);
 
   connect(this, SIGNAL(finishedWrapping()), this, SLOT(apply()));
@@ -193,8 +190,8 @@ void VSSIMPLDataContainerFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
 
-  json["Data Container Name"] = text();
-  json["Tooltip"] = toolTip();
+  json["Data Container Name"] = getText();
+  json["Tooltip"] = getToolTip();
   json["Uuid"] = GetUuid().toString();
 }
 
@@ -369,7 +366,7 @@ void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSSIMPLDataContainerFilter::getFilterName()
+QString VSSIMPLDataContainerFilter::getFilterName() const
 {
   return m_WrappedDataContainer->m_Name;
 }

@@ -121,6 +121,7 @@ void VSQuickWidget::finishInit()
   if(getVtkView())
   {
     getVtkView()->setViewWidget(m_ViewWidget);
+    applyFilterModel();
   }
 
   //VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
@@ -163,7 +164,30 @@ VSQmlVtkView* VSQuickWidget::getVtkView()
   QQuickItem* root = rootObject();
   VSQmlVtkView* rootView = dynamic_cast<VSQmlVtkView*>(root);
   return rootView;
-  //return rootObject()->findChild<VSQmlVtkView*>();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QQuickItem* VSQuickWidget::getFilterTreeView()
+{
+  return rootObject()->findChild<QQuickItem*>("filterTree");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQuickWidget::applyFilterModel()
+{
+  QQuickItem* treeView = getFilterTreeView();
+  if(treeView && m_ViewWidget && m_ViewWidget->getController())
+  {
+    QVariant modelVariant;
+    VSFilterModel* filterModel = m_ViewWidget->getController()->getFilterModel();
+    modelVariant.setValue(filterModel);
+    bool success = treeView->setProperty("filterModel", modelVariant);
+    qDebug() << "Apply Filter Model: " << success;
+  }
 }
 
 // -----------------------------------------------------------------------------

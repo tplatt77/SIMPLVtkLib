@@ -499,7 +499,7 @@ void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, b
     return;
   }
 
-  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
+  viewSettings->getFilter()->setChecked(visible);
 }
 
 // -----------------------------------------------------------------------------
@@ -580,7 +580,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     }
   }
 
-  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  VSAbstractFilter::FilterListType childFilters = filter->getChildren();
   for(VSAbstractFilter* child : childFilters)
   {
     deleteFilter(child);
@@ -610,11 +610,11 @@ void VSMainWidgetBase::reloadDataFilter(VSAbstractDataFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::reloadFileFilter(VSFileNameFilter* filter)
 {
-  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  VSAbstractFilter::FilterListType childFilters = filter->getChildren();
   std::vector<VSAbstractDataFilter*> filters;
-  for(int i = 0; i < childFilters.size(); i++)
+  for(VSAbstractFilter* childFilter : childFilters)
   {
-    VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilters[i]);
+    VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilter);
     if(dataFilter)
     {
       filters.push_back(dataFilter);

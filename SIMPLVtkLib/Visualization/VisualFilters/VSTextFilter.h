@@ -74,13 +74,7 @@ public:
    * @brief Returns the filter's name
    * @return
    */
-  virtual const QString getFilterName() override;
-
-  /**
-   * @brief Returns the filter's tooltip
-   * @return
-   */
-  virtual QString getToolTip() const override;
+  QString getFilterName() const override;
 
   /**
    * @brief Sets whether or not the font is italic
@@ -155,4 +149,6 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+  QString m_Text;
 };

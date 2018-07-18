@@ -48,6 +48,7 @@
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
@@ -56,14 +57,15 @@
 // -----------------------------------------------------------------------------
 VSAbstractFilter::VSAbstractFilter()
 : QObject()
-, QStandardItem()
 , m_LoadingObject(QJsonObject())
 , m_Transform(new VSTransform())
 , m_ChildLock(1)
 , m_InputPort(nullptr)
 {
   setCheckable(true);
-  setCheckState(Qt::Checked);
+  setChecked(true);
+
+  m_Flags = Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
 
   QThread* thread = QCoreApplication::instance()->thread();
   m_Transform->moveToThread(thread);
@@ -87,9 +89,18 @@ void VSAbstractFilter::deleteFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+Qt::ItemFlags VSAbstractFilter::flags() const
+{
+  return m_Flags;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
-  VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(QObject::parent());
+  QObject* parentObj = parent();
+  VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(parentObj);
   return parentFilter;
 }
 
@@ -126,16 +137,32 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+int VSAbstractFilter::getChildIndex() const
+{
+  if(nullptr == getParentFilter())
+  {
+    return 0;
+  }
+
+  return getParentFilter()->getIndexOfChild(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
   connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)), Qt::UniqueConnection);
 
   // Avoid crashing when adding children from multiple threads
-  while(false == m_ChildLock.tryAcquire())
+  m_ChildLock.acquire();
+  VSFilterModel* model = getModel();
+  if(model)
   {
-    QThread::currentThread()->wait();
+    model->beginInsertingFilter(this);
+    m_Children.push_back(child);
+    model->endInsertingFilter();
   }
-  appendRow(child);
   m_ChildLock.release();
 }
 
@@ -147,7 +174,15 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
   int row = getIndexOfChild(child);
 
   disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)));
-  removeRow(row);
+  m_ChildLock.acquire();
+  VSFilterModel* model = getModel();
+  if(model)
+  {
+    model->beginRemovingFilter(this, row);
+    m_Children.push_back(child);
+    model->endInsertingFilter();
+  }
+  m_ChildLock.release();
 }
 
 // -----------------------------------------------------------------------------
@@ -166,37 +201,41 @@ VSAbstractFilter* VSAbstractFilter::getAncestor()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSAbstractFilter::getChildren() const
+VSAbstractFilter::FilterListType VSAbstractFilter::getChildren() const
 {
-  int numRows = rowCount();
-  QVector<VSAbstractFilter*> children(numRows);
-
-  for(int i = 0; i < numRows; i++)
-  {
-    children[i] = dynamic_cast<VSAbstractFilter*>(child(i));
-  }
-
-  return children;
+  return m_Children;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* childFilter) const
+int VSAbstractFilter::getChildCount() const
+{
+  return m_Children.size();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSAbstractFilter::getIndexOfChild(const VSAbstractFilter* childFilter) const
 {
   if(nullptr == childFilter)
   {
     return -1;
   }
 
-  int numRows = rowCount();
-  for(int i = 0; i < numRows; i++)
+  m_ChildLock.acquire();
+  int i = 0;
+  for(auto iter = m_Children.begin(); iter != m_Children.end(); iter++)
   {
-    if(childFilter == dynamic_cast<VSAbstractFilter*>(child(i)))
+    if(childFilter == (*iter))
     {
+      m_ChildLock.release();
       return i;
     }
+    i++;
   }
+  m_ChildLock.release();
 
   return -1;
 }
@@ -204,15 +243,17 @@ int VSAbstractFilter::getIndexOfChild(VSAbstractFilter* childFilter) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
+VSAbstractFilter::FilterListType VSAbstractFilter::getDescendants() const
 {
-  QVector<VSAbstractFilter*> descendants;
-  QVector<VSAbstractFilter*> children = getChildren();
+  FilterListType descendants;
+  FilterListType children = getChildren();
 
   for(VSAbstractFilter* filter : children)
   {
     descendants.push_back(filter);
-    descendants.append(filter->getDescendants());
+    FilterListType filterDescendants = filter->getDescendants();
+
+    descendants.insert(descendants.end(), filterDescendants.begin(), filterDescendants.end());
   }
 
   return descendants;
@@ -223,12 +264,18 @@ QVector<VSAbstractFilter*> VSAbstractFilter::getDescendants() const
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 {
-  if(index < 0 || index >= rowCount())
+  if(index < 0 || index >= getChildCount())
   {
     return nullptr;
   }
 
-  return getChildren()[index];
+  auto iter = m_Children.begin();
+  for(int i = 0; i < index; i++)
+  {
+    iter++;
+  }
+
+  return (*iter);
 }
 
 // -----------------------------------------------------------------------------
@@ -703,4 +750,148 @@ void VSAbstractFilter::readTransformJson(QJsonObject& json)
   transform->setLocalPosition(localPos);
   transform->setLocalRotation(localRot);
   transform->setLocalScale(localScale);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterModel* VSAbstractFilter::getModel() const
+{
+  if(getParentFilter())
+  {
+    return getParentFilter()->getModel();
+  }
+  
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSAbstractFilter::getIndex()
+{
+  VSFilterModel* model = getModel();
+  if(model)
+  {
+    return model->getIndexFromFilter(this);
+  }
+
+  return QModelIndex();
+}
+
+bool VSAbstractFilter::isEditable() const
+{
+  return m_Flags && Qt::ItemIsEditable;
+}
+
+void VSAbstractFilter::setEditable(bool editable)
+{
+  if(editable)
+  {
+    m_Flags |= Qt::ItemIsEditable;
+  }
+  else
+  {
+    m_Flags &= ~Qt::ItemIsEditable;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::isCheckable() const
+{
+  return m_Flags && Qt::ItemIsUserCheckable;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setCheckable(bool checkable)
+{
+  if(checkable)
+  {
+    m_Flags |= Qt::ItemIsUserCheckable;
+  }
+  else
+  {
+    m_Flags &= ~Qt::ItemIsUserCheckable;
+    setChecked(false);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::isChecked()
+{
+  return isCheckable() && m_Checked;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setChecked(bool checked)
+{
+  m_Checked = checked;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+Qt::CheckState VSAbstractFilter::checkState()
+{
+  return isChecked() ? Qt::Checked : Qt::Unchecked;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSAbstractFilter::getText() const
+{
+  if(isEditable() && !m_DisplayText.isEmpty())
+  {
+    return m_DisplayText;
+  }
+  return getFilterName();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setText(QString display)
+{
+  m_DisplayText = display;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSAbstractFilter::getToolTip() const
+{
+  return m_Tooltip;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setToolTip(QString tooltip)
+{
+  m_Tooltip = tooltip;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QFont VSAbstractFilter::font() const
+{
+  return m_Font;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setFont(QFont font)
+{
+  m_Font = font;
 }

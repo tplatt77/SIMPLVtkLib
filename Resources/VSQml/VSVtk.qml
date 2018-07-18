@@ -10,4 +10,14 @@ VSQmlVtkView {
 
   //anchors.fill: parent
   /*layer.enabled: true*/
+
+  FilterTree
+  {
+      id: filterTree
+      objectName: "filterTree"
+      //title: "Filter View"
+
+      x: 5
+      y: 5
+  }
 }

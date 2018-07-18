@@ -73,12 +73,18 @@ public:
    * @brief Clones the widget and its view controller
    * @return
    */
-  virtual VSAbstractViewWidget* clone() override;
+  VSAbstractViewWidget* clone() override;
 
   /**
    * @brief Returns the VSVisualizationWidget used
    */
-  virtual VSQuickWidget* getVisualizationWidget() const override;
+  VSQuickWidget* getVisualizationWidget() const override;
+
+  /**
+  * @brief Sets the VSController to use
+  * @param controller
+  */
+  void setController(VSController* controller) override;
 
   /**
   * @brief Returns the visualization filter based on the given mouse coordinates.
