@@ -17,7 +17,7 @@ Rectangle
   readonly property bool isDestructible: paletteType == paletteTypeDestructible
   readonly property bool isCollapsible: paletteType == paletteTypeCollapsible
 
-  property bool pinned: false
+  property alias pinned: pinBtn.checked
   property bool collapsed: false
   property alias title: paletteTitleText.text
   property alias titleColor: paletteTitleText.color
@@ -44,6 +44,7 @@ Rectangle
     drag.target: titleBar.parent
     drag.axis: Drag.XAndYAxis
     onPressed: forceActiveFocus()
+    onPositionChanged: pinBtn.checked = true;
   }
   
   RowLayout
@@ -89,7 +90,7 @@ Rectangle
       iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
       
       checkable: true
-      checked: titleBar.pinned
+      checked: false
       onClicked: titleBar.pinned = checked
     }
     
