@@ -7,23 +7,9 @@ import VSQml 1.0
 Palette {
     id: palette
     paletteType: paletteTypeCollapsible
-    //title: "Filter View"
+    title: "Filter View"
 
     property VSFilterModel filterModel: VSFilterModel { }
-
-    ListModel
-    {
-        id: testModel
-
-        ListElement {
-            display: "Test1"
-            tooltip: "foo"
-        }
-        ListElement {
-            display: "Test2"
-            tooltip: "Bar"
-        }
-    }
 
     TreeView
     {
@@ -31,20 +17,25 @@ Palette {
 
         Layout.fillWidth: true
         Layout.minimumHeight: 100
-        Layout.minimumWidth: 222
+        Layout.minimumWidth: 202
         Layout.margins: palette.contentMargin
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
 
-        model: palette.filterModel
-        //model: testModel
+        // Using QML context property
+        model: filterModel
 
         TableViewColumn
         {
             title: "Filters"
-            role: "display"
+            //role: "display"
             width: 200
 
-            //delegate: Text{ text: "Filter: " + palette.filterModel.display }
+            delegate: Text { text: "Filter" }
         }
+    }
+
+    onFilterModelChanged:
+    {
+        console.log("Model Rows: " + filterModel.rowCount())
     }
 }

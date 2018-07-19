@@ -8,18 +8,40 @@ Rectangle
 {
   id: titleBar
   
-  radius: palette.headerRadius
-  color: palette.headerColor
-  border.color: palette.headerBorderColor
-  border.width: 1
-  
+  // PalettTypes
+  readonly property int paletteTypeDestructible: 0
+  readonly property int paletteTypeCollapsible: 1
+
+  property int paletteType: paletteTypeDestructible
+
+  readonly property bool isDestructible: paletteType == paletteTypeDestructible
+  readonly property bool isCollapsible: paletteType == paletteTypeCollapsible
+
+  property bool pinned: false
+  property bool collapsed: false
+  property alias title: paletteTitleText.text
+  property alias titleColor: paletteTitleText.color
+
+  property color borderColor: "#2869e2"
+  property real borderWidth: 1
+
+  implicitHeight: 30
+  property int margin: 3
+
+  readonly property real preferredWidth: paletteTitleText.implicitWidth + (titleBar.margin + titleBarLayout.spacing * 2) + (pinBtn.width + closeBtn.width + titleBar.margin * 2);
+
+  radius: 2
+  color: "#4c8aff"
+  border.color: borderColor
+  border.width: borderWidth
+
   MouseArea
   {
     id: titleArea
     
     anchors.fill: parent
     
-    drag.target: palette
+    drag.target: titleBar.parent
     drag.axis: Drag.XAndYAxis
     onPressed: forceActiveFocus()
   }
@@ -28,11 +50,8 @@ Rectangle
   {
     id: titleBarLayout
     transformOrigin: Item.Top
-    anchors.top: parent.top
+    anchors.fill: parent
     anchors.topMargin: 0
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
     
     spacing: 4
     
@@ -46,13 +65,13 @@ Rectangle
       Layout.minimumWidth: titleBar.height
       Layout.maximumWidth: titleBar.height
       Layout.preferredHeight: titleBar.height
-      Layout.rightMargin: palette.titleMargin
+      Layout.rightMargin: titleBar.margin
       
-      visible: paletteType == paletteTypeDestructible
+      visible: isDestructible
       
       iconSource: "qrc:///SIMPL/icons/images/circle-x.png"
       
-      onClicked: palette.remove()
+      onClicked: palette.destroy()
     }
     
     ToolButton
@@ -63,15 +82,15 @@ Rectangle
       Layout.minimumWidth: titleBar.height
       Layout.maximumWidth: titleBar.height
       Layout.preferredHeight: titleBar.height
-      Layout.leftMargin: palette.titleMargin
+      Layout.leftMargin: titleBar.margin
       
-      visible: paletteType == paletteTypeDestructible
+      visible: isDestructible
       
       iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
       
       checkable: true
-      checked: palette.pinned
-      onClicked: palette.pinned = checked
+      checked: titleBar.pinned
+      onClicked: titleBar.pinned = checked
     }
     
     ToolButton
@@ -82,29 +101,29 @@ Rectangle
       Layout.minimumWidth: titleBar.height
       Layout.maximumWidth: titleBar.height
       Layout.preferredHeight: titleBar.height
-      Layout.leftMargin: palette.titleMargin
+      Layout.leftMargin: titleBar.margin
       
-      visible: paletteType == paletteTypeCollapsible
+      visible: isCollapsible
       
       iconSource: "qrc:///SIMPL/icons/images/navigate_close.png"
       
       checkable: true
-      checked: !palette.collapsed
-      onClicked: palette.collapsed = !checked
+      checked: !titleBar.collapsed
+      onClicked: titleBar.collapsed = !checked
     }
     
-    Text
+    Label
     {
       id: paletteTitleText
       
       Layout.fillWidth: true
-      Layout.leftMargin: palette.titleMargin
+      Layout.leftMargin: titleBar.margin
       
       font.bold: true
       font.pointSize: 12
       
-      text: palette.title
-      color: palette.titleColor
+      text: "Untitled"
+      color: "#e2edff"
     }
   }
 }

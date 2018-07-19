@@ -11,31 +11,28 @@ ColumnLayout
   transformOrigin: Item.TopLeft
   clip: true
 
-  // PalettTypes
-  readonly property int paletteTypeDestructible: 0
-  readonly property int paletteTypeCollapsible: 1
+  property alias paletteTypeDestructible: titleBar.paletteTypeDestructible
+  property alias paletteTypeCollapsible: titleBar.paletteTypeCollapsible
+  property alias paletteType: titleBar.paletteType
 
-  property int paletteType: paletteTypeDestructible
+  property alias title: titleBar.title
+  property alias pinned: titleBar.pinned
+  property alias collapsed: titleBar.collapsed
 
-  property string title: "Untitled"
-  property bool pinned: false
-  property bool collapsed: false
-  //property real contentOpacity: activeFocus ? 1 : 0.5
+  property alias headerRadius: titleBar.radius
+  property alias headerColor: titleBar.color
+  property alias headerBorderColor: titleBar.borderColor
+  property alias titleColor: titleBar.titleColor
+  property alias headerHeight: titleBar.implicitHeight
 
-  property real headerRadius: 2
-  property color headerColor: "#4c8aff"
-  property color headerBorderColor: "#2869e2"
-  property color titleColor: "#e2edff"
-  property real headerHeight: 30
+  property alias backgroundRadius: backgroundRect.radius
+  property alias backgroundBorderWidth: backgroundRect.borderWidth
+  property alias backgroundBorderColor: backgroundRect.borderColor
+  property alias backgroundColor: backgroundRect.color
 
-  property real backgroundRadius: 20
-  property real backgroundBorderWidth: 1
-  property color backgroundBorderColor: "#bababa"
-  property color backgroundColor: "#e5e5e5"
-
-  property int titleMargin: 3
+  property alias titleMargin: titleBar.margin
   property int contentMargin: 5
-  property int bottomMargin: 10
+  property int bottomMargin: 2
 
   property int baseZ: 2
   property int focusZ: 3
@@ -45,56 +42,39 @@ ColumnLayout
 
   spacing: 4
 
-  // removeObject signal is important for cases when ownership is set to C++ and not JavaScript
-  // A C++ owned item cannot be deleted from the QML side using destroy()
-  signal removeObject()
-  function remove() {
-    removeObject()
-    destroy();
-  }
-
   // If focus lost and not pinned, destroy the object
   function checkFocus() {
     if(!pinned && !activeFocus)
     {
-        console.log("Focus Lost on: " + palette.title);
-      //remove();
+      destroy();
     }
   }
 
   onActiveFocusChanged:
   {
-    console.log("Active Focus Changed")
     checkFocus()
 
-      if(activeFocus && parent)
-      {
-          parent = parent
-      }
+    // This helps reorder the parent's children list to keep this item on top as if this was a window
+    // This and [z: activeFocus ? ...] are the two parts required for the desired behavior
+    if(activeFocus && parent)
+    {
+      // Keep this line as is!
+      parent = parent
+    }
   }
-
-//  onContentOpacityChanged:
-//  {
-//    for(var i = 0; i < children.length; i++)
-//    {
-//      if(children[i] != titleBar)
-//      {
-//        children[i].opacity = contentOpacity;
-//      }
-//    }
-//  }
 
   Rectangle
   {
       id: backgroundRect
-
       anchors.fill: parent
 
-      //opacity: parent.activeFocus ? 1 : 0.5
-      radius: palette.backgroundRadius
-      border.width: palette.backgroundBorderWidth
-      border.color: palette.backgroundBorderColor
-      color: palette.backgroundColor
+      property color borderColor: "#bababa"
+      property real borderWidth: 1
+
+      radius: 8
+      border.width: borderWidth
+      border.color: borderColor
+      color: "#e5e5e5"
 
       MouseArea
       {
@@ -105,135 +85,24 @@ ColumnLayout
       }
   }
 
-    Rectangle
-    {
+  PaletteTitleBar {
       id: titleBar
-
       Layout.fillWidth: true
+      Layout.maximumHeight: palette.headerHeight
       Layout.minimumWidth: 200
       Layout.preferredHeight: palette.headerHeight
-      Layout.maximumHeight: palette.headerHeight
+      Layout.preferredWidth: preferredWidth
+  }
 
-      radius: palette.headerRadius
-      color: palette.headerColor
-      border.color: palette.headerBorderColor
-      border.width: 1
-
-      MouseArea
+  onCollapsedChanged:
+  {
+      if(collapsed)
       {
-        id: titleArea
-
-        anchors.fill: parent
-
-        drag.target: palette
-        drag.axis: Drag.XAndYAxis
-        onPressed: forceActiveFocus()
+          height = titleBar.height
       }
-
-      RowLayout
+      else
       {
-        id: titleBarLayout
-        transformOrigin: Item.Top
-        anchors.top: parent.top
-        anchors.topMargin: 0
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-
-        spacing: 4
-
-        layoutDirection: Qt.RightToLeft
-
-        ToolButton
-        {
-          id: closeBtn
-
-          Layout.fillWidth: false
-          Layout.minimumWidth: titleBar.height
-          Layout.maximumWidth: titleBar.height
-          Layout.preferredHeight: titleBar.height
-          Layout.rightMargin: palette.titleMargin
-
-          visible: paletteType == paletteTypeDestructible
-
-          iconSource: "qrc:///SIMPL/icons/images/circle-x.png"
-
-          onClicked: palette.remove()
-        }
-
-        ToolButton
-        {
-          id: pinBtn
-
-          Layout.fillWidth: false
-          Layout.minimumWidth: titleBar.height
-          Layout.maximumWidth: titleBar.height
-          Layout.preferredHeight: titleBar.height
-          Layout.leftMargin: palette.titleMargin
-
-          visible: paletteType == paletteTypeDestructible
-
-          iconSource: "qrc:///SIMPL/icons/images/bookmark.png"
-
-          checkable: true
-          checked: palette.pinned
-          onClicked: palette.pinned = checked
-        }
-
-        ToolButton
-        {
-          id: collapseBtn
-
-          Layout.fillWidth: false
-          Layout.minimumWidth: titleBar.height
-          Layout.maximumWidth: titleBar.height
-          Layout.preferredHeight: titleBar.height
-          Layout.leftMargin: palette.titleMargin
-
-          visible: paletteType == paletteTypeCollapsible
-
-          iconSource: "qrc:///SIMPL/icons/images/navigate_close.png"
-
-          checkable: true
-          checked: !palette.collapsed
-          onClicked: palette.collapsed = !checked
-        }
-
-        Text
-        {
-          id: paletteTitleText
-
-          Layout.fillWidth: true
-          Layout.leftMargin: palette.titleMargin
-
-          font.bold: true
-          font.pointSize: 12
-
-          text: palette.title
-          color: palette.titleColor
-        }
+          height = implicitHeight
       }
-    }
-
-    // Adjust minimumWidth with title length and button sizes
-    onTitleChanged:
-    {
-        var minimumWidth = pinBtn.width + closeBtn.width + paletteTitleText.width + (palette.spacing * 2 + palette.titleMargin * 3);
-        if(palette.width < minimumWidth)
-        {
-            palette.width = minimumWidth
-        }
-    }
-
-    onCollapsedChanged:
-    {
-        if(collapsed)
-        {
-            height = titleBar.height
-        }
-        else
-        {
-            height = implicitHeight
-        }
-    }
+  }
 }

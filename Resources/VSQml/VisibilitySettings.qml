@@ -240,10 +240,8 @@ Palette
 
     onViewSettingsChanged:
     {
-        console.log("View Settings changed")
         if(viewSettings == null)
         {
-            console.log("Null ViewSettings")
             return
         }
 
