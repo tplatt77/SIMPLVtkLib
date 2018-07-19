@@ -46,7 +46,9 @@ ColumnLayout
   function checkFocus() {
     if(!pinned && !activeFocus)
     {
-      destroy();
+      // Reinsert destroy() when a solution for combo boxes is figured out
+      console.log("Placeholder: this palette should be deleted");
+      //destroy();
     }
   }
 
