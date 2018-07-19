@@ -48,7 +48,6 @@ VSFilterModel::VSFilterModel(QObject* parent)
 , m_ModelLock(1)
 {
   m_RootFilter = new VSRootFilter(this);
-  generateRoleNames();
 
   //VSTextFilter* textFilter = new VSTextFilter(nullptr, "Test", "Tooltip");
   //textFilter->setParentFilter(m_RootFilter);
@@ -65,7 +64,6 @@ VSFilterModel::VSFilterModel(const VSFilterModel& model)
 , m_ModelLock(1)
 {
   m_RootFilter = new VSRootFilter(this);
-  generateRoleNames();
 
   VSAbstractFilter::FilterListType baseFilters = model.getBaseFilters();
   for(auto iter = baseFilters.begin(); iter != baseFilters.end(); iter++)
@@ -343,38 +341,22 @@ bool VSFilterModel::setData(const QModelIndex& index, const QVariant& value, int
     return false;
   }
 
+  const QVector<int> roles(role);
+
   switch(role)
   {
   case Qt::ItemIsEditable:
     targetFilter->setText(value.toString());
+    emit dataChanged(index, index, roles);
+    return true;
   case Qt::CheckStateRole:
     targetFilter->setChecked(value.toInt() == Qt::Checked);
+    emit dataChanged(index, index, roles);
     return true;
   default:
     return QAbstractItemModel::setData(index, value, role);
   }
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterModel::generateRoleNames()
-{
-  m_RoleNames.clear();
-  m_RoleNames[Qt::DisplayRole] = "displayRole";
-  m_RoleNames[Qt::CheckStateRole] = "checkStateRole";
-  m_RoleNames[Qt::ToolTipRole] = "toolTipRole";
-}
-
-#if 0
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QHash<int, QByteArray> VSFilterModel::roleNames() const
-{
-  return m_RoleNames;
-}
-#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -488,23 +470,6 @@ void VSFilterModel::beginRemovingFilter(VSAbstractFilter* filter, int row)
   }
 
   QModelIndex index = getIndexFromFilter(filter);
-  //int position;
-  //if(filter->getParentFilter())
-  //{
-  //  position = filter->getChildNumber();
-  //}
-  //else
-  //{
-  //  position = 0;
-  //  for(auto iter = m_BaseFilters.begin(); iter != m_BaseFilters.end(); iter++)
-  //  {
-  //    if((*iter) == filter)
-  //    {
-  //      break;
-  //    }
-  //    position++;
-  //  }
-  //}
 
   beginRemoveRows(index, row, row);
 }

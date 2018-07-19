@@ -135,7 +135,6 @@ public:
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
   QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
-  //QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
   
   void beginInsertingFilter(VSAbstractFilter* parentFilter);
   void endInsertingFilter();
@@ -171,9 +170,6 @@ private slots:
    * @param filter
    */
   void deleteFilter(VSAbstractFilter* filter);
-
-protected:
-  void generateRoleNames();
 
 private:
   QSemaphore m_ModelLock;
