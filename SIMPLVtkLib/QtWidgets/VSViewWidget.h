@@ -81,12 +81,6 @@ public:
   VSQuickWidget* getVisualizationWidget() const override;
 
   /**
-  * @brief Sets the VSController to use
-  * @param controller
-  */
-  void setController(VSController* controller) override;
-
-  /**
   * @brief Returns the visualization filter based on the given mouse coordinates.
   * @param pos
   * @return

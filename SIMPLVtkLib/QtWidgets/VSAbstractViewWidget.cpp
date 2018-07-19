@@ -835,6 +835,8 @@ void VSAbstractViewWidget::setController(VSController* controller)
     // Check filter and scalar bar visibility
     checkFilterViewSetting(viewSettings);
   }
+
+  emit controllerChanged(controller);
 }
 
 // -----------------------------------------------------------------------------

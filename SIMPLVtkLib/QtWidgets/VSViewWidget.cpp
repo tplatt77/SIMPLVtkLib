@@ -111,19 +111,10 @@ void VSViewWidget::setupGui()
   ss << "}";
 
   setStyleSheet(styleString);
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSViewWidget::setController(VSController* controller)
-{
-  VSAbstractViewWidget::setController(controller);
-
-  if(controller)
-  {
-    connect(controller, &VSController::filterAdded, [=] { m_Internals->quickWidget->applyFilterModel(); });
-  }
+  connect(this, &VSViewWidget::controllerChanged, [=] { 
+    m_Internals->quickWidget->applyFilterModel(); 
+  });
 }
 
 // -----------------------------------------------------------------------------

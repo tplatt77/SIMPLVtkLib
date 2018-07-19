@@ -102,7 +102,7 @@ public:
    * @brief Sets the VSController to use
    * @param controller
    */
-  virtual void setController(VSController* controller);
+  void setController(VSController* controller);
 
   /**
   * @brief Returns true if the view is active.  Returns false otherwise.
@@ -163,6 +163,7 @@ signals:
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void applyCurrentFilter();
   void resetCurrentFilter();
+  void controllerChanged(VSController*);
 
 public slots:
   /**
