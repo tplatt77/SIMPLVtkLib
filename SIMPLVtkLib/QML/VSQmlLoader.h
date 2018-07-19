@@ -35,39 +35,23 @@
 
 #pragma once
 
-#include <QtQml/QQmlEngine>
-#include <QtQml/QQmlComponent>
-#include <QtQuick/QQuickItem>
-#include <QtQml/QQmlContext>
 
-#include "SIMPLVtkLib/QML/QmlMacros.h"
+#include <QtCore/QUrl>
+#include <QtQml/QQmlExtensionPlugin>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class SIMPLVtkLib_EXPORT VSQmlLoader
 {
 public:
-  static VSQmlLoader* GetInstance();
   virtual ~VSQmlLoader() = default;
 
-  void setEngine(QQmlEngine* engine);
-  void setRoot(QQuickItem* root);
+  static void registerTypes();
 
-  QQuickItem* loadVtkView();
-  QQuickItem* loadPalette();
-
-  static void Register();
   static QUrl GetVtkViewUrl();
   static QUrl GetPaletteUrl();
   static QUrl GetVisibilitySettingsUrl();
 
 protected:
   VSQmlLoader();
-
-  QQuickItem* loadItem(QUrl url);
-
-private:
-  static VSQmlLoader* m_Instance;
-  QQmlEngine* m_Engine = nullptr;
-  QQuickItem* m_Root = nullptr;
 };

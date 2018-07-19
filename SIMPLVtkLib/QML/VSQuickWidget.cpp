@@ -79,9 +79,12 @@ void VSQuickWidget::setupGui()
   setMouseTracking(false);
   connect(this, &QQuickWidget::statusChanged, this, &VSQuickWidget::updatedStatus);
 
-  // Register required QML types
-  VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
-  qmlLoader->setEngine(engine());
+  VSQmlLoader::registerTypes();
+
+#if 0
+  // Set the filter model as QML context property
+  engine()->rootContext()->setContextProperty("filterModel", new VSFilterModel(this));
+#endif
 
   setClearColor(QColor(77, 77, 89, 255));
 
@@ -94,8 +97,6 @@ void VSQuickWidget::setupGui()
   {
     qDebug() << error.toString();
   }
-
-  qmlLoader->setRoot(rootObject());
 }
 
 // -----------------------------------------------------------------------------
@@ -123,18 +124,6 @@ void VSQuickWidget::finishInit()
     getVtkView()->setViewWidget(m_ViewWidget);
     applyFilterModel();
   }
-
-  //VSQmlLoader* qmlLoader = VSQmlLoader::GetInstance();
-  //QQuickItem* item = qmlLoader->loadPalette();
-  //
-  //if(item)
-  //{
-  //  item->setProperty("title", "Created Title");
-  //  item->setParent(getVtkView());
-  //  item->setX(500);
-  //  item->setY(500);
-  //  item->setZ(7);
-  //}
 }
 
 // -----------------------------------------------------------------------------

@@ -35,109 +35,25 @@
 
 #include "VSQmlLoader.h"
 
-//#include "SIMPLVtkLib/QML/VSPalette.h"
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 
-VSQmlLoader* VSQmlLoader::m_Instance = nullptr;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSQmlLoader::VSQmlLoader()
-{
-
-}
+{}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQmlLoader::Register()
+void VSQmlLoader::registerTypes()
 {
-  //QML_REGISTER(VSQmlVtkView);
   qmlRegisterType<VSQmlVtkView>("VSQml", 1, 0, "VSQmlVtkView");
-  //qmlRegisterType<VSPalette>("VSQml", SIMPLVtkLib::Version::Major().toInt(), SIMPLVtkLib::Version::Minor().toInt(), "VSPalette");
   qmlRegisterType<VSFilterViewSettings>("VSQml", 1, 0, "VSFilterViewSettings");
   qmlRegisterType<VSFilterModel>("VSQml", 1, 0, "VSFilterModel");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSQmlLoader* VSQmlLoader::GetInstance()
-{
-  if(!m_Instance)
-  {
-    m_Instance = new VSQmlLoader();
-    Register();
-  }
-
-  return m_Instance;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQmlLoader::setEngine(QQmlEngine* engine)
-{
-  m_Engine = engine;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQmlLoader::setRoot(QQuickItem* root)
-{
-  m_Root = root;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadItem(QUrl url)
-{
-  if(!m_Engine)
-  {
-    return nullptr;
-  }
-
-  QQmlComponent* component = new QQmlComponent(m_Engine);
-  component->setObjectName("Component");
-  component->loadUrl(url);
-  QObject* obj = component->create(m_Engine->rootContext());
-  QQuickItem* item = dynamic_cast<QQuickItem*>(obj);
-
-  QList<QQmlError> errors = component->errors();
-  for(QQmlError error : errors)
-  {
-    qDebug() << error.toString();
-  }
-
-  if(item)
-  {
-    QQmlEngine::setObjectOwnership(item, QQmlEngine::CppOwnership);
-    item->setParentItem(m_Root);
-    item->setParent(component);
-  }
-  
-  return item;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadVtkView()
-{
-  return loadItem(GetVtkViewUrl());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QQuickItem* VSQmlLoader::loadPalette()
-{
-  return loadItem(GetPaletteUrl());
 }
 
 // -----------------------------------------------------------------------------

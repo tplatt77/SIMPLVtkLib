@@ -36,6 +36,7 @@
 #include "VSQmlVtkView.h"
 
 #include <QtCore/QVariant>
+#include <QtQml/QQmlEngine>
 
 #include <vtkRenderer.h>
 #include <vtkExternalOpenGLCamera.h>
