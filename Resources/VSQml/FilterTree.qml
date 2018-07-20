@@ -22,7 +22,7 @@ Palette {
         Layout.margins: palette.contentMargin
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
 
-        backgroundVisible: false
+        alternatingRowColors: false
 
         TableViewColumn
         {

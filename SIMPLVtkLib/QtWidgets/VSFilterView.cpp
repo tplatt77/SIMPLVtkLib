@@ -79,6 +79,7 @@ void VSFilterView::setController(VSController* controller)
 
   m_Controller = controller;
   setModel(controller->getFilterModel());
+  setRootIndex(controller->getFilterModel()->rootIndex());
 
   connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(insertFilter(VSAbstractFilter*, bool)));
   connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));

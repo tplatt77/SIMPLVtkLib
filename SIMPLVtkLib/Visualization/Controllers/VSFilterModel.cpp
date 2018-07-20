@@ -344,25 +344,30 @@ bool VSFilterModel::setData(const QModelIndex& index, const QVariant& value, int
 // -----------------------------------------------------------------------------
 QModelIndex VSFilterModel::index(int row, int column, const QModelIndex& parent) const
 {
+  // column must be 0 for valid indices in this model
+  if(column != 0)
+  {
+    return QModelIndex();
+  }
   if(parent.isValid() && parent.column() != 0)
   {
     return QModelIndex();
   }
 
-  VSAbstractFilter* parentFilter = m_RootFilter;
-  if(parent.isValid())
+  // Root index
+  if(!parent.isValid() && row == 0)
   {
-    parentFilter = getFilterFromIndex(parent);
-  }
-  else
-  {
-    qDebug() << "Error: index() parentFilter";
+    return createIndex(row, column, m_RootFilter);
   }
 
-  // Create index
-  if(parentFilter && row < parentFilter->getChildren().size())
+  // Valid parent
+  if(parent.isValid())
   {
-    return createIndex(row, column, parentFilter->getChild(row));
+    VSAbstractFilter* parentFilter = getFilterFromIndex(parent);
+    if(parentFilter && row < parentFilter->getChildren().size())
+    {
+      return createIndex(row, column, parentFilter->getChild(row));
+    }
   }
 
   return QModelIndex();
@@ -379,7 +384,7 @@ QModelIndex VSFilterModel::parent(const QModelIndex& index) const
   }
 
   VSAbstractFilter* filter = getFilterFromIndex(index);
-  if(!filter)
+  if(!filter || filter == m_RootFilter)
   {
     return QModelIndex();
   }
@@ -398,11 +403,6 @@ QModelIndex VSFilterModel::parent(const QModelIndex& index) const
 // -----------------------------------------------------------------------------
 int VSFilterModel::rowCount(const QModelIndex& parent) const
 {
-  if(!parent.isValid())
-  {
-    return getBaseFilters().size();
-  }
-
   VSAbstractFilter* filter = getFilterFromIndex(parent);
   if(filter)
   {
