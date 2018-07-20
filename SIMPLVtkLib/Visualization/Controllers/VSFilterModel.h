@@ -127,20 +127,89 @@ public:
   ////////////////////////////////
   // QAbstractItemModel methods //
   ////////////////////////////////
+  /**
+   * @brief Returns the Qt::ItemFlags for the given index
+   * @param index
+   * @return
+   */
   Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
 
+  /**
+   * @brief Returns the number of columns under the given parent index
+   * @param parent
+   * @return
+   */
   int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Returns the data for the given index and requested role
+   * @param index
+   * @param role
+   * @return
+   */
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Sets the data for the given index and role.  Returns true if the process was successful.  Returns false otherwise.
+   * @param index
+   * @param value
+   * @param role
+   * @return
+   */
   bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
+  
+  /**
+   * @brief Returns the QModelIndex for the row and column under the specified parent index
+   * @param row
+   * @param column
+   * @param parent
+   * @return
+   */
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Returns the QModelIndex for the parent of the given index
+   * @param index
+   * @return
+   */
   QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Returns the number of rows belonging to the given parent
+   * @param parent
+   * @return
+   */
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
   
+  /**
+   * @brief beginInsertingFilter
+   * @param parentFilter
+   */
   void beginInsertingFilter(VSAbstractFilter* parentFilter);
+
+  /**
+   * @brief endInsertingFilter
+   * @param filter
+   */
   void endInsertingFilter(VSAbstractFilter* filter);
+
+  /**
+   * @brief beginRemovingFilter
+   * @param filter
+   * @param row
+   */
   void beginRemovingFilter(VSAbstractFilter* filter, int row);
+
+  /**
+   * @brief endRemovingFilter
+   * @param filter
+   */
   void endRemovingFilter(VSAbstractFilter* filter);
 
+  /**
+   * @brief Returns the root index for the model
+   * @return
+   */
   Q_INVOKABLE QModelIndex rootIndex() const;
 
 signals:
@@ -175,7 +244,6 @@ private slots:
 
 private:
   QSemaphore m_ModelLock;
-
   VSRootFilter* m_RootFilter = nullptr;
 };
 

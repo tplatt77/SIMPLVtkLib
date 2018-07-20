@@ -249,10 +249,10 @@ public:
   virtual dataType_t getOutputType();
 
   /**
-  * @brief Returns true if the resulting data should use point data instead of cell data
-  * Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the resulting data should use point data instead of cell data
+   * Returns false otherwise.
+   * @return
+   */
   bool isPointData();
 
   /**
@@ -288,21 +288,21 @@ public:
   QModelIndex getIndex();
 
   /**
-  * @brief Returns the CheckState for the filter
-  * @return
-  */
+   * @brief Returns the CheckState for the filter
+   * @return
+   */
   bool isChecked();
 
   /**
-  * @brief Sets whether or not the filter is checked
-  * @param checked
-  */
+   * @brief Sets whether or not the filter is checked
+   * @param checked
+   */
   void setChecked(bool checked);
 
   /**
-  * @brief Convenience method to return the Qt::CheckState from isChecked()
-  * @return
-  */
+   * @brief Convenience method to return the Qt::CheckState from isChecked()
+   * @return
+   */
   Qt::CheckState checkState();
 
   /**
@@ -311,6 +311,10 @@ public:
    */
   virtual QString getText() const;
 
+  /**
+   * @brief Sets the text to display for VSFilterModel
+   * @param display
+   */
   virtual void setText(QString display);
 
   /**
@@ -375,6 +379,7 @@ protected:
 
   /**
    * @brief Returns the vtkTransformFilter used
+   * @return
    */
   VTK_PTR(vtkTransformFilter) getTransformFilter();
 
