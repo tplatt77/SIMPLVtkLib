@@ -212,6 +212,11 @@ public:
    */
   Q_INVOKABLE QModelIndex rootIndex() const;
 
+  Q_INVOKABLE QString getFilterText(const QModelIndex& index) const;
+  Q_INVOKABLE QFont getFilterFont(const QModelIndex& index) const;
+  Q_INVOKABLE bool getFilterCheckable(const QModelIndex& index) const;
+  Q_INVOKABLE Qt::CheckState getFilterCheckState(const QModelIndex& index) const;
+
 signals:
   void filterAdded(VSAbstractFilter* filter, bool currentFilter = false);
   void filterRemoved(VSAbstractFilter* filter);

@@ -801,7 +801,7 @@ void VSAbstractFilter::setEditable(bool editable)
 // -----------------------------------------------------------------------------
 bool VSAbstractFilter::isCheckable() const
 {
-  return m_Flags && Qt::ItemIsUserCheckable;
+  return m_Flags & Qt::ItemIsUserCheckable;
 }
 
 // -----------------------------------------------------------------------------

@@ -115,6 +115,12 @@ public:
   Qt::ItemFlags flags() const;
 
   /**
+  * @brief Returns true if the filter is checkable. Returns false otherwise.
+  * @return
+  */
+  bool isCheckable() const;
+
+  /**
    * @brief Returns the parent visual filter
    * @return
    */
@@ -437,12 +443,6 @@ protected:
    * @param checkable
    */
   void setCheckable(bool checkable);
-
-  /**
-   * @brief Returns true if the filter is checkable. Returns false otherwise.
-   * @return
-   */
-  bool isCheckable() const;
 
   /**
    * @brief Returns true if the item is editable. Returns false otherwise.

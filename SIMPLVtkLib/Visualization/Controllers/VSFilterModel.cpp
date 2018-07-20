@@ -468,3 +468,48 @@ QModelIndex VSFilterModel::rootIndex() const
 {
   return createIndex(0, 0, m_RootFilter);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFilterModel::getFilterText(const QModelIndex& index) const
+{
+  return data(index, Qt::DisplayRole).toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QFont VSFilterModel::getFilterFont(const QModelIndex& index) const
+{
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(filter)
+  {
+    return filter->font();
+  }
+
+  return QFont();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterModel::getFilterCheckable(const QModelIndex& index) const
+{
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(filter)
+  {
+    return filter->isCheckable();
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+Qt::CheckState VSFilterModel::getFilterCheckState(const QModelIndex& index) const
+{
+  int checkState = data(index, Qt::CheckStateRole).toInt();
+  return static_cast<Qt::CheckState>(checkState);
+}
