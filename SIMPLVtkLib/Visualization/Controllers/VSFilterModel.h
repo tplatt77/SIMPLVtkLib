@@ -137,12 +137,14 @@ public:
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
   
   void beginInsertingFilter(VSAbstractFilter* parentFilter);
-  void endInsertingFilter();
+  void endInsertingFilter(VSAbstractFilter* filter);
   void beginRemovingFilter(VSAbstractFilter* filter, int row);
-  void endRemovingFilter();
+  void endRemovingFilter(VSAbstractFilter* filter);
+
+  Q_INVOKABLE QModelIndex rootIndex() const;
 
 signals:
-  void filterAdded(VSAbstractFilter* filter, bool currentFilter);
+  void filterAdded(VSAbstractFilter* filter, bool currentFilter = false);
   void filterRemoved(VSAbstractFilter* filter);
 
 public slots:
@@ -175,7 +177,6 @@ private:
   QSemaphore m_ModelLock;
 
   VSRootFilter* m_RootFilter = nullptr;
-  QHash<int, QByteArray> m_RoleNames;
 };
 
 Q_DECLARE_METATYPE(VSFilterModel)

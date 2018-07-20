@@ -149,6 +149,4 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
-
-  QString m_Text;
 };

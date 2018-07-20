@@ -50,7 +50,7 @@ VSFilterModel::VSFilterModel(QObject* parent)
   m_RootFilter = new VSRootFilter(this);
 
   //VSTextFilter* textFilter = new VSTextFilter(nullptr, "Test", "Tooltip");
-  //textFilter->setParentFilter(m_RootFilter);
+  //addFilter(textFilter);
 
   connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)),
     this, SLOT(deleteFilter(VSAbstractFilter*)));
@@ -125,26 +125,7 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
   {
     filter->deleteFilter();
   }
-  //else
-  //{
-  //  m_ModelLock.acquire();
-  //  QModelIndex index = getIndexFromFilter(filter);
-  //  auto iter = m_BaseFilters.begin();
-  //  for(int i = 0; i < index.row(); i++)
-  //  {
-  //    iter++;
-  //  }
 
-  //  // Remove row from QAbstractItemModel
-  //  beginRemoveRows(index, index.row(), index.row());
-  //  //VSAbstractFilter* filter = (*iter);
-  //  m_BaseFilters.erase(iter);
-  //  endRemoveRows();
-
-  //  m_ModelLock.release();
-  //}
-
-  // filter->deleteLater();
   submit();
 }
 
@@ -373,6 +354,10 @@ QModelIndex VSFilterModel::index(int row, int column, const QModelIndex& parent)
   {
     parentFilter = getFilterFromIndex(parent);
   }
+  else
+  {
+    qDebug() << "Error: index() parentFilter";
+  }
 
   // Create index
   if(parentFilter && row < parentFilter->getChildren().size())
@@ -400,7 +385,7 @@ QModelIndex VSFilterModel::parent(const QModelIndex& index) const
   }
 
   VSAbstractFilter* parentFilter = filter->getParentFilter();
-  if(parentFilter)
+  if(parentFilter)// && parentFilter != m_RootFilter)
   {
     return createIndex(parentFilter->getChildIndex(), 0, parentFilter);
   }
@@ -438,15 +423,7 @@ void VSFilterModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
   }
 
   QModelIndex parentIndex = getIndexFromFilter(parentFilter);
-  int position = 0;
-  if(parentFilter)
-  {
-    position = parentFilter->getChildCount();
-  }
-  else
-  {
-    position = getBaseFilters().size();
-  }
+  int position = parentFilter->getChildCount();
 
   beginInsertRows(parentIndex, position, position);
 }
@@ -454,7 +431,7 @@ void VSFilterModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::endInsertingFilter()
+void VSFilterModel::endInsertingFilter(VSAbstractFilter* filter)
 {
   endInsertRows();
 }
@@ -477,7 +454,17 @@ void VSFilterModel::beginRemovingFilter(VSAbstractFilter* filter, int row)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterModel::endRemovingFilter()
+void VSFilterModel::endRemovingFilter(VSAbstractFilter* filter)
 {
   endRemoveRows();
+
+  emit filterRemoved(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSFilterModel::rootIndex() const
+{
+  return createIndex(0, 0, m_RootFilter);
 }

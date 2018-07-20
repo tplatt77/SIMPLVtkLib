@@ -9,7 +9,8 @@ Palette {
     paletteType: paletteTypeCollapsible
     title: "Filter View"
 
-    property VSFilterModel filterModel: VSFilterModel { }
+    //property VSFilterModel filterModel: VSFilterModel { }
+    property alias filterModel: filterView.model
 
     TreeView
     {
@@ -21,21 +22,22 @@ Palette {
         Layout.margins: palette.contentMargin
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
 
-        // Using QML context property
-        model: filterModel
+        backgroundVisible: false
 
         TableViewColumn
         {
             title: "Filters"
-            //role: "display"
+            role: "display"
             width: 200
-
-            delegate: Text { text: "Filter" }
         }
+
+        // Using QML context property
+        //model: filterModel
     }
 
     onFilterModelChanged:
     {
         console.log("Model Rows: " + filterModel.rowCount())
+        filterView.rootIndex = filterModel.rootIndex()
     }
 }

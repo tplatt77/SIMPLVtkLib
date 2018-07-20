@@ -209,6 +209,11 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
+  if(!currentFilter)
+  {
+    return;
+  }
+
   vtkRenderWindowInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
   if(activeViewWidget != nullptr)

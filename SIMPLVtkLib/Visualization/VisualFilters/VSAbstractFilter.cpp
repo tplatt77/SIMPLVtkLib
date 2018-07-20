@@ -161,7 +161,7 @@ void VSAbstractFilter::addChild(VSAbstractFilter* child)
   {
     model->beginInsertingFilter(this);
     m_Children.push_back(child);
-    model->endInsertingFilter();
+    model->endInsertingFilter(child);
   }
   m_ChildLock.release();
 }
@@ -179,8 +179,8 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
   if(model)
   {
     model->beginRemovingFilter(this, row);
-    m_Children.push_back(child);
-    model->endInsertingFilter();
+    m_Children.remove(child);
+    model->endRemovingFilter(child);
   }
   m_ChildLock.release();
 }
@@ -849,7 +849,7 @@ Qt::CheckState VSAbstractFilter::checkState()
 // -----------------------------------------------------------------------------
 QString VSAbstractFilter::getText() const
 {
-  if(isEditable() && !m_DisplayText.isEmpty())
+  if(!m_DisplayText.isEmpty())
   {
     return m_DisplayText;
   }

@@ -178,6 +178,9 @@ void VSQuickWidget::applyFilterModel()
   if(treeView && m_ViewWidget && m_ViewWidget->getController())
   {
     QVariant modelVariant;
+    modelVariant.setValue(nullptr);
+    treeView->setProperty("filterModel", modelVariant);
+
     VSFilterModel* filterModel = m_ViewWidget->getController()->getFilterModel();
     modelVariant.setValue(filterModel);
     bool success = treeView->setProperty("filterModel", modelVariant);
