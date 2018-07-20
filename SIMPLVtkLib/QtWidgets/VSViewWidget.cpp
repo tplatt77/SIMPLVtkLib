@@ -112,8 +112,8 @@ void VSViewWidget::setupGui()
 
   setStyleSheet(styleString);
 
-  connect(this, &VSViewWidget::controllerChanged, [=](VSController* controller) { 
-    connect(controller, &VSController::filterAdded, [=] {m_Internals->quickWidget->applyFilterModel(); });
+  // When the VSController is changed, apply the new filter model to QML
+  connect(this, &VSViewWidget::controllerChanged, [=] { 
     m_Internals->quickWidget->applyFilterModel(); 
   });
 }
