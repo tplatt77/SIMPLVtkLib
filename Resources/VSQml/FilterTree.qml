@@ -57,7 +57,7 @@ Palette {
                 scale: 0.65
                 x: 5
                 horizontalAlignment: Image.AlignHCenter
-                source: styleData.isExpanded ? "qrc:/SIMPL/icons/images/navigate_right.png" : "qrc:/SIMPL/icons/images/navigate_close.png"
+                source: styleData.isExpanded ? "qrc:/SIMPL/icons/images/navigate_close.png" : "qrc:/SIMPL/icons/images/navigate_right.png"
             }
         }
     }
