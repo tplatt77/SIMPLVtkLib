@@ -106,7 +106,7 @@ Rectangle
       
       visible: isCollapsible
       
-      iconSource: "qrc:///SIMPL/icons/images/navigate_close.png"
+      iconSource: checked ? "qrc:/SIMPL/icons/images/navigate_close.png" : "qrc:/SIMPL/icons/images/navigate_right.png"
       
       checkable: true
       checked: !titleBar.collapsed
