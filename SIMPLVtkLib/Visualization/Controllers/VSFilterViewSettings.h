@@ -87,6 +87,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
   Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
   Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
+  Q_PROPERTY(VSTransform transform READ getTransform)
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
@@ -154,6 +155,13 @@ public:
    * @return
    */
   QString getFilterName() const;
+
+  /**
+  * @brief getTransform required for transform property
+  * Retrieves the VSTransform from the current filter
+  * @return
+  */
+  VSTransform* getTransform() const;
 
   /**
    * @brief Returns true if the VSFilterViewSettings can be displayed and false otherwise

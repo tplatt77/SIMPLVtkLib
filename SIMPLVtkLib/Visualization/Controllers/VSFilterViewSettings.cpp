@@ -188,6 +188,19 @@ QString VSFilterViewSettings::getFilterName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSTransform* VSFilterViewSettings::getTransform() const
+{
+  if(nullptr == m_Filter)
+  {
+    return new VSTransform();
+  }
+
+  return m_Filter->getTransform();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isValid() const
 {
   if(nullptr == m_Filter)

@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.2
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.2
 
 import VSQml 1.0
@@ -20,4 +20,17 @@ VSQmlVtkView {
       x: 5
       y: 5
   }
+
+//  Palette
+//  {
+//      id: palette
+
+//      Transform {
+//          Layout.fillWidth: true
+//          Layout.minimumHeight: 10
+//          Layout.minimumWidth: 240
+//          Layout.margins: palette.contentMargin
+//          Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
+//      }
+//  }
 }

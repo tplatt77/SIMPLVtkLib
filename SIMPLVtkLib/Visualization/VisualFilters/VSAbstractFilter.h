@@ -81,6 +81,7 @@ class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject
   Q_OBJECT
 
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+  Q_PROPERTY(VSTransform transform READ getTransform)
 
 public:
   enum dataType_t

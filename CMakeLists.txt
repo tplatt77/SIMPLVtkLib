@@ -247,6 +247,7 @@ CMP_FindVtkComponents(QT5_REQUIRED TRUE
                       COMPONENTS ${SIMPLVtk_VtkComponents}
                       )
 
+find_package(Qt5Qml)
 find_package(Qt5 COMPONENTS Quick QuickControls2)
 
 # Add in all the dependent link libraries
@@ -256,6 +257,7 @@ set(SIMPLVtkLib_LINK_LIBRARIES
   SVWidgetsLib
   Qt5::Gui
   Qt5::Widgets
+  Qt5::Qml
   Qt5::Quick
   Qt5::QuickControls2
   ${SIMPLVtk_VtkComponents}

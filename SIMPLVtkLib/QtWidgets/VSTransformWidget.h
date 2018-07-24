@@ -90,39 +90,33 @@ protected slots:
 
   /**
    * @brief Updates the translation labels to match the transformation's global values
-   * @param position
    */
-  void updateTranslationLabels(double* position);
+  void updateTranslationLabels();
 
   /**
    * @brief Updates the rotation labels to match the transformation's global values
-   * @param rotation
    */
-  void updateRotationLabels(double* rotation);
+  void updateRotationLabels();
 
   /**
    * @brief Updates the scale labels to match the transformation's global values
-   * @param scale
    */
-  void updateScaleLabels(double* scale);
+  void updateScaleLabels();
 
   /**
   * @brief Updates the local translation spinboxes
-  * @param position
   */
-  void updateLocalTranslation(double* position);
+  void updateLocalTranslation();
 
   /**
   * @brief Updates the local rotation spinboxes
-  * @param rotation
   */
-  void updateLocalRotation(double* rotation);
+  void updateLocalRotation();
 
   /**
   * @brief Updates the local scale spinboxes
-  * @param scale
   */
-  void updateLocalScale(double* scale);
+  void updateLocalScale();
 
 protected:
   /**

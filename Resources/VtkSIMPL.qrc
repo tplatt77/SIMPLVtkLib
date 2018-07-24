@@ -58,5 +58,6 @@
         <file>icons/pqShowAxis@2x.png</file>
         <file>VSQml/FilterTree.qml</file>
         <file>VSQml/PaletteTitleBar.qml</file>
+        <file>VSQml/VisibilityLayout.qml</file>
     </qresource>
 </RCC>
