@@ -13,7 +13,7 @@ Palette
     VisibilityLayout {
         id: visibilityLayout
         Layout.fillWidth: true
-        Layout.minimumHeight: Math.max(100, visbilityLayout.height, transformItem.height)
+        Layout.minimumHeight: 10
         Layout.minimumWidth: 240
         Layout.margins: palette.contentMargin
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin

@@ -48,14 +48,14 @@ GridLayout {
     visible: visibilityLayout.viewAdvancedSettings
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onVisibilityChanged:{
-        visibilityCheckBox.checkedState = palette.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
+        visibilityCheckBox.checkedState = visibilityLayout.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
       }
     }
     onCheckedChanged:
     {
-      palette.viewSettings.visibility = (checkedState == Qt.Checked);
+      visibilityLayout.viewSettings.visibility = (checkedState == Qt.Checked);
       parent.forceActiveFocus()
     }
   }
@@ -74,15 +74,15 @@ GridLayout {
     currentIndex: 0 // Default value
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onRepresentationChanged:{
-        representationSelection.currentIndex = palette.viewSettings.representation;
+        representationSelection.currentIndex = visibilityLayout.viewSettings.representation;
       }
     }
     onCurrentIndexChanged:
     {
-      palette.viewSettings.representation = currentIndex;
-      parent.forceActiveFocus()
+      visibilityLayout.viewSettings.representation = currentIndex;
+      visibilityLayout.forceActiveFocus()
     }
     
   }
@@ -98,44 +98,44 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.fillWidth: true
     
-    model: palette.viewSettings.arrayNames
+    model: visibilityLayout.viewSettings.arrayNames
     //focus: true
     
     function updateArrayName()
     {
-      var index = arraySelection.find(palette.viewSettings.activeArrayName);
+      var index = arraySelection.find(visibilityLayout.viewSettings.activeArrayName);
       if(index < 0)
       {
         index = 0;
       }
       
       arraySelection.currentIndex = index;
-      palette.showColors(index == 0);
-      palette.showComponents(palette.viewSettings.componentNames.count > 1);
+      visibilityLayout.showColors(index == 0);
+      visibilityLayout.showComponents(visibilityLayout.viewSettings.componentNames.count > 1);
     }
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onActiveArrayNameChanged:{
-        var index = arraySelection.find(palette.viewSettings.activeArrayName);
+        var index = arraySelection.find(visibilityLayout.viewSettings.activeArrayName);
         if(index < 0)
         {
           index = 0;
         }
         
         arraySelection.currentIndex = index;
-        palette.showColors(index == 0);
-        palette.showComponents(palette.viewSettings.componentNames.count > 1);
+        visibilityLayout.showColors(index == 0);
+        visibilityLayout.showComponents(visibilityLayout.viewSettings.componentNames.count > 1);
       }
     }
     onCurrentIndexChanged: {
       if(currentIndex == 0)
       {
-        palette.viewSettings.activeArrayName = ""
+        visibilityLayout.viewSettings.activeArrayName = ""
       }
       else
       {
-        palette.viewSettings.activeArrayName = currentText
+        visibilityLayout.viewSettings.activeArrayName = currentText
       }
       
       parent.forceActiveFocus()
@@ -152,21 +152,21 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.fillWidth: true
     
-    model: palette.viewSettings.componentNames
+    model: visibilityLayout.viewSettings.componentNames
     //currentIndex: 1 // Default value
     
     onModelChanged: {
-      showComponents(palette.viewSettings.componentNames.length > 1);
+      showComponents(visibilityLayout.viewSettings.componentNames.length > 1);
     }
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onActiveComponentIndexChanged:{
-        componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1;
+        componentSelection.currentIndex = visibilityLayout.viewSettings.activeComponentIndex + 1;
       }
     }
     onCurrentIndexChanged: {
-      palette.viewSettings.activeComponentIndex = currentIndex - 1;
+      visibilityLayout.viewSettings.activeComponentIndex = currentIndex - 1;
       parent.forceActiveFocus()
     }
   }
@@ -190,13 +190,13 @@ GridLayout {
     visible: false
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onSolidColorChanged:{
-        colorButton.colorProp = palette.viewSettings.solidColor;
+        colorButton.colorProp = visibilityLayout.viewSettings.solidColor;
       }
     }
     onColorPropChanged: {
-      palette.viewSettings.solidColor = colorButton.colorProp;
+      visibilityLayout.viewSettings.solidColor = colorButton.colorProp;
       parent.forceActiveFocus()
     }
   }
@@ -226,15 +226,15 @@ GridLayout {
     currentIndex: 1 // Default value
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onMapColorsChanged:{
-        mapScalarsSelection.currentIndex = palette.viewSettings.mapColors
+        mapScalarsSelection.currentIndex = visibilityLayout.viewSettings.mapColors
       }
     }
     onCurrentIndexChanged:
     {
-      palette.viewSettings.mapColors = currentIndex
-      parent.forceActiveFocus()
+      visibilityLayout.viewSettings.mapColors = currentIndex
+      visibilityLayout.forceActiveFocus()
     }
   }
   
@@ -249,14 +249,14 @@ GridLayout {
     visible: visibilityLayout.viewAdvancedSettings
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onShowScalarBarChanged:{
-        showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
+        showScalarsCheckBox.checkedState = visibilityLayout.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
       }
     }
     onCheckedChanged:
     {
-      palette.viewSettings.showScalarBar = (checkedState == Qt.Checked)
+      visibilityLayout.viewSettings.showScalarBar = (checkedState == Qt.Checked)
     }
     onClicked: forceActiveFocus()
   }
@@ -275,14 +275,14 @@ GridLayout {
     value: 1 // Default value
     
     Connections{
-      target: palette.viewSettings
+      target: visibilityLayout.viewSettings
       onAlphaChanged:{
-        alphaSlider.value = palette.viewSettings.alpha;
+        alphaSlider.value = visibilityLayout.viewSettings.alpha;
       }
     }
     
     onValueChanged: {
-      palette.viewSettings.alpha = value
+      visibilityLayout.viewSettings.alpha = value
     }
   }
 
@@ -305,17 +305,17 @@ GridLayout {
           return
       }
 
-      title = palette.viewSettings.filterName + ": Visibility"
+      title = visibilityLayout.viewSettings.filterName + ": Visibility"
 
-      visibilityCheckBox.checkedState = palette.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
-      representationSelection.currentIndex = palette.viewSettings.representation
+      visibilityCheckBox.checkedState = visibilityLayout.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
+      representationSelection.currentIndex = visibilityLayout.viewSettings.representation
       arraySelection.model = viewSettings.arrayNames
       arraySelection.updateArrayName()
       colorButton.colorProp = viewSettings.solidColor
-      componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1
+      componentSelection.currentIndex = visibilityLayout.viewSettings.activeComponentIndex + 1
       mapScalarsSelection.currentIndex = viewSettings.mapColors
-      showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
-      alphaSlider.value = palette.viewSettings.alpha
-      //transformItem.transform = palette.viewSettings.transform
+      showScalarsCheckBox.checkedState = visibilityLayout.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
+      alphaSlider.value = visibilityLayout.viewSettings.alpha
+      //transformItem.transform = visibilityLayout.viewSettings.transform
   }
 }
