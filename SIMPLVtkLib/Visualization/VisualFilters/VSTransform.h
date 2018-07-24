@@ -337,6 +337,11 @@ signals:
 
 protected:
   /**
+   * @brief Sets up the initial signals
+   */
+  void setupSignals();
+
+  /**
    * @brief Returns a new vtkTransform based on the given values
    * @param position
    * @param rotation

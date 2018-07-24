@@ -45,25 +45,7 @@ VSTransform::VSTransform(VSTransform* parent)
   m_LocalTransform = VTK_PTR(vtkTransform)::New();
 
   setParent(parent);
-
-  connect(this, &VSTransform::emitPosition, this, [=] {
-    emit updatedPosition();
-    emit valuesChanged();
-  });
-  connect(this, &VSTransform::emitRotation, this, [=] {
-    emit updatedRotation();
-    emit valuesChanged();
-  });
-  connect(this, &VSTransform::emitScale, this, [=] {
-    emit updatedScale();
-    emit valuesChanged();
-  });
-  connect(this, &VSTransform::emitAll, this, [=] {
-    emit updatedPosition();
-    emit updatedRotation();
-    emit updatedScale();
-    emit valuesChanged();
-  });
+  setupSignals();
 }
 
 // -----------------------------------------------------------------------------
@@ -75,7 +57,14 @@ VSTransform::VSTransform(const VSTransform& copy)
   m_LocalTransform->DeepCopy(copy.m_LocalTransform);
 
   setParent(copy.getParent());
+  setupSignals();
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::setupSignals()
+{
   connect(this, &VSTransform::emitPosition, this, [=] {
     emit updatedPosition();
     emit valuesChanged();
