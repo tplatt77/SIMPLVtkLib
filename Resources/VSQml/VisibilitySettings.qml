@@ -9,6 +9,7 @@ Palette
     id: palette
 
     property VSFilterViewSettings viewSettings: VSFilterViewSettings {}
+    property alias viewAdvancedSettings : advancedSettings.checked
 
     GridLayout {
         id: visibilityLayout
@@ -28,11 +29,45 @@ Palette
             id: visibilitySettingsTitle
             text: qsTr("Visibility Settings")
             Layout.fillWidth: true
-            Layout.columnSpan: 3
-            Layout.preferredHeight: 13
+            Layout.columnSpan: 2
+            Layout.preferredHeight: 15
             Layout.preferredWidth: 218
             font.pointSize: 8
             font.bold: true
+        }
+
+        Button {
+            id: advancedSettings
+            tooltip: "View Advanced Settings"
+            Layout.columnSpan: 1
+            Layout.preferredHeight: 17
+            Layout.preferredWidth: 17
+
+            checkable: true
+            checked: false
+            iconSource: "qrc:/SIMPL/icons/images/cog.png"
+        }
+
+        CheckBox {
+            id: visibilityCheckBox
+            Layout.columnSpan: 3
+            Layout.fillWidth: true
+
+            text: "Filter Visibility"
+            checked: Qt.Unchecked
+            visible: palette.viewAdvancedSettings
+
+            Connections{
+                target: palette.viewSettings
+                onVisibilityChanged:{
+                    visibilityCheckBox.checkedState = palette.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
+                }
+            }
+            onCheckedChanged:
+            {
+                palette.viewSettings.visibility = (checkedState == Qt.Checked);
+                parent.forceActiveFocus()
+            }
         }
 
         Label {
@@ -132,7 +167,6 @@ Palette
 
             onModelChanged: {
                 showComponents(palette.viewSettings.componentNames.length > 1);
-                console.log("Component Model Updated");
             }
 
             Connections{
@@ -222,6 +256,7 @@ Palette
             Layout.columnSpan: 3
 
             checkedState: Qt.Checked // Default value
+            visible: palette.viewAdvancedSettings
 
             Connections{
                 target: palette.viewSettings
@@ -284,14 +319,14 @@ Palette
 
         title = palette.viewSettings.filterName + ": Visibility"
 
+        visibilityCheckBox.checkedState = palette.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
         representationSelection.currentIndex = palette.viewSettings.representation
         arraySelection.model = viewSettings.arrayNames
         arraySelection.updateArrayName()
+        colorButton.colorProp = viewSettings.solidColor
         componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1
         mapScalarsSelection.currentIndex = viewSettings.mapColors
         showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
         alphaSlider.value = palette.viewSettings.alpha
-
-        colorButton.colorProp = viewSettings.solidColor
     }
 }
