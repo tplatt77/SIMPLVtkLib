@@ -111,7 +111,8 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 {
   if(getParentFilter())
   {
-    disconnect(parent, SIGNAL(updatedOutput()), this, SIGNAL(updatedOutput()));
+    disconnect(getParentFilter(), &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
+    disconnect(getParentFilter(), &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
   }
 
   QObject::setParent(parent);
@@ -123,7 +124,8 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
     m_Transform->setParent(parent->getTransform());
     setInputPort(parent->getOutputPort());
 
-    connect(parent, SIGNAL(updatedOutput()), this, SIGNAL(updatedOutput()));
+    connect(parent, &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
+    connect(parent, &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
   }
   else
   {
@@ -310,6 +312,8 @@ bool VSAbstractFilter::isPointData()
 QStringList VSAbstractFilter::getArrayNames()
 {
   QStringList arrayNames;
+
+  //arrayNames.push_back("Solid Color");
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
   if(dataSet)

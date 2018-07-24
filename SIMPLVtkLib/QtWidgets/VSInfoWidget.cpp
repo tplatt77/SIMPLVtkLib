@@ -205,7 +205,7 @@ void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* f
   VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::ActorType::Invalid;
   if(m_ViewSettings && m_ViewSettings->isValid())
   {
-    listenSolidColor(m_ViewSettings->getSolidColor());
+    listenSolidColor(m_ViewSettings->getSolidColorPtr());
     actorType = m_ViewSettings->getActorType();
   }
 
@@ -265,7 +265,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     disconnect(m_ViewSettings, &VSFilterViewSettings::mapColorsChanged, this, &VSInfoWidget::listenMapColors);
     disconnect(m_ViewSettings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
     disconnect(m_ViewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
-    disconnect(m_ViewSettings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenSolidColor);
+    disconnect(m_ViewSettings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenColorChange);
     disconnect(m_ViewSettings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
     disconnect(m_ViewSettings, &VSFilterViewSettings::dataLoaded, this, &VSInfoWidget::updateFilterInfo);
   }
@@ -282,7 +282,7 @@ void VSInfoWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
     connect(settings, &VSFilterViewSettings::mapColorsChanged, this, &VSInfoWidget::listenMapColors);
     connect(settings, &VSFilterViewSettings::alphaChanged, this, &VSInfoWidget::listenAlpha);
     connect(settings, &VSFilterViewSettings::showScalarBarChanged, this, &VSInfoWidget::listenScalarBar);
-    connect(settings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenSolidColor);
+    connect(settings, &VSFilterViewSettings::solidColorChanged, this, &VSInfoWidget::listenColorChange);
     connect(settings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSInfoWidget::listenAxesGridVisible);
     connect(settings, &VSFilterViewSettings::dataLoaded, this, &VSInfoWidget::updateFilterInfo);
   }
@@ -412,7 +412,7 @@ void VSInfoWidget::updateViewSettingInfo()
 
   if(m_ViewSettings->isValid())
   {
-    double* solidColor = m_ViewSettings->getSolidColor();
+    double* solidColor = m_ViewSettings->getSolidColorPtr();
     QColor newColor = QColor::fromRgbF(solidColor[0], solidColor[1], solidColor[2]);
     m_Internals->colorBtn->setColor(newColor, false);
   }
@@ -638,7 +638,7 @@ void VSInfoWidget::colorButtonChanged(QColor color)
   colorArray[1] = color.greenF();
   colorArray[2] = color.blueF();
 
-  m_ViewSettings->setSolidColor(colorArray);
+  m_ViewSettings->setSolidColorPtr(colorArray);
 }
 
 // -----------------------------------------------------------------------------
@@ -756,6 +756,18 @@ void VSInfoWidget::listenScalarBar(const bool& show)
   m_Internals->showScalarBarCheckBox->blockSignals(true);
   m_Internals->showScalarBarCheckBox->setChecked(show);
   m_Internals->showScalarBarCheckBox->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInfoWidget::listenColorChange()
+{
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
+  if(viewSettings)
+  {
+    listenSolidColor(viewSettings->getSolidColorPtr());
+  }
 }
 
 // -----------------------------------------------------------------------------

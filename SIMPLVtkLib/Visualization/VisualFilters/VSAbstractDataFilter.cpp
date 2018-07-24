@@ -41,6 +41,8 @@
 VSAbstractDataFilter::VSAbstractDataFilter()
 : VSAbstractFilter()
 {
+  connect(this, &VSAbstractDataFilter::dataImported, this, &VSAbstractDataFilter::arrayNamesChanged);
+  connect(this, &VSAbstractDataFilter::dataReloaded, this, &VSAbstractDataFilter::arrayNamesChanged);
 }
 
 // -----------------------------------------------------------------------------

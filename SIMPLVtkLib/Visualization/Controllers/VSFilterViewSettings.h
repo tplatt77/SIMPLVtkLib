@@ -86,7 +86,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
   Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
   Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
-  Q_PROPERTY(double* solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
+  Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
@@ -255,13 +255,13 @@ public:
    * @brief Returns the color used when no scalar data exists as a double*
    * @return
    */
-  double* getSolidColor() const;
+  double* getSolidColorPtr() const;
 
   /**
    * @brief Returns the color used when no scalar data exists as a QColor
    * @return
    */
-  QColor getSolidQColor() const;
+  QColor getSolidColor() const;
 
   /**
    * @brief Returns the actor property representation
@@ -460,13 +460,13 @@ public slots:
    * @brief Sets the color to use when there are no scalar values to map
    * @param color
    */
-  void setSolidColor(double* color);
+  void setSolidColorPtr(double* color);
 
   /**
    * @brief Sets the color to use when there are no scalar values to map
    * @param color
    */
-  void setSolidQColor(QColor color);
+  void setSolidColor(QColor color);
 
   /**
    * @brief Sets the actor property representation
@@ -508,14 +508,14 @@ signals:
   void pointSizeChanged(const int&);
   void alphaChanged(const double&);
   void showScalarBarChanged(const bool&);
-  void arrayNamesChanged(const QStringList&);
-  void componentNamesChanged(const QStringList&);
+  void arrayNamesChanged();
+  void componentNamesChanged();
 
   void representationChanged(const Representation&);
   void mapColorsChanged(const ColorMapping&);
 
   void renderPointSpheresChanged(const bool&);
-  void solidColorChanged(const double*);
+  void solidColorChanged();
 
   /*void visibilityChanged(VSFilterViewSettings*, bool);
   void gridVisibilityChanged(VSFilterViewSettings*, bool);

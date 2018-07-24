@@ -227,6 +227,12 @@ protected slots:
   void listenScalarBar(const bool& show);
 
   /**
+   * @brief Listens for the active VSFilterViewSettings solid color property to change.
+   * This method passes the new value to listenSolidColor
+   */
+  void listenColorChange();
+
+  /**
    * @brief Listens for the active VSFilterViewSettings solid color to change
    * @param color
    */

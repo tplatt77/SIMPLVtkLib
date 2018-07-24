@@ -206,10 +206,10 @@ void VSFilterViewSettings::setupActions()
 {
   m_SetColorAction = new QAction("Set Color", this);
   connect(m_SetColorAction, &QAction::triggered, [=] {
-    QColor color = QColorDialog::getColor(getSolidQColor());
+    QColor color = QColorDialog::getColor(getSolidColor());
     if(color.isValid())
     {
-      setSolidQColor(color);
+      setSolidColor(color);
     }
   });
 
@@ -269,7 +269,14 @@ int VSFilterViewSettings::getActiveComponentIndex() const
 // -----------------------------------------------------------------------------
 QStringList VSFilterViewSettings::getArrayNames() const
 {
-  return m_Filter->getArrayNames();
+  if(m_Filter)
+  {
+    QStringList arrayNames = m_Filter->getArrayNames();
+    arrayNames.prepend("Solid Colors");
+    return arrayNames;
+  }
+  
+  return QStringList("Solid Colors");
 }
 
 // -----------------------------------------------------------------------------
@@ -277,7 +284,12 @@ QStringList VSFilterViewSettings::getArrayNames() const
 // -----------------------------------------------------------------------------
 QStringList VSFilterViewSettings::getComponentNames()
 {
-  return m_Filter->getComponentList(getActiveArrayName());
+  if(m_Filter)
+  {
+    return m_Filter->getComponentList(getActiveArrayName());
+  }
+
+  return QStringList();
 }
 
 // -----------------------------------------------------------------------------
@@ -590,6 +602,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
 
     emit activeArrayNameChanged(m_ActiveArrayName);
     emit requiresRender();
+    emit componentNamesChanged();
     return;
   }
 
@@ -602,6 +615,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
   m_ActiveArrayName = name;
 
   emit activeArrayNameChanged(m_ActiveArrayName);
+  emit componentNamesChanged();
   setActiveComponentIndex(-1);
 
   if(isColorArray(dataArray) && m_MapColors == ColorMapping::Always)
@@ -1163,6 +1177,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     disconnect(m_Filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
     disconnect(m_Filter, SIGNAL(transformChanged()), this, SIGNAL(updateTransform()));
     disconnect(m_Filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
+    disconnect(m_Filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
 
     if(dynamic_cast<VSAbstractDataFilter*>(m_Filter))
     {
@@ -1177,6 +1192,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
     connect(filter, SIGNAL(transformChanged()), this, SLOT(updateTransform()));
     connect(filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
+    connect(filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
 
     if(filter->getArrayNames().size() < 1)
     {
@@ -1210,7 +1226,7 @@ void VSFilterViewSettings::filterDeleted()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSFilterViewSettings::getSolidColor() const
+double* VSFilterViewSettings::getSolidColorPtr() const
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1224,7 +1240,7 @@ double* VSFilterViewSettings::getSolidColor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setSolidColor(double* color)
+void VSFilterViewSettings::setSolidColorPtr(double* color)
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1234,17 +1250,17 @@ void VSFilterViewSettings::setSolidColor(double* color)
 
   actor->GetProperty()->SetColor(color);
 
-  emit solidColorChanged(color);
+  emit solidColorChanged();
   emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QColor VSFilterViewSettings::getSolidQColor() const
+QColor VSFilterViewSettings::getSolidColor() const
 {
   QColor colorOut;
-  double* color = getSolidColor();
+  double* color = getSolidColorPtr();
   colorOut.setRgbF(color[0], color[1], color[2]);
   return colorOut;
 }
@@ -1252,14 +1268,14 @@ QColor VSFilterViewSettings::getSolidQColor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setSolidQColor(QColor color)
+void VSFilterViewSettings::setSolidColor(QColor color)
 {
   double dColor[3];
   dColor[0] = color.redF();
   dColor[1] = color.greenF();
   dColor[2] = color.blueF();
 
-  setSolidColor(dColor);
+  setSolidColorPtr(dColor);
 }
 
 // -----------------------------------------------------------------------------

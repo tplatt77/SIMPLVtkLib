@@ -80,6 +80,8 @@ class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject
 {
   Q_OBJECT
 
+  Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+
 public:
   enum dataType_t
   {
@@ -347,6 +349,7 @@ signals:
   void transformChanged();
   void errorGenerated(const QString& title, const QString& msg, const int& errorCode);
   void removeFilter();
+  void arrayNamesChanged();
 
 protected slots:
   /**

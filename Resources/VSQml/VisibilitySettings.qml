@@ -73,13 +73,34 @@ Palette
             Layout.columnSpan: 2
             Layout.fillWidth: true
 
-            model: ["ColorArray"]
+            model: palette.viewSettings.arrayNames
             //focus: true
+
+            function updateArrayName()
+            {
+                var index = arraySelection.find(palette.viewSettings.activeArrayName);
+                if(index < 0)
+                {
+                    index = 0;
+                }
+
+                arraySelection.currentIndex = index;
+                palette.showColors(index == 0);
+                palette.showComponents(palette.viewSettings.componentNames.count > 1);
+            }
 
             Connections{
                 target: palette.viewSettings
-                onActiveComponentIndexChanged:{
-                    arraySelection.currentIndex = arraySelection.find(palette.viewSettings.activeArrayName) + 1
+                onActiveArrayNameChanged:{
+                    var index = arraySelection.find(palette.viewSettings.activeArrayName);
+                    if(index < 0)
+                    {
+                        index = 0;
+                    }
+
+                    arraySelection.currentIndex = index;
+                    palette.showColors(index == 0);
+                    palette.showComponents(palette.viewSettings.componentNames.count > 1);
                 }
             }
             onCurrentIndexChanged: {
@@ -106,8 +127,13 @@ Palette
             Layout.columnSpan: 2
             Layout.fillWidth: true
 
-            model: ["Magnitude", "R", "G", "B"]
-            currentIndex: 1 // Default value
+            model: palette.viewSettings.componentNames
+            //currentIndex: 1 // Default value
+
+            onModelChanged: {
+                showComponents(palette.viewSettings.componentNames.length > 1);
+                console.log("Component Model Updated");
+            }
 
             Connections{
                 target: palette.viewSettings
@@ -138,6 +164,17 @@ Palette
             Layout.preferredWidth: 125
 
             visible: false
+
+            Connections{
+                target: palette.viewSettings
+                onSolidColorChanged:{
+                    colorButton.colorProp = palette.viewSettings.solidColor;
+                }
+            }
+            onColorPropChanged: {
+                palette.viewSettings.solidColor = colorButton.colorProp;
+                parent.forceActiveFocus()
+            }
         }
 
         Label {
@@ -228,14 +265,14 @@ Palette
 
     function showComponents(show)
     {
-        componentLabel.visible(show)
-        componentSelection.visible(show)
+        componentLabel.visible = show;
+        componentSelection.visible = show;
     }
 
     function showColors(show)
     {
-        colorLabel.visible(show)
-        colorButton.visible(show)
+        colorLabel.visible = show;
+        colorButton.visible = show;
     }
 
     onViewSettingsChanged:
@@ -247,13 +284,14 @@ Palette
 
         title = palette.viewSettings.filterName + ": Visibility"
 
-        representationSelection.currentIndex = palette.viewSettings.representation;
-        arraySelection.currentIndex = arraySelection.find(palette.viewSettings.activeArrayName) + 1
+        representationSelection.currentIndex = palette.viewSettings.representation
+        arraySelection.model = viewSettings.arrayNames
+        arraySelection.updateArrayName()
         componentSelection.currentIndex = palette.viewSettings.activeComponentIndex + 1
         mapScalarsSelection.currentIndex = viewSettings.mapColors
         showScalarsCheckBox.checkedState = palette.viewSettings.showScalarBar ? Qt.Checked : Qt.Unchecked
-        alphaSlider.value = palette.viewSettings.alpha;
+        alphaSlider.value = palette.viewSettings.alpha
 
-//        //colorButton.colorProp = viewSettings.solidColor
+        colorButton.colorProp = viewSettings.solidColor
     }
 }
