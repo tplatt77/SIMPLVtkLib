@@ -25,7 +25,6 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.preferredHeight: 15
     Layout.preferredWidth: 218
-    font.pointSize: 8
     font.bold: true
   }
   
