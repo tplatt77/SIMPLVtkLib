@@ -10,7 +10,7 @@ Palette {
     paletteType: paletteTypeCollapsible
     title: "Filter View"
 
-    property VSFilterModel filterModel: VSFilterModel { }
+    property VSFilterViewModel filterViewModel: VSFilterViewModel { }
 
     TreeView
     {
@@ -23,10 +23,10 @@ Palette {
         Layout.bottomMargin: palette.contentMargin + palette.bottomMargin
 
         // Using palette property to ensure model type
-        model: palette.filterModel
+        model: palette.filterViewModel
 
         alternatingRowColors: false
-        rootIndex: filterModel.rootIndex();
+        rootIndex: model.rootIndex;
 
         TableViewColumn
         {
@@ -37,8 +37,8 @@ Palette {
             backgroundColor: "white"
             alternateBackgroundColor: "white"
             itemDelegate: Item {
-                readonly property string filterName: filterModel.getFilterText(styleData.index)
-                readonly property bool filterCheckable: filterModel.getFilterCheckable(styleData.index)
+                readonly property string filterName: filterViewModel.getFilterText(styleData.index)
+                readonly property bool filterCheckable: filterViewModel.getFilterCheckable(styleData.index)
 
                 Label {
                     anchors.fill: parent
@@ -48,8 +48,9 @@ Palette {
                 }
                 CheckBox {
                     text: filterName
-                    checkedState: filterModel.getFilterCheckState(styleData.index)
+                    checkedState: filterViewModel.getFilterCheckState(styleData.index)
                     visible: filterCheckable
+                    onCheckedStateChanged: filterViewModel.setFilterCheckState(styleData.index, checkedState)
                 }
             }
             branchDelegate: Image

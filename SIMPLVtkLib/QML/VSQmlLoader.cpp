@@ -37,7 +37,7 @@
 
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 
@@ -54,6 +54,7 @@ void VSQmlLoader::registerTypes()
 {
   qmlRegisterType<VSQmlVtkView>("VSQml", 1, 0, "VSQmlVtkView");
   qmlRegisterType<VSFilterViewSettings>("VSQml", 1, 0, "VSFilterViewSettings");
+  qmlRegisterType<VSFilterViewModel>("VSQml", 1, 0, "VSFilterViewModel");
   qmlRegisterType<VSFilterModel>("VSQml", 1, 0, "VSFilterModel");
   qmlRegisterType<VSTransform>("VSQml", 1, 0, "VSTransform");
 }

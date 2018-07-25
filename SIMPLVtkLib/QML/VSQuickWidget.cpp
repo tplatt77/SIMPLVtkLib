@@ -166,27 +166,22 @@ QQuickItem* VSQuickWidget::getFilterTreeView()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuickWidget::applyFilterModel()
+bool VSQuickWidget::applyFilterModel()
 {
-#if 0
-  if(m_ViewWidget && m_ViewWidget->getController())
-  {
-    engine()->rootContext()->setContextProperty("filterModel", m_ViewWidget->getController()->getFilterModel());
-  }
-#else
   QQuickItem* treeView = getFilterTreeView();
   if(treeView && m_ViewWidget && m_ViewWidget->getController())
   {
     QVariant modelVariant;
-    modelVariant.setValue(nullptr);
-    treeView->setProperty("filterModel", modelVariant);
+    //modelVariant.setValue(nullptr);
+    //treeView->setProperty("filterViewModel", modelVariant);
 
-    VSFilterModel* filterModel = m_ViewWidget->getController()->getFilterModel();
+    VSFilterViewModel* filterModel = m_ViewWidget->getFilterViewModel();
     modelVariant.setValue(filterModel);
-    bool success = treeView->setProperty("filterModel", modelVariant);
-    qDebug() << "Apply Filter Model: " << success;
+    bool success = treeView->setProperty("filterViewModel", modelVariant);
+    return success;
   }
-#endif
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------

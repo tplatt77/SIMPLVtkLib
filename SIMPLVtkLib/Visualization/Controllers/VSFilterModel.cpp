@@ -49,9 +49,6 @@ VSFilterModel::VSFilterModel(QObject* parent)
 {
   m_RootFilter = new VSRootFilter(this);
 
-  //VSTextFilter* textFilter = new VSTextFilter(nullptr, "Test", "Tooltip");
-  //addFilter(textFilter);
-
   connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)),
     this, SLOT(deleteFilter(VSAbstractFilter*)));
 }
@@ -194,6 +191,14 @@ VSAbstractFilter::FilterListType VSFilterModel::getAllFilters() const
   }
 
   return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSRootFilter* VSFilterModel::getRootFilter() const
+{
+  return m_RootFilter;
 }
 
 // -----------------------------------------------------------------------------
@@ -425,6 +430,7 @@ void VSFilterModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
   QModelIndex parentIndex = getIndexFromFilter(parentFilter);
   int position = parentFilter->getChildCount();
 
+  emit beginInsertFilter(parentFilter);
   beginInsertRows(parentIndex, position, position);
 }
 
@@ -434,6 +440,7 @@ void VSFilterModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
 void VSFilterModel::endInsertingFilter(VSAbstractFilter* filter)
 {
   endInsertRows();
+  emit finishInsertFilter();
 }
 
 // -----------------------------------------------------------------------------
@@ -448,6 +455,7 @@ void VSFilterModel::beginRemovingFilter(VSAbstractFilter* filter, int row)
 
   QModelIndex index = getIndexFromFilter(filter);
 
+  emit beginRemoveFilter(filter, row);
   beginRemoveRows(index, row, row);
 }
 
@@ -459,6 +467,7 @@ void VSFilterModel::endRemovingFilter(VSAbstractFilter* filter)
   endRemoveRows();
 
   emit filterRemoved(filter);
+  emit finishRemoveFilter();
 }
 
 // -----------------------------------------------------------------------------

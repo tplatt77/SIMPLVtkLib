@@ -65,7 +65,7 @@ public:
 
   QQuickItem* getFilterTreeView();
 
-  void applyFilterModel();
+  bool applyFilterModel();
 
   vtkRenderWindowInteractor* GetInteractor();
 

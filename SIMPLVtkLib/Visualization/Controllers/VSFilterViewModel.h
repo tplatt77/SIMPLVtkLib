@@ -35,49 +35,39 @@
 
 #pragma once
 
-#include <QtCore/QSemaphore>
 #include <QtCore/QAbstractItemModel>
 
-#include "SIMPLib/Filtering/FilterPipeline.h"
-
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSRootFilter;
 
 /**
- * @class VSFilterModel VSFilterModel.h SIMPLVtkLib/QtWidgets/VSFilterModel.h
- * @brief This class handles the visual filter model for the VSController.
+ * @class VSFilterViewModel VSFilterViewModel.h SIMPLVtkLib/QtWidgets/VSFilterViewModel.h
+ * @brief This class handles the visual filter model for the VSController alongside a
+ * VSFilterViewSettings map for the filters.
  */
-class SIMPLVtkLib_EXPORT VSFilterModel : public QAbstractItemModel
+class SIMPLVtkLib_EXPORT VSFilterViewModel : public QAbstractItemModel
 {
   Q_OBJECT
 
-public:
-  
-  enum FilterDataRole : int
-  {
-    FilterRole = 0x100
-  };
+  Q_PROPERTY(QModelIndex rootIndex READ getRootIndex NOTIFY rootChanged)
 
+public:
   /**
    * @brief Constructor
    * @param parent
    */
-  VSFilterModel(QObject* parent = nullptr);
+  VSFilterViewModel(QObject* parent = nullptr);
 
   /**
    * @brief Copy constructor
    * @param model
    */
-  VSFilterModel(const VSFilterModel& model);
+  VSFilterViewModel(const VSFilterViewModel& model);
 
   /**
    * @brief Deconstructor
    */
-  virtual ~VSFilterModel() = default;
+  virtual ~VSFilterViewModel() = default;
 
   /**
    * @brief Returns the QObject parent since the parent() method is overloaded
@@ -86,54 +76,17 @@ public:
   QObject* parentObject() const;
 
   /**
-   * @brief Returns the visual filter stored at the given index
-   * @param index
-   * @return
+   * @brief Sets the FilterModel to use as a base
+   * @param filterModel
    */
-  VSAbstractFilter* getFilterFromIndex(const QModelIndex& index) const;
+  void setFilterModel(VSFilterModel* filterModel);
 
   /**
-   * @brief Returns the model index of the given filter
-   * @param filter
-   * @return
+   * @brief Sets the VSFilterModel and deep copies the VSFilterViewSettings
+   * @param model
    */
-  QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
+  void deepCopy(const VSFilterViewModel& model);
 
-  /**
-   * @brief Returns a vector of top-level filters in the model
-   * @return
-   */
-  VSAbstractFilter::FilterListType getBaseFilters() const;
-
-  /**
-   * @brief Returns a vector of all visual filters in the model
-   * @return
-   */
-  VSAbstractFilter::FilterListType getAllFilters() const;
-
-  /**
-  * @brief Returns the root filter in the model.
-  * @return
-  */
-  VSRootFilter* getRootFilter() const;
-
-  /**
-   * @brief Returns the first matching VSPipelineFilter with the given FilterPipeline
-   * @param pipeline
-   * @return
-   */
-  VSAbstractFilter* getPipelineFilter(FilterPipeline::Pointer pipeline);
-
-  /**
-   * @brief Returns the first matching VSPipelineFilter with the given pipeline name
-   * @param pipelineName
-   * @return
-   */
-  VSAbstractFilter* getPipelineFilter(QString pipelineName);
-
-  ////////////////////////////////
-  // QAbstractItemModel methods //
-  ////////////////////////////////
   /**
    * @brief Returns the Qt::ItemFlags for the given index
    * @param index
@@ -164,7 +117,7 @@ public:
    * @return
    */
   bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
-  
+
   /**
    * @brief Returns the QModelIndex for the row and column under the specified parent index
    * @param row
@@ -173,6 +126,20 @@ public:
    * @return
    */
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+  /**
+  * @brief Returns the visual filter stored at the given index
+  * @param index
+  * @return
+  */
+  VSAbstractFilter* getFilterFromIndex(const QModelIndex& index) const;
+
+  /**
+  * @brief Returns the model index of the given filter
+  * @param filter
+  * @return
+  */
+  QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
 
   /**
    * @brief Returns the QModelIndex for the parent of the given index
@@ -187,81 +154,116 @@ public:
    * @return
    */
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
-  
-  /**
-   * @brief beginInsertingFilter
-   * @param parentFilter
-   */
-  void beginInsertingFilter(VSAbstractFilter* parentFilter);
-
-  /**
-   * @brief endInsertingFilter
-   * @param filter
-   */
-  void endInsertingFilter(VSAbstractFilter* filter);
-
-  /**
-   * @brief beginRemovingFilter
-   * @param filter
-   * @param row
-   */
-  void beginRemovingFilter(VSAbstractFilter* filter, int row);
-
-  /**
-   * @brief endRemovingFilter
-   * @param filter
-   */
-  void endRemovingFilter(VSAbstractFilter* filter);
 
   /**
    * @brief Returns the root index for the model
    * @return
    */
-  Q_INVOKABLE QModelIndex rootIndex() const;
+  Q_INVOKABLE QModelIndex getRootIndex() const;
 
+  /**
+   * @brief Returns the filter text at the given index
+   * @param index
+   * @return
+   */
   Q_INVOKABLE QString getFilterText(const QModelIndex& index) const;
+
+  /**
+   * @brief Returns the filter font at the given index
+   * @param index
+   * @return
+   */
   Q_INVOKABLE QFont getFilterFont(const QModelIndex& index) const;
+
+  /**
+   * @brief Returns whether or not the filter at the given index is checkable
+   * @param index
+   * @return
+   */
   Q_INVOKABLE bool getFilterCheckable(const QModelIndex& index) const;
+
+  /**
+   * @brief Returns the Qt::CheckState for the filter at the given index
+   * @param index
+   * @return
+   */
   Q_INVOKABLE Qt::CheckState getFilterCheckState(const QModelIndex& index) const;
 
+  Q_INVOKABLE void setFilterCheckState(const QModelIndex& index, Qt::CheckState checked);
+
+  //////////////////////////////
+  // VSFilterViewSettings Map //
+  //////////////////////////////
+  /**
+   * @brief Returns the VSFilterViewSettings for the given filter.
+   * @param filter
+   * @return
+   */
+  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns the VSFilterViewSettings for the given model index.
+   * @param index
+   * @return
+   */
+  VSFilterViewSettings* getFilterViewSettingsByIndex(const QModelIndex& index);
+
+  /**
+   * @brief Returns the container of VSFilterViewSettings
+   * @return
+   */
+  VSFilterViewSettings::Map getFilterViewSettingsMap() const;
+
+  std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
+
 signals:
-  void filterAdded(VSAbstractFilter* filter, bool currentFilter = false);
-  void filterRemoved(VSAbstractFilter* filter);
-  // Connect to VSFilterViewModel
-  void beginInsertFilter(VSAbstractFilter* filter);
-  void beginRemoveFilter(VSAbstractFilter* filter, int row);
-  void finishInsertFilter();
-  void finishRemoveFilter();
+  void viewSettingsCreated(VSFilterViewSettings*);
+  void viewSettingsRemoved(VSFilterViewSettings*);
+  void rootChanged();
 
-public slots:
+protected:
   /**
-   * @brief Updates the model to reflect the view settings found in a given view controller
-   * @param viewSettings
-   */
-  void updateModelForView(VSFilterViewSettings::Map viewSettings);
-
-  /**
-   * @brief Adds a filter to the model
+   * @brief Creates new VSFilterViewSettings for the given filter.
    * @param filter
+   * @return
    */
-  void addFilter(VSAbstractFilter* filter, bool currentFilter = true);
+  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
 
   /**
-   * @brief Removes a filter from the model
-   * @param filter
+   * @brief Clears all VSFilterViewSettings
    */
-  void removeFilter(VSAbstractFilter* filter);
+  void clearFilterViewSettings();
 
-private slots:
   /**
-   * @brief Deletes the target filter.  This slot should only be called through the signal emitted in removeFilter
-   * @param filter
+   * @brief Removes the VSFilterViewSetting for the given filter.
+   * @aram filter
+   * @return
    */
-  void deleteFilter(VSAbstractFilter* filter);
+  void removeFilterViewSettings(VSAbstractFilter* filter);
+
+  /**
+  * @brief Returns a QVariant with the Qt::CheckState for the filter at the given index
+  * @param index
+  * @return
+  */
+  QVariant getCheckState(const QModelIndex& index) const;
+
+  /**
+   * @brief Sets the Qt::CheckState for the filter at the given index
+   * @param index
+   * @param value
+   * @return
+   */
+  bool setCheckState(const QModelIndex& index, QVariant value);
+
+  void beginInsertingFilter(VSAbstractFilter* filter);
+  void beginRemovingFilter(VSAbstractFilter* filter, int row);
+  void finishInsertingFilter();
+  void finishRemovingFilter();
 
 private:
-  QSemaphore m_ModelLock;
-  VSRootFilter* m_RootFilter = nullptr;
+  VSFilterModel* m_FilterModel = nullptr;
+  VSFilterViewSettings::Map m_FilterViewSettings;
 };
 
-Q_DECLARE_METATYPE(VSFilterModel)
+Q_DECLARE_METATYPE(VSFilterViewModel)

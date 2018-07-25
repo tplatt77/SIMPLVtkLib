@@ -86,7 +86,7 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
 
   setController(other.getController());
   getVisualizationWidget()->copy(other.getVisualizationWidget());
-  copyFilters(other.getAllFilterViewSettings());
+  //copyFilters(other.getAllFilterViewSettings());
 
   setupGui();
 }

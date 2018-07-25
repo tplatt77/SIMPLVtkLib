@@ -42,7 +42,8 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+//#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/QML/VSQuickWidget.h"
@@ -103,6 +104,12 @@ public:
    * @param controller
    */
   void setController(VSController* controller);
+
+  /**
+   * @brief Returns the VSFilterViewModel used
+   * @return
+   */
+  VSFilterViewModel* getFilterViewModel() const;
 
   /**
   * @brief Returns true if the view is active.  Returns false otherwise.
@@ -210,18 +217,6 @@ public slots:
 
 protected slots:
   /**
-   * @brief Connect a new visual filter's VSFilterViewSettings
-   * @param filter
-   */
-  void filterAdded(VSAbstractFilter* filter, bool currentFilter);
-
-  /**
-   * @brief Removes the filter from the view
-   * @param filter
-   */
-  void filterRemoved(VSAbstractFilter* filter);
-
-  /**
    * @brief Change filter visibility
    * @param filterVisible
    */
@@ -307,33 +302,36 @@ protected:
    */
   VSAbstractViewWidget(const VSAbstractViewWidget& other);
 
+  /**
+   * @brief Create connections to the VSFilterViewModel
+   */
+  void setupModel();
+
+  /**
+  * @brief Adds a new VSFilterViewSettings object and makes necessary connections
+  * @param viewSettings
+  */
+  void addViewSettings(VSFilterViewSettings* viewSettings);
+
+  /**
+  * @brief Removes an existing VSFilterViewSettings object
+  * @param viewSettings
+  */
+  void removeViewSettings(VSFilterViewSettings* viewSettings);
+
   void changeFilterVisibility(VSFilterViewSettings* settings, const bool& visibility);
   void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
    * @brief Clears the filters from the view widget
    */
-  void clearFilters();
+  //void clearFilters();
 
   /**
    * @brief Copies the filters and sets up connections
    * @param filters
    */
-  void copyFilters(VSFilterViewSettings::Map filters);
-
-  /**
-   * @brief Creates a new VSFilterViewSetting for the given filter.
-   * @param filter
-   * @return
-   */
-  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
-
-  /**
-   * @brief Returns the index of the given VSFilterViewSetting
-   * @param setting
-   * @return
-   */
-  int getViewSettingsIndex(VSFilterViewSettings* setting);
+  //void copyFilters(VSFilterViewSettings::Map filters);
 
   /**
    * @brief Check the visibility of a filter and scalar bar through VSFilterViewSettings
@@ -370,7 +368,8 @@ protected:
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  VSFilterViewSettings::Map m_FilterViewSettings;
+  //VSFilterViewSettings::Map m_FilterViewSettings;
+  VSFilterViewModel* m_FilterViewModel = nullptr;
   VSController* m_Controller = nullptr;
   bool m_BlockRender = false;
   bool m_Active = false;
