@@ -43,6 +43,7 @@ VSAbstractDataFilter::VSAbstractDataFilter()
 {
   connect(this, &VSAbstractDataFilter::dataImported, this, &VSAbstractDataFilter::arrayNamesChanged);
   connect(this, &VSAbstractDataFilter::dataReloaded, this, &VSAbstractDataFilter::arrayNamesChanged);
+  connect(this, &VSAbstractDataFilter::dataImported, [=] { m_DataImported = true; });
 }
 
 // -----------------------------------------------------------------------------
@@ -92,4 +93,12 @@ VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
 // -----------------------------------------------------------------------------
 void VSAbstractDataFilter::reloadData()
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractDataFilter::isDataImported() const
+{
+  return m_DataImported;
 }

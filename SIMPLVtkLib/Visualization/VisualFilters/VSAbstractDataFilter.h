@@ -72,8 +72,13 @@ public:
    */
   virtual void reloadData();
 
+  /**
+   * @brief Returns true if the data has been imported.  Returns false otherwise.
+   * @return
+   */
+  bool isDataImported() const override;
+
 signals:
-  void dataImported();
   void dataReloaded();
   void filterReloaded(VSAbstractFilter* filter);
 
@@ -89,4 +94,7 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  bool m_DataImported = false;
 };

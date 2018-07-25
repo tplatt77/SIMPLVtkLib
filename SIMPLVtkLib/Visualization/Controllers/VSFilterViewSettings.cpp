@@ -215,6 +215,19 @@ bool VSFilterViewSettings::isValid() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isDataImported() const
+{
+  if(nullptr == m_Filter)
+  {
+    return false;
+  }
+
+  return m_Filter->isDataImported();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::setupActions()
 {
   m_SetColorAction = new QAction("Set Color", this);
@@ -1191,6 +1204,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     disconnect(m_Filter, SIGNAL(transformChanged()), this, SIGNAL(updateTransform()));
     disconnect(m_Filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
     disconnect(m_Filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    disconnect(m_Filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(dynamic_cast<VSAbstractDataFilter*>(m_Filter))
     {
@@ -1206,6 +1220,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     connect(filter, SIGNAL(transformChanged()), this, SLOT(updateTransform()));
     connect(filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
     connect(filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    connect(filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(filter->getArrayNames().size() < 1)
     {

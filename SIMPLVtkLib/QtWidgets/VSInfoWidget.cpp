@@ -123,7 +123,7 @@ void VSInfoWidget::setupGui()
 // -----------------------------------------------------------------------------
 void VSInfoWidget::applyFilter()
 {
-  if(nullptr == m_Filter)
+  if(nullptr == m_Filter || nullptr == m_FilterWidget)
   {
     return;
   }

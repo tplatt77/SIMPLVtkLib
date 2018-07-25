@@ -88,6 +88,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
   Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
   Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
   Q_PROPERTY(VSTransform transform READ getTransform)
+  Q_PROPERTY(bool fullyImported READ isDataImported NOTIFY dataLoaded)
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
@@ -168,6 +169,12 @@ public:
    * @return
    */
   bool isValid() const;
+
+  /**
+   * @brief Returns true if the data has been imported for the current filter. Returns false otherwise.
+   * @return
+   */
+  bool isDataImported() const;
 
   /**
    * @brief Returns true if the filter is displayed for this view.  Returns false otherwise

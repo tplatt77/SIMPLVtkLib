@@ -82,6 +82,7 @@ class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject
 
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
   Q_PROPERTY(VSTransform transform READ getTransform)
+  Q_PROPERTY(bool fullyImported READ isDataImported NOTIFY dataImported)
 
 public:
   enum dataType_t
@@ -122,6 +123,12 @@ public:
   * @return
   */
   bool isCheckable() const;
+
+  /**
+   * @brief Returns true if the data filter has been imported.  Returns false otherwise.
+   * @return
+   */
+  virtual bool isDataImported() const;
 
   /**
    * @brief Returns the parent visual filter
@@ -351,6 +358,7 @@ signals:
   void errorGenerated(const QString& title, const QString& msg, const int& errorCode);
   void removeFilter();
   void arrayNamesChanged();
+  void dataImported();
 
 protected slots:
   /**
@@ -397,7 +405,7 @@ protected:
    * @brief Returns a pointer to the VSAbstractDataFilter that stores the input vtkDataSet
    * @return
    */
-  VSAbstractDataFilter* getDataSetFilter();
+  const VSAbstractDataFilter* getDataSetFilter() const;
 
   /**
    * @brief Updates the input connection for the vtkAlgorithm if that was already setup

@@ -97,6 +97,20 @@ Qt::ItemFlags VSAbstractFilter::flags() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSAbstractFilter::isDataImported() const
+{
+  const VSAbstractDataFilter* dataFilter = getDataSetFilter();
+  if(dataFilter)
+  {
+    return dataFilter->isDataImported();
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
   QObject* parentObj = parent();
@@ -113,6 +127,7 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
   {
     disconnect(getParentFilter(), &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
     disconnect(getParentFilter(), &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
+    disconnect(getParentFilter(), &VSAbstractFilter::dataImported, this, &VSAbstractFilter::dataImported);
   }
 
   QObject::setParent(parent);
@@ -126,6 +141,7 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 
     connect(parent, &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
     connect(parent, &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
+    connect(parent, &VSAbstractFilter::dataImported, this, &VSAbstractFilter::dataImported);
   }
   else
   {
@@ -447,9 +463,9 @@ double* VSAbstractFilter::getBounds() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractDataFilter* VSAbstractFilter::getDataSetFilter()
+const VSAbstractDataFilter* VSAbstractFilter::getDataSetFilter() const
 {
-  VSAbstractDataFilter* cast = dynamic_cast<VSAbstractDataFilter*>(this);
+  const VSAbstractDataFilter* cast = dynamic_cast<const VSAbstractDataFilter*>(this);
 
   if(cast != nullptr)
   {

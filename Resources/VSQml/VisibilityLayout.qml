@@ -9,6 +9,9 @@ GridLayout {
   
   property VSFilterViewSettings viewSettings: VSFilterViewSettings {}
   property alias viewAdvancedSettings : advancedSettings.checked
+  readonly property bool arrayOptionsAvailable: viewSettings.fullyImported && viewSettings.representation != 0
+  readonly property bool componentOptionsAvailable: arrayOptionsAvailable && viewSettings.componentNames.length > 1
+  readonly property bool colorOptionsAvailable: arrayOptionsAvailable && viewSettings.activeArrayName == ""
 
   rowSpacing: 4
   columnSpacing: 4
@@ -70,13 +73,30 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.fillWidth: true
     
-    model: ["Outline", "Points", "Wireframe", "Surface", "Surface with Edges"]
+    model: ["Outline"]
     currentIndex: 0 // Default value
     
+    function setFullRepresentationModel()
+    {
+        model = ["Outline", "Points", "Wireframe", "Surface", "Surface with Edges"]
+        representationSelection.currentIndex = visibilityLayout.viewSettings.representation;
+    }
+    function resetRepresentationModel()
+    {
+        representationSelection.currentIndex = 0;
+        model = ["Outline"];
+    }
+
     Connections{
       target: visibilityLayout.viewSettings
       onRepresentationChanged:{
         representationSelection.currentIndex = visibilityLayout.viewSettings.representation;
+      }
+      onDataLoaded: {
+        if(representationSelection.model.length <= 1)
+        {
+          representationSelection.model = ["Outline", "Points", "Wireframe", "Surface", "Surface with Edges"]
+        }
       }
     }
     onCurrentIndexChanged:
@@ -89,6 +109,7 @@ GridLayout {
   
   Label {
     id: arrayLabel
+    visible: arrayOptionsAvailable
     text: qsTr("Array:")
   }
   
@@ -98,52 +119,42 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.fillWidth: true
     
+    visible: arrayOptionsAvailable
     model: visibilityLayout.viewSettings.arrayNames
     //focus: true
     
     function updateArrayName()
     {
-      var index = arraySelection.find(visibilityLayout.viewSettings.activeArrayName);
-      if(index < 0)
+      if(visibilityLayout.viewSettings.arrayNames == undefined)
       {
-        index = 0;
+        return;
       }
-      
+
+      var index = Math.max(0, arraySelection.find(visibilityLayout.viewSettings.activeArrayName));
       arraySelection.currentIndex = index;
-      visibilityLayout.showColors(index == 0);
-      visibilityLayout.showComponents(visibilityLayout.viewSettings.componentNames.count > 1);
     }
     
     Connections{
       target: visibilityLayout.viewSettings
       onActiveArrayNameChanged:{
-        var index = arraySelection.find(visibilityLayout.viewSettings.activeArrayName);
-        if(index < 0)
-        {
-          index = 0;
-        }
-        
-        arraySelection.currentIndex = index;
-        visibilityLayout.showColors(index == 0);
-        visibilityLayout.showComponents(visibilityLayout.viewSettings.componentNames.count > 1);
+        arraySelection.updateArrayName();
+      }
+      onDataLoaded: {
+        arraySelection.updateArrayName();
       }
     }
     onCurrentIndexChanged: {
-      if(currentIndex == 0)
-      {
-        visibilityLayout.viewSettings.activeArrayName = ""
-      }
-      else
-      {
-        visibilityLayout.viewSettings.activeArrayName = currentText
-      }
-      
+      visibilityLayout.viewSettings.activeArrayName = (currentIndex == 0) ? "" : currentText;
       parent.forceActiveFocus()
+    }
+    onModelChanged: {
+      updateArrayName();
     }
   }
   
   Label {
     id: componentLabel
+    visible: componentOptionsAvailable
     text: qsTr("Component:")
   }
   
@@ -152,12 +163,8 @@ GridLayout {
     Layout.columnSpan: 2
     Layout.fillWidth: true
     
+    visible: componentOptionsAvailable
     model: visibilityLayout.viewSettings.componentNames
-    //currentIndex: 1 // Default value
-    
-    onModelChanged: {
-      showComponents(visibilityLayout.viewSettings.componentNames.length > 1);
-    }
     
     Connections{
       target: visibilityLayout.viewSettings
@@ -177,7 +184,7 @@ GridLayout {
     Layout.preferredHeight: 13
     Layout.preferredWidth: 62
     
-    visible: false
+    visible: colorOptionsAvailable
   }
   
   ColorButton {
@@ -187,7 +194,7 @@ GridLayout {
     Layout.preferredHeight: 23
     Layout.preferredWidth: 125
     
-    visible: false
+    visible: colorOptionsAvailable
     
     Connections{
       target: visibilityLayout.viewSettings
@@ -209,11 +216,13 @@ GridLayout {
     Layout.preferredHeight: 13
     Layout.preferredWidth: 218
     font.bold: true
+    visible: arrayOptionsAvailable
   }
   
   Label {
     id: label6
     text: qsTr("Map Scalars:")
+    visible: arrayOptionsAvailable
   }
   
   ComboBox {
@@ -222,6 +231,7 @@ GridLayout {
     Layout.fillWidth: true
     Layout.columnSpan: 2
     
+    visible: arrayOptionsAvailable
     model: ["Always", "Non-Colors", "Never"]
     currentIndex: 1 // Default value
     
@@ -246,7 +256,7 @@ GridLayout {
     Layout.columnSpan: 3
     
     checkedState: Qt.Checked // Default value
-    visible: visibilityLayout.viewAdvancedSettings
+    visible: visibilityLayout.viewAdvancedSettings && arrayOptionsAvailable
     
     Connections{
       target: visibilityLayout.viewSettings
@@ -286,18 +296,6 @@ GridLayout {
     }
   }
 
-  function showComponents(show)
-  {
-      componentLabel.visible = show;
-      componentSelection.visible = show;
-  }
-
-  function showColors(show)
-  {
-      colorLabel.visible = show;
-      colorButton.visible = show;
-  }
-
   onViewSettingsChanged:
   {
       if(viewSettings == null)
@@ -308,8 +306,7 @@ GridLayout {
       title = visibilityLayout.viewSettings.filterName + ": Visibility"
 
       visibilityCheckBox.checkedState = visibilityLayout.viewSettings.visibility ? Qt.Checked : Qt.Unchecked
-      representationSelection.currentIndex = visibilityLayout.viewSettings.representation
-      arraySelection.model = viewSettings.arrayNames
+      visibilityLayout.viewSettings.fullyImported ? representationSelection.setFullRepresentationModel() : representationSelection.resetRepresentationModel();
       arraySelection.updateArrayName()
       colorButton.colorProp = viewSettings.solidColor
       componentSelection.currentIndex = visibilityLayout.viewSettings.activeComponentIndex + 1
