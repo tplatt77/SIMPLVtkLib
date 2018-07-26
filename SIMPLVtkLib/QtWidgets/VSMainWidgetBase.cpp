@@ -84,12 +84,12 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(filterAdded(VSAbstractFilter*, bool)));
-  connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
-  connect(m_Controller, SIGNAL(blockRender(bool)), this, SLOT(setBlockRender(bool)));
-  connect(m_Controller, SIGNAL(filterSelected(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
+  connect(m_Controller, &VSController::filterAdded, this, &VSMainWidgetBase::filterAdded);
+  connect(m_Controller, &VSController::filterRemoved, this, &VSMainWidgetBase::filterRemoved);
+  connect(m_Controller, &VSController::blockRender, this, &VSMainWidgetBase::setBlockRender);
+  connect(m_Controller, &VSController::filterSelected, this, &VSMainWidgetBase::setCurrentFilter);
 
-  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString&)), this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString&)));
+  connect(this, &VSMainWidgetBase::proxyFromFilePathGenerated, this, &VSMainWidgetBase::launchSIMPLSelectionDialog);
 }
 
 // -----------------------------------------------------------------------------
@@ -97,9 +97,8 @@ void VSMainWidgetBase::connectSlots()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectViewWidget(VSAbstractViewWidget* viewWidget)
 {
-  connect(viewWidget, SIGNAL(viewWidgetCreated(VSAbstractViewWidget*)), this, SLOT(connectViewWidget(VSAbstractViewWidget*)));
-
-  connect(viewWidget, SIGNAL(markActive(VSAbstractViewWidget*)), this, SLOT(setActiveView(VSAbstractViewWidget*)));
+  connect(viewWidget, &VSAbstractViewWidget::viewWidgetCreated, this, &VSMainWidgetBase::connectViewWidget);
+  connect(viewWidget, &VSAbstractViewWidget::markActive, this, &VSMainWidgetBase::setActiveView);
 }
 
 // -----------------------------------------------------------------------------
@@ -141,23 +140,22 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
 {
   if(m_FilterView)
   {
-    disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(deleteFilterRequested(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(m_FilterView, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+    disconnect(m_FilterView, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, view, &VSFilterView::setViewWidget);
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, view, &VSFilterView::setActiveFilter);
   }
 
-  view->setController(m_Controller);
-
   m_FilterView = view;
-  connect(view, SIGNAL(deleteFilterRequested(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
-  connect(view, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)), this, SLOT(reloadDataFilter(VSAbstractDataFilter*)));
-  connect(view, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)), this, SLOT(reloadFileFilter(VSFileNameFilter*)));
-  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
-  connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-  connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+
+  connect(view, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+  connect(view, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+  connect(view, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+  connect(view, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+  connect(this, &VSMainWidgetBase::changedActiveView, view, &VSFilterView::setViewWidget);
+  connect(this, &VSMainWidgetBase::changedActiveFilter, view, &VSFilterView::setActiveFilter);
 
   view->setViewWidget(m_ActiveViewWidget);
 }
@@ -177,18 +175,18 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
   if(m_InfoWidget)
   {
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_InfoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_InfoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_InfoWidget, &VSInfoWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_InfoWidget, &VSInfoWidget::setViewWidget);
+    disconnect(m_InfoWidget, &VSInfoWidget::filterDeleted, this, &VSMainWidgetBase::deleteFilter);
   }
 
   m_InfoWidget = infoWidget;
 
   if(m_InfoWidget)
   {
-    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), infoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), infoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+    connect(this, &VSMainWidgetBase::changedActiveFilter, infoWidget, &VSInfoWidget::setFilter);
+    connect(this, &VSMainWidgetBase::changedActiveView, infoWidget, &VSInfoWidget::setViewWidget);
+    connect(infoWidget, &VSInfoWidget::filterDeleted, this, &VSMainWidgetBase::deleteFilter);
 
     VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
     m_InfoWidget->setFilter(m_CurrentFilter, filterWidget);

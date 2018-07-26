@@ -532,18 +532,6 @@ signals:
   void renderPointSpheresChanged(const bool&);
   void solidColorChanged();
 
-  /*void visibilityChanged(VSFilterViewSettings*, bool);
-  void gridVisibilityChanged(VSFilterViewSettings*, bool);
-  void representationChanged(VSFilterViewSettings*, VSFilterViewSettings::Representation);
-  void solidColorChanged(VSFilterViewSettings*, double*);
-  void activeArrayNameChanged(VSFilterViewSettings*, QString);
-  void activeComponentIndexChanged(VSFilterViewSettings*, int);
-  void pointSizeChanged(VSFilterViewSettings*, int);
-  void renderPointSpheresChanged(VSFilterViewSettings*, bool);
-  void mapColorsChanged(VSFilterViewSettings*, ColorMapping);
-  void alphaChanged(VSFilterViewSettings*, double);
-  void showScalarBarChanged(VSFilterViewSettings*, bool); */
-
   void requiresRender();
   void actorsUpdated();
   void dataLoaded();

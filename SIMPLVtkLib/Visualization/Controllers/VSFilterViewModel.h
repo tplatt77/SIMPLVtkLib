@@ -43,13 +43,13 @@
 /**
  * @class VSFilterViewModel VSFilterViewModel.h SIMPLVtkLib/QtWidgets/VSFilterViewModel.h
  * @brief This class handles the visual filter model for the VSController alongside a
- * VSFilterViewSettings map for the filters.
+ * VSFilterViewSettings map to control the view settings in place of VSAbstractViewWidget.
  */
 class SIMPLVtkLib_EXPORT VSFilterViewModel : public QAbstractItemModel
 {
   Q_OBJECT
 
-  Q_PROPERTY(QModelIndex rootIndex READ getRootIndex NOTIFY rootChanged)
+  Q_PROPERTY(QModelIndex rootIndex READ rootIndex NOTIFY rootChanged)
 
 public:
   /**
@@ -128,17 +128,17 @@ public:
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   /**
-  * @brief Returns the visual filter stored at the given index
-  * @param index
-  * @return
-  */
+   * @brief Returns the visual filter stored at the given index
+   * @param index
+   * @return
+   */
   VSAbstractFilter* getFilterFromIndex(const QModelIndex& index) const;
 
   /**
-  * @brief Returns the model index of the given filter
-  * @param filter
-  * @return
-  */
+   * @brief Returns the model index of the given filter
+   * @param filter
+   * @return
+   */
   QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
 
   /**
@@ -159,7 +159,7 @@ public:
    * @brief Returns the root index for the model
    * @return
    */
-  Q_INVOKABLE QModelIndex getRootIndex() const;
+  Q_INVOKABLE QModelIndex rootIndex() const;
 
   /**
    * @brief Returns the filter text at the given index
@@ -183,13 +183,19 @@ public:
   Q_INVOKABLE bool getFilterCheckable(const QModelIndex& index) const;
 
   /**
-   * @brief Returns the Qt::CheckState for the filter at the given index
+   * @brief Returns a QVariant with the Qt::CheckState for the filter at the given index
    * @param index
    * @return
    */
-  Q_INVOKABLE Qt::CheckState getFilterCheckState(const QModelIndex& index) const;
+  Q_INVOKABLE QVariant getFilterCheckState(const QModelIndex& index) const;
 
-  Q_INVOKABLE void setFilterCheckState(const QModelIndex& index, Qt::CheckState checked);
+  /**
+   * @brief Sets the Qt::CheckState for the filter at the given index
+   * @param index
+   * @param value
+   * @return
+   */
+  Q_INVOKABLE bool setFilterCheckState(const QModelIndex& index, QVariant value);
 
   //////////////////////////////
   // VSFilterViewSettings Map //
@@ -206,7 +212,7 @@ public:
    * @param index
    * @return
    */
-  VSFilterViewSettings* getFilterViewSettingsByIndex(const QModelIndex& index);
+  Q_INVOKABLE VSFilterViewSettings* getFilterViewSettingsByIndex(const QModelIndex& index);
 
   /**
    * @brief Returns the container of VSFilterViewSettings
@@ -214,6 +220,10 @@ public:
    */
   VSFilterViewSettings::Map getFilterViewSettingsMap() const;
 
+  /**
+   * @brief Returns a vector of all VSFilterViewSettings for the model
+   * @return
+   */
   std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
 
 signals:
@@ -242,24 +252,32 @@ protected:
   void removeFilterViewSettings(VSAbstractFilter* filter);
 
   /**
-  * @brief Returns a QVariant with the Qt::CheckState for the filter at the given index
-  * @param index
-  * @return
-  */
-  QVariant getCheckState(const QModelIndex& index) const;
+   * @brief Alerts the model that the given filter is being inserted
+   * @param filter
+   */
+  void beginInsertingFilter(VSAbstractFilter* filter);
 
   /**
-   * @brief Sets the Qt::CheckState for the filter at the given index
-   * @param index
-   * @param value
-   * @return
+   * @brief Alerts the model that the given filter is being removed
+   * @param filter
+   * @param row
    */
-  bool setCheckState(const QModelIndex& index, QVariant value);
-
-  void beginInsertingFilter(VSAbstractFilter* filter);
   void beginRemovingFilter(VSAbstractFilter* filter, int row);
+
+  /**
+   * @brief Alerts the model that the filter has been inserted
+   */
   void finishInsertingFilter();
+
+  /**
+   * @brief Alerts the model that the filter has been removed
+   */
   void finishRemovingFilter();
+
+  /**
+   * @brief VSFilterViewSettings visibility changed. Alert the model to the update.
+   */
+  void filterVisibilityChanged();
 
 private:
   VSFilterModel* m_FilterModel = nullptr;

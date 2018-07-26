@@ -55,6 +55,8 @@ class SIMPLVtkLib_EXPORT VSFilterModel : public QAbstractItemModel
 {
   Q_OBJECT
 
+  Q_PROPERTY(QModelIndex rootIndex READ rootIndex)
+
 public:
   
   enum FilterDataRole : int
@@ -219,19 +221,28 @@ public:
    */
   Q_INVOKABLE QModelIndex rootIndex() const;
 
+  /**
+  * @brief Returns the filter text for the given index
+  * @param index
+  * @return
+  */
   Q_INVOKABLE QString getFilterText(const QModelIndex& index) const;
+
+  /**
+  * @brief Returns the filter font for the given index
+  * @param index
+  * @return
+  */
   Q_INVOKABLE QFont getFilterFont(const QModelIndex& index) const;
-  Q_INVOKABLE bool getFilterCheckable(const QModelIndex& index) const;
-  Q_INVOKABLE Qt::CheckState getFilterCheckState(const QModelIndex& index) const;
 
 signals:
   void filterAdded(VSAbstractFilter* filter, bool currentFilter = false);
   void filterRemoved(VSAbstractFilter* filter);
   // Connect to VSFilterViewModel
-  void beginInsertFilter(VSAbstractFilter* filter);
-  void beginRemoveFilter(VSAbstractFilter* filter, int row);
-  void finishInsertFilter();
-  void finishRemoveFilter();
+  void beganInsertingFilter(VSAbstractFilter* filter);
+  void beganRemovingFilter(VSAbstractFilter* filter, int row);
+  void finishedInsertingFilter();
+  void finishedRemovingFilter();
 
 public slots:
   /**

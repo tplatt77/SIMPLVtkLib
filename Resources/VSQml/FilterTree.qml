@@ -37,7 +37,8 @@ Palette {
             backgroundColor: "white"
             alternateBackgroundColor: "white"
             itemDelegate: Item {
-                readonly property string filterName: filterViewModel.getFilterText(styleData.index)
+                readonly property VSFilterViewSettings viewSettings: filterViewModel.getFilterViewSettingsByIndex(styleData.index)
+                readonly property string filterName: viewSettings.filterName
                 readonly property bool filterCheckable: filterViewModel.getFilterCheckable(styleData.index)
 
                 Label {
@@ -47,10 +48,15 @@ Palette {
                     visible: !filterCheckable
                 }
                 CheckBox {
+                    id: filterCheckBox
                     text: filterName
-                    checkedState: filterViewModel.getFilterCheckState(styleData.index)
+                    checkedState: viewSettings.visibility ? Qt.Checked : Qt.Unchecked
                     visible: filterCheckable
-                    onCheckedStateChanged: filterViewModel.setFilterCheckState(styleData.index, checkedState)
+                    onCheckedStateChanged: viewSettings.visibility = (checkedState == Qt.Checked)
+                    Connections {
+                        target: viewSettings
+                        onVisibilityChanged: filterCheckBox.checkedState = viewSettings.visibility ? Qt.Checked : Qt.Unchecked
+                    }
                 }
             }
             branchDelegate: Image

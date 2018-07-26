@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2017 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2017 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSFilterViewModel.h"
 
@@ -114,10 +114,10 @@ void VSFilterViewModel::setFilterModel(VSFilterModel* filterModel)
     connect(filterModel, &VSFilterModel::filterAdded, this, &VSFilterViewModel::createFilterViewSettings);
     connect(filterModel, &VSFilterModel::filterRemoved, this, &VSFilterViewModel::removeFilterViewSettings);
 
-    connect(filterModel, &VSFilterModel::beginInsertFilter, this, &VSFilterViewModel::beginInsertingFilter);
-    connect(filterModel, &VSFilterModel::beginRemoveFilter, this, &VSFilterViewModel::beginRemovingFilter);
-    connect(filterModel, &VSFilterModel::finishInsertFilter, this, &VSFilterViewModel::finishInsertingFilter);
-    connect(filterModel, &VSFilterModel::finishRemoveFilter, this, &VSFilterViewModel::finishRemovingFilter);
+    connect(filterModel, &VSFilterModel::beganInsertingFilter, this, &VSFilterViewModel::beginInsertingFilter);
+    connect(filterModel, &VSFilterModel::beganRemovingFilter, this, &VSFilterViewModel::beginRemovingFilter);
+    connect(filterModel, &VSFilterModel::finishedInsertingFilter, this, &VSFilterViewModel::finishInsertingFilter);
+    connect(filterModel, &VSFilterModel::finishedRemovingFilter, this, &VSFilterViewModel::finishRemovingFilter);
 
     std::list<VSAbstractFilter*> filterList = filterModel->getAllFilters();
     for(VSAbstractFilter* filter : filterList)
@@ -138,7 +138,7 @@ void VSFilterViewModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
   {
     return;
   }
-  
+
   QModelIndex parentIndex = getIndexFromFilter(parentFilter);
   int position = parentFilter->getChildCount();
   beginInsertRows(parentIndex, position, position);
@@ -261,6 +261,7 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
   VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
 
   connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
+  connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
 
   m_FilterViewSettings[filter] = viewSettings;
 
@@ -318,11 +319,12 @@ void VSFilterViewModel::removeFilterViewSettings(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 Qt::ItemFlags VSFilterViewModel::flags(const QModelIndex& index) const
 {
-  if(m_FilterModel)
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(filter)
   {
-    return m_FilterModel->flags(index);
+    return filter->flags();
   }
-  
+
   return Qt::ItemFlags();
 }
 
@@ -366,7 +368,7 @@ QModelIndex VSFilterViewModel::parent(const QModelIndex& index) const
     }
 
     VSAbstractFilter* parentFilter = filter->getParentFilter();
-    if(parentFilter)// && parentFilter != m_RootFilter)
+    if(parentFilter) // && parentFilter != m_RootFilter)
     {
       return createIndex(parentFilter->getChildIndex(), 0, parentFilter);
     }
@@ -441,7 +443,7 @@ QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVariant VSFilterViewModel::getCheckState(const QModelIndex& index) const
+QVariant VSFilterViewModel::getFilterCheckState(const QModelIndex& index) const
 {
   // Get Target Filter
   VSAbstractFilter* targetFilter = getFilterFromIndex(index);
@@ -463,7 +465,7 @@ QVariant VSFilterViewModel::getCheckState(const QModelIndex& index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewModel::setCheckState(const QModelIndex& index, QVariant value)
+bool VSFilterViewModel::setFilterCheckState(const QModelIndex& index, QVariant value)
 {
   Qt::CheckState checkState = value.value<Qt::CheckState>();
 
@@ -494,7 +496,7 @@ QVariant VSFilterViewModel::data(const QModelIndex& index, int role) const
   {
     if(role == Qt::CheckStateRole)
     {
-      return getCheckState(index);
+      return getFilterCheckState(index);
     }
     else
     {
@@ -514,7 +516,7 @@ bool VSFilterViewModel::setData(const QModelIndex& index, const QVariant& value,
   {
     if(role == Qt::CheckStateRole)
     {
-      return setCheckState(index, value);
+      return setFilterCheckState(index, value);
     }
 
     return m_FilterModel->setData(index, value, role);
@@ -526,7 +528,7 @@ bool VSFilterViewModel::setData(const QModelIndex& index, const QVariant& value,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndex VSFilterViewModel::getRootIndex() const
+QModelIndex VSFilterViewModel::rootIndex() const
 {
   if(m_FilterModel)
   {
@@ -567,9 +569,10 @@ QFont VSFilterViewModel::getFilterFont(const QModelIndex& index) const
 // -----------------------------------------------------------------------------
 bool VSFilterViewModel::getFilterCheckable(const QModelIndex& index) const
 {
-  if(m_FilterModel)
+  VSAbstractFilter* targetFilter = getFilterFromIndex(index);
+  if(targetFilter)
   {
-    return m_FilterModel->getFilterCheckable(index);
+    return targetFilter->isCheckable();
   }
 
   return false;
@@ -578,20 +581,15 @@ bool VSFilterViewModel::getFilterCheckable(const QModelIndex& index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Qt::CheckState VSFilterViewModel::getFilterCheckState(const QModelIndex& index) const
+void VSFilterViewModel::filterVisibilityChanged()
 {
-  if(m_FilterModel)
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
+  if(nullptr == viewSettings)
   {
-    return m_FilterModel->getFilterCheckState(index);
+    return;
   }
 
-  return Qt::Unchecked;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterViewModel::setFilterCheckState(const QModelIndex& index, Qt::CheckState checked)
-{
-  setCheckState(index, checked);
+  QVector<int> roles(Qt::CheckStateRole);
+  QModelIndex index = getIndexFromFilter(viewSettings->getFilter());
+  emit dataChanged(index, index, roles);
 }
