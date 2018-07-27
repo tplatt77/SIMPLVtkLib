@@ -193,7 +193,7 @@ void VSFilterViewModel::deepCopy(const VSFilterViewModel& model)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings* VSFilterViewModel::getFilterViewSettings(VSAbstractFilter* filter)
+VSFilterViewSettings* VSFilterViewModel::getFilterViewSettings(VSAbstractFilter* filter) const
 {
   if(nullptr == filter)
   {
@@ -212,7 +212,7 @@ VSFilterViewSettings* VSFilterViewModel::getFilterViewSettings(VSAbstractFilter*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings* VSFilterViewModel::getFilterViewSettingsByIndex(const QModelIndex& index)
+VSFilterViewSettings* VSFilterViewModel::getFilterViewSettingsByIndex(const QModelIndex& index) const
 {
   VSAbstractFilter* targetFilter = getFilterFromIndex(index);
   return getFilterViewSettings(targetFilter);
@@ -245,7 +245,7 @@ std::vector<VSFilterViewSettings*> VSFilterViewModel::getAllFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilter* filter)
+VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilter* filter) const
 {
   if(nullptr == filter)
   {
@@ -260,8 +260,8 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 
   VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
 
-  connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
-  connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
+  //connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
+  //connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
 
   m_FilterViewSettings[filter] = viewSettings;
 
@@ -445,15 +445,7 @@ QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 QVariant VSFilterViewModel::getFilterCheckState(const QModelIndex& index) const
 {
-  // Get Target Filter
-  VSAbstractFilter* targetFilter = getFilterFromIndex(index);
-  if(!targetFilter)
-  {
-    return QVariant();
-  }
-
-  // Get View Settings
-  VSFilterViewSettings* targetSettings = (m_FilterViewSettings.find(targetFilter))->second;
+  VSFilterViewSettings* targetSettings = getFilterViewSettingsByIndex(index);
   if(!targetSettings)
   {
     return QVariant();

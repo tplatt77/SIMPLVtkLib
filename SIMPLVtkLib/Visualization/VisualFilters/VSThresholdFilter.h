@@ -56,12 +56,22 @@ class SIMPLVtkLib_EXPORT VSThresholdFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
+  Q_PROPERTY(QString lastArrayName READ getLastArrayName NOTIFY lastArrayNameChanged)
+  Q_PROPERTY(double lastMinValue READ getLastMinValue NOTIFY lastMinValueChanged)
+  Q_PROPERTY(double lastMaxValue READ getLastMaxValue NOTIFY lastMaxValueChanged)
+
 public:
   /**
    * @brief Consructor
    * @param parent
    */
-  VSThresholdFilter(VSAbstractFilter* parent);
+  VSThresholdFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+   * @brief Copy constructor
+   * @param copy
+   */
+  VSThresholdFilter(const VSThresholdFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -94,7 +104,7 @@ public:
    * @param min
    * @param max
    */
-  void apply(QString arrayName, double min, double max);
+  Q_INVOKABLE void apply(QString arrayName, double min, double max);
 
   /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
@@ -106,13 +116,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the output data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required input data type
@@ -182,6 +192,11 @@ public:
    */
   static QUuid GetUuid();
 
+signals:
+  void lastArrayNameChanged();
+  void lastMinValueChanged();
+  void lastMaxValueChanged();
+
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -201,3 +216,5 @@ private:
   double m_LastMinValue = 0.0;
   double m_LastMaxValue = 99.9;
 };
+
+Q_DECLARE_METATYPE(VSThresholdFilter)

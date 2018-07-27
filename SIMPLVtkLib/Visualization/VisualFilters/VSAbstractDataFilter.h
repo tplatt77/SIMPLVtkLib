@@ -65,7 +65,7 @@ public:
    * @brief Returns the output data type for the filter
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Reloads the data in the item

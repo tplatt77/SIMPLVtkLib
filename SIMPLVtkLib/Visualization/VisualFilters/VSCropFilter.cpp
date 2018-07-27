@@ -52,6 +52,7 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
 : VSAbstractFilter()
 {
   m_CropAlgorithm = nullptr;
+  setParentFilter(parent);
 
   for(int i = 0; i < 3; i++)
   {
@@ -59,9 +60,23 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
     m_LastVoi[i + 3] = 0;
     m_LastSampleRate[i] = 1;
   }
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSCropFilter::VSCropFilter(const VSCropFilter& copy)
+  : VSAbstractFilter()
+{
   m_CropAlgorithm = nullptr;
-  setParentFilter(parent);
+  setParentFilter(copy.getParentFilter());
+
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastVoi[i] = copy.m_LastVoi[i];
+    m_LastVoi[i + 3] = copy.m_LastVoi[i + 3];
+    m_LastSampleRate[i] = copy.m_LastSampleRate[i];
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -132,6 +147,35 @@ void VSCropFilter::apply(int voi[6], int sampleRate[3])
   }
 
   emit updatedOutputPort(this);
+  emit voiChanged();
+  emit sampleRateChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::apply(std::vector<int> voiVector, std::vector<int> sampleRateVector)
+{
+  if(voiVector.size() != 6 || sampleRateVector.size() != 3)
+  {
+    qDebug() << "VSCropFilter::apply() called with invalid vector sizes";
+    qDebug() << "  VOI size = " << voiVector.size() << " Sample Rate size = " << sampleRateVector.size();
+    return;
+  }
+
+  int voi[6];
+  for(int i = 0; i < 6; i++)
+  {
+    voi[i] = voiVector[i];
+  }
+
+  int sampleRate[3];
+  for(int i = 0; i < 3; i++)
+  {
+    sampleRate[i] = sampleRateVector[i];
+  }
+  
+  apply(voi, sampleRate);
 }
 
 // -----------------------------------------------------------------------------
@@ -203,7 +247,7 @@ vtkAlgorithmOutput* VSCropFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSCropFilter::getOutput()
+VTK_PTR(vtkDataSet) VSCropFilter::getOutput() const
 {
   if(getConnectedInput() && m_CropAlgorithm)
   {
@@ -242,7 +286,7 @@ void VSCropFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getOutputType()
+VSAbstractFilter::dataType_t VSCropFilter::getOutputType() const
 {
   return IMAGE_DATA;
 }
@@ -300,6 +344,8 @@ void VSCropFilter::setVOI(int* voi)
   m_LastVoi[3] = voi[3];
   m_LastVoi[4] = voi[4];
   m_LastVoi[5] = voi[5];
+
+  emit voiChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -310,4 +356,34 @@ void VSCropFilter::setSampleRate(int* sampleRate)
   m_LastSampleRate[0] = sampleRate[0];
   m_LastSampleRate[1] = sampleRate[1];
   m_LastSampleRate[2] = sampleRate[2];
+
+  emit sampleRateChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<int> VSCropFilter::getVolumeOfInterestVector()
+{
+  std::vector<int> voi(6);
+  for(int i = 0; i < 6; i++)
+  {
+    voi[i] = m_LastVoi[i];
+  }
+
+  return voi;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<int> VSCropFilter::getSampleRateVector()
+{
+  std::vector<int> sampleRate(3);
+  for(int i = 0; i < 3; i++)
+  {
+    sampleRate[i] = m_LastSampleRate[i];
+  }
+
+  return sampleRate;
 }

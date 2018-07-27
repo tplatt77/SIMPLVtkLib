@@ -47,6 +47,8 @@
 #include <vtkConeSource.h>
 
 #include "SIMPLVtkLib/QML/VSQmlLoader.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -254,12 +256,28 @@ void VSQmlVtkView::passMouseEventToVtk(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QQuickItem* VSQmlVtkView::createPalette(QPoint point)
+QQuickItem* VSQmlVtkView::createFilterPalette(QPoint point, VSAbstractFilter* filter)
 {
+  QUrl paletteUrl = VSQmlLoader::GetFilterUrl(filter);
+  if(false == paletteUrl.isValid())
+  {
+    return nullptr;
+  }
+
   QQmlEngine* engine = qmlEngine(this);
-  QQmlComponent component(engine, VSQmlLoader::GetPaletteUrl());
-  QQuickItem* childItem = dynamic_cast<QQuickItem*>(component.create());
-  childItem->setParentItem(this);
+  QQmlComponent component(engine, paletteUrl);
+  QQuickItem* paletteItem = dynamic_cast<QQuickItem*>(component.create());
+  if(nullptr == paletteItem)
+  {
+    QList<QQmlError> errors = component.errors();
+    for(QQmlError error : errors)
+    {
+      qDebug() << error.toString();
+    }
+    return nullptr;
+  }
+
+  paletteItem->setParentItem(this);
 
   QList<QQmlError> errors = component.errors();
   for(QQmlError error : errors)
@@ -267,10 +285,14 @@ QQuickItem* VSQmlVtkView::createPalette(QPoint point)
     qDebug() << error.toString();
   }
 
-  childItem->setPosition(point);
-  QQmlEngine::setObjectOwnership(childItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
+  paletteItem->setPosition(point);
+  QQmlEngine::setObjectOwnership(paletteItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
 
-  return childItem;
+  QVariant filterVariant;
+  filterVariant.setValue(filter);
+  paletteItem->setProperty("targetFilter", filterVariant);
+
+  return paletteItem;
 }
 
 // -----------------------------------------------------------------------------

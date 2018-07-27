@@ -72,7 +72,7 @@ public:
   vtkRenderer* getRenderer();
   vtkCamera* getCamera();
 
-  QQuickItem* createPalette(QPoint point);
+  QQuickItem* createFilterPalette(QPoint point, VSAbstractFilter* filter);
 
   QQuickItem* createViewSettingPalette(QPoint point, VSAbstractFilter* filter);
 

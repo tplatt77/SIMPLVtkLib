@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 import VSQml 1.0
+import "../InputTypes"
 
 GridLayout {
   id: visibilityLayout

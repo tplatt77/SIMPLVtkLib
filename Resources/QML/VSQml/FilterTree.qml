@@ -4,6 +4,7 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.2
 
 import VSQml 1.0
+import "../PaletteItems"
 
 Palette {
     id: palette

@@ -70,8 +70,8 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
   setActiveView(viewWidget);
 
   // Set the VSFilterView and VSInfoWidget
-  setFilterView(m_Internals->filterView);
-  setInfoWidget(m_Internals->infoWidget);
+  //setFilterView(m_Internals->filterView);
+  //setInfoWidget(m_Internals->infoWidget);
   showFilterView(false);
 
   createFilterMenu();

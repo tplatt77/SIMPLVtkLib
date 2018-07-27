@@ -36,9 +36,6 @@
 #pragma once
 
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
-#include "ui_VSPlaneWidget.h"
-
-#include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -55,7 +52,7 @@ class vtkImplicitPlaneRepresentation;
  * the normal and origin of the plane. Editing these values also changes the
  * vtkImplicitPlaneWidget2 orientation.
  */
-class SIMPLVtkLib_EXPORT VSPlaneWidget : public VSAbstractWidget, private Ui::VSPlaneWidget
+class SIMPLVtkLib_EXPORT VSPlaneWidget : public VSAbstractWidget
 {
   Q_OBJECT
 
@@ -66,7 +63,7 @@ public:
    * @param bounds
    * @param iren
    */
-  VSPlaneWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSPlaneWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
    * @brief Deconstructor
@@ -138,12 +135,6 @@ public:
   void drawPlaneOff();
 
   /**
-   * @brief Updates the origin and normal values based on the VTK plane widget
-   * before applying those values to the input widgets.
-   */
-  void updateSpinBoxes();
-
-  /**
    * @brief Updates the VTK plane
    */
   void updatePlaneWidget();
@@ -160,12 +151,6 @@ public:
    */
   void writeJson(const QJsonObject& json) override;
 
-public slots:
-  /**
-   * @brief Updates the VTK plane widget with the input widget values.
-   */
-  void spinBoxValueChanged();
-
 protected slots:
   /**
    * @brief Updates the vtk widget for positioning in global space
@@ -179,8 +164,8 @@ protected:
   void updateBounds() override;
 
 private:
-  vtkSmartPointer<vtkPlane> m_UsePlane;
-  vtkSmartPointer<vtkPlane> m_ViewPlane;
+  VTK_PTR(vtkPlane) m_UsePlane;
+  VTK_PTR(vtkPlane) m_ViewPlane;
   vtkImplicitPlaneWidget2* m_PlaneWidget;
   vtkImplicitPlaneRepresentation* m_PlaneRep;
 };

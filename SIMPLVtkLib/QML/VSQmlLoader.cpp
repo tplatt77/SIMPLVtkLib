@@ -38,6 +38,11 @@
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 
@@ -57,6 +62,12 @@ void VSQmlLoader::registerTypes()
   qmlRegisterType<VSFilterViewModel>("VSQml", 1, 0, "VSFilterViewModel");
   qmlRegisterType<VSFilterModel>("VSQml", 1, 0, "VSFilterModel");
   qmlRegisterType<VSTransform>("VSQml", 1, 0, "VSTransform");
+
+  qmlRegisterType<VSClipFilter>("VSQml", 1, 0, "VSClipFilter");
+  qmlRegisterType<VSCropFilter>("VSQml", 1, 0, "VSCropFilter");
+  qmlRegisterType<VSMaskFilter>("VSQml", 1, 0, "VSMaskFilter");
+  qmlRegisterType<VSSliceFilter>("VSQml", 1, 0, "VSSliceFilter");
+  qmlRegisterType<VSThresholdFilter>("VSQml", 1, 0, "VSThresholdFilter");
 }
 
 // -----------------------------------------------------------------------------
@@ -64,7 +75,7 @@ void VSQmlLoader::registerTypes()
 // -----------------------------------------------------------------------------
 QUrl VSQmlLoader::GetVtkViewUrl()
 {
-  return QUrl("qrc:/VSQml/VSVtk.qml");
+  return QUrl("qrc:/QML/VSQml/VSVtk.qml");
 }
 
 // -----------------------------------------------------------------------------
@@ -72,7 +83,28 @@ QUrl VSQmlLoader::GetVtkViewUrl()
 // -----------------------------------------------------------------------------
 QUrl VSQmlLoader::GetPaletteUrl()
 {
-  return QUrl("qrc:/VSQml/Palette.qml");
+  return QUrl("qrc:/QML/VSQml/Palette.qml");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QUrl VSQmlLoader::GetFilterUrl(VSAbstractFilter* filter)
+{
+  if(dynamic_cast<VSClipFilter*>(filter))
+  {
+    return QUrl("qrc:/QML/VSQml/ClipFilter.qml");
+  }
+  else if(dynamic_cast<VSCropFilter*>(filter))
+  {
+    return QUrl("qrc:/QML/VSQml/CropFilter.qml");
+  }
+  else if(dynamic_cast<VSThresholdFilter*>(filter))
+  {
+    return QUrl("qrc:/QML/VSQml/ThresholdFilter.qml");
+  }
+
+  return QUrl();
 }
 
 // -----------------------------------------------------------------------------
@@ -80,5 +112,5 @@ QUrl VSQmlLoader::GetPaletteUrl()
 // -----------------------------------------------------------------------------
 QUrl VSQmlLoader::GetVisibilitySettingsUrl()
 {
-  return QUrl("qrc:/VSQml/VisibilitySettings.qml");
+  return QUrl("qrc:/QML/VSQml/VisibilitySettings.qml");
 }

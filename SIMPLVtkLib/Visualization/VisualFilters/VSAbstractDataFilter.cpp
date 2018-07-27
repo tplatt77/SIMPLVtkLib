@@ -43,6 +43,8 @@ VSAbstractDataFilter::VSAbstractDataFilter()
 {
   connect(this, &VSAbstractDataFilter::dataImported, this, &VSAbstractDataFilter::arrayNamesChanged);
   connect(this, &VSAbstractDataFilter::dataReloaded, this, &VSAbstractDataFilter::arrayNamesChanged);
+  connect(this, &VSAbstractDataFilter::dataImported, this, &VSAbstractDataFilter::scalarNamesChanged);
+  connect(this, &VSAbstractDataFilter::dataReloaded, this, &VSAbstractDataFilter::scalarNamesChanged);
   connect(this, &VSAbstractDataFilter::dataImported, [=] { m_DataImported = true; });
 }
 
@@ -65,7 +67,7 @@ void VSAbstractDataFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType() const
 {
   int dataType = getOutput()->GetDataObjectType();
   switch(dataType)

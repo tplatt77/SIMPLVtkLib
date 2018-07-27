@@ -37,6 +37,7 @@
 
 #include "SIMPLVtkLib/QML/VSQmlLoader.h"
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -69,14 +70,9 @@ void VSSelectCommand::exec(VSInteractorStyleFilterCamera* interactorStyle, VSAbs
   VSAbstractFilter* filter = getFilterAtCoord(interactorStyle, mousePos);
   viewWidget->selectFilter(filter);
 
-  // VSQmlLoader* instance = VSQmlLoader::GetInstance();
-  // QQuickItem* palette = instance->loadPalette();
-  // palette->setPosition(m_Point);
-
   if(filter)
   {
-    QQuickItem* palette = getQmlView()->createPalette(m_Point);
-    palette->setProperty("title", filter->getFilterName());
+    QQuickItem* palette = getQmlView()->createFilterPalette(m_Point, filter);
   }
 
   delete mousePos;

@@ -39,6 +39,8 @@
 #include <QtCore/QUrl>
 #include <QtQml/QQmlExtensionPlugin>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class SIMPLVtkLib_EXPORT VSQmlLoader
@@ -50,6 +52,7 @@ public:
 
   static QUrl GetVtkViewUrl();
   static QUrl GetPaletteUrl();
+  static QUrl GetFilterUrl(VSAbstractFilter* filter);
   static QUrl GetVisibilitySettingsUrl();
 
 protected:

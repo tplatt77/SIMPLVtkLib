@@ -40,8 +40,6 @@
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
-#include "ui_VSBoxWidget.h"
-
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class vtkTransform;
@@ -52,9 +50,9 @@ class vtkBoxRepresentation;
 
 /**
  * @class VSBoxWidget VSBoxWidget.h SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h
- * @brief This class handles the displaying and editing of vtkBoxRepresentation values.
+ * @brief This class handles the storage and editing of vtkBoxRepresentation values.
  */
-class SIMPLVtkLib_EXPORT VSBoxWidget : public VSAbstractWidget, private Ui::VSBoxWidget
+class SIMPLVtkLib_EXPORT VSBoxWidget : public VSAbstractWidget
 {
   Q_OBJECT
 
@@ -65,7 +63,7 @@ public:
    * @param bounds
    * @param iren
    */
-  VSBoxWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSBoxWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
    * @brief Deconstructor
@@ -135,11 +133,6 @@ public:
   void disable() override;
 
   /**
-   * @brief Updates the QSpinBoxes with values from the vtkBoxRepresentation
-   */
-  void updateSpinBoxes();
-
-  /**
    * @brief Gets the box scale
    * @param scale
    */
@@ -179,12 +172,6 @@ public:
    * @param json
    */
   void writeJson(const QJsonObject& json) override;
-
-public slots:
-  /**
-   * @brief Updates the box widget from the spin box values
-   */
-  void spinBoxValueChanged();
 
 protected slots:
   /**

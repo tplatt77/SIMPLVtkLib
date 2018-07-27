@@ -111,7 +111,7 @@ vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
+VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput() const
 {
   if(nullptr == m_WrappedDataContainer)
   {
@@ -297,6 +297,13 @@ void VSSIMPLDataContainerFilter::reloadData()
   {
     FilterPipeline::Pointer pipeline = pipelineFilter->getFilterPipeline();
     DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
+
+    if(nullptr == dca)
+    {
+      QString ss = QObject::tr("The DataContainerArray '%1' could not be accessed because it no longer exists in the underlying pipeline '%1'.").arg(pipelineFilter->getPipelineName());
+      emit errorGenerated("Data Reload Error", ss, -3000);
+      return;
+    }
 
     DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
     if(nullptr == dc)

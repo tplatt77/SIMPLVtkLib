@@ -205,14 +205,14 @@ public:
    * @param filter
    * @return
    */
-  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
+  VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter) const;
 
   /**
    * @brief Returns the VSFilterViewSettings for the given model index.
    * @param index
    * @return
    */
-  Q_INVOKABLE VSFilterViewSettings* getFilterViewSettingsByIndex(const QModelIndex& index);
+  Q_INVOKABLE VSFilterViewSettings* getFilterViewSettingsByIndex(const QModelIndex& index) const;
 
   /**
    * @brief Returns the container of VSFilterViewSettings
@@ -227,7 +227,7 @@ public:
   std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
 
 signals:
-  void viewSettingsCreated(VSFilterViewSettings*);
+  void viewSettingsCreated(VSFilterViewSettings*) const;
   void viewSettingsRemoved(VSFilterViewSettings*);
   void rootChanged();
 
@@ -237,7 +237,7 @@ protected:
    * @param filter
    * @return
    */
-  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
+  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter) const;
 
   /**
    * @brief Clears all VSFilterViewSettings
@@ -281,7 +281,7 @@ protected:
 
 private:
   VSFilterModel* m_FilterModel = nullptr;
-  VSFilterViewSettings::Map m_FilterViewSettings;
+  mutable VSFilterViewSettings::Map m_FilterViewSettings;
 };
 
 Q_DECLARE_METATYPE(VSFilterViewModel)

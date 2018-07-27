@@ -41,8 +41,8 @@
 #include <QtWidgets/QWidget>
 
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
-#include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
-#include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
+//#include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
+//#include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -85,6 +85,7 @@ public:
    */
   QVector<VSAbstractViewWidget*> getAllViewWidgets();
 
+#if 0
   /**
    * @brief Returns the VSFilterView used by the main widget. Returns nullptr if none is used
    * @return
@@ -109,6 +110,7 @@ public:
    * @param infoWidget
    */
   void setInfoWidget(VSInfoWidget* infoWidget);
+#endif
 
   /**
    * @brief importFiles
@@ -184,7 +186,7 @@ public slots:
 
 signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
-  void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void changedActiveFilter(VSAbstractFilter* filter);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
 
 protected:
@@ -296,10 +298,10 @@ private:
   VSController* m_Controller;
   VSAbstractFilter* m_CurrentFilter = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
-  VSFilterView* m_FilterView = nullptr;
-  VSInfoWidget* m_InfoWidget = nullptr;
+  //VSFilterView* m_FilterView = nullptr;
+  //VSInfoWidget* m_InfoWidget = nullptr;
 
-  QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
+  //QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
 
   /**
    * @brief openDREAM3DFile

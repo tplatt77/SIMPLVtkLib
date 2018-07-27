@@ -88,7 +88,7 @@ public:
   /**
    * @brief Returns the output data for the filter
    */
-  VTK_PTR(vtkDataSet) getOutput() override;
+  VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the filter's name

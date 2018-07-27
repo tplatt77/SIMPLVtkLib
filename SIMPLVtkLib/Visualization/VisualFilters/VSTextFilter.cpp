@@ -137,7 +137,7 @@ vtkAlgorithmOutput* VSTextFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
+VTK_PTR(vtkDataSet) VSTextFilter::getOutput() const
 {
   if(getParentFilter())
   {
@@ -150,7 +150,7 @@ VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
+VSAbstractFilter::dataType_t VSTextFilter::getOutputType() const
 {
   // Return the parent's output type if a parent exists
   if(getParentFilter())

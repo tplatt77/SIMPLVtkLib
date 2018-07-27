@@ -76,7 +76,7 @@ public:
       m_VSTransform->localizeTransform(m_UseTransform);
     }
 
-    m_VSBoxWidget->updateSpinBoxes();
+    m_VSBoxWidget->updateBoxWidget();
     m_VSBoxWidget->modified();
   }
 
@@ -118,11 +118,9 @@ private:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSBoxWidget::VSBoxWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
+VSBoxWidget::VSBoxWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
 : VSAbstractWidget(parent, transform, bounds, iren)
 {
-  setupUi(this);
-
   m_UseTransform = VTK_PTR(vtkTransform)::New();
   m_ViewTransform = VTK_PTR(vtkTransform)::New();
   getVSTransform()->globalizeTransform(m_ViewTransform);
@@ -144,20 +142,7 @@ VSBoxWidget::VSBoxWidget(QWidget* parent, VSTransform* transform, double bounds[
   m_BoxWidget->SetRepresentation(m_BoxRep);
   m_BoxWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
-  updateSpinBoxes();
-
-  // adjust the vtkWidget when values are changed
-  connect(translationXSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(translationYSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(translationZSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-
-  connect(rotationXSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(rotationYSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(rotationZSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-
-  connect(scaleXSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(scaleYSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(scaleZSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
+  updateBoxWidget();
 }
 
 // -----------------------------------------------------------------------------
@@ -177,10 +162,6 @@ void VSBoxWidget::setScale(double scale[3])
   double rotation[3];
   m_UseTransform->GetPosition(position);
   m_UseTransform->GetOrientation(rotation);
-
-  scaleXSpinBox->setValue(scale[0]);
-  scaleYSpinBox->setValue(scale[1]);
-  scaleZSpinBox->setValue(scale[2]);
 
   setValues(position, rotation, scale);
 }
@@ -204,10 +185,6 @@ void VSBoxWidget::setTranslation(double origin[3])
   m_UseTransform->GetOrientation(rotation);
   m_UseTransform->GetScale(scale);
 
-  translationXSpinBox->setValue(origin[0]);
-  translationYSpinBox->setValue(origin[1]);
-  translationZSpinBox->setValue(origin[2]);
-
   setValues(origin, rotation, scale);
 }
 
@@ -221,10 +198,6 @@ void VSBoxWidget::setRotation(double rotation[3])
   m_UseTransform->GetPosition(position);
   m_UseTransform->GetScale(scale);
 
-  rotationXSpinBox->setValue(rotation[0]);
-  rotationYSpinBox->setValue(rotation[1]);
-  rotationZSpinBox->setValue(rotation[2]);
-
   setValues(position, rotation, scale);
 }
 
@@ -234,7 +207,6 @@ void VSBoxWidget::setRotation(double rotation[3])
 void VSBoxWidget::setRotation(double x, double y, double z)
 {
   double rotation[3] = {x, y, z};
-
   setRotation(rotation);
 }
 
@@ -267,55 +239,6 @@ void VSBoxWidget::disable()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::updateSpinBoxes()
-{
-  double scale[3];
-  double rotation[3];
-  double origin[3];
-
-  getTranslation(origin);
-  getScale(scale);
-  getRotation(rotation);
-
-  translationXSpinBox->setValue(origin[0]);
-  translationYSpinBox->setValue(origin[1]);
-  translationZSpinBox->setValue(origin[2]);
-
-  scaleXSpinBox->setValue(scale[0]);
-  scaleYSpinBox->setValue(scale[1]);
-  scaleZSpinBox->setValue(scale[2]);
-
-  rotationXSpinBox->setValue(rotation[0]);
-  rotationYSpinBox->setValue(rotation[1]);
-  rotationZSpinBox->setValue(rotation[2]);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSBoxWidget::spinBoxValueChanged()
-{
-  double origin[3];
-  origin[0] = translationXSpinBox->value();
-  origin[1] = translationYSpinBox->value();
-  origin[2] = translationZSpinBox->value();
-
-  double scale[3];
-  scale[0] = scaleXSpinBox->value();
-  scale[1] = scaleYSpinBox->value();
-  scale[2] = scaleZSpinBox->value();
-
-  double rotation[3];
-  rotation[0] = rotationXSpinBox->value();
-  rotation[1] = rotationYSpinBox->value();
-  rotation[2] = rotationZSpinBox->value();
-
-  setValues(origin, rotation, scale);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSBoxWidget::updateBoxWidget()
 {
   m_UseTransform->SetInput(nullptr);
@@ -328,6 +251,8 @@ void VSBoxWidget::updateBoxWidget()
   m_BoxWidget->SetEnabled(enabled);
 
   getInteractor()->Render();
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
@@ -390,7 +315,6 @@ void VSBoxWidget::setTransform(VTK_PTR(vtkTransform) transform)
   m_UseTransform->SetMatrix(matrix);
 
   updateBoxWidget();
-  updateSpinBoxes();
 
   emit modified();
 }

@@ -60,7 +60,13 @@ public:
    * @brief Constructor
    * @param parent
    */
-  VSSliceFilter(VSAbstractFilter* parent);
+  VSSliceFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+   * @brief Copy constructor
+   * @param copy
+   */
+  VSSliceFilter(const VSSliceFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -104,13 +110,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the output data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required input data type
@@ -188,3 +194,5 @@ private:
   double m_LastOrigin[3];
   double m_LastNormal[3];
 };
+
+Q_DECLARE_METATYPE(VSSliceFilter)

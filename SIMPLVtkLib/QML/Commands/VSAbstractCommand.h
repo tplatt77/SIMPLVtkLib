@@ -40,7 +40,7 @@
 #include <vtkRenderWindow.h>
 
 #include "SIMPLVtkLib/QML/VSQmlVtkView.h"
-#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+//#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 

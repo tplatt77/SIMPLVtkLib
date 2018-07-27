@@ -127,6 +127,7 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
   {
     disconnect(getParentFilter(), &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
     disconnect(getParentFilter(), &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
+    disconnect(getParentFilter(), &VSAbstractFilter::scalarNamesChanged, this, &VSAbstractFilter::scalarNamesChanged);
     disconnect(getParentFilter(), &VSAbstractFilter::dataImported, this, &VSAbstractFilter::dataImported);
   }
 
@@ -141,6 +142,7 @@ void VSAbstractFilter::setParentFilter(VSAbstractFilter* parent)
 
     connect(parent, &VSAbstractFilter::updatedOutput, this, &VSAbstractFilter::updatedOutput);
     connect(parent, &VSAbstractFilter::arrayNamesChanged, this, &VSAbstractFilter::arrayNamesChanged);
+    connect(parent, &VSAbstractFilter::scalarNamesChanged, this, &VSAbstractFilter::scalarNamesChanged);
     connect(parent, &VSAbstractFilter::dataImported, this, &VSAbstractFilter::dataImported);
   }
   else
@@ -299,7 +301,7 @@ VSAbstractFilter* VSAbstractFilter::getChild(int index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSAbstractFilter::isPointData()
+bool VSAbstractFilter::isPointData() const
 {
   // Check for output types
   if(VSAbstractFilter::dataType_t::POINT_DATA == getOutputType())
@@ -329,8 +331,6 @@ QStringList VSAbstractFilter::getArrayNames()
 {
   QStringList arrayNames;
 
-  //arrayNames.push_back("Solid Color");
-
   VTK_PTR(vtkDataSet) dataSet = getOutput();
   if(dataSet)
   {
@@ -353,6 +353,115 @@ QStringList VSAbstractFilter::getArrayNames()
   }
 
   return arrayNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSAbstractFilter::getScalarNames()
+{
+  QStringList arrayNames;
+
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(dataSet)
+  {
+    if(isPointData())
+    {
+      int numPointArrays = dataSet->GetPointData()->GetNumberOfArrays();
+      for(int i = 0; i < numPointArrays; i++)
+      {
+        VTK_PTR(vtkDataArray) dataArray = dataSet->GetPointData()->GetArray(i);
+        if(dataArray->GetNumberOfComponents() == 1)
+        {
+          arrayNames.push_back(dataArray->GetName());
+        }
+      }
+    }
+    else
+    {
+      int numCellArrays = dataSet->GetCellData()->GetNumberOfArrays();
+      for(int i = 0; i < numCellArrays; i++)
+      {
+        VTK_PTR(vtkDataArray) dataArray = dataSet->GetCellData()->GetArray(i);
+        if(dataArray->GetNumberOfComponents() == 1)
+        {
+          arrayNames.push_back(dataArray->GetName());
+        }
+      }
+    }
+  }
+
+  return arrayNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkDataArray) VSAbstractFilter::getDataArray(QString arrayName) const
+{
+  VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(dataSet)
+  {
+    VTK_PTR(vtkDataArray) dataArray = nullptr;
+    if(isPointData())
+    {
+      return dataSet->GetPointData()->GetArray(qPrintable(arrayName));
+    }
+    else
+    {
+      return dataSet->GetCellData()->GetArray(qPrintable(arrayName));
+    }
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSAbstractFilter::getArrayValueRange(QString arrayName) const
+{
+  if(nullptr == getDataSetFilter())
+  {
+    return nullptr;
+  }
+
+  VTK_PTR(vtkDataArray) dataArray = getDataSetFilter()->getDataArray(arrayName);
+  if(dataArray)
+  {
+    qDebug() << dataArray->GetName() << ": " << dataArray->GetRange()[0] << ", " << dataArray->GetRange()[1];
+    return dataArray->GetRange();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSAbstractFilter::getArrayMinValue(QString arrayName) const
+{
+  double* range = getArrayValueRange(arrayName);
+  if(range != nullptr)
+  {
+    return range[0];
+  }
+
+  return 0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSAbstractFilter::getArrayMaxValue(QString arrayName) const
+{
+  double* range = getArrayValueRange(arrayName);
+  if(range != nullptr)
+  {
+    return range[1];
+  }
+
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -483,7 +592,7 @@ const VSAbstractDataFilter* VSAbstractFilter::getDataSetFilter() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType()
+VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType() const
 {
   int dataType = getOutput()->GetDataObjectType();
   switch(dataType)
@@ -541,7 +650,7 @@ void VSAbstractFilter::saveFile(QString fileName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSAbstractFilter::getConnectedInput()
+bool VSAbstractFilter::getConnectedInput() const
 {
   return m_ConnectedInput;
 }
@@ -882,6 +991,8 @@ QString VSAbstractFilter::getText() const
 void VSAbstractFilter::setText(QString display)
 {
   m_DisplayText = display;
+
+  emit filterNameChanged();
 }
 
 // -----------------------------------------------------------------------------

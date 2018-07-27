@@ -64,6 +64,22 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSSliceFilter::VSSliceFilter(const VSSliceFilter& copy)
+  : VSAbstractFilter()
+{
+  m_SliceAlgorithm = nullptr;
+  setParentFilter(copy.getParentFilter());
+
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastOrigin[i] = copy.m_LastOrigin[i];
+    m_LastNormal[i] = copy.m_LastNormal[i];
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSSliceFilter* VSSliceFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSSliceFilter* filter = new VSSliceFilter(parent);
@@ -190,7 +206,7 @@ vtkAlgorithmOutput* VSSliceFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSSliceFilter::getOutput()
+VTK_PTR(vtkDataSet) VSSliceFilter::getOutput() const
 {
   if(getConnectedInput() && m_SliceAlgorithm)
   {
@@ -237,7 +253,7 @@ QUuid VSSliceFilter::GetUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getOutputType()
+VSAbstractFilter::dataType_t VSSliceFilter::getOutputType() const
 {
   return POLY_DATA;
 }

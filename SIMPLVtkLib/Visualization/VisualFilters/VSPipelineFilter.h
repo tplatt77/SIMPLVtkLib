@@ -109,6 +109,11 @@ public:
    */
   static bool compatibleWithParent(VSAbstractFilter* filter);
 
+  /**
+   * @brief Imports data for all child VSSIMPLDataContainerFilter
+   */
+  void apply();
+
 private:
   FilterPipeline::Pointer m_FilterPipeline;
   DataContainerArray::Pointer m_Dca;

@@ -38,8 +38,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractWidget::VSAbstractWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
-: QWidget(parent)
+VSAbstractWidget::VSAbstractWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
+: QObject(parent)
 , m_RenderWindowInteractor(iren)
 , m_Transform(transform)
 {

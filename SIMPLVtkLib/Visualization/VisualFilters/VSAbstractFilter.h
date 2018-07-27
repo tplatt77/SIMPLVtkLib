@@ -80,7 +80,9 @@ class SIMPLVtkLib_EXPORT VSAbstractFilter : public QObject
 {
   Q_OBJECT
 
+  Q_PROPERTY(QString filterName READ getFilterName NOTIFY filterNameChanged)
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+  Q_PROPERTY(QStringList scalarNames READ getScalarNames NOTIFY scalarNamesChanged)
   Q_PROPERTY(VSTransform transform READ getTransform)
   Q_PROPERTY(bool fullyImported READ isDataImported NOTIFY dataImported)
 
@@ -110,7 +112,7 @@ public:
   /**
    * @brief Deletes the item and removes it from the model
    */
-  virtual void deleteFilter();
+  Q_INVOKABLE virtual void deleteFilter();
 
   /**
    * @brief Returns the item flags for the filter
@@ -187,10 +189,44 @@ public:
   FilterListType getDescendants() const;
 
   /**
+   * @brief Returns the vtkDataArray with the given name
+   * @param arrayName
+   * @return
+   */
+  VTK_PTR(vtkDataArray) getDataArray(QString arrayName) const;
+
+  /**
+   * @brief Returns the range of values for the given array
+   * @param arrayName
+   * @return
+   */
+  double* getArrayValueRange(QString arrayName) const;
+
+  /**
+   * @brief Returns the minimum value for the given array
+   * @param arrayName
+   * @return
+   */
+  Q_INVOKABLE double getArrayMinValue(QString arrayName) const;
+
+  /**
+   * @brief Returns the maximum value for the given array
+   * @param arrayName
+   * @return
+   */
+  Q_INVOKABLE double getArrayMaxValue(QString arrayName) const;
+
+  /**
    * @brief Returns a list of array names
    * @return
    */
   QStringList getArrayNames();
+
+  /**
+  * @brief Returns a list of scalar array names
+  * @return
+  */
+  QStringList getScalarNames();
 
   /**
    * @brief Returns a list of component names
@@ -226,7 +262,7 @@ public:
   /**
    * @brief Returns the output data for the filter
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() = 0;
+  virtual VTK_PTR(vtkDataSet) getOutput() const = 0;
 
   /**
    * @brief Returns the output port for the transformed filtered data
@@ -262,14 +298,14 @@ public:
    * @brief Returns the output dataType_t value
    * @return
    */
-  virtual dataType_t getOutputType();
+  virtual dataType_t getOutputType() const;
 
   /**
    * @brief Returns true if the resulting data should use point data instead of cell data
    * Returns false otherwise.
    * @return
    */
-  bool isPointData();
+  bool isPointData() const;
 
   /**
    * @brief Returns true if the input dataType_t is compatible with a given required type
@@ -358,7 +394,9 @@ signals:
   void errorGenerated(const QString& title, const QString& msg, const int& errorCode);
   void removeFilter();
   void arrayNamesChanged();
+  void scalarNamesChanged();
   void dataImported();
+  void filterNameChanged();
 
 protected slots:
   /**
@@ -430,7 +468,7 @@ protected:
    * @brief Returns true if the filter algorithm is connected. Returns false otherwise.
    * @return
    */
-  bool getConnectedInput();
+  bool getConnectedInput() const;
 
   /**
    * @brief Sets whether or not the filter algorithm is connected.

@@ -85,6 +85,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
   Q_PROPERTY(double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged)
   Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
   Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+  Q_PROPERTY(QStringList scalarNames READ getScalarNames NOTIFY scalarNamesChanged)
   Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
   Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
   Q_PROPERTY(VSTransform transform READ getTransform)
@@ -204,6 +205,12 @@ public:
    * @return
    */
   QStringList getArrayNames() const;
+
+  /**
+   * @brief Returns the array names that can be used to color the data
+   * @return
+   */
+  QStringList getScalarNames() const;
 
   /**
    * @brief Returns the component names available for the active array
@@ -524,6 +531,7 @@ signals:
   void alphaChanged(const double&);
   void showScalarBarChanged(const bool&);
   void arrayNamesChanged();
+  void scalarNamesChanged();
   void componentNamesChanged();
 
   void representationChanged(const Representation&);

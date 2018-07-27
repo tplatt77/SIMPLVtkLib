@@ -50,14 +50,14 @@
 
 #include "SIMPLVtkLib/Dialogs/LoadHDF5FileDialog.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSParentFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSParentFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
+//#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
@@ -125,6 +125,7 @@ QVector<VSAbstractViewWidget*> VSMainWidgetBase::getAllViewWidgets()
   return this->findChildren<VSAbstractViewWidget*>().toVector();
 }
 
+#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -193,6 +194,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
     m_InfoWidget->setViewWidget(getActiveViewWidget());
   }
 }
+#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -223,6 +225,7 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
     }
   }
 
+#if 0
   VSAbstractFilterWidget* fw = nullptr;
   if(dynamic_cast<VSClipFilter*>(filter) != nullptr)
   {
@@ -269,6 +272,7 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
   {
     m_FilterToFilterWidgetMap.insert(filter, fw);
   }
+#endif
 
   if(currentFilter == true)
   {
@@ -281,10 +285,12 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 {
+#if 0
   VSAbstractFilterWidget* fw = m_FilterToFilterWidgetMap.value(filter);
   delete fw;
 
   m_FilterToFilterWidgetMap.remove(filter);
+#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -478,11 +484,13 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     // Update filter check states to match the current view widget
     getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
 
+#if 0
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
     {
       fw->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
     }
+#endif
   }
 
   emit changedActiveView(viewWidget);
@@ -518,21 +526,25 @@ void VSMainWidgetBase::activeViewClosed()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
+#if 0
   VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
   if(filterWidget)
   {
     filterWidget->setRenderingEnabled(false);
   }
+#endif
 
   m_CurrentFilter = filter;
+#if 0
   filterWidget = m_FilterToFilterWidgetMap.value(filter);
 
   if(filterWidget)
   {
     filterWidget->setRenderingEnabled(true);
   }
+#endif
 
-  emit changedActiveFilter(m_CurrentFilter, filterWidget);
+  emit changedActiveFilter(m_CurrentFilter);
 }
 
 // -----------------------------------------------------------------------------
@@ -540,9 +552,13 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::applyCurrentFilter()
 {
-  if(m_InfoWidget)
+  //if(m_InfoWidget)
+  //{
+  //  m_InfoWidget->applyFilter();
+  //}
+  if(dynamic_cast<VSPipelineFilter*>(m_CurrentFilter))
   {
-    m_InfoWidget->applyFilter();
+    dynamic_cast<VSPipelineFilter*>(m_CurrentFilter)->apply();
   }
 }
 
@@ -551,10 +567,10 @@ void VSMainWidgetBase::applyCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::resetCurrentFilter()
 {
-  if(m_InfoWidget)
-  {
-    m_InfoWidget->resetFilter();
-  }
+  //if(m_InfoWidget)
+  //{
+  //  m_InfoWidget->resetFilter();
+  //}
 }
 
 // -----------------------------------------------------------------------------

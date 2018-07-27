@@ -53,7 +53,9 @@
 #include <QtWidgets/QFileDialog>
 
 #include "SIMPLVtkLib/QML/VSQmlLoader.h"
-#include "VSInteractorStyleFilterCamera.h"
+#include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 
 VSQuickWidget* VSQuickWidget::m_LinkingWidget = nullptr;
 

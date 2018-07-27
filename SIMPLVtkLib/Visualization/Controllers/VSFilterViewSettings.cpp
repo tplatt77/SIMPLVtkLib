@@ -308,6 +308,19 @@ QStringList VSFilterViewSettings::getArrayNames() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getScalarNames() const
+{
+  if(m_Filter)
+  {
+    return m_Filter->getScalarNames();
+  }
+
+  return QStringList();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QStringList VSFilterViewSettings::getComponentNames()
 {
   if(m_Filter)
@@ -1204,6 +1217,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     disconnect(m_Filter, SIGNAL(transformChanged()), this, SIGNAL(updateTransform()));
     disconnect(m_Filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
     disconnect(m_Filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    disconnect(m_Filter, &VSAbstractFilter::scalarNamesChanged, this, &VSFilterViewSettings::scalarNamesChanged);
     disconnect(m_Filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(dynamic_cast<VSAbstractDataFilter*>(m_Filter))
@@ -1220,6 +1234,7 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     connect(filter, SIGNAL(transformChanged()), this, SLOT(updateTransform()));
     connect(filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
     connect(filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    connect(filter, &VSAbstractFilter::scalarNamesChanged, this, &VSFilterViewSettings::scalarNamesChanged);
     connect(filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(filter->getArrayNames().size() < 1)

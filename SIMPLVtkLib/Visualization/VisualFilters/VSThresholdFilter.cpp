@@ -59,6 +59,19 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSThresholdFilter::VSThresholdFilter(const VSThresholdFilter& copy)
+: VSAbstractFilter()
+, m_LastArrayName(copy.m_LastArrayName)
+, m_LastMinValue(copy.m_LastMinValue)
+, m_LastMaxValue(copy.m_LastMaxValue)
+{
+  m_ThresholdAlgorithm = nullptr;
+  setParentFilter(copy.getParentFilter());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSThresholdFilter* VSThresholdFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSThresholdFilter* filter = new VSThresholdFilter(parent);
@@ -128,6 +141,9 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);
+  emit lastArrayNameChanged();
+  emit lastMaxValueChanged();
+  emit lastMinValueChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -178,7 +194,7 @@ vtkAlgorithmOutput* VSThresholdFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSThresholdFilter::getOutput()
+VTK_PTR(vtkDataSet) VSThresholdFilter::getOutput() const
 {
   if(getConnectedInput() && m_ThresholdAlgorithm)
   {
@@ -217,7 +233,7 @@ void VSThresholdFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSThresholdFilter::getOutputType()
+VSAbstractFilter::dataType_t VSThresholdFilter::getOutputType() const
 {
   return UNSTRUCTURED_GRID;
 }
@@ -283,6 +299,7 @@ double VSThresholdFilter::getLastMaxValue()
 void VSThresholdFilter::setLastArrayName(QString lastArrayName)
 {
   m_LastArrayName = lastArrayName;
+  emit lastArrayNameChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -291,6 +308,7 @@ void VSThresholdFilter::setLastArrayName(QString lastArrayName)
 void VSThresholdFilter::setLastMinValue(double lastMinValue)
 {
   m_LastMinValue = lastMinValue;
+  emit lastMinValueChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -299,4 +317,5 @@ void VSThresholdFilter::setLastMinValue(double lastMinValue)
 void VSThresholdFilter::setLastMaxValue(double lastMaxValue)
 {
   m_LastMaxValue = lastMaxValue;
+  emit lastMaxValueChanged();
 }

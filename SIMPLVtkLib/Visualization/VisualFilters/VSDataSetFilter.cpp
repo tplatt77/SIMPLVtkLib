@@ -94,7 +94,7 @@ vtkAlgorithmOutput* VSDataSetFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
+VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput() const
 {
   if(nullptr == m_DataSet)
   {

@@ -41,6 +41,8 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+
 QString fetchPipelineName(FilterPipeline::Pointer pipeline)
 {
   if(pipeline->getName().isEmpty())
@@ -149,4 +151,21 @@ bool VSPipelineFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPipelineFilter::apply()
+{
+  // Finish importing any VSSIMPLDataContainerFilters
+  VSAbstractFilter::FilterListType children = getChildren();
+  for(VSAbstractFilter* child : children)
+  {
+    VSSIMPLDataContainerFilter* childCast = dynamic_cast<VSSIMPLDataContainerFilter*>(child);
+    if(childCast)
+    {
+      childCast->apply();
+    }
+  }
 }

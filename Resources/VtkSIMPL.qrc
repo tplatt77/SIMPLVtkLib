@@ -1,15 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/pqSolidColor.png</file>
-        <file>VSQml/VSVtk.qml</file>
-        <file>VSQml/ClipFilter.qml</file>
-        <file>VSQml/ColorButton.qml</file>
-        <file>VSQml/CropFilter.qml</file>
-        <file>VSQml/DataFilter.qml</file>
-        <file>VSQml/Palette.qml</file>
-        <file>VSQml/ThresholdFilter.qml</file>
-        <file>VSQml/Transform.qml</file>
-        <file>VSQml/VisibilitySettings.qml</file>
         <file>icons/pqCellData.png</file>
         <file>icons/pqPointData.png</file>
         <file>icons/pqSplitViewH12.png</file>
@@ -56,8 +47,24 @@
         <file>icons/pqPickCenter@2x.png</file>
         <file>icons/pqShowAxis.png</file>
         <file>icons/pqShowAxis@2x.png</file>
-        <file>VSQml/FilterTree.qml</file>
-        <file>VSQml/PaletteTitleBar.qml</file>
-        <file>VSQml/VisibilityLayout.qml</file>
+        <file>QML/VSQml/ClipFilter.qml</file>
+        <file>QML/VSQml/CropFilter.qml</file>
+        <file>QML/VSQml/DataFilter.qml</file>
+        <file>QML/VSQml/FilterTree.qml</file>
+        <file>QML/PaletteItems/FilterButtons.qml</file>
+        <file>QML/VSQml/ThresholdFilter.qml</file>
+        <file>QML/VSQml/Transform.qml</file>
+        <file>QML/VSQml/VisibilityLayout.qml</file>
+        <file>QML/VSQml/VisibilitySettings.qml</file>
+        <file>QML/VSQml/VSVtk.qml</file>
+        <file>QML/InputTypes/ColorButton.qml</file>
+        <file>QML/InputTypes/VtkPlaneWidget.qml</file>
+        <file>QML/InputTypes/WrappedRangeSlider.qml</file>
+        <file>QML/PaletteItems/Palette.qml</file>
+        <file>QML/PaletteItems/PaletteTitleBar.qml</file>
+        <file>QML/PaletteItems/FilterPalette.qml</file>
+        <file>QML/InputTypes/IntField.qml</file>
+        <file>QML/InputTypes/FloatField.qml</file>
+        <file>QML/InputTypes/VtkBoxWidget.qml</file>
     </qresource>
 </RCC>

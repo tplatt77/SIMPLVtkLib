@@ -39,26 +39,25 @@
 #pragma GCC diagnostic ignored "-Winconsistent-missing-override"
 #endif
 
-#include <QtWidgets/QWidget>
+#include <QtCore/QObject>
 
 #include <vector>
 
 #include <vtkImplicitFunction.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkSmartPointer.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 /**
  * @class VSAbstractWidget VSAbstractWidget.h
  * SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h
  * @brief This is the base class for combined Qt/vtk widget representations.
- * Subclasses will be displayed in the GUI as a subclass of QWidget and may
- * display a representation of the stored data through a vtkWidget in the the
- * given vtkRenderWindowInteractor.
+ * Subclasses may display a representation of the stored data through a 
+ * vtkWidget in the the given vtkRenderWindowInteractor.
  */
-class SIMPLVtkLib_EXPORT VSAbstractWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSAbstractWidget : public QObject
 {
   Q_OBJECT
 
@@ -136,7 +135,7 @@ protected:
    * @param bounds
    * @param iren
    */
-  VSAbstractWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
+  VSAbstractWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
    * @brief Updates the widget bounds

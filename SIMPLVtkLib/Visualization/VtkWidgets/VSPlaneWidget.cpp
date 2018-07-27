@@ -72,8 +72,7 @@ public:
 
     rep->DrawPlaneOn();
 
-    m_VSPlaneWidget->updateSpinBoxes();
-    m_VSPlaneWidget->modified();
+    m_VSPlaneWidget->updatePlaneWidget();
   }
 
   vtkPlaneCallback()
@@ -113,13 +112,11 @@ private:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSPlaneWidget::VSPlaneWidget(QWidget* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
+VSPlaneWidget::VSPlaneWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
 : VSAbstractWidget(parent, transform, bounds, iren)
 {
-  setupUi(this);
-
-  m_ViewPlane = vtkSmartPointer<vtkPlane>::New();
-  m_UsePlane = vtkSmartPointer<vtkPlane>::New();
+  m_ViewPlane = VTK_PTR(vtkPlane)::New();
+  m_UsePlane = VTK_PTR(vtkPlane)::New();
 
   double normal[3] = {1.0, 0.0, 0.0};
   double viewNormal[3] = {1.0, 0.0, 0.0};
@@ -153,16 +150,7 @@ VSPlaneWidget::VSPlaneWidget(QWidget* parent, VSTransform* transform, double bou
   m_PlaneWidget->SetRepresentation(m_PlaneRep);
   m_PlaneWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
-  updateSpinBoxes();
-
-  // adjust the vtkWidget when values are changed
-  connect(normalXSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(normalYSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(normalZSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-
-  connect(originXSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(originYSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
-  connect(originZSpinBox, SIGNAL(editingFinished()), this, SLOT(spinBoxValueChanged()));
+  updatePlaneWidget();
 }
 
 // -----------------------------------------------------------------------------
@@ -190,10 +178,6 @@ void VSPlaneWidget::setNormals(double normals[3])
   m_UsePlane->SetNormal(normals);
   m_ViewPlane->SetNormal(normals);
   getVSTransform()->globalizePlane(m_ViewPlane);
-
-  normalXSpinBox->setValue(normals[0]);
-  normalYSpinBox->setValue(normals[1]);
-  normalZSpinBox->setValue(normals[2]);
 
   drawPlaneOn();
 
@@ -231,10 +215,6 @@ void VSPlaneWidget::getOrigin(double origin[3])
 void VSPlaneWidget::setOrigin(double origin[3])
 {
   m_UsePlane->SetOrigin(origin);
-
-  originXSpinBox->setValue(origin[0]);
-  originYSpinBox->setValue(origin[1]);
-  originZSpinBox->setValue(origin[2]);
 
   m_ViewPlane->SetOrigin(origin);
   getVSTransform()->globalizePoint(origin);
@@ -310,51 +290,6 @@ void VSPlaneWidget::drawPlaneOff()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::updateSpinBoxes()
-{
-  double normals[3];
-  double origin[3];
-  m_UsePlane->GetNormal(normals);
-  m_UsePlane->GetOrigin(origin);
-
-  normalXSpinBox->setValue(normals[0]);
-  normalYSpinBox->setValue(normals[1]);
-  normalZSpinBox->setValue(normals[2]);
-
-  originXSpinBox->setValue(origin[0]);
-  originYSpinBox->setValue(origin[1]);
-  originZSpinBox->setValue(origin[2]);
-
-  setOrigin(origin);
-
-  drawPlaneOn();
-  emit modified();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSPlaneWidget::spinBoxValueChanged()
-{
-  double origin[3];
-  origin[0] = originXSpinBox->value();
-  origin[1] = originYSpinBox->value();
-  origin[2] = originZSpinBox->value();
-  setOrigin(origin);
-
-  double normal[3];
-  normal[0] = normalXSpinBox->value();
-  normal[1] = normalYSpinBox->value();
-  normal[2] = normalZSpinBox->value();
-  setNormals(normal);
-
-  updatePlaneWidget();
-  emit modified();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSPlaneWidget::updatePlaneWidget()
 {
   double normals[3];
@@ -378,6 +313,8 @@ void VSPlaneWidget::updatePlaneWidget()
   {
     getInteractor()->Render();
   }
+
+  emit modified();
 }
 
 // -----------------------------------------------------------------------------
