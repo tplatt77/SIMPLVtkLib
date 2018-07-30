@@ -155,6 +155,32 @@ void VSSliceFilter::apply(double origin[3], double normal[3])
   m_SliceAlgorithm->Update();
 
   emit updatedOutputPort(this);
+  emit lastOriginChanged();
+  emit lastNormalChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::apply(std::vector<double> originVector, std::vector<double> normalVector)
+{
+  if(originVector.size() != 3 || normalVector.size() != 3)
+  {
+    return;
+  }
+
+  double* origin = new double[3];
+  double* normal = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = originVector[i];
+    normal[i] = normalVector[i];
+  }
+
+  apply(origin, normal);
+
+  delete[] origin;
+  delete[] normal;
 }
 
 // -----------------------------------------------------------------------------
@@ -308,6 +334,8 @@ void VSSliceFilter::setLastOrigin(double* origin)
   m_LastOrigin[0] = origin[0];
   m_LastOrigin[1] = origin[1];
   m_LastOrigin[2] = origin[2];
+
+  emit lastOriginChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -318,4 +346,34 @@ void VSSliceFilter::setLastNormal(double* normal)
   m_LastNormal[0] = normal[0];
   m_LastNormal[1] = normal[1];
   m_LastNormal[2] = normal[2];
+
+  emit lastNormalChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSSliceFilter::getLastOriginVector()
+{
+  std::vector<double> origin(3);
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = m_LastOrigin[i];
+  }
+
+  return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSSliceFilter::getLastNormalVector()
+{
+  std::vector<double> normal(3);
+  for(int i = 0; i < 3; i++)
+  {
+    normal[i] = m_LastNormal[i];
+  }
+
+  return normal;
 }

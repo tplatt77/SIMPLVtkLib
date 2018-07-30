@@ -248,6 +248,9 @@ void VSClipFilter::apply(std::vector<double> originVector, std::vector<double> n
   }
 
   apply(origin, normal, inverted);
+
+  delete[] origin;
+  delete[] normal;
 }
 
 // -----------------------------------------------------------------------------

@@ -55,6 +55,9 @@ class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
+  Q_PROPERTY(std::vector<double> lastOrigin READ getLastOriginVector NOTIFY lastOriginChanged)
+  Q_PROPERTY(std::vector<double> lastNormal READ getLastNormalVector NOTIFY lastNormalChanged)
+
 public:
   /**
    * @brief Constructor
@@ -99,6 +102,13 @@ public:
    * @param normals
    */
   void apply(double origin[3], double normal[3]);
+
+  /**
+   * @brief Invokable method for QML to apply plane origin and normal to the algorithm.
+   * @param origin
+   * @param normal
+   */
+  Q_INVOKABLE void apply(std::vector<double> origin, std::vector<double> normal);
 
   /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
@@ -159,6 +169,18 @@ public:
   void setLastNormal(double* normal);
 
   /**
+   * @brief Returns a vector of the last applied slice origin
+   * @return
+   */
+  std::vector<double> getLastOriginVector();
+
+  /**
+   * @brief Returns a vector of the last applied slice normal
+   * @return
+   */
+  std::vector<double> getLastNormalVector();
+
+  /**
    * @brief Reads values from a json file into the filter
    * @param json
    */
@@ -175,6 +197,10 @@ public:
    * @return
    */
   static QUuid GetUuid();
+
+signals:
+  void lastOriginChanged();
+  void lastNormalChanged();
 
 protected:
   /**

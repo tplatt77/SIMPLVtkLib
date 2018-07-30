@@ -99,6 +99,10 @@ QUrl VSQmlLoader::GetFilterUrl(VSAbstractFilter* filter)
   {
     return QUrl("qrc:/QML/VSQml/CropFilter.qml");
   }
+  else if(dynamic_cast<VSSliceFilter*>(filter))
+  {
+    return QUrl("qrc:/QML/VSQml/SliceFilter.qml");
+  }
   else if(dynamic_cast<VSThresholdFilter*>(filter))
   {
     return QUrl("qrc:/QML/VSQml/ThresholdFilter.qml");

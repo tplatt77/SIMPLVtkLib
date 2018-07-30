@@ -66,5 +66,6 @@
         <file>QML/InputTypes/IntField.qml</file>
         <file>QML/InputTypes/FloatField.qml</file>
         <file>QML/InputTypes/VtkBoxWidget.qml</file>
+        <file>QML/VSQml/SliceFilter.qml</file>
     </qresource>
 </RCC>
