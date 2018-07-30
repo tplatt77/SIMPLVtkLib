@@ -41,6 +41,7 @@
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 
+#include <vtkDoubleArray.h>
 #include <vtkUnstructuredGrid.h>
 
 // -----------------------------------------------------------------------------
@@ -255,25 +256,137 @@ void VSClipFilter::apply(std::vector<double> originVector, std::vector<double> n
 void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotation, std::vector<double> scale, bool inverted)
 {
   qDebug() << "Implement Box Clip from Transform";
-  return;
+  //return;
 
-#if 0
+  VSTransform* transform = new VSTransform();
+  transform->setLocalPositionVector(origin);
+  transform->setLocalRotationVector(rotation);
+  transform->setLocalScaleVector(scale);
+
   VTK_NEW(vtkPlanes, planes);
   VTK_NEW(vtkPoints, points);
-  VTK_NEW(vtkDataArray, normals);
-  for(int i = 0; i < 6; i++)
+  VTK_NEW(vtkDoubleArray, normals);
+
+  double* pointOrigin = new double[3];
+  points->SetNumberOfPoints(6);
+  normals->SetNumberOfComponents(3);
+  normals->SetNumberOfTuples(6);
+
+  // Front
   {
-    double normal[3];
-    double* pointOrigin = new double[3];
+    double normal[3] { 0.0, 0.0, 1.0 };
+    transform->globalizeNormal(normal);
 
+    double planeOrigin[3]{ 0.0, 0.0, 1.0 };
+    transform->globalizePoint(planeOrigin);
 
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(0, i, normal[i]);
+    }
+    points->SetPoint(0, planeOrigin);
 
-    points->InsertNextPoint(pointOrigin);
-    normals->SetComponent(i, 0, normal[0]);
-    normals->SetComponent(i, 1, normal[1]);
-    normals->SetComponent(i, 2, normal[2]);
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
   }
-#endif
+
+  // Back
+  {
+    double normal[3]{ 0.0, 0.0, -1.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, 0.0, -1.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(1, i, normal[i]);
+    }
+    points->SetPoint(1, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Left
+  {
+    double normal[3]{ -1.0, 0.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ -1.0, 0.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(2, i, normal[i]);
+    }
+    points->SetPoint(2, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Right
+  {
+    double normal[3]{ 1.0, 0.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 1.0, 0.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(3, i, normal[i]);
+    }
+    points->SetPoint(3, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Top
+  {
+    double normal[3]{ 0.0, 1.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, 1.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(4, i, normal[i]);
+    }
+    points->SetPoint(4, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Bottom
+  {
+    double normal[3]{ 0.0, -1.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, -1.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(5, i, normal[i]);
+    }
+    points->SetPoint(5, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  planes->SetNormals(normals);
+  planes->SetPoints(points);
+
+  // Apply box clip
+  apply(planes, transform->getGlobalTransform(), inverted);
+
+  delete transform;
 }
 
 // -----------------------------------------------------------------------------
