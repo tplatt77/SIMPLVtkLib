@@ -30,8 +30,6 @@ GridLayout {
     originY: 0
     originZ: 0
 
-    signal edited()
-
     function getNormal()
     {
         var normal = [normalX, normalY, normalZ];
@@ -128,16 +126,5 @@ GridLayout {
         Layout.preferredWidth: inputWidth
 
         decimals: decimals
-    }
-
-    Component.onCompleted:
-    {
-        onOriginXChanged.connect(edited)
-        onOriginYChanged.connect(edited)
-        onOriginZChanged.connect(edited)
-
-        onNormalXChanged.connect(edited)
-        onNormalYChanged.connect(edited)
-        onNormalZChanged.connect(edited)
     }
 }

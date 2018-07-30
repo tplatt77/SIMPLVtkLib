@@ -16,7 +16,7 @@ GridLayout
     Connections
     {
         target: textField
-        onTextChanged:
+        onEditingFinished:
         {
             if(floatField.value.toFixed(decimals) !== parseFloat(textField.text))
             {

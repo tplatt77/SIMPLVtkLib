@@ -120,4 +120,7 @@ FilterPalette
 
         //resetFilterValues();
     }
+
+    Keys.onReturnPressed: applyFilter();
+    Keys.onDeletePressed: deleteFilter();
 }

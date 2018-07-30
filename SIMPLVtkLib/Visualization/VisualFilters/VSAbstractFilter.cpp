@@ -113,7 +113,7 @@ bool VSAbstractFilter::isDataImported() const
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSAbstractFilter::getParentFilter() const
 {
-  QObject* parentObj = parent();
+  QObject* parentObj = QObject::parent();
   VSAbstractFilter* parentFilter = dynamic_cast<VSAbstractFilter*>(parentObj);
   return parentFilter;
 }

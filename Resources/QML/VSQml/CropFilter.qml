@@ -226,4 +226,7 @@ Palette
             updateSampleRate();
         }
     }
+
+    Keys.onReturnPressed: applyFilter();
+    Keys.onDeletePressed: deleteFilter();
 }

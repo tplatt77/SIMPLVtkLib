@@ -9,8 +9,8 @@ GridLayout
     property alias implicitWidth: textField.implicitWidth
     property alias implicitHeight: textField.implicitHeight
 
-    property real max: 99
-    property real min: 0
+    property real max: 9999999999
+    property real min: -9999999999
 
     property int value: 0
 
@@ -18,7 +18,7 @@ GridLayout
     Connections
     {
         target: textField
-        onTextChanged:
+        onEditingFinished:
         {
             intField.value = parseInt(textField.text)
         }

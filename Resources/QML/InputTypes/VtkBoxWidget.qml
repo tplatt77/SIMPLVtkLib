@@ -26,8 +26,6 @@ GridLayout {
     columnSpacing: 4
     rowSpacing: 4
 
-    signal edited()
-
     function getTranslation()
     {
         var translation = [translateX, translateY, translateZ];
@@ -173,20 +171,5 @@ GridLayout {
         Layout.preferredWidth: inputWidth
 
         decimals: decimals
-    }
-
-    Component.onCompleted:
-    {
-        onTranslateXChanged.connect(edited)
-        onTranslateYChanged.connect(edited)
-        onTranslateZChanged.connect(edited)
-
-        onRotateXChanged.connect(edited)
-        onRotateYChanged.connect(edited)
-        onRotateZChanged.connect(edited)
-
-        onScaleXChanged.connect(edited)
-        onScaleYChanged.connect(edited)
-        onScaleZChanged.connect(edited)
     }
 }
