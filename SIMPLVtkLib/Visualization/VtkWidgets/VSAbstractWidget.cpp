@@ -35,6 +35,8 @@
 
 #include "VSAbstractWidget.h"
 
+#include <vtkRenderWindow.h>
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -51,7 +53,7 @@ VSAbstractWidget::VSAbstractWidget(QObject* parent, VSTransform* transform, doub
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractWidget::getBounds(double bounds[6])
+void VSAbstractWidget::getBounds(double bounds[6]) const
 {
   for(int i = 0; i < 6; i++)
   {
@@ -62,7 +64,7 @@ void VSAbstractWidget::getBounds(double bounds[6])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSAbstractWidget::getBounds()
+double* VSAbstractWidget::getBounds() const
 {
   return m_Bounds;
 }
@@ -114,7 +116,15 @@ void VSAbstractWidget::setBounds(double bounds[6])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkRenderWindowInteractor* VSAbstractWidget::getInteractor()
+void VSAbstractWidget::updateBounds(VSAbstractFilter* filter)
+{
+  setBounds(filter->getBounds());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+vtkRenderWindowInteractor* VSAbstractWidget::getInteractor() const
 {
   return m_RenderWindowInteractor;
 }
@@ -137,7 +147,40 @@ void VSAbstractWidget::updateBounds()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTransform* VSAbstractWidget::getVSTransform()
+VSTransform* VSAbstractWidget::getVSTransform() const
 {
   return m_Transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractWidget::setEnabled(bool enabled)
+{
+  // Do not enable the widget if the interactor is null
+  if(nullptr == getInteractor())
+  {
+    return;
+  }
+
+  if(enabled)
+  {
+    enable();
+  }
+  else
+  {
+    disable();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractWidget::render() const
+{
+  if(getInteractor() && isEnabled())
+  {
+    getInteractor()->Render();
+    //getInteractor()->GetRenderWindow()->Render();
+  }
 }

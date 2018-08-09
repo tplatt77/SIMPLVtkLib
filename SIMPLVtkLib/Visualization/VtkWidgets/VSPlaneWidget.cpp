@@ -115,14 +115,67 @@ private:
 VSPlaneWidget::VSPlaneWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren)
 : VSAbstractWidget(parent, transform, bounds, iren)
 {
-  m_ViewPlane = VTK_PTR(vtkPlane)::New();
-  m_UsePlane = VTK_PTR(vtkPlane)::New();
-
   double normal[3] = {1.0, 0.0, 0.0};
   double viewNormal[3] = {1.0, 0.0, 0.0};
   transform->globalizeNormal(viewNormal);
   double* origin = calculateLocalOrigin(bounds, transform);
   double* viewOrigin = calculateGlobalOrigin(bounds);
+
+  setupWidget(bounds, normal, origin, viewNormal, viewOrigin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSPlaneWidget::VSPlaneWidget(const VSPlaneWidget& copy)
+: VSAbstractWidget(copy.parent(), copy.getVSTransform(), copy.getBounds(), copy.getInteractor())
+{
+  double bounds[6];
+  double normal[3];
+  double origin[3];
+  double viewNormal[3];
+  double viewOrigin[3];
+
+  copy.getBounds(bounds);
+  copy.getNormal(normal);
+  copy.getOrigin(origin);
+  copy.m_ViewPlane->GetNormal(viewNormal);
+  copy.m_ViewPlane->GetOrigin(viewOrigin);
+
+  setupWidget(bounds, normal, origin, viewNormal, viewOrigin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSPlaneWidget::VSPlaneWidget()
+: VSAbstractWidget(nullptr, new VSTransform(), new double[6]{ -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 }, nullptr)
+{
+  double normal[3] = { 1.0, 0.0, 0.0 };
+  double viewNormal[3] = { 1.0, 0.0, 0.0 };
+  getVSTransform()->globalizeNormal(viewNormal);
+  double* origin = calculateLocalOrigin(getBounds(), getVSTransform());
+  double* viewOrigin = calculateGlobalOrigin(getBounds());
+
+  setupWidget(getBounds(), normal, origin, viewNormal, viewOrigin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSPlaneWidget::~VSPlaneWidget()
+{
+  m_PlaneRep->Delete();
+  m_PlaneWidget->Delete();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setupWidget(double bounds[6], double normal[3], double origin[3], double viewNormal[3], double viewOrigin[3])
+{
+  m_ViewPlane = VTK_PTR(vtkPlane)::New();
+  m_UsePlane = VTK_PTR(vtkPlane)::New();
 
   m_UsePlane->SetOrigin(origin);
   m_UsePlane->SetNormal(normal);
@@ -143,10 +196,10 @@ VSPlaneWidget::VSPlaneWidget(QObject* parent, VSTransform* transform, double bou
   myCallback->setUsePlane(m_UsePlane);
   myCallback->setViewPlane(m_ViewPlane);
   myCallback->setPlaneWidget(this);
-  myCallback->setTransform(transform);
+  myCallback->setTransform(getVSTransform());
 
   m_PlaneWidget = vtkImplicitPlaneWidget2::New();
-  m_PlaneWidget->SetInteractor(iren);
+  m_PlaneWidget->SetInteractor(getInteractor());
   m_PlaneWidget->SetRepresentation(m_PlaneRep);
   m_PlaneWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
@@ -156,16 +209,7 @@ VSPlaneWidget::VSPlaneWidget(QObject* parent, VSTransform* transform, double bou
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSPlaneWidget::~VSPlaneWidget()
-{
-  m_PlaneRep->Delete();
-  m_PlaneWidget->Delete();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSPlaneWidget::getNormals(double normals[3])
+void VSPlaneWidget::getNormal(double normals[3]) const
 {
   m_UsePlane->GetNormal(normals);
 }
@@ -173,30 +217,31 @@ void VSPlaneWidget::getNormals(double normals[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setNormals(double normals[3])
+void VSPlaneWidget::setNormal(double normal[3])
 {
-  m_UsePlane->SetNormal(normals);
-  m_ViewPlane->SetNormal(normals);
+  m_UsePlane->SetNormal(normal);
+  m_ViewPlane->SetNormal(normal);
   getVSTransform()->globalizePlane(m_ViewPlane);
 
   drawPlaneOn();
 
   emit modified();
+  emit normalChanged();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setNormals(double x, double y, double z)
+void VSPlaneWidget::setNormal(double x, double y, double z)
 {
-  double normals[3] = {x, y, z};
-  setNormals(normals);
+  double normal[3] = {x, y, z};
+  setNormal(normal);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSPlaneWidget::getOrigin()
+double* VSPlaneWidget::getOrigin() const
 {
   return m_UsePlane->GetOrigin();
 }
@@ -204,7 +249,7 @@ double* VSPlaneWidget::getOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::getOrigin(double origin[3])
+void VSPlaneWidget::getOrigin(double origin[3]) const
 {
   m_UsePlane->GetOrigin(origin);
 }
@@ -222,6 +267,79 @@ void VSPlaneWidget::setOrigin(double origin[3])
   drawPlaneOn();
 
   emit modified();
+  emit originChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSPlaneWidget::getNormalVector() const
+{
+  double normal[3];
+  getNormal(normal);
+  std::vector<double> normalVector(3);
+
+  for(int i = 0; i < 3; i++)
+  {
+    normalVector[i] = normal[i];
+  }
+
+  return normalVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSPlaneWidget::getOriginVector() const
+{
+  double origin[3];
+  getOrigin(origin);
+  std::vector<double> originVector(3);
+
+  for(int i = 0; i < 3; i++)
+  {
+    originVector[i] = origin[i];
+  }
+
+  return originVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setNormalVector(std::vector<double> normalVector)
+{
+  if(normalVector.size() != 3)
+  {
+    return;
+  }
+
+  double normal[3];
+  for(int i = 0; i < 3; i++)
+  {
+    normal[i] = normalVector[i];
+  }
+
+  setNormal(normal);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setOriginVector(std::vector<double> originVector)
+{
+  if(originVector.size() != 3)
+  {
+    return;
+  }
+
+  double origin[3];
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = originVector[i];
+  }
+
+  setOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -238,14 +356,19 @@ void VSPlaneWidget::updateBounds()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSPlaneWidget::isEnabled() const
+{
+  return m_PlaneWidget->GetEnabled();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSPlaneWidget::enable()
 {
   m_PlaneWidget->EnabledOn();
 
-  if(getInteractor())
-  {
-    getInteractor()->Render();
-  }
+  render();
 }
 
 // -----------------------------------------------------------------------------
@@ -255,10 +378,7 @@ void VSPlaneWidget::disable()
 {
   m_PlaneWidget->EnabledOff();
 
-  if(getInteractor())
-  {
-    getInteractor()->Render();
-  }
+  render();
 }
 
 // -----------------------------------------------------------------------------
@@ -268,10 +388,7 @@ void VSPlaneWidget::drawPlaneOn()
 {
   m_PlaneRep->DrawPlaneOn();
 
-  if(getInteractor())
-  {
-    getInteractor()->Render();
-  }
+  render();
 }
 
 // -----------------------------------------------------------------------------
@@ -281,10 +398,7 @@ void VSPlaneWidget::drawPlaneOff()
 {
   m_PlaneRep->DrawPlaneOff();
 
-  if(getInteractor())
-  {
-    getInteractor()->Render();
-  }
+  render();
 }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +408,7 @@ void VSPlaneWidget::updatePlaneWidget()
 {
   double normals[3];
   double origin[3];
-  getNormals(normals);
+  getNormal(normals);
   m_UsePlane->GetOrigin(origin);
 
   getVSTransform()->globalizeNormal(normals);
@@ -309,10 +423,7 @@ void VSPlaneWidget::updatePlaneWidget()
   m_PlaneRep->SetPlane(m_ViewPlane);
   m_PlaneWidget->SetEnabled(enabled);
 
-  if(getInteractor() && enabled)
-  {
-    getInteractor()->Render();
-  }
+  render();
 
   emit modified();
 }

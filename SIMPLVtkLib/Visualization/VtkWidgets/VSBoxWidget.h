@@ -56,6 +56,10 @@ class SIMPLVtkLib_EXPORT VSBoxWidget : public VSAbstractWidget
 {
   Q_OBJECT
 
+  Q_PROPERTY(std::vector<double> translation READ getTranslationVector WRITE setTranslationVector NOTIFY translationChanged)
+  Q_PROPERTY(std::vector<double> rotation READ getRotationVector WRITE setRotationVector NOTIFY rotationChanged)
+  Q_PROPERTY(std::vector<double> scale READ getScaleVector WRITE setScaleVector NOTIFY scaleChanged)
+
 public:
   /**
    * @brief Constructor
@@ -64,6 +68,17 @@ public:
    * @param iren
    */
   VSBoxWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
+
+  /**
+   * @brief Copy Constructor
+   * @param copy
+   */
+  VSBoxWidget(const VSBoxWidget& copy);
+
+  /**
+   * @brief Default Constructor
+   */
+  VSBoxWidget();
 
   /**
    * @brief Deconstructor
@@ -105,6 +120,42 @@ public:
   void setTranslation(double origin[3]);
 
   /**
+   * @brief Returns a vector containing the object's translation
+   * @return
+   */
+  std::vector<double> getTranslationVector();
+
+  /**
+   * @brief Returns a vector containing the object's rotation
+   * @return
+   */
+  std::vector<double> getRotationVector();
+
+  /**
+   * @brief Returns a vector containing the object's scale
+   * @return
+   */
+  std::vector<double> getScaleVector();
+
+  /**
+   * @brief Sets the object's translation
+   * @param translationVector
+   */
+  void setTranslationVector(std::vector<double> translationVector);
+
+  /**
+   * @brief Sets the object's rotation
+   * @param rotationVector
+   */
+  void setRotationVector(std::vector<double> rotationVector);
+
+  /**
+  * @brief Sets the object's scale
+  * @param scaleVector
+  */
+  void setScaleVector(std::vector<double> scaleVector);
+
+  /**
    * @param Gets the box's transform
    * @return
    */
@@ -123,14 +174,20 @@ public:
   VTK_PTR(vtkPlanes) getPlanes();
 
   /**
+   * @brief Returns true if the VTK widget is enabled. Returns false otherwise
+   * @return
+   */
+  bool isEnabled() const;
+
+  /**
    * @brief Enables the box widget
    */
-  void enable() override;
+  Q_INVOKABLE void enable() override;
 
   /**
    * @brief Disables the box widget
    */
-  void disable() override;
+  Q_INVOKABLE void disable() override;
 
   /**
    * @brief Gets the box scale
@@ -173,6 +230,11 @@ public:
    */
   void writeJson(const QJsonObject& json) override;
 
+signals:
+  void translationChanged();
+  void rotationChanged();
+  void scaleChanged();
+
 protected slots:
   /**
    * @brief Updates the vtk widget for positioning in global space
@@ -180,6 +242,11 @@ protected slots:
   virtual void updateGlobalSpace() override;
 
 protected:
+  /**
+   * @brief Initializes the VTK Widget
+   */
+  void setupWidget();
+
   /**
    * @brief Sets the widget's transformation variables
    * @param position
@@ -194,3 +261,5 @@ private:
   VTK_PTR(vtkBoxWidget2) m_BoxWidget;
   VTK_PTR(vtkBoxRepresentation) m_BoxRep;
 };
+
+Q_DECLARE_METATYPE(VSBoxWidget)

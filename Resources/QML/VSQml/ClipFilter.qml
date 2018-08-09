@@ -11,29 +11,31 @@ FilterPalette
     id: palette
 
     property VSClipFilter targetFilter: VSClipFilter {}
-    //property VSPlaneWidget vtkPlaneWidget: VSPlaneWidget {}
-    //property VSBoxWidget vtkBoxWidget: VSBoxWidget {}
+    property alias vtkBoxWidget: boxWidget.vtkWidget
+    property alias vtkPlaneWidget: planeWidget.vtkWidget
 
     title: targetFilter.filterName
 
     changesWaiting: (clipTypeCombo.currentIndex !== targetFilter.lastClipType) || planeWidgetChanged || boxWidgetChanged || (isPlaneType ? insideOutCheckBox.checked !== targetFilter.lastPlaneInverted : insideOutCheckBox.check !== targetFitler.lastBoxInverted)
     onApplyFilter:
     {
-        console.log("Apply Clip Filter")
         if(planeWidget.visible)
         {
-            console.log("  :PlaneWidget")
             targetFilter.apply(planeWidget.getOrigin(), planeWidget.getNormal(), insideOutCheckBox.checked);
+            vtkPlaneWidget.drawPlaneOff();
         }
         else
         {
-            console.log("  :BoxWidget")
             targetFilter.apply(boxWidget.getTranslation(), boxWidget.getRotation(), boxWidget.getScale(), insideOutCheckBox.checked);
         }
     }
     onResetFilter:
     {
         palette.resetFilterValues();
+        if(planeWidget.visible)
+        {
+            vtkPlaneWidget.drawPlaneOff();
+        }
     }
     onDeleteFilter:
     {
@@ -75,6 +77,8 @@ FilterPalette
             Layout.fillWidth: true
 
             model: targetFilter.clipTypes
+
+            onCurrentIndexChanged: enableVtkWidget();
         }
         CheckBox
         {
@@ -92,6 +96,7 @@ FilterPalette
             Layout.fillWidth: true
 
             visible: clipTypeCombo.currentText == "Plane"
+            vtkWidget.widgetEnabled: planeWidget.visible && palette.activeFocus
         }
         VtkBoxWidget
         {
@@ -100,6 +105,7 @@ FilterPalette
             Layout.fillWidth: true
 
             visible: clipTypeCombo.currentText == "Box"
+            vtkWidget.widgetEnabled: boxWidget.visible && palette.activeFocus
         }
     }
 
@@ -121,8 +127,35 @@ FilterPalette
     onTargetFilterChanged:
     {
         resetFilterValues();
+        vtkPlaneWidget.updateBounds(targetFilter);
+        vtkBoxWidget.updateBounds(targetFilter);
+        enableVtkWidget();
     }
 
     Keys.onReturnPressed: applyFilter();
     Keys.onDeletePressed: deleteFilter();
+
+    function enableVtkWidget()
+    {
+        disableVtkWidget();
+
+        switch(clipTypeCombo.currentIndex)
+        {
+        case 0:
+            vtkPlaneWidget.widgetEnabled = true;
+            break;
+        case 1:
+            vtkBoxWidget.widgetEnabled = true;
+            break;
+        default:
+            vtkPlaneWidget.widgetEnabled = true;
+            break;
+        }
+    }
+
+    function disableVtkWidget()
+    {
+        vtkPlaneWidget.widgetEnabled = false;
+        vtkBoxWidget.widgetEnabled = false;
+    }
 }

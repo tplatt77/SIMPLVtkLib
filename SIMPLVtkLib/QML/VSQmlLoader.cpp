@@ -45,6 +45,9 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
+
 
 // -----------------------------------------------------------------------------
 //
@@ -68,6 +71,9 @@ void VSQmlLoader::registerTypes()
   qmlRegisterType<VSMaskFilter>("VSQml", 1, 0, "VSMaskFilter");
   qmlRegisterType<VSSliceFilter>("VSQml", 1, 0, "VSSliceFilter");
   qmlRegisterType<VSThresholdFilter>("VSQml", 1, 0, "VSThresholdFilter");
+
+  qmlRegisterType<VSBoxWidget>("VSQml", 1, 0, "VSBoxWidget");
+  qmlRegisterType<VSPlaneWidget>("VSQml", 1, 0, "VSPlaneWidget");
 }
 
 // -----------------------------------------------------------------------------

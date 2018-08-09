@@ -11,20 +11,15 @@ FilterPalette
     id: palette
 
     property VSSliceFilter targetFilter: VSSliceFilter {}
-    //property VSPlaneWidget vtkPlaneWidget: VSPlaneWidget {}
-    //property VSBoxWidget vtkBoxWidget: VSBoxWidget {}
+    property alias vtkPlaneWidget: planeWidget.vtkWidget
 
     title: targetFilter.filterName
 
     changesWaiting: planeWidgetChanged
     onApplyFilter:
     {
-        console.log("Apply Slice Filter")
-        if(planeWidget.visible)
-        {
-            console.log("  :PlaneWidget")
-            targetFilter.apply(planeWidget.getOrigin(), planeWidget.getNormal());
-        }
+        targetFilter.apply(planeWidget.getOrigin(), planeWidget.getNormal());
+        vtkPlaneWidget.widgetEnabled = true
     }
     onResetFilter:
     {

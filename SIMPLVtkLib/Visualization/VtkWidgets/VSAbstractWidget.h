@@ -48,6 +48,7 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 /**
@@ -61,6 +62,8 @@ class SIMPLVtkLib_EXPORT VSAbstractWidget : public QObject
 {
   Q_OBJECT
 
+  Q_PROPERTY(bool widgetEnabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
+
 public:
   /**
    * @brief Deconstructor
@@ -71,19 +74,37 @@ public:
    * @brief Copies the vtkWidget bounds
    * @param bounds
    */
-  void getBounds(double bounds[6]);
+  void getBounds(double bounds[6]) const;
 
   /**
    * @brief Returns the vtkWidget bounds
    * @return
    */
-  double* getBounds();
+  double* getBounds() const;
 
   /**
    * @brief Sets the bounds
    * @param bounds
    */
   void setBounds(double bounds[6]);
+
+  /**
+   * @brief Updates the bounds based on the target filter
+   * @param filter
+   */
+  Q_INVOKABLE void updateBounds(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if the VTK widget is enabled
+   * @return
+   */
+  virtual bool isEnabled() const = 0;
+
+  /**
+   * @brief Sets the enabled state for the vtkWidget
+   * @param enabled
+   */
+  void setEnabled(bool enabled);
 
   /**
    * @brief Enables the vtkWidget
@@ -99,7 +120,7 @@ public:
    * @brief Returns the vtkRenderWindowInteractor used by the widget
    * @return
    */
-  vtkRenderWindowInteractor* getInteractor();
+  vtkRenderWindowInteractor* getInteractor() const;
 
   /**
    * @brief Sets the vtkRenderWindowInteractor to render to and interact with
@@ -121,6 +142,7 @@ public:
 
 signals:
   void modified();
+  void enabledChanged();
 
 protected slots:
   /**
@@ -161,14 +183,19 @@ protected:
    * @brief Returns the VSTransform used by this widget
    * @return
    */
-  VSTransform* getVSTransform();
+  VSTransform* getVSTransform() const;
+
+  /**
+   * @brief render
+   */
+  void render() const;
 
   const double MIN_SIZE = 6.0;
 
 private:
   vtkRenderWindowInteractor* m_RenderWindowInteractor;
   VSTransform* m_Transform;
-  double m_Bounds[6];
+  mutable double m_Bounds[6];
 };
 
 #ifdef __clang__

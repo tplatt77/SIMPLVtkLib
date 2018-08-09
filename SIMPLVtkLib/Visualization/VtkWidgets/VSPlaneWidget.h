@@ -56,6 +56,9 @@ class SIMPLVtkLib_EXPORT VSPlaneWidget : public VSAbstractWidget
 {
   Q_OBJECT
 
+    Q_PROPERTY(std::vector<double> normal READ getNormalVector WRITE setNormalVector NOTIFY normalChanged)
+    Q_PROPERTY(std::vector<double> origin READ getOriginVector WRITE setOriginVector NOTIFY originChanged)
+
 public:
   /**
    * @brief Constructor
@@ -66,41 +69,52 @@ public:
   VSPlaneWidget(QObject* parent, VSTransform* transform, double bounds[6], vtkRenderWindowInteractor* iren);
 
   /**
+   * @brief Default Constructor
+   */
+  VSPlaneWidget();
+
+  /**
+   * @brief Copy constructor
+   * @param copy
+   */
+  VSPlaneWidget(const VSPlaneWidget& copy);
+
+  /**
    * @brief Deconstructor
    */
   virtual ~VSPlaneWidget();
 
   /**
-   * @brief Copies the normals into the double array passed in
-   * @param normals
+   * @brief Copies the normal into the double array passed in
+   * @param normal
    */
-  void getNormals(double normals[3]);
+  void getNormal(double normals[3]) const;
 
   /**
-   * @brief Sets the normals to the given value
-   * @param normals
+   * @brief Sets the normal to the given value
+   * @param normal
    */
-  void setNormals(double normals[3]);
+  void setNormal(double normals[3]);
 
   /**
-   * @brief Sets the normals to match the given values
+   * @brief Sets the normal to match the given values
    * @param x
    * @param y
    * @param z
    */
-  void setNormals(double x, double y, double z);
+  void setNormal(double x, double y, double z);
 
   /**
    * @brief Returns the origin from the m_UsePlane
    * @return
    */
-  double* getOrigin();
+  double* getOrigin() const;
 
   /**
    * @brief Copies the origin from the m_UsePlane into the double array passed in
    * @param origin
    */
-  void getOrigin(double origin[3]);
+  void getOrigin(double origin[3]) const;
 
   /**
    * @brief Sets the origin to the given value
@@ -109,30 +123,59 @@ public:
   void setOrigin(double origin[3]);
 
   /**
+   * @brief Returns a vector containing the normal from the m_UsePlane
+   * @return
+   */
+  std::vector<double> getNormalVector() const;
+
+  /**
+   * @brief Returns a vector containing the origin from the m_UsePlane
+   */
+  std::vector<double> getOriginVector() const;
+
+  /**
+   * @brief Sets the new normal vector
+   * @param normal
+   */
+  void setNormalVector(std::vector<double> normal);
+
+  /**
+   * @brief Sets the new origin vector
+   * @param origin
+   */
+  void setOriginVector(std::vector<double> origin);
+
+  /**
    * @brief Sets the vtkRenderWindowInteractor for the filter widget
    * @param interactor
    */
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
   /**
+  * @brief Returns true if the VTK widget is enabled. Returns false otherwise
+  * @return
+  */
+  bool isEnabled() const;
+
+  /**
    * @brief Enables the plane widget
    */
-  void enable() override;
+  Q_INVOKABLE void enable() override;
 
   /**
    * @brief Disables the plane widget
    */
-  void disable() override;
+  Q_INVOKABLE void disable() override;
 
   /**
    * @brief Enables rendering the plane internals
    */
-  void drawPlaneOn();
+  Q_INVOKABLE void drawPlaneOn();
 
   /**
    * @brief Disables rendering the plane internals
    */
-  void drawPlaneOff();
+  Q_INVOKABLE void drawPlaneOff();
 
   /**
    * @brief Updates the VTK plane
@@ -151,6 +194,10 @@ public:
    */
   void writeJson(const QJsonObject& json) override;
 
+signals:
+  void normalChanged();
+  void originChanged();
+
 protected slots:
   /**
    * @brief Updates the vtk widget for positioning in global space
@@ -158,6 +205,16 @@ protected slots:
   virtual void updateGlobalSpace() override;
 
 protected:
+  /**
+  * @brief Performs setup for the VTK widget using the given normal and origin
+  * @param bounds
+  * @param normal
+  * @param origin
+  * @param viewNormal
+  * @param viewOrigin
+  */
+  void setupWidget(double bounds[6], double normal[3], double origin[3], double viewNormal[3], double viewOrigin[3]);
+
   /**
    * @brief Updates the bounds representation for the VTK plane widget.
    */
@@ -169,3 +226,5 @@ private:
   vtkImplicitPlaneWidget2* m_PlaneWidget;
   vtkImplicitPlaneRepresentation* m_PlaneRep;
 };
+
+Q_DECLARE_METATYPE(VSPlaneWidget)

@@ -110,7 +110,9 @@ QOpenGLFramebufferObject* VSQmlFboRenderer::createFramebufferObject(const QSize&
 {
   QOpenGLFramebufferObjectFormat format;
   format.setAttachment(QOpenGLFramebufferObject::Depth);
+  //format.setSamples(m_QmlRenderWindow->getSamples());
   m_FBO = new QOpenGLFramebufferObject(size, format);
+
   m_QmlRenderWindow->setFramebufferObject(m_FBO);
 
   return m_FBO;

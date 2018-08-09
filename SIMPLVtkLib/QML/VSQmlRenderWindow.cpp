@@ -81,7 +81,7 @@ void VSQmlRenderWindow::OpenGLInitState()
   vtkExternalOpenGLRenderWindow::OpenGLInitState();
   MakeCurrent();
   initializeOpenGLFunctions();
-  //vtkExternalOpenGLRenderWindow::OpenGLInitState();
+  vtkExternalOpenGLRenderWindow::OpenGLInitState();
 
   glUseProgram(0);
   //if(getRenderer())
@@ -98,6 +98,9 @@ void VSQmlRenderWindow::OpenGLInitState()
 
   glDisable(GL_BLEND);
   glDisable(GL_DEPTH_TEST);
+  
+  // Clear to ensure that an uninitialized framebuffer is never displayed.
+  glDisable(GL_SCISSOR_TEST);
 }
 
 // -----------------------------------------------------------------------------
@@ -117,7 +120,6 @@ void VSQmlRenderWindow::Render()
 // -----------------------------------------------------------------------------
 void VSQmlRenderWindow::internalRender()
 {
-  //createSelectionCommand(QPoint(50, 50));
   while(!m_CommandList.empty())
   {
     VSAbstractCommand* command = m_CommandList.front();
@@ -140,6 +142,8 @@ void VSQmlRenderWindow::setFramebufferObject(QOpenGLFramebufferObject* fbo)
 
   auto size = fbo->size();
 
+  this->SetMultiSamples(fbo->format().samples());
+
   this->Size[0] = size.width();
   this->Size[1] = size.height();
   this->NumberOfFrameBuffers = 1;
@@ -149,6 +153,21 @@ void VSQmlRenderWindow::setFramebufferObject(QOpenGLFramebufferObject* fbo)
   this->OffScreenRendering = 1;
   this->OffScreenUseFrameBuffer = 1;
   this->Modified();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+GLint VSQmlRenderWindow::getSamples()
+{
+  GLint samples;
+  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+
+  // Some graphics drivers report the number of samples as 1 when
+  // multisampling is off. Set the number of samples to 0 in this case.
+  samples = samples > 1 ? samples : 0;
+
+  return samples;
 }
 
 // -----------------------------------------------------------------------------

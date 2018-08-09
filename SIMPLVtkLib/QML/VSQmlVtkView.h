@@ -35,8 +35,6 @@
 
 #pragma once
 
-//#include "quickQmlRegister.hpp"
-
 #include <QtQuick/QQuickFramebufferObject>
 #include <QtGui/QMouseEvent>
 
@@ -57,8 +55,6 @@ class SIMPLVtkLib_EXPORT VSQmlVtkView : public QQuickFramebufferObject
   Q_OBJECT
 
 public:
-  //static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
-
   VSQmlVtkView(QQuickItem* parent = nullptr);
   virtual ~VSQmlVtkView() = default;
 
@@ -68,6 +64,12 @@ public:
   Renderer* createRenderer() const override;
   VSQmlRenderWindow* GetRenderWindow() const;
   QVTKInteractorAdapter* GetInteractorAdapter();
+  
+  /**
+   * @brief Update the DevicePixelRatio for the interactor and renderer size
+   * @param ratio
+   */
+  void updateDevicePixelRatio(const int& ratio);
 
   vtkRenderer* getRenderer();
   vtkCamera* getCamera();
@@ -99,6 +101,27 @@ protected:
   void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 
   void passMouseEventToVtk(QMouseEvent* event);
+
+  /**
+   * @brief Sets the vtkRenderWindowInteractor for the given filter palette
+   * @param item
+   */
+  void setVtkInteractor(QQuickItem* item);
+
+  /**
+   * @brief Handles changes in geometry
+   * @param newGeometry
+   * @param oldGeometry
+   */
+  void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Called when change occurs for this item.
+   * This is necessary for updating pixel ratio
+   * @param change
+   * @param value
+   */
+  void itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData& value) Q_DECL_OVERRIDE;
 
 private:
   mutable VTK_PTR(VSQmlRenderWindow) m_RenderWindow = nullptr;

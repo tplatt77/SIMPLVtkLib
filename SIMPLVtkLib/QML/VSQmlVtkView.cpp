@@ -49,6 +49,8 @@
 #include "SIMPLVtkLib/QML/VSQmlLoader.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -58,6 +60,7 @@ VSQmlVtkView::VSQmlVtkView(QQuickItem* parent)
 {
   m_RenderWindow = VTK_PTR(VSQmlRenderWindow)::New();
   setMirrorVertically(true);
+  setTextureFollowsItemSize(true);
 
   setActiveFocusOnTab(true);
   setAcceptHoverEvents(true);
@@ -105,6 +108,16 @@ QVTKInteractorAdapter* VSQmlVtkView::GetInteractorAdapter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSQmlVtkView::updateDevicePixelRatio(const int& ratio)
+{
+  m_InteractorAdapter->SetDevicePixelRatio(ratio);
+  const QSizeF itemSize = size() * ratio;
+  GetRenderWindow()->GetInteractor()->SetSize(itemSize.width(), itemSize.height());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
 {
   if(m_RenderWindow->getRenderer())
@@ -122,6 +135,7 @@ QQuickFramebufferObject::Renderer* VSQmlVtkView::createRenderer() const
   double bgColor[3] = { 0.3, 0.3, 0.35 };
   m_Renderer->SetBackground(bgColor);
 
+  delete m_FBO;
   m_FBO = new VSQmlFboRenderer(m_RenderWindow);
   
 #if 0
@@ -189,7 +203,7 @@ bool VSQmlVtkView::event(QEvent* evt)
     break;
 
   default:
-    
+    m_InteractorAdapter->ProcessEvent(evt, GetRenderWindow()->GetInteractor());
     break;
   }
 
@@ -256,6 +270,37 @@ void VSQmlVtkView::passMouseEventToVtk(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSQmlVtkView::setVtkInteractor(QQuickItem* item)
+{
+  if(nullptr == item)
+  {
+    return;
+  }
+
+  QVariant var = item->property("vtkPlaneWidget");
+  if(var.isValid())
+  {
+    VSPlaneWidget* planeWidget = var.value<VSPlaneWidget*>();
+    if(planeWidget)
+    {
+      planeWidget->setInteractor(m_RenderWindow->GetInteractor());
+    }
+  }
+
+  var = item->property("vtkBoxWidget");
+  if(var.isValid())
+  {
+    VSBoxWidget* boxWidget = var.value<VSBoxWidget*>();
+    if(boxWidget)
+    {
+      boxWidget->setInteractor(m_RenderWindow->GetInteractor());
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QQuickItem* VSQmlVtkView::createFilterPalette(QPoint point, VSAbstractFilter* filter)
 {
   QUrl paletteUrl = VSQmlLoader::GetFilterUrl(filter);
@@ -278,6 +323,7 @@ QQuickItem* VSQmlVtkView::createFilterPalette(QPoint point, VSAbstractFilter* fi
   }
 
   paletteItem->setParentItem(this);
+  setVtkInteractor(paletteItem);
 
   QList<QQmlError> errors = component.errors();
   for(QQmlError error : errors)
@@ -288,9 +334,7 @@ QQuickItem* VSQmlVtkView::createFilterPalette(QPoint point, VSAbstractFilter* fi
   paletteItem->setPosition(point);
   QQmlEngine::setObjectOwnership(paletteItem, QQmlEngine::ObjectOwnership::JavaScriptOwnership);
 
-  QVariant filterVariant;
-  filterVariant.setValue(filter);
-  paletteItem->setProperty("targetFilter", filterVariant);
+  paletteItem->setProperty("targetFilter", QVariant::fromValue(filter));
 
   return paletteItem;
 }
@@ -348,4 +392,28 @@ void VSQmlVtkView::setViewWidget(VSAbstractViewWidget* viewWidget)
   {
     GetRenderWindow()->setViewWidget(viewWidget);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+{
+  // TODO: Recreate FBO
+
+  QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQmlVtkView::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData& value)
+{
+  if(change == QQuickItem::ItemChange::ItemDevicePixelRatioHasChanged)
+  {
+    int ratio = value.realValue;
+    updateDevicePixelRatio(ratio);
+  }
+
+  QQuickFramebufferObject::itemChange(change, value);
 }

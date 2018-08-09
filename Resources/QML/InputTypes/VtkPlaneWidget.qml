@@ -2,10 +2,13 @@ import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
+import VSQml 1.0
 import "../InputTypes"
 
 GridLayout {
     id: vtkPlaneWidget
+
+    property VSPlaneWidget vtkWidget: VSPlaneWidget {}
 
     property alias normalX: normalXInput.value
     property alias normalY: normalYInput.value
@@ -126,5 +129,45 @@ GridLayout {
         Layout.preferredWidth: inputWidth
 
         decimals: decimals
+    }
+
+    function updateVtkNormal()
+    {
+        vtkWidget.normal = getNormal();
+    }
+
+    function updateVtkOrigin()
+    {
+        vtkWidget.origin = getOrigin();
+    }
+
+    function updateNormalFromVtk()
+    {
+        setNormal(vtkWidget.normal);
+    }
+
+    function updateOriginFromVtk()
+    {
+        setOrigin(vtkWidget.origin);
+    }
+
+    onNormalXChanged: updateVtkNormal();
+    onNormalYChanged: updateVtkNormal();
+    onNormalZChanged: updateVtkNormal();
+
+    onOriginXChanged: updateVtkOrigin();
+    onOriginYChanged: updateVtkOrigin();
+    onOriginZChanged: updateVtkOrigin();
+
+    Connections
+    {
+        target: vtkWidget
+        onNormalChanged: updateNormalFromVtk();
+        onOriginChanged: updateOriginFromVtk();
+        onModified:
+        {
+            updateNormalFromVtk();
+            updateOriginFromVtk();
+        }
     }
 }

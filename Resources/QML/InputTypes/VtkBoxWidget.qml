@@ -2,10 +2,13 @@ import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
+import VSQml 1.0
 import "../InputTypes"
 
 GridLayout {
     id: vtkBoxWidget
+
+    property VSBoxWidget vtkWidget: VSBoxWidget {}
 
     property alias translateX: translateXInput.value
     property alias translateY: translateYInput.value
@@ -171,5 +174,57 @@ GridLayout {
         Layout.preferredWidth: inputWidth
 
         decimals: decimals
+    }
+
+    function updateVtkTranslation()
+    {
+        vtkWidget.translation = getTranslation();
+    }
+    function updateVtkRotation()
+    {
+        vtkWidget.rotation = getRotation();
+    }
+    function updateVtkScale()
+    {
+        vtkWidget.scale = getScale();
+    }
+
+    function updateTranslationFromVtk()
+    {
+        setTranslation(vtkWidget.translation);
+    }
+    function updateRotationFromVtk()
+    {
+        setRotation(vtkWidget.rotation);
+    }
+    function updateScaleFromVtk()
+    {
+        setScale(vtkWidget.scale);
+    }
+
+    onTranslateXChanged: updateVtkTranslation();
+    onTranslateYChanged: updateVtkTranslation();
+    onTranslateZChanged: updateVtkTranslation();
+
+    onRotateXChanged: updateVtkRotation();
+    onRotateYChanged: updateVtkRotation();
+    onRotateZChanged: updateVtkRotation();
+
+    onScaleXChanged: updateVtkScale();
+    onScaleYChanged: updateVtkScale();
+    onScaleZChanged: updateVtkScale();
+
+    Connections
+    {
+        target: vtkWidget
+        onTranslationChanged: updateTranslationFromVtk();
+        onRotationChanged: updateRotationFromVtk();
+        onScaleChanged: updateScaleFromVtk();
+        onModified:
+        {
+            updateTranslationFromVtk();
+            updateRotationFromVtk();
+            updateScaleFromVtk();
+        }
     }
 }

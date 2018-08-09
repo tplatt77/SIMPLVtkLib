@@ -35,8 +35,6 @@
 
 #pragma once
 
-//#include "quickQmlRegister.hpp"
-
 #include <queue>
 #include <memory>
 
@@ -68,8 +66,6 @@ class SIMPLVtkLib_EXPORT VSQmlRenderWindow : public QObject, public vtkExternalO
   Q_OBJECT
 
 public:
-  // static Qml::Register::Symbol::Class<VSQMLRenderWindow> Register;
-
   static VSQmlRenderWindow* New();
   virtual ~VSQmlRenderWindow() = default;
 
@@ -78,6 +74,7 @@ public:
   void internalRender();
 
   void setFramebufferObject(QOpenGLFramebufferObject* fbo);
+  GLint getSamples();
 
   int* pointToRenderCoord(QPoint pos);
   void initializeAxes();
