@@ -84,20 +84,10 @@ void VSQmlRenderWindow::OpenGLInitState()
   vtkExternalOpenGLRenderWindow::OpenGLInitState();
 
   glUseProgram(0);
-  //if(getRenderer())
-  //{
-  //  double* bgColor = getRenderer()->GetBackground();
-  //  glClearColor(bgColor[0], bgColor[0], bgColor[0], 1.0);
-  //  //glClearColor(0.3, 0.3, 0.35, 1.0);
-  //}
-  //
-  //glEnable(GL_BLEND);
-  //glEnable(GL_DEBUG_OUTPUT);
-  //glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
-  //glDepthMask(GL_TRUE);
-
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glEnable(GL_DEBUG_OUTPUT);
+  glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
+  glDepthMask(GL_TRUE);
   
   // Clear to ensure that an uninitialized framebuffer is never displayed.
   glDisable(GL_SCISSOR_TEST);
