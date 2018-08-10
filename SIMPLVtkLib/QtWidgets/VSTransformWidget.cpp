@@ -35,6 +35,8 @@
 
 #include "VSTransformWidget.h"
 
+#include <QtGui/QDoubleValidator>
+
 #include "ui_VSTransformWidget.h"
 
 // -----------------------------------------------------------------------------
