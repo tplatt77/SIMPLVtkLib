@@ -40,6 +40,7 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkWin32RenderWindowInteractor.h>
 #include <vtkWin32OpenGLRenderWindow.h>
+#include <QVTKInteractor.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h"
 #include "SIMPLVtkLib/QML/VSQmlRenderWindow.h"
@@ -64,7 +65,7 @@ void VSQmlFboRenderer::setupGui()
   if(!m_QmlRenderWindow->GetInteractor())
   {
     //m_Interactor = VTK_PTR(vtkWin32RenderWindowInteractor)::New();
-    m_Interactor = VTK_PTR(vtkRenderWindowInteractor)::New();
+    m_Interactor = QVTKInteractor::New();
     VTK_NEW(VSInteractorStyleFilterCamera, interactorStyle);
 
     m_Interactor->SetUseTDx(false);
