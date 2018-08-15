@@ -33,14 +33,16 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSInfoWidget.h"
+#include "VSFilterSettingsWidget.h"
+
+#include "SIMPLVtkLib/QtWidgets/VSColorButton.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSInfoWidget::VSInfoWidget(QWidget* parent)
+VSFilterSettingsWidget::VSFilterSettingsWidget(QWidget* parent)
 : QWidget(parent)
-, m_Ui(new Ui::VSInfoWidget)
+, m_Ui(new Ui::VSFilterSettingsWidget)
 {
   m_Ui->setupUi(this);
   setupGui();
@@ -50,101 +52,106 @@ VSInfoWidget::VSInfoWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setupGui()
+void VSFilterSettingsWidget::setupGui()
 {
-  connect(m_Ui->filterWidget, &VSFilterSettingsWidget::filterDeleted, this, &VSInfoWidget::filterDeleted);
+  connect(m_Ui->applyBtn, &QPushButton::clicked, this, &VSFilterSettingsWidget::applyFilter);
+  connect(m_Ui->resetBtn, &QPushButton::clicked, this, &VSFilterSettingsWidget::resetFilter);
+  connect(m_Ui->deleteBtn, &QPushButton::clicked, this, &VSFilterSettingsWidget::deleteFilter);
+
+  m_Ui->applyBtn->setDisabled(true);
+  m_Ui->resetBtn->setDisabled(true);
+  m_Ui->deleteBtn->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::applyFilter()
+void VSFilterSettingsWidget::applyFilter()
 {
-  m_Ui->filterWidget->applyFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSInfoWidget::resetFilter()
-{
-  m_Ui->filterWidget->resetFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSInfoWidget::deleteFilter()
-{
-  m_Ui->filterWidget->deleteFilter();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
-{
-  m_Ui->filterWidget->setFilter(filter, filterWidget);
-  m_Ui->visibilityWidget->setFilter(filter, filterWidget);
-  m_Ui->colorMappingWidget->setFilter(filter, filterWidget);
-  m_Ui->advVisibilityWidget->setFilter(filter, filterWidget);
-
-  if(filter)
+  if(nullptr == m_Filter)
   {
-    m_Ui->transformWidget->setTransform(filter->getTransform());
+    return;
+  }
+
+  m_FilterWidget->apply();
+
+  bool hasChanges = m_FilterWidget->hasChanges();
+  m_Ui->applyBtn->setEnabled(hasChanges);
+  m_Ui->resetBtn->setEnabled(hasChanges);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterSettingsWidget::resetFilter()
+{
+  if(nullptr == m_Filter)
+  {
+    return;
+  }
+
+  m_FilterWidget->reset();
+
+  bool hasChanges = m_FilterWidget->hasChanges();
+  m_Ui->applyBtn->setEnabled(hasChanges);
+  m_Ui->resetBtn->setEnabled(hasChanges);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterSettingsWidget::deleteFilter()
+{
+  if(nullptr == m_Filter)
+  {
+    return;
+  }
+
+  emit filterDeleted(m_Filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterSettingsWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
+{
+  if(m_FilterWidget != nullptr)
+  {
+    m_Ui->filterWidgetLayout->removeWidget(m_FilterWidget);
+    m_FilterWidget->hide();
+    m_FilterWidget = nullptr;
+
+    disconnect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
+  }
+
+  m_Filter = filter;
+  m_FilterWidget = filterWidget;
+
+  if(m_FilterWidget != nullptr)
+  {
+    m_Ui->filterWidgetLayout->addWidget(m_FilterWidget);
+    m_FilterWidget->show();
+
+    connect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
+    bool hasChanges = m_FilterWidget->hasChanges();
+    m_Ui->applyBtn->setEnabled(hasChanges);
+    m_Ui->resetBtn->setEnabled(hasChanges);
   }
   else
   {
-    m_Ui->transformWidget->setTransform(nullptr);
+    m_Ui->applyBtn->setEnabled(false);
+    m_Ui->resetBtn->setEnabled(false);
   }
+
+  bool filterExists = (nullptr != filter);
+  m_Ui->deleteBtn->setEnabled(filterExists);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
+void VSFilterSettingsWidget::changesWaiting()
 {
-  m_Ui->visibilityWidget->setViewWidget(viewWidget);
-  m_Ui->colorMappingWidget->setViewWidget(viewWidget);
-  m_Ui->advVisibilityWidget->setViewWidget(viewWidget);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSFilterSettingsWidget* VSInfoWidget::getFilterSettingsWidget() const
-{
-  return m_Ui->filterWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSVisibilitySettingsWidget* VSInfoWidget::getVisibilitySettingsWidget() const
-{
-  return m_Ui->visibilityWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSColorMappingWidget* VSInfoWidget::getColorMappingWidget() const
-{
-  return m_Ui->colorMappingWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAdvancedVisibilitySettingsWidget* VSInfoWidget::getAdvancedVisibilitySettingsWidget() const
-{
-  return m_Ui->advVisibilityWidget;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSTransformWidget* VSInfoWidget::getTransformWidget() const
-{
-  return m_Ui->transformWidget;
+  m_Ui->applyBtn->setEnabled(true);
+  m_Ui->resetBtn->setEnabled(true);
 }

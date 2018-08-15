@@ -39,12 +39,16 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class VSAbstractFilter;
+
 /**
  * @class VSTransformWidget VSTransformWidget.h SIMPLVtkLib/QtWidgets/VSTransformWidget.h
  * @brief This class displays the global transformation values for a VSTransform
  * and allows the user to edit the local transformation.
  */
-class VSTransformWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSTransformWidget : public QWidget
 {
   Q_OBJECT
 
@@ -53,7 +57,7 @@ public:
    * @brief Constructor
    * @param parent
    */
-  VSTransformWidget(QWidget* parent);
+  VSTransformWidget(QWidget* parent = nullptr);
 
   /**
    * @brief Deconstructor
@@ -71,6 +75,12 @@ public:
    * @param transform
    */
   void setTransform(VSTransform* transform);
+
+  /**
+   * @brief Sets the VSTransform from the given filter
+   * @param filter
+   */
+  void setFilter(VSAbstractFilter* filter);
 
 protected slots:
   /**
@@ -107,21 +117,21 @@ protected slots:
   void updateScaleLabels(double* scale);
 
   /**
-  * @brief Updates the local translation spinboxes
-  * @param position
-  */
+   * @brief Updates the local translation spinboxes
+   * @param position
+   */
   void updateLocalTranslation(double* position);
 
   /**
-  * @brief Updates the local rotation spinboxes
-  * @param rotation
-  */
+   * @brief Updates the local rotation spinboxes
+   * @param rotation
+   */
   void updateLocalRotation(double* rotation);
 
   /**
-  * @brief Updates the local scale spinboxes
-  * @param scale
-  */
+   * @brief Updates the local scale spinboxes
+   * @param scale
+   */
   void updateLocalScale(double* scale);
 
 protected:

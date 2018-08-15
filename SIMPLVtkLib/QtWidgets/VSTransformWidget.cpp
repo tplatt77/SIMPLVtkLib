@@ -37,6 +37,8 @@
 
 #include <QtGui/QDoubleValidator>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+
 #include "ui_VSTransformWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -230,6 +232,14 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     m_Internals->scaleYLabel->setEnabled(false);
     m_Internals->scaleZLabel->setEnabled(false);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransformWidget::setFilter(VSAbstractFilter* filter)
+{
+  setTransform(filter->getTransform());
 }
 
 // -----------------------------------------------------------------------------

@@ -41,8 +41,13 @@
 #include <QtWidgets/QWidget>
 
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSAdvancedVisibilitySettingsWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSColorMappingWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
 #include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSTransformWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -99,16 +104,70 @@ public:
   void setFilterView(VSFilterView* view);
 
   /**
-   * @brief Returns the VSInfoWidget used by the main widget. Returns nullptr if none is used
-   * @return
-   */
-  VSInfoWidget* getInfoWidget();
-
-  /**
    * @brief Sets the VSInfoWidget to use for displaying information about the active filter
    * @param infoWidget
    */
   void setInfoWidget(VSInfoWidget* infoWidget);
+
+  /**
+   * @brief Returns the VSFilterSettingsWidget
+   * @return
+   */
+  VSFilterSettingsWidget* getFilterSettingsWidget() const;
+
+  /**
+   * @brief Returns the VSVisibilitySettingsWidget
+   * @return
+   */
+  VSVisibilitySettingsWidget* getVisibilitySettingsWidget() const;
+
+  /**
+   * @brief Returns the VSColorMappingWidget
+   * @return
+   */
+  VSColorMappingWidget* getColorMappingWidget() const;
+
+  /**
+   * @brief Returns the VSAdvancedVisibilitySettingsWidget
+   * @return
+   */
+  VSAdvancedVisibilitySettingsWidget* getAdvancedVisibilitySettingsWidget() const;
+
+  /**
+   * @brief Returns the VSTransformWidget
+   * @return
+   */
+  VSTransformWidget* getTransformWidget() const;
+
+  /**
+   * @brief Sets the VSFilterSettingsWidget
+   * @param widget
+   */
+  void setFilterSettingsWidget(VSFilterSettingsWidget* widget);
+
+  /**
+   * @brief Sets the VSVisibilitySettingsWidget
+   * @param widget
+   */
+  void setVisibilitySettingsWidget(VSVisibilitySettingsWidget* widget);
+
+  /**
+   * @brief Sets the VSColorMappingWidget
+   * @param widget
+   */
+  void setColorMappingWidget(VSColorMappingWidget* widget);
+
+  /**
+   * @brief Sets the VSAdvancedVisibilitySettingsWidget
+   * @param widget
+   */
+  void setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsWidget* widget);
+
+  /**
+   * @brief Sets the VSTransformWidget
+   * @param widget
+   */
+  void setTransformWidget(VSTransformWidget* widget);
 
   /**
    * @brief importFiles
@@ -117,10 +176,10 @@ public:
   void importFiles(QStringList filePaths);
 
   /**
-  * @brief Imports or reloads the given DataContainerArray from the FilterPipeline
-  * @param pipeline
-  * @param dca
-  */
+   * @brief Imports or reloads the given DataContainerArray from the FilterPipeline
+   * @param pipeline
+   * @param dca
+   */
   void importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
 public slots:
@@ -297,7 +356,11 @@ private:
   VSAbstractFilter* m_CurrentFilter = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
-  VSInfoWidget* m_InfoWidget = nullptr;
+  VSFilterSettingsWidget* m_FilterSettingsWidget = nullptr;
+  VSVisibilitySettingsWidget* m_VisibilitySettingsWidget = nullptr;
+  VSColorMappingWidget* m_ColorMappingWidget = nullptr;
+  VSTransformWidget* m_TransformWidget = nullptr;
+  VSAdvancedVisibilitySettingsWidget* m_AdvancedVisibilityWidget = nullptr;
 
   QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
 

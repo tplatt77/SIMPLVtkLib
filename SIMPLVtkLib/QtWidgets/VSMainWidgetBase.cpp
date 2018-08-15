@@ -165,9 +165,161 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSInfoWidget* VSMainWidgetBase::getInfoWidget()
+VSFilterSettingsWidget* VSMainWidgetBase::getFilterSettingsWidget() const
 {
-  return m_InfoWidget;
+  return m_FilterSettingsWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSVisibilitySettingsWidget* VSMainWidgetBase::getVisibilitySettingsWidget() const
+{
+  return m_VisibilitySettingsWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSColorMappingWidget* VSMainWidgetBase::getColorMappingWidget() const
+{
+  return m_ColorMappingWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAdvancedVisibilitySettingsWidget* VSMainWidgetBase::getAdvancedVisibilitySettingsWidget() const
+{
+  return m_AdvancedVisibilityWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTransformWidget* VSMainWidgetBase::getTransformWidget() const
+{
+  return m_TransformWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setFilterSettingsWidget(VSFilterSettingsWidget* widget)
+{
+  if(m_FilterSettingsWidget)
+  {
+    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_FilterSettingsWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
+    disconnect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+  }
+
+  m_FilterSettingsWidget = widget;
+
+  if(m_FilterSettingsWidget)
+  {
+    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_FilterSettingsWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
+    connect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+    m_FilterSettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setVisibilitySettingsWidget(VSVisibilitySettingsWidget* widget)
+{
+  if(m_VisibilitySettingsWidget)
+  {
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setViewWidget);
+  }
+
+  m_VisibilitySettingsWidget = widget;
+
+  if(m_VisibilitySettingsWidget)
+  {
+    connect(this, &VSMainWidgetBase::changedActiveFilter, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilter);
+    connect(this, &VSMainWidgetBase::changedActiveView, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setViewWidget);
+
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+    m_VisibilitySettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_VisibilitySettingsWidget->setViewWidget(getActiveViewWidget());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setColorMappingWidget(VSColorMappingWidget* widget)
+{
+  if(m_ColorMappingWidget)
+  {
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_ColorMappingWidget, &VSColorMappingWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_ColorMappingWidget, &VSColorMappingWidget::setViewWidget);
+  }
+
+  m_ColorMappingWidget = widget;
+
+  if(m_ColorMappingWidget)
+  {
+    connect(this, &VSMainWidgetBase::changedActiveFilter, m_ColorMappingWidget, &VSColorMappingWidget::setFilter);
+    connect(this, &VSMainWidgetBase::changedActiveView, m_ColorMappingWidget, &VSColorMappingWidget::setViewWidget);
+
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+    m_ColorMappingWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_ColorMappingWidget->setViewWidget(getActiveViewWidget());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsWidget* widget)
+{
+  if(m_AdvancedVisibilityWidget)
+  {
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
+  }
+
+  m_AdvancedVisibilityWidget = widget;
+
+  if(m_ColorMappingWidget)
+  {
+    connect(this, &VSMainWidgetBase::changedActiveFilter, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilter);
+    connect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
+
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
+    m_AdvancedVisibilityWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_AdvancedVisibilityWidget->setViewWidget(getActiveViewWidget());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setTransformWidget(VSTransformWidget* widget)
+{
+  if(m_TransformWidget)
+  {
+    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_TransformWidget, &VSTransformWidget::setFilter);
+  }
+
+  m_TransformWidget = widget;
+
+  if(m_TransformWidget)
+  {
+    connect(this, &VSMainWidgetBase::changedActiveFilter, m_TransformWidget, &VSTransformWidget::setFilter);
+
+    if(m_CurrentFilter)
+    {
+      m_TransformWidget->setTransform(m_CurrentFilter->getTransform());
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -175,24 +327,12 @@ VSInfoWidget* VSMainWidgetBase::getInfoWidget()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
-  if(m_InfoWidget)
+  if(infoWidget)
   {
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_InfoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_InfoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
-  }
-
-  m_InfoWidget = infoWidget;
-
-  if(m_InfoWidget)
-  {
-    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), infoWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), infoWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    connect(infoWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
-
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_InfoWidget->setFilter(m_CurrentFilter, filterWidget);
-    m_InfoWidget->setViewWidget(getActiveViewWidget());
+    setFilterSettingsWidget(infoWidget->getFilterSettingsWidget());
+    setVisibilitySettingsWidget(infoWidget->getVisibilitySettingsWidget());
+    setColorMappingWidget(infoWidget->getColorMappingWidget());
+    setTransformWidget(infoWidget->getTransformWidget());
   }
 }
 
@@ -537,9 +677,9 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::applyCurrentFilter()
 {
-  if(m_InfoWidget)
+  if(m_FilterSettingsWidget)
   {
-    m_InfoWidget->applyFilter();
+    m_FilterSettingsWidget->applyFilter();
   }
 }
 
@@ -548,9 +688,9 @@ void VSMainWidgetBase::applyCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::resetCurrentFilter()
 {
-  if(m_InfoWidget)
+  if(m_FilterSettingsWidget)
   {
-    m_InfoWidget->resetFilter();
+    m_FilterSettingsWidget->resetFilter();
   }
 }
 

@@ -42,60 +42,15 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-#include "ui_VSInfoWidget.h"
+#include "ui_VSFilterSettingsWidget.h"
 
-class VSAbstractFilterWidget;
-
-/**
- * @class VSInfoWidget VSInfoWidget.h SIMPLVtkLib/QtWidgets/VSInfoWidget.h
- * @brief This class handles displaying information about a visual filter and
- * its view settings in the active VSViewController
- */
-class SIMPLVtkLib_EXPORT VSInfoWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSFilterSettingsWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  /**
-   * @brief Constructor
-   * @param parent
-   */
-  VSInfoWidget(QWidget* parent = nullptr);
-
-  /**
-   * @brief Deconstructor
-   */
-  virtual ~VSInfoWidget() = default;
-
-  /**
-   * @brief Returns the VSFilterSettings widget
-   * @return
-   */
-  VSFilterSettingsWidget* getFilterSettingsWidget() const;
-
-  /**
-   * @brief Returns the VSVisibilitySettings widget
-   * @return
-   */
-  VSVisibilitySettingsWidget* getVisibilitySettingsWidget() const;
-
-  /**
-   * @brief Returns the VSColorMapping widget
-   * @return
-   */
-  VSColorMappingWidget* getColorMappingWidget() const;
-
-  /**
-   * @brief Returns the VSAdvancedVisibilitySettings widget
-   * @return
-   */
-  VSAdvancedVisibilitySettingsWidget* getAdvancedVisibilitySettingsWidget() const;
-
-  /**
-   * @brief Returns the VSTransformWidget
-   * @return
-   */
-  VSTransformWidget* getTransformWidget() const;
+  VSFilterSettingsWidget(QWidget* parent = nullptr);
+  virtual ~VSFilterSettingsWidget() = default;
 
 signals:
   void filterDeleted(VSAbstractFilter* filter);
@@ -107,12 +62,6 @@ public slots:
    * @param filterWidget
    */
   void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
-
-  /**
-   * @brief Changes the VSViewController used for fetching VSFilterViewSettings
-   * @param viewController
-   */
-  void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
    * @brief Applies the active filter with the current widget values.
@@ -129,6 +78,12 @@ public slots:
    */
   void deleteFilter();
 
+protected slots:
+  /**
+   * @brief Enables the Apply and Reset buttons when the current filter widget has changes waiting
+   */
+  void changesWaiting();
+
 protected:
   /**
    * @brief Performs initial setup for the GUI
@@ -136,5 +91,7 @@ protected:
   void setupGui();
 
 private:
-  QSharedPointer<Ui::VSInfoWidget> m_Ui;
+  QSharedPointer<Ui::VSFilterSettingsWidget> m_Ui;
+  VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractFilterWidget* m_FilterWidget = nullptr;
 };
