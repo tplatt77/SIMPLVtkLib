@@ -270,7 +270,6 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
   VTK_NEW(vtkPoints, points);
   VTK_NEW(vtkDoubleArray, normals);
 
-  double* pointOrigin = new double[3];
   points->SetNumberOfPoints(6);
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(6);

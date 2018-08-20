@@ -345,8 +345,6 @@ void VSController::loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter)
 VSFileNameFilter* VSController::getBaseFileNameFilter(QString text)
 {
   VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
-  int count = baseFilters.size();
-
   for(VSAbstractFilter* baseFilter : baseFilters)
   {
     VSFileNameFilter* filter = dynamic_cast<VSFileNameFilter*>(baseFilter);
