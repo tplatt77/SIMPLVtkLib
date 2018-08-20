@@ -90,6 +90,7 @@ void VSAdvancedVisibilitySettingsWidget::connectFilterViewSettings(VSFilterViewS
 {
   if(m_ViewSettings)
   {
+    disconnect(m_ViewSettings, &VSFilterViewSettings::pointRenderingChanged, this, &VSAdvancedVisibilitySettingsWidget::updatePointSettingVisibility);
     disconnect(m_ViewSettings, &VSFilterViewSettings::pointSizeChanged, this, &VSAdvancedVisibilitySettingsWidget::listenPointSize);
     disconnect(m_ViewSettings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSAdvancedVisibilitySettingsWidget::listenPointSphere);
     disconnect(m_ViewSettings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSAdvancedVisibilitySettingsWidget::listenAxesGridVisible);
@@ -99,6 +100,7 @@ void VSAdvancedVisibilitySettingsWidget::connectFilterViewSettings(VSFilterViewS
 
   if(m_ViewSettings)
   {
+    connect(settings, &VSFilterViewSettings::pointRenderingChanged, this, &VSAdvancedVisibilitySettingsWidget::updatePointSettingVisibility);
     connect(settings, &VSFilterViewSettings::pointSizeChanged, this, &VSAdvancedVisibilitySettingsWidget::listenPointSize);
     connect(settings, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSAdvancedVisibilitySettingsWidget::listenPointSphere);
     connect(settings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSAdvancedVisibilitySettingsWidget::listenAxesGridVisible);
@@ -177,14 +179,12 @@ void VSAdvancedVisibilitySettingsWidget::updateViewSettingInfo()
 void VSAdvancedVisibilitySettingsWidget::updatePointSettingVisibility()
 {
   bool visible = false;
-
   if(m_ViewSettings)
   {
     visible = m_ViewSettings->isRenderingPoints();
   }
 
   m_Ui->pointRenderingWidget->setVisible(visible);
-
   update();
 }
 
