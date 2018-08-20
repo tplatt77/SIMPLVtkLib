@@ -109,12 +109,12 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 {
   if(m_Transform)
   {
-    disconnect(m_Transform, SIGNAL(updatedPosition(double*)), this, SLOT(updateTranslationLabels(double*)));
-    disconnect(m_Transform, SIGNAL(updatedRotation(double*)), this, SLOT(updateRotationLabels(double*)));
-    disconnect(m_Transform, SIGNAL(updatedScale(double*)), this, SLOT(updateScaleLabels(double*)));
-    disconnect(m_Transform, SIGNAL(updatedLocalPosition(double*)), this, SLOT(updateLocalTranslation(double*)));
-    disconnect(m_Transform, SIGNAL(updatedLocalRotation(double*)), this, SLOT(updateLocalRotation(double*)));
-    disconnect(m_Transform, SIGNAL(updatedLocalScale(double*)), this, SLOT(updateLocalScale(double*)));
+    disconnect(m_Transform, &VSTransform::updatedPosition, this, &VSTransformWidget::updateTranslationLabels);
+    disconnect(m_Transform, &VSTransform::updatedRotation, this, &VSTransformWidget::updateRotationLabels);
+    disconnect(m_Transform, &VSTransform::updatedScale, this, &VSTransformWidget::updateScaleLabels);
+    disconnect(m_Transform, &VSTransform::updatedLocalPosition, this, &VSTransformWidget::updateLocalTranslation);
+    disconnect(m_Transform, &VSTransform::updatedLocalRotation, this, &VSTransformWidget::updateLocalRotation);
+    disconnect(m_Transform, &VSTransform::updatedLocalScale, this, &VSTransformWidget::updateLocalScale);
   }
 
   m_Transform = transform;
@@ -143,12 +143,12 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     m_Internals->scaleYLabel->setEnabled(true);
     m_Internals->scaleZLabel->setEnabled(true);
 
-    connect(transform, SIGNAL(updatedPosition(double*)), this, SLOT(updateTranslationLabels(double*)));
-    connect(transform, SIGNAL(updatedRotation(double*)), this, SLOT(updateRotationLabels(double*)));
-    connect(transform, SIGNAL(updatedScale(double*)), this, SLOT(updateScaleLabels(double*)));
-    connect(transform, SIGNAL(updatedLocalPosition(double*)), this, SLOT(updateLocalTranslation(double*)));
-    connect(transform, SIGNAL(updatedLocalRotation(double*)), this, SLOT(updateLocalRotation(double*)));
-    connect(transform, SIGNAL(updatedLocalScale(double*)), this, SLOT(updateLocalScale(double*)));
+    connect(transform, &VSTransform::updatedPosition, this, &VSTransformWidget::updateTranslationLabels);
+    connect(transform, &VSTransform::updatedRotation, this, &VSTransformWidget::updateRotationLabels);
+    connect(transform, &VSTransform::updatedScale, this, &VSTransformWidget::updateScaleLabels);
+    connect(transform, &VSTransform::updatedLocalPosition, this, &VSTransformWidget::updateLocalTranslation);
+    connect(transform, &VSTransform::updatedLocalRotation, this, &VSTransformWidget::updateLocalRotation);
+    connect(transform, &VSTransform::updatedLocalScale, this, &VSTransformWidget::updateLocalScale);
 
     // local
     double* localPos = transform->getLocalPosition();
@@ -167,14 +167,9 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     m_Internals->scaleZEdit->setText(QString::number(localScale[2]));
 
     // global
-    double* globalPos = transform->getPosition();
-    updateTranslationLabels(globalPos);
-
-    double* globalRot = transform->getRotation();
-    updateRotationLabels(globalRot);
-
-    double* globalScale = transform->getScale();
-    updateScaleLabels(globalScale);
+    updateTranslationLabels();
+    updateRotationLabels();
+    updateScaleLabels();
   }
   else
   {
@@ -192,24 +187,9 @@ void VSTransformWidget::setTransform(VSTransform* transform)
     m_Internals->scaleZEdit->setText(QString::number(0.0));
 
     // global
-    double* globalPos = new double[3];
-    double* globalRot = new double[3];
-    double* globalScale = new double[3];
-
-    for(int i = 0; i < 3; i++)
-    {
-      globalPos[i] = 0.0;
-      globalRot[i] = 0.0;
-      globalScale[i] = 1.0;
-    }
-
-    updateTranslationLabels(globalPos);
-    updateRotationLabels(globalRot);
-    updateScaleLabels(globalScale);
-
-    delete[] globalPos;
-    delete[] globalRot;
-    delete[] globalScale;
+    updateTranslationLabels();
+    updateRotationLabels();
+    updateScaleLabels();
 
     // Disable widgets
     m_Internals->posXEdit->setEnabled(false);
@@ -299,13 +279,22 @@ void VSTransformWidget::scaleEditChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateTranslationLabels(double* position)
+void VSTransformWidget::updateTranslationLabels()
 {
-  if(nullptr == position)
+  double* position;
+  if(nullptr == m_Transform)
   {
-    return;
+    position = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      position[i] = 0.0;
+    }
   }
-
+  else
+  {
+    position = m_Transform->getPosition();
+  }
+  
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(position[0]);
@@ -320,11 +309,20 @@ void VSTransformWidget::updateTranslationLabels(double* position)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateRotationLabels(double* rotation)
+void VSTransformWidget::updateRotationLabels()
 {
-  if(nullptr == rotation)
+  double* rotation;
+  if(nullptr == m_Transform)
   {
-    return;
+    rotation = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      rotation[i] = 0.0;
+    }
+  }
+  else
+  {
+    rotation = m_Transform->getRotation();
   }
 
   QLocale locale = QLocale::system();
@@ -341,13 +339,22 @@ void VSTransformWidget::updateRotationLabels(double* rotation)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateScaleLabels(double* scale)
+void VSTransformWidget::updateScaleLabels()
 {
-  if(nullptr == scale)
+  double* scale;
+  if(nullptr == m_Transform)
   {
-    return;
+    scale = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      scale[i] = 1.0;
+    }
   }
-
+  else
+  {
+    scale = m_Transform->getScale();
+  }
+  
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(scale[0]);
@@ -362,8 +369,22 @@ void VSTransformWidget::updateScaleLabels(double* scale)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateLocalTranslation(double* position)
+void VSTransformWidget::updateLocalTranslation()
 {
+  double* position;
+  if(nullptr == m_Transform)
+  {
+    position = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      position[i] = 0.0;
+    }
+  }
+  else
+  {
+    position = m_Transform->getLocalPosition();
+  }
+
   m_Internals->posXEdit->setText(QString::number(position[0]));
   m_Internals->posYEdit->setText(QString::number(position[1]));
   m_Internals->posZEdit->setText(QString::number(position[2]));
@@ -372,8 +393,22 @@ void VSTransformWidget::updateLocalTranslation(double* position)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateLocalRotation(double* rotation)
+void VSTransformWidget::updateLocalRotation()
 {
+  double* rotation;
+  if(nullptr == m_Transform)
+  {
+    rotation = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      rotation[i] = 0.0;
+    }
+  }
+  else
+  {
+    rotation = m_Transform->getLocalRotation();
+  }
+
   m_Internals->rotXEdit->setText(QString::number(rotation[0]));
   m_Internals->rotYEdit->setText(QString::number(rotation[1]));
   m_Internals->rotZEdit->setText(QString::number(rotation[2]));
@@ -382,8 +417,22 @@ void VSTransformWidget::updateLocalRotation(double* rotation)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::updateLocalScale(double* scale)
+void VSTransformWidget::updateLocalScale()
 {
+  double* scale;
+  if(nullptr == m_Transform)
+  {
+    scale = new double[3];
+    for(int i = 0; i < 3; i++)
+    {
+      scale[i] = 0.0;
+    }
+  }
+  else
+  {
+    scale = m_Transform->getLocalScale();
+  }
+
   m_Internals->scaleXEdit->setText(QString::number(scale[0]));
   m_Internals->scaleYEdit->setText(QString::number(scale[1]));
   m_Internals->scaleZEdit->setText(QString::number(scale[2]));
