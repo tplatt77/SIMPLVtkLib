@@ -42,7 +42,6 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
-//#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
@@ -127,8 +126,9 @@ public:
 
   /**
    * @brief Returns the VSVisualizationWidget used
+   * @return
    */
-  virtual VSVisualizationWidget* getVisualizationWidget() const = 0;
+  virtual VSVisualizationWidget* getVisualizationWidget() const;
 
   /**
    * @brief Returns the corresponding VSAbstractFilter for the given prop
@@ -302,6 +302,12 @@ protected:
    * @brief Create connections to the VSFilterViewModel
    */
   void setupModel();
+
+  /**
+   * @brief Copies the given model and creates connections
+   * @param other
+   */
+  void copyModel(const VSFilterViewModel& other);
 
   /**
    * @brief Adds a new VSFilterViewSettings object and makes necessary connections

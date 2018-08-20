@@ -183,11 +183,19 @@ void VSFilterViewModel::deepCopy(const VSFilterViewModel& model)
 {
   if(nullptr != model.m_FilterModel)
   {
-    setFilterModel(new VSFilterModel(model.m_FilterModel));
+    setFilterModel(model.m_FilterModel);
 
-    for(std::pair<VSAbstractFilter*, VSFilterViewSettings*> iter : model.m_FilterViewSettings)
+    std::vector<VSFilterViewSettings*> allFilterViewSettings = model.getAllFilterViewSettings();
+    for(VSFilterViewSettings* filterViewSettings : allFilterViewSettings)
     {
-      m_FilterViewSettings[iter.first] = new VSFilterViewSettings(*iter.second);
+      if(m_FilterViewSettings.find(filterViewSettings->getFilter()) == m_FilterViewSettings.end())
+      {
+        m_FilterViewSettings[filterViewSettings->getFilter()] = new VSFilterViewSettings(*filterViewSettings);
+      }
+      else
+      {
+        m_FilterViewSettings[filterViewSettings->getFilter()]->deepCopy(filterViewSettings);
+      }
     }
   }
 }
@@ -300,6 +308,10 @@ void VSFilterViewModel::clearFilterViewSettings()
 void VSFilterViewModel::removeFilterViewSettings(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
+  {
+    return;
+  }
+  if(m_FilterViewSettings.find(filter) == m_FilterViewSettings.end())
   {
     return;
   }

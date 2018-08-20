@@ -153,6 +153,7 @@ void VSVisualizationWidget::copy(VSVisualizationWidget* other)
   thisCamera->SetFocalPoint(otherCamera->GetFocalPoint());
   thisCamera->SetViewUp(otherCamera->GetViewUp());
 
+  render();
   // TODO: Copy vtkWidget values from another visualization widget
 }
 

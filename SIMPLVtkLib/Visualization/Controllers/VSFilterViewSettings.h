@@ -146,6 +146,12 @@ public:
   virtual ~VSFilterViewSettings();
 
   /**
+   * @brief Deep copies values from another VSFilterViewSettings
+   * @param target
+   */
+  void deepCopy(VSFilterViewSettings* target);
+
+  /**
    * @brief Returns a pointer to the VSAbstractFilter
    * @return
    */

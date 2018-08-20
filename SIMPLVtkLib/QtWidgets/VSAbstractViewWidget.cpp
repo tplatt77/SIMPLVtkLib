@@ -55,8 +55,10 @@ VSAbstractViewWidget::VSAbstractViewWidget(QWidget* parent, Qt::WindowFlags wind
 // -----------------------------------------------------------------------------
 VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 : QFrame(nullptr)
+, m_Controller(other.m_Controller)
 {
   setupModel();
+  //copyModel(*other.m_FilterViewModel);
 }
 
 // -----------------------------------------------------------------------------
@@ -65,6 +67,17 @@ VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 void VSAbstractViewWidget::setupModel()
 {
   m_FilterViewModel = new VSFilterViewModel(this);
+  connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsCreated, this, &VSAbstractViewWidget::addViewSettings);
+  connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsRemoved, this, &VSAbstractViewWidget::removeViewSettings);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::copyModel(const VSFilterViewModel& other)
+{
+  m_FilterViewModel = new VSFilterViewModel(other);
+
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsCreated, this, &VSAbstractViewWidget::addViewSettings);
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsRemoved, this, &VSAbstractViewWidget::removeViewSettings);
 }
@@ -85,7 +98,7 @@ void VSAbstractViewWidget::addViewSettings(VSFilterViewSettings* viewSettings)
 
   checkFilterViewSetting(viewSettings);
 
-  if(dynamic_cast<VSAbstractDataFilter*>(viewSettings->getFilter()))
+  if(dynamic_cast<VSAbstractDataFilter*>(viewSettings->getFilter()) && getVisualizationWidget())
   {
     getVisualizationWidget()->resetCamera();
   }
@@ -99,7 +112,8 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
   if(viewSettings)
   {
     changeFilterVisibility(viewSettings, false);
-    changeScalarBarVisibility(viewSettings, false);
+    //changeScalarBarVisibility(viewSettings, false);
+    viewSettings->setScalarBarVisible(false);
     checkFilterViewSetting(viewSettings);
   }
 }
@@ -115,7 +129,7 @@ void VSAbstractViewWidget::copyFilters(const VSFilterViewModel& filterViewModel)
   std::vector<VSFilterViewSettings*> filterViewSettings = m_FilterViewModel->getAllFilterViewSettings();
   for(VSFilterViewSettings* viewSettings : filterViewSettings)
   {
-    checkFilterViewSetting(viewSettings);
+    addViewSettings(viewSettings);
   }
 }
 
@@ -149,13 +163,16 @@ void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
     return;
   }
 
-  if(setting->getScalarBarWidget())
+  if(getVisualizationWidget())
   {
-    setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
-  }
+    if(setting->getScalarBarWidget())
+    {
+      setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
+    }
 
-  changeFilterVisibility(setting, setting->isVisible());
-  changeScalarBarVisibility(setting, setting->isScalarBarVisible());
+    changeFilterVisibility(setting, setting->isVisible());
+    changeScalarBarVisibility(setting, setting->isScalarBarVisible());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -265,7 +282,7 @@ void VSAbstractViewWidget::changeScalarBarVisibility(VSFilterViewSettings* viewS
     return;
   }
 
-  if(nullptr == viewSettings->getScalarBarWidget())
+  if(nullptr == viewSettings->getScalarBarWidget() || nullptr == getVisualizationWidget())
   {
     return;
   }
@@ -276,6 +293,7 @@ void VSAbstractViewWidget::changeScalarBarVisibility(VSFilterViewSettings* viewS
     {
       if(viewSettings->isScalarBarVisible())
       {
+        viewSettings->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
         viewSettings->getScalarBarWidget()->SetEnabled(1);
       }
       else
@@ -524,6 +542,7 @@ QSplitter* VSAbstractViewWidget::splitWidget(Qt::Orientation orientation)
   // Fill the splitter with both the view widget and a clone of it
   splitter->addWidget(this);
   splitter->addWidget(cloneWidget);
+  cloneWidget->getVisualizationWidget()->render();
 
   // Add property to signify that this splitter is used for multiple view widgets
   splitter->setProperty("Visualization Splitter", true);
@@ -771,6 +790,14 @@ void VSAbstractViewWidget::setController(VSController* controller)
   }
 
   emit controllerChanged(controller);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSVisualizationWidget* VSAbstractViewWidget::getVisualizationWidget() const
+{
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

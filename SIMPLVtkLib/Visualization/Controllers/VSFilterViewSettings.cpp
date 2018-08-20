@@ -144,6 +144,21 @@ VSFilterViewSettings::~VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterViewSettings::deepCopy(VSFilterViewSettings* target)
+{
+  connectFilter(target->m_Filter);
+  setVisible(target->isVisible());
+  setScalarBarVisible(target->isScalarBarVisible());
+  setRepresentation(target->getRepresentation());
+  setActiveArrayName(target->m_ActiveArrayName);
+  setActiveComponentIndex(target->m_ActiveComponent);
+  setSolidColor(target->getSolidColor());
+  setPointSize(target->getPointSize());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::setupStaticIcons()
 {
   if(nullptr == m_SolidColorIcon)

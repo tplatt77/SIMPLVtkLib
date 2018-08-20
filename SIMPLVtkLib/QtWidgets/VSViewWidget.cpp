@@ -79,9 +79,9 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
   m_InteractorStyle->setViewWidget(this);
 
-  setController(other.getController());
-  getVisualizationWidget()->copy(other.getVisualizationWidget());
+  
   copyFilters(*other.getFilterViewModel());
+  getVisualizationWidget()->copy(other.getVisualizationWidget());
 
   setupGui();
 }
@@ -106,6 +106,7 @@ void VSViewWidget::setupGui()
   ss << "}";
 
   setStyleSheet(styleString);
+  getVisualizationWidget()->render();
 }
 
 // -----------------------------------------------------------------------------
