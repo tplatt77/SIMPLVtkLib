@@ -252,7 +252,7 @@ void VSColorMappingWidget::alphaSliderMoved(int value)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping colorMapping)
+void VSColorMappingWidget::listenMapColors(VSFilterViewSettings::ColorMapping colorMapping)
 {
   // m_Ui->mapScalarsComboBox->blockSignals(true);
   // m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(colorMapping));
@@ -262,7 +262,7 @@ void VSColorMappingWidget::listenMapColors(VSFilterViewSettings* settings, VSFil
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::listenAlpha(VSFilterViewSettings* settings, double alpha)
+void VSColorMappingWidget::listenAlpha(double alpha)
 {
   // m_Ui->alphaSlider->blockSignals(true);
   // m_Ui->alphaSlider->setValue(alpha * 100);
@@ -272,7 +272,7 @@ void VSColorMappingWidget::listenAlpha(VSFilterViewSettings* settings, double al
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::listenScalarBar(VSFilterViewSettings* settings, bool show)
+void VSColorMappingWidget::listenScalarBar(bool show)
 {
   // m_Ui->showScalarBarCheckBox->blockSignals(true);
   // m_Ui->showScalarBarCheckBox->setChecked(show);

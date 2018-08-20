@@ -182,6 +182,8 @@ void VSVisualizationWidget::render()
   {
     GetRenderWindow()->GetInteractor()->Render();
   }
+
+  update();
 }
 
 // -----------------------------------------------------------------------------

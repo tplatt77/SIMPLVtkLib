@@ -79,23 +79,46 @@ public:
   virtual VSVisualizationWidget* getVisualizationWidget() const override;
 
   /**
-  * @brief Returns the visualization filter based on the given mouse coordinates.
-  * @param pos
-  * @return
-  */
+   * @brief Returns the visualization filter based on the given mouse coordinates.
+   * @param pos
+   * @return
+   */
   VSAbstractFilter* getFilterAtMousePos(const QPoint& point) override;
 
   /**
-  * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
-  * @param pos
-  * @return
-  */
+   * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
+   * @param pos
+   * @return
+   */
   VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) override;
 
+  /**
+   * @brief Show only the filter for the given VSFilterViewSettings
+   * @param settings
+   */
   void showOnlyFilter(VSFilterViewSettings* settings);
+
+  /**
+   * @brief Show all filters in the visualization widget
+   */
   void showAllFilters();
+
+  /**
+   * @brief Show only the scalar bar for the given VSFilterViewSettings
+   * @param settings
+   */
   void showOnlyScalarBar(VSFilterViewSettings* settings);
+
+  /**
+   * @brief Hide all scalar bars
+   */
   void hideAllScalarBars();
+
+  /**
+   * @brief Returns the context menu for the given filter
+   * @param filter
+   */
+  QMenu* getContextMenu(VSAbstractFilter* filter);
 
 protected:
   /**
@@ -109,14 +132,14 @@ protected:
   void connectSlots();
 
   /**
-  * @brief Updates whether or not the view widget can be closed.
-  */
+   * @brief Updates whether or not the view widget can be closed.
+   */
   void updateClosable() override;
 
   /**
-  * @brief Creates a context menu for the VSVisualizationWidget
-  * @param pos
-  */
+   * @brief Creates a context menu for the VSVisualizationWidget
+   * @param pos
+   */
   void showVisualizationContextMenu(const QPoint& pos);
 
 protected slots:
@@ -125,7 +148,7 @@ protected slots:
    * @param viewSettings
    * @param showScalarBar
    */
-  void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar) override;
+  void setFilterShowScalarBar(const bool& showScalarBar) override;
 
 private:
   class VSInternals;

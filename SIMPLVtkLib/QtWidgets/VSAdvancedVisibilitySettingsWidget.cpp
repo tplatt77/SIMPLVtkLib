@@ -243,7 +243,7 @@ void VSAdvancedVisibilitySettingsWidget::setAxesGridVisible(int checkState)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAdvancedVisibilitySettingsWidget::listenPointSize(VSFilterViewSettings* settings, int size)
+void VSAdvancedVisibilitySettingsWidget::listenPointSize(int size)
 {
   m_Ui->pointSizeEdit->blockSignals(true);
   m_Ui->pointSizeEdit->setText(QString::number(size));
@@ -253,7 +253,7 @@ void VSAdvancedVisibilitySettingsWidget::listenPointSize(VSFilterViewSettings* s
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAdvancedVisibilitySettingsWidget::listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres)
+void VSAdvancedVisibilitySettingsWidget::listenPointSphere(bool renderAsSpheres)
 {
   m_Ui->pointSphereCheckBox->blockSignals(true);
   m_Ui->pointSphereCheckBox->setChecked(renderAsSpheres ? Qt::Checked : Qt::Unchecked);
@@ -263,7 +263,7 @@ void VSAdvancedVisibilitySettingsWidget::listenPointSphere(VSFilterViewSettings*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAdvancedVisibilitySettingsWidget::listenAxesGridVisible(VSFilterViewSettings* settings, double show)
+void VSAdvancedVisibilitySettingsWidget::listenAxesGridVisible(double show)
 {
   m_Ui->viewAxesGridCheckBox->blockSignals(true);
   m_Ui->viewAxesGridCheckBox->setCheckState(show ? Qt::Checked : Qt::Unchecked);

@@ -109,21 +109,19 @@ protected slots:
    * @param settings
    * @param colorMapping
    */
-  void listenMapColors(VSFilterViewSettings* settings, VSFilterViewSettings::ColorMapping colorMapping);
+  void listenMapColors(VSFilterViewSettings::ColorMapping colorMapping);
 
   /**
    * @brief Listens for the active VSFilterViewSettings alpha value to change
-   * @param settings
    * @param alpha
    */
-  void listenAlpha(VSFilterViewSettings* settings, double alpha);
+  void listenAlpha(double alpha);
 
   /**
    * @brief Listens for the active VSFilterViewSettings scalar bar visibility to change
-   * @param settings
    * @param show
    */
-  void listenScalarBar(VSFilterViewSettings* settings, bool show);
+  void listenScalarBar(bool show);
 
 protected:
   /**

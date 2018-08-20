@@ -62,9 +62,6 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
 , m_ApplyLock(1)
 {
   createFilter();
-
-  setText(wrappedDataContainer->m_Name);
-  setToolTip(getToolTip());
   setParentFilter(parent);
 
   connect(this, SIGNAL(finishedWrapping()), this, SLOT(apply()));
@@ -114,7 +111,7 @@ vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput()
+VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput() const
 {
   if(nullptr == m_WrappedDataContainer)
   {
@@ -193,8 +190,8 @@ void VSSIMPLDataContainerFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
 
-  json["Data Container Name"] = text();
-  json["Tooltip"] = toolTip();
+  json["Data Container Name"] = getText();
+  json["Tooltip"] = getToolTip();
   json["Uuid"] = GetUuid().toString();
 }
 
@@ -301,6 +298,13 @@ void VSSIMPLDataContainerFilter::reloadData()
     FilterPipeline::Pointer pipeline = pipelineFilter->getFilterPipeline();
     DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
 
+    if(nullptr == dca)
+    {
+      QString ss = QObject::tr("The DataContainerArray '%1' could not be accessed because it no longer exists in the underlying pipeline '%1'.").arg(pipelineFilter->getPipelineName());
+      emit errorGenerated("Data Reload Error", ss, -3000);
+      return;
+    }
+
     DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
     if(nullptr == dc)
     {
@@ -369,7 +373,7 @@ void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSSIMPLDataContainerFilter::getFilterName()
+QString VSSIMPLDataContainerFilter::getFilterName() const
 {
   return m_WrappedDataContainer->m_Name;
 }

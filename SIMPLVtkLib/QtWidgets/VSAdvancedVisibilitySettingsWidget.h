@@ -85,24 +85,21 @@ protected slots:
 
   /**
    * @brief Listens for the active VSFilterViewSettings point size to change
-   * @param settings
    * @param size
    */
-  void listenPointSize(VSFilterViewSettings* settings, int size);
+  void listenPointSize(int size);
 
   /**
    * @brief Listens for the active VSFilterViewSettings render point spheres setting to change
-   * @param settings
    * @param renderAsSpheres
    */
-  void listenPointSphere(VSFilterViewSettings* settings, bool renderAsSpheres);
+  void listenPointSphere(bool renderAsSpheres);
 
   /**
    * @brief Listens for the active VSFilterViewSettings axes grid visibility to change
-   * @param settings
    * @param show
    */
-  void listenAxesGridVisible(VSFilterViewSettings* settings, double show);
+  void listenAxesGridVisible(double show);
 
 protected:
   /**

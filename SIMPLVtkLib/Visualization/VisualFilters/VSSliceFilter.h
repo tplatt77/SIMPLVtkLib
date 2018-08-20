@@ -55,12 +55,21 @@ class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
+  Q_PROPERTY(std::vector<double> lastOrigin READ getLastOriginVector NOTIFY lastOriginChanged)
+  Q_PROPERTY(std::vector<double> lastNormal READ getLastNormalVector NOTIFY lastNormalChanged)
+
 public:
   /**
    * @brief Constructor
    * @param parent
    */
-  VSSliceFilter(VSAbstractFilter* parent);
+  VSSliceFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+   * @brief Copy constructor
+   * @param copy
+   */
+  VSSliceFilter(const VSSliceFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -79,7 +88,7 @@ public:
    * @brief Returns the filter's name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter
@@ -95,6 +104,13 @@ public:
   void apply(double origin[3], double normal[3]);
 
   /**
+   * @brief Invokable method for QML to apply plane origin and normal to the algorithm.
+   * @param origin
+   * @param normal
+   */
+  Q_INVOKABLE void apply(std::vector<double> origin, std::vector<double> normal);
+
+  /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
    * @return
    */
@@ -104,13 +120,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the output data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required input data type
@@ -153,6 +169,18 @@ public:
   void setLastNormal(double* normal);
 
   /**
+   * @brief Returns a vector of the last applied slice origin
+   * @return
+   */
+  std::vector<double> getLastOriginVector();
+
+  /**
+   * @brief Returns a vector of the last applied slice normal
+   * @return
+   */
+  std::vector<double> getLastNormalVector();
+
+  /**
    * @brief Reads values from a json file into the filter
    * @param json
    */
@@ -169,6 +197,10 @@ public:
    * @return
    */
   static QUuid GetUuid();
+
+signals:
+  void lastOriginChanged();
+  void lastNormalChanged();
 
 protected:
   /**
@@ -188,3 +220,5 @@ private:
   double m_LastOrigin[3];
   double m_LastNormal[3];
 };
+
+Q_DECLARE_METATYPE(VSSliceFilter)

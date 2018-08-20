@@ -45,25 +45,53 @@ VSTransform::VSTransform(VSTransform* parent)
   m_LocalTransform = VTK_PTR(vtkTransform)::New();
 
   setParent(parent);
+  setupSignals();
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTransform::VSTransform(const VSTransform& copy)
+{
+  m_LocalTransform = VTK_PTR(vtkTransform)::New();
+  m_LocalTransform->DeepCopy(copy.m_LocalTransform);
+
+  setParent(copy.getParent());
+  setupSignals();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::setupSignals()
+{
   connect(this, &VSTransform::emitPosition, this, [=] {
-    emit updatedPosition(getPosition());
+    emit updatedPosition();
     emit valuesChanged();
   });
   connect(this, &VSTransform::emitRotation, this, [=] {
-    emit updatedRotation(getRotation());
+    emit updatedRotation();
     emit valuesChanged();
   });
   connect(this, &VSTransform::emitScale, this, [=] {
-    emit updatedScale(getScale());
+    emit updatedScale();
     emit valuesChanged();
   });
   connect(this, &VSTransform::emitAll, this, [=] {
-    emit updatedPosition(getPosition());
-    emit updatedRotation(getRotation());
-    emit updatedScale(getScale());
+    emit updatedPosition();
+    emit updatedRotation();
+    emit updatedScale();
     emit valuesChanged();
   });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::operator=(const VSTransform& copy)
+{
+  m_LocalTransform->DeepCopy(copy.m_LocalTransform);
+  emit emitAll();
 }
 
 // -----------------------------------------------------------------------------
@@ -95,7 +123,7 @@ void VSTransform::setParent(VSTransform* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTransform* VSTransform::getParent()
+VSTransform* VSTransform::getParent() const
 {
   return m_Parent;
 }
@@ -190,7 +218,7 @@ void VSTransform::translate(double delta[3])
 {
   m_LocalTransform->Translate(delta);
   emit emitPosition();
-  emit updatedLocalPosition(m_LocalTransform->GetPosition());
+  emit updatedLocalPosition();
 }
 
 // -----------------------------------------------------------------------------
@@ -200,7 +228,7 @@ void VSTransform::rotate(double amount, double axis[3])
 {
   m_LocalTransform->RotateWXYZ(amount, axis);
   emit emitRotation();
-  emit updatedLocalRotation(m_LocalTransform->GetOrientation());
+  emit updatedLocalRotation();
 }
 
 // -----------------------------------------------------------------------------
@@ -210,7 +238,7 @@ void VSTransform::scale(double amount)
 {
   m_LocalTransform->Scale(amount, amount, amount);
   emit emitScale();
-  emit updatedLocalScale(m_LocalTransform->GetScale());
+  emit updatedLocalScale();
 }
 
 // -----------------------------------------------------------------------------
@@ -220,7 +248,7 @@ void VSTransform::scale(double amount[3])
 {
   m_LocalTransform->Scale(amount);
   emit emitScale();
-  emit updatedLocalScale(m_LocalTransform->GetScale());
+  emit updatedLocalScale();
 }
 
 // -----------------------------------------------------------------------------
@@ -316,6 +344,135 @@ void VSTransform::setLocalValues(double position[3], double rotation[3], double 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getPositionVector()
+{
+  double* positionPtr = getPosition();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = positionPtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getRotationVector()
+{
+  double* rotationPtr = getRotation();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = rotationPtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getScaleVector()
+{
+  double* scalePtr = getScale();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = scalePtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getLocalPositionVector()
+{
+  double* localPositionPtr = getLocalPosition();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = localPositionPtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getLocalRotationVector()
+{
+  double* localRotationPtr = getLocalRotation();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = localRotationPtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSTransform::getLocalScaleVector()
+{
+  double* localScalePtr = getLocalScale();
+  std::vector<double> outputVector(3);
+  for(int i = 0; i < 3; i++)
+  {
+    outputVector[i] = localScalePtr[i];
+  }
+
+  return outputVector;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::setLocalPositionVector(std::vector<double> positionVector)
+{
+  double position[3];
+  for(int i = 0; i < 3; i++)
+  {
+    position[i] = positionVector[i];
+  }
+  setLocalPosition(position);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::setLocalRotationVector(std::vector<double> rotationVector)
+{
+  double rotation[3];
+  for(int i = 0; i < 3; i++)
+  {
+    rotation[i] = rotationVector[i];
+  }
+  setLocalRotation(rotation);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSTransform::setLocalScaleVector(std::vector<double> scaleVector)
+{
+  double scale[3];
+  for(int i = 0; i < 3; i++)
+  {
+    scale[i] = scaleVector[i];
+  }
+  setLocalScale(scale);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSTransform::setLocalPosition(double position[3])
 {
   double rotation[3];
@@ -327,7 +484,7 @@ void VSTransform::setLocalPosition(double position[3])
   setLocalValues(position, rotation, scale);
 
   emit emitPosition();
-  emit updatedLocalPosition(m_LocalTransform->GetPosition());
+  emit updatedLocalPosition();
 }
 
 // -----------------------------------------------------------------------------
@@ -344,7 +501,7 @@ void VSTransform::setLocalRotation(double rotation[3])
   setLocalValues(position, rotation, scale);
 
   emit emitRotation();
-  emit updatedLocalRotation(m_LocalTransform->GetOrientation());
+  emit updatedLocalRotation();
 }
 
 // -----------------------------------------------------------------------------
@@ -361,7 +518,7 @@ void VSTransform::setLocalScale(double scale[3])
   setLocalValues(position, rotation, scale);
 
   emit emitScale();
-  emit updatedLocalScale(m_LocalTransform->GetScale());
+  emit updatedLocalScale();
 }
 
 // -----------------------------------------------------------------------------

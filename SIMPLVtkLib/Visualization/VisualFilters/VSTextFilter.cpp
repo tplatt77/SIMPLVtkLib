@@ -50,6 +50,7 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolT
   setText(text);
   setToolTip(toolTip);
   setItalic();
+  setEditable(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -77,17 +78,9 @@ VSTextFilter* VSTextFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSTextFilter::getFilterName()
+QString VSTextFilter::getFilterName() const
 {
-  return text();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString VSTextFilter::getToolTip() const
-{
-  return toolTip();
+  return "Text Filter";
 }
 
 // -----------------------------------------------------------------------------
@@ -144,7 +137,7 @@ vtkAlgorithmOutput* VSTextFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
+VTK_PTR(vtkDataSet) VSTextFilter::getOutput() const
 {
   if(getParentFilter())
   {
@@ -157,7 +150,7 @@ VTK_PTR(vtkDataSet) VSTextFilter::getOutput()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getOutputType()
+VSAbstractFilter::dataType_t VSTextFilter::getOutputType() const
 {
   // Return the parent's output type if a parent exists
   if(getParentFilter())
@@ -183,8 +176,8 @@ void VSTextFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
 
-  json["Text"] = text();
-  json["Tooltip"] = toolTip();
+  json["Text"] = getText();
+  json["Tooltip"] = getToolTip();
   json["Italic"] = font().italic();
   json["Bold"] = font().bold();
   json["Underline"] = font().underline();

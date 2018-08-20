@@ -42,7 +42,8 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+//#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -101,9 +102,15 @@ public:
   void setController(VSController* controller);
 
   /**
-  * @brief Returns true if the view is active.  Returns false otherwise.
-  * @return 
-  */
+   * @brief Returns the VSFilterViewModel used
+   * @return
+   */
+  VSFilterViewModel* getFilterViewModel() const;
+
+  /**
+   * @brief Returns true if the view is active.  Returns false otherwise.
+   * @return
+   */
   virtual bool isActive();
 
   /**
@@ -124,25 +131,27 @@ public:
   virtual VSVisualizationWidget* getVisualizationWidget() const = 0;
 
   /**
-  * @brief Returns the corresponding VSAbstractFilter for the given prop
-  * @param prop
-  * @return
-  */
+   * @brief Returns the corresponding VSAbstractFilter for the given prop
+   * @param prop
+   * @return
+   */
   virtual VSAbstractFilter* getFilterFromProp(vtkProp3D* prop);
 
   /**
-  * @brief Returns the visualization filter based on the given mouse coordinates.
-  * @param pos
-  * @return
-  */
+   * @brief Returns the visualization filter based on the given mouse coordinates.
+   * @param pos
+   * @return
+   */
   virtual VSAbstractFilter* getFilterAtMousePos(const QPoint& point) = 0;
 
   /**
-  * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
-  * @param pos
-  * @return
-  */
+   * @brief Returns the VSFilterViewSettings based on the given mouse coordinates.
+   * @param pos
+   * @return
+   */
   virtual VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) = 0;
+
+  virtual QMenu* getContextMenu(VSAbstractFilter* filter) = 0;
 
 signals:
   void viewWidgetClosed();
@@ -152,11 +161,12 @@ signals:
   void gridVisibilityChanged(VSFilterViewSettings*, bool);
   void activeArrayIndexChanged(VSFilterViewSettings*, int);
   void activeComponentIndexChanged(VSFilterViewSettings*, int);
-  void mapColorsChanged(VSFilterViewSettings*, Qt::CheckState);
+  void mapColorsChanged(VSFilterViewSettings*, VSFilterViewSettings::ColorMapping);
   void alphaChanged(VSFilterViewSettings*, double);
   void showScalarBarChanged(VSFilterViewSettings*, bool);
   void applyCurrentFilter();
   void resetCurrentFilter();
+  void controllerChanged(VSController*);
 
 public slots:
   /**
@@ -196,37 +206,23 @@ public slots:
   void setBlockRender(bool block);
 
   /**
-  * @brief Select the given filter
-  * @param filter
-  */
+   * @brief Select the given filter
+   * @param filter
+   */
   void selectFilter(VSAbstractFilter* filter);
 
 protected slots:
   /**
-   * @brief Connect a new visual filter's VSFilterViewSettings
-   * @param filter
-   */
-  void filterAdded(VSAbstractFilter* filter, bool currentFilter);
-
-  /**
-   * @brief Removes the filter from the view
-   * @param filter
-   */
-  void filterRemoved(VSAbstractFilter* filter);
-
-  /**
    * @brief Change filter visibility
-   * @param viewSettings
    * @param filterVisible
    */
-  void setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible);
+  void setFilterVisibility(const bool& filterVisible);
 
   /**
-  * @brief Change filter grid visibility
-  * @param viewSettings
-  * @param gridVisible
-  */
-  void setGridVisibility(VSFilterViewSettings* viewSettings, bool gridVisible);
+   * @brief Change filter grid visibility
+   * @param gridVisible
+   */
+  void setGridVisibility(const bool& gridVisible);
 
   /**
    * @brief Removes the old prop from the renderer if applicable and adds the new one
@@ -261,31 +257,27 @@ protected slots:
 
   /**
    * @brief Active array changed for filter
-   * @param viewSettings
    * @param index
    */
-  virtual void setFilterArrayIndex(VSFilterViewSettings* viewSettings, int index);
+  virtual void setFilterArrayName(const QString& name);
 
   /**
    * @brief Active array component changed for filter
-   * @param viewSettings
    * @param index
    */
-  virtual void setFilterComponentIndex(VSFilterViewSettings* viewSettings, int index);
+  virtual void setFilterComponentIndex(const int& index);
 
   /**
    * @brief Color mapping changed for filter
-   * @param viewSettings
    * @param mapColors
    */
-  virtual void setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState);
+  virtual void setFilterMapColors(const VSFilterViewSettings::ColorMapping& mapColorState);
 
   /**
    * @brief ScalarBar visibility changed for filter
-   * @param viewSettings
    * @param showScalarBar
    */
-  virtual void setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar);
+  virtual void setFilterShowScalarBar(const bool& showScalarBar);
 
   /**
    * @brief Sets the active ViewController when the mouse is pressed inside the widget();
@@ -307,29 +299,35 @@ protected:
   VSAbstractViewWidget(const VSAbstractViewWidget& other);
 
   /**
+   * @brief Create connections to the VSFilterViewModel
+   */
+  void setupModel();
+
+  /**
+   * @brief Adds a new VSFilterViewSettings object and makes necessary connections
+   * @param viewSettings
+   */
+  void addViewSettings(VSFilterViewSettings* viewSettings);
+
+  /**
+   * @brief Removes an existing VSFilterViewSettings object
+   * @param viewSettings
+   */
+  void removeViewSettings(VSFilterViewSettings* viewSettings);
+
+  void changeFilterVisibility(VSFilterViewSettings* settings, const bool& visibility);
+  void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
+
+  /**
    * @brief Clears the filters from the view widget
    */
-  void clearFilters();
+  // void clearFilters();
 
   /**
-   * @brief Copies the filters and sets up connections
-   * @param filters
+   * @brief Copies the VSFilterViewModel
+   * @param filterViewModel
    */
-  void copyFilters(VSFilterViewSettings::Map filters);
-
-  /**
-   * @brief Creates a new VSFilterViewSetting for the given filter.
-   * @param filter
-   * @return
-   */
-  VSFilterViewSettings* createFilterViewSettings(VSAbstractFilter* filter);
-
-  /**
-   * @brief Returns the index of the given VSFilterViewSetting
-   * @param setting
-   * @return
-   */
-  int getViewSettingsIndex(VSFilterViewSettings* setting);
+  void copyFilters(const VSFilterViewModel& filterViewModel);
 
   /**
    * @brief Check the visibility of a filter and scalar bar through VSFilterViewSettings
@@ -343,8 +341,8 @@ protected:
   virtual QSplitter* splitWidget(Qt::Orientation orientation);
 
   /**
-  * @brief Returns true if the widget is closable.  Returns false otherwise.
-  */
+   * @brief Returns true if the widget is closable.  Returns false otherwise.
+   */
   virtual bool isClosable();
 
   /**
@@ -366,7 +364,8 @@ protected:
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  VSFilterViewSettings::Map m_FilterViewSettings;
+  // VSFilterViewSettings::Map m_FilterViewSettings;
+  VSFilterViewModel* m_FilterViewModel = nullptr;
   VSController* m_Controller = nullptr;
   bool m_BlockRender = false;
   bool m_Active = false;

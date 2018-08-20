@@ -41,6 +41,7 @@
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 
+#include <vtkDoubleArray.h>
 #include <vtkUnstructuredGrid.h>
 
 // -----------------------------------------------------------------------------
@@ -66,9 +67,28 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   m_LastClipType = VSClipFilter::ClipType::PLANE;
   m_LastPlaneInverted = false;
   m_LastBoxInverted = false;
+}
 
-  setText(getFilterName());
-  setToolTip(getToolTip());
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipFilter::VSClipFilter(const VSClipFilter& copy)
+  : VSAbstractFilter()
+  , m_LastClipType(copy.m_LastClipType)
+  , m_LastPlaneInverted(copy.m_LastPlaneInverted)
+  , m_LastBoxInverted(copy.m_LastBoxInverted)
+{
+  m_ClipAlgorithm = nullptr;
+  setParentFilter(copy.getParentFilter());
+
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastPlaneOrigin[i] = copy.m_LastPlaneOrigin[i];
+    m_LastPlaneNormal[i] = copy.m_LastPlaneNormal[i];
+  }
+
+  m_LastBoxTransform = VTK_PTR(vtkTransform)::New(); 
+  m_LastBoxTransform->DeepCopy(copy.m_LastBoxTransform);
 }
 
 // -----------------------------------------------------------------------------
@@ -130,7 +150,7 @@ void VSClipFilter::createFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSClipFilter::getFilterName()
+QString VSClipFilter::getFilterName() const
 {
   return "Clip";
 }
@@ -173,6 +193,9 @@ void VSClipFilter::apply(double origin[3], double normal[3], bool inverted)
   m_ClipAlgorithm->Update();
 
   emit updatedOutputPort(this);
+  emit clipTypeChanged();
+  emit lastPlaneOriginChanged();
+  emit lastPlaneNormalChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -200,6 +223,173 @@ void VSClipFilter::apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transf
   m_ClipAlgorithm->Update();
 
   emit updatedOutputPort(this);
+  emit clipTypeChanged();
+  emit lastBoxTranslationChanged();
+  emit lastBoxRotationChanged();
+  emit lastBoxScaleChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::apply(std::vector<double> originVector, std::vector<double> normalVector, bool inverted)
+{
+  if(originVector.size() != 3 || normalVector.size() != 3)
+  {
+    return;
+  }
+
+  double* origin = new double[3];
+  double* normal = new double[3];
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = originVector[i];
+    normal[i] = normalVector[i];
+  }
+
+  apply(origin, normal, inverted);
+
+  delete[] origin;
+  delete[] normal;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotation, std::vector<double> scale, bool inverted)
+{
+  qDebug() << "Implement Box Clip from Transform";
+  //return;
+
+  VSTransform* transform = new VSTransform();
+  transform->setLocalPositionVector(origin);
+  transform->setLocalRotationVector(rotation);
+  transform->setLocalScaleVector(scale);
+
+  VTK_NEW(vtkPlanes, planes);
+  VTK_NEW(vtkPoints, points);
+  VTK_NEW(vtkDoubleArray, normals);
+
+  double* pointOrigin = new double[3];
+  points->SetNumberOfPoints(6);
+  normals->SetNumberOfComponents(3);
+  normals->SetNumberOfTuples(6);
+
+  // Front
+  {
+    double normal[3] { 0.0, 0.0, 1.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, 0.0, 1.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(0, i, normal[i]);
+    }
+    points->SetPoint(0, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Back
+  {
+    double normal[3]{ 0.0, 0.0, -1.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, 0.0, -1.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(1, i, normal[i]);
+    }
+    points->SetPoint(1, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Left
+  {
+    double normal[3]{ -1.0, 0.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ -1.0, 0.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(2, i, normal[i]);
+    }
+    points->SetPoint(2, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Right
+  {
+    double normal[3]{ 1.0, 0.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 1.0, 0.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(3, i, normal[i]);
+    }
+    points->SetPoint(3, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Top
+  {
+    double normal[3]{ 0.0, 1.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, 1.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(4, i, normal[i]);
+    }
+    points->SetPoint(4, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  // Bottom
+  {
+    double normal[3]{ 0.0, -1.0, 0.0 };
+    transform->globalizeNormal(normal);
+
+    double planeOrigin[3]{ 0.0, -1.0, 0.0 };
+    transform->globalizePoint(planeOrigin);
+
+    for(int i = 0; i < 3; i++)
+    {
+      normals->SetComponent(5, i, normal[i]);
+    }
+    points->SetPoint(5, planeOrigin);
+
+    qDebug() << "Normals: " << normal[0] << ", " << normal[1] << ", " << normal[2];
+    qDebug() << "Points: " << planeOrigin[0] << ", " << planeOrigin[1] << ", " << planeOrigin[2];
+  }
+
+  planes->SetNormals(normals);
+  planes->SetPoints(points);
+
+  // Apply box clip
+  apply(planes, transform->getGlobalTransform(), inverted);
+
+  delete transform;
 }
 
 // -----------------------------------------------------------------------------
@@ -230,7 +420,7 @@ vtkAlgorithmOutput* VSClipFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSClipFilter::getOutput()
+VTK_PTR(vtkDataSet) VSClipFilter::getOutput() const
 {
   if(getConnectedInput() && m_ClipAlgorithm)
   {
@@ -305,7 +495,7 @@ void VSClipFilter::writeJson(QJsonObject& json)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSClipFilter::getOutputType()
+VSAbstractFilter::dataType_t VSClipFilter::getOutputType() const
 {
   return UNSTRUCTURED_GRID;
 }
@@ -341,7 +531,7 @@ bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSClipFilter::getLastPlaneInverted()
+bool VSClipFilter::getLastPlaneInverted() const
 {
   return m_LastPlaneInverted;
 }
@@ -365,7 +555,35 @@ double* VSClipFilter::getLastPlaneNormal()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSClipFilter::getLastBoxInverted()
+std::vector<double> VSClipFilter::getLastPlaneOriginVector() const
+{
+  std::vector<double> origin(3);
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = m_LastPlaneOrigin[i];
+  }
+
+  return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipFilter::getLastPlaneNormalVector() const
+{
+  std::vector<double> normal(3);
+  for(int i = 0; i < 3; i++)
+  {
+    normal[i] = m_LastPlaneNormal[i];
+  }
+
+  return normal;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipFilter::getLastBoxInverted() const
 {
   return m_LastBoxInverted;
 }
@@ -376,6 +594,54 @@ bool VSClipFilter::getLastBoxInverted()
 VTK_PTR(vtkTransform) VSClipFilter::getLastBoxTransform()
 {
   return m_LastBoxTransform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipFilter::getLastBoxTranslationVector() const
+{
+  std::vector<double> origin(3);
+  double* position = new double[3];
+  m_LastBoxTransform->GetPosition(position);
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = position[i];
+  }
+
+  return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipFilter::getLastBoxRotationVector() const
+{
+  std::vector<double> rotation(3);
+  double* rotationPtr = new double[3];
+  m_LastBoxTransform->GetOrientation(rotationPtr);
+  for(int i = 0; i < 3; i++)
+  {
+    rotation[i] = rotationPtr[i];
+  }
+
+  return rotation;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipFilter::getLastBoxScaleVector() const
+{
+  std::vector<double> scale(3);
+  double* scalePtr = new double[3];
+  m_LastBoxTransform->GetOrientation(scalePtr);
+  for(int i = 0; i < 3; i++)
+  {
+    scale[i] = scalePtr[i];
+  }
+
+  return scale;
 }
 
 // -----------------------------------------------------------------------------
@@ -392,6 +658,7 @@ VSClipFilter::ClipType VSClipFilter::getLastClipType()
 void VSClipFilter::setLastPlaneInverted(bool inverted)
 {
   m_LastPlaneInverted = inverted;
+  emit lastPlaneInvertedChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -402,6 +669,8 @@ void VSClipFilter::setLastPlaneOrigin(double* origin)
   m_LastPlaneOrigin[0] = origin[0];
   m_LastPlaneOrigin[1] = origin[1];
   m_LastPlaneOrigin[2] = origin[2];
+
+  emit lastPlaneOriginChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -412,6 +681,8 @@ void VSClipFilter::setLastPlaneNormal(double* normal)
   m_LastPlaneNormal[0] = normal[0];
   m_LastPlaneNormal[1] = normal[1];
   m_LastPlaneNormal[2] = normal[2];
+
+  emit lastPlaneNormalChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -420,6 +691,7 @@ void VSClipFilter::setLastPlaneNormal(double* normal)
 void VSClipFilter::setLastBoxInverted(bool inverted)
 {
   m_LastBoxInverted = inverted;
+  emit lastBoxInvertedChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -436,4 +708,17 @@ void VSClipFilter::setLastBoxTransform(VTK_PTR(vtkTransform) transform)
 void VSClipFilter::setLastClipType(VSClipFilter::ClipType type)
 {
   m_LastClipType = type;
+  emit clipTypeChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSClipFilter::getClipTypes()
+{
+  QStringList clipTypes;
+  clipTypes.push_back("Plane");
+  clipTypes.push_back("Box");
+
+  return clipTypes;
 }

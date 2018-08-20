@@ -63,12 +63,6 @@ public:
    */
   virtual ~VSFilterView() = default;
 
-  /**
-   * @brief Sets the VSController to use and interact with through the tree view
-   * @param controller
-   */
-  void setController(VSController* controller);
-
 signals:
   void filterClicked(VSAbstractFilter* filter);
   void deleteFilterRequested(VSAbstractFilter* filter);
@@ -83,13 +77,6 @@ public slots:
   void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
-   * @brief Handle changes in filter visibility for a given view
-   * @param filter
-   * @param visible
-   */
-  void setFilterVisibility(VSFilterViewSettings* filter, bool visible);
-
-  /**
    * @brief Handles changing the active filter through other widgets or controls
    * @param filter
    * @param widget
@@ -97,13 +84,6 @@ public slots:
   void setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget);
 
 protected slots:
-  /**
-   * @brief Handles mouse clicks on an item and emits a signal if the item is a
-   * VSAbstractFilter instance
-   * @param index
-   */
-  void itemClicked(const QModelIndex& index);
-
   /**
    * @brief Handles changes in the current item
    * @param current
@@ -143,6 +123,5 @@ protected:
   VSAbstractFilter* getFilterFromIndex(const QModelIndex& index);
 
 private:
-  VSController* m_Controller = nullptr;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
 };

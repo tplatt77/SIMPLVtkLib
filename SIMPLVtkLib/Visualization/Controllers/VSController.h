@@ -147,13 +147,13 @@ public:
    * @brief Returns a vector of top-level data filters
    * @return
    */
-  QVector<VSAbstractFilter*> getBaseFilters();
+  VSAbstractFilter::FilterListType getBaseFilters();
 
   /**
    * @brief Returns a vector of all visual filters
    * @return
    */
-  QVector<VSAbstractFilter*> getAllFilters();
+  VSAbstractFilter::FilterListType getAllFilters();
 
   /**
    * @brief Return the filter model used

@@ -36,6 +36,7 @@
 #include "VSFilterModel.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
 
 #include <QtCore/QThread>
 
@@ -43,11 +44,38 @@
 //
 // -----------------------------------------------------------------------------
 VSFilterModel::VSFilterModel(QObject* parent)
-: QStandardItemModel(parent)
+: QAbstractItemModel(parent)
 , m_ModelLock(1)
 {
-  connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)),
-    this, SLOT(deleteFilter(VSAbstractFilter*)));
+  m_RootFilter = new VSRootFilter(this);
+
+  connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterModel::VSFilterModel(const VSFilterModel& model)
+: QAbstractItemModel(model.parentObject())
+, m_ModelLock(1)
+{
+  m_RootFilter = new VSRootFilter(this);
+
+  VSAbstractFilter::FilterListType baseFilters = model.getAllFilters();
+  for(VSAbstractFilter* filter : baseFilters)
+  {
+    addFilter(filter);
+  }
+
+  connect(this, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QObject* VSFilterModel::parentObject() const
+{
+  return QObject::parent();
 }
 
 // -----------------------------------------------------------------------------
@@ -62,16 +90,16 @@ void VSFilterModel::addFilter(VSAbstractFilter* filter, bool currentFilter)
 
   if(nullptr == filter->getParentFilter())
   {
-    while(false == m_ModelLock.tryAcquire())
-    {
-      QThread::currentThread()->wait();
-    }
-
-    appendRow(filter);
-    m_ModelLock.release();
+    filter->setParentFilter(m_RootFilter);
   }
 
   emit filterAdded(filter, currentFilter);
+
+  VSAbstractFilter::FilterListType children = filter->getChildren();
+  for(VSAbstractFilter* childFilter : children)
+  {
+    addFilter(childFilter, false);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -90,13 +118,7 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
   {
     filter->deleteFilter();
   }
-  else
-  {
-    QModelIndex index = getIndexFromFilter(filter);
-    removeRow(index.row());
-  }
 
-  // filter->deleteLater();
   submit();
 }
 
@@ -105,7 +127,7 @@ void VSFilterModel::removeFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSFilterModel::deleteFilter(VSAbstractFilter* filter)
 {
-  // This should be emitted after the slots related to removing the filter 
+  // This should be emitted after the slots related to removing the filter
   // have already been added to the call order.
   filter->deleteLater();
 }
@@ -113,18 +135,18 @@ void VSFilterModel::deleteFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter* VSFilterModel::getFilterFromIndex(QModelIndex index)
+VSAbstractFilter* VSFilterModel::getFilterFromIndex(const QModelIndex& index) const
 {
-  if(false == index.parent().isValid())
+  if(index.isValid())
   {
-    return dynamic_cast<VSAbstractFilter*>(item(index.row(), index.column()));
+    VSAbstractFilter* filter = static_cast<VSAbstractFilter*>(index.internalPointer());
+    if(filter)
+    {
+      return filter;
+    }
   }
-  else
-  {
-    int i = index.row();
-    VSAbstractFilter* parentFilter = getFilterFromIndex(index.parent());
-    return parentFilter->getChild(i);
-  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -137,25 +159,31 @@ QModelIndex VSFilterModel::getIndexFromFilter(VSAbstractFilter* filter)
     return QModelIndex();
   }
 
-  return filter->index();
+  return createIndex(filter->getChildIndex(), 0, filter);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSFilterModel::getBaseFilters()
+VSAbstractFilter::FilterListType VSFilterModel::getBaseFilters() const
 {
-  QVector<VSAbstractFilter*> filters;
+  return m_RootFilter->getChildren();
+}
 
-  int count = rowCount();
-  for(int i = 0; i < count; i++)
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterModel::getAllFilters() const
+{
+  VSAbstractFilter::FilterListType filters = getBaseFilters();
+  VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
+
+  for(auto iter = baseFilters.begin(); iter != baseFilters.end(); iter++)
   {
-    QModelIndex modelIndex = index(i, 0);
-    VSAbstractFilter* filter = getFilterFromIndex(modelIndex);
-    if(filter)
-    {
-      filters.push_back(filter);
-    }
+    filters.push_back((*iter));
+    VSAbstractFilter::FilterListType descendants = (*iter)->getDescendants();
+
+    filters.insert(filters.end(), descendants.begin(), descendants.end());
   }
 
   return filters;
@@ -164,18 +192,9 @@ QVector<VSAbstractFilter*> VSFilterModel::getBaseFilters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
+VSRootFilter* VSFilterModel::getRootFilter() const
 {
-  QVector<VSAbstractFilter*> filters = getBaseFilters();
-
-  int count = filters.size();
-  for(int i = 0; i < count; i++)
-  {
-    filters.push_back(filters[i]);
-    filters.append(filters[i]->getDescendants());
-  }
-
-  return filters;
+  return m_RootFilter;
 }
 
 // -----------------------------------------------------------------------------
@@ -183,7 +202,7 @@ QVector<VSAbstractFilter*> VSFilterModel::getAllFilters()
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterModel::getPipelineFilter(FilterPipeline::Pointer pipeline)
 {
-  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+  VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
   for(VSAbstractFilter* filter : baseFilters)
   {
     VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
@@ -204,7 +223,7 @@ VSAbstractFilter* VSFilterModel::getPipelineFilter(FilterPipeline::Pointer pipel
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterModel::getPipelineFilter(QString pipelineName)
 {
-  QVector<VSAbstractFilter*> baseFilters = getBaseFilters();
+  VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
   for(VSAbstractFilter* filter : baseFilters)
   {
     VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
@@ -229,6 +248,250 @@ void VSFilterModel::updateModelForView(VSFilterViewSettings::Map viewSettings)
   {
     VSFilterViewSettings* settings = iter.second;
     VSAbstractFilter* filter = settings->getFilter();
-    filter->setCheckState(settings->isVisible() ? Qt::Checked : Qt::Unchecked);
+    filter->setChecked(settings->isVisible());
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterModel::columnCount(const QModelIndex& parent) const
+{
+  return 1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+Qt::ItemFlags VSFilterModel::flags(const QModelIndex& index) const
+{
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(filter)
+  {
+    // VSFilterModel is not checkable
+    return filter->flags() & ~Qt::ItemIsUserCheckable;
+  }
+
+  return Qt::ItemFlags();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVariant VSFilterModel::data(const QModelIndex& index, int role) const
+{
+  VSAbstractFilter* targetFilter = getFilterFromIndex(index);
+  if(!targetFilter)
+  {
+    return QVariant();
+  }
+
+  switch(role)
+  {
+  case Qt::DisplayRole:
+  case Qt::ItemIsEditable:
+    return targetFilter->getText();
+  case Qt::ToolTipRole:
+    return targetFilter->getToolTip();
+  case Qt::FontRole:
+    return targetFilter->font();
+  case Qt::CheckStateRole:
+    return targetFilter->isChecked() ? Qt::Checked : Qt::Unchecked;
+  case FilterDataRole::FilterRole:
+  {
+    QVariant variant;
+    variant.setValue(targetFilter);
+    return variant;
+  }
+  case Qt::ItemIsAutoTristate:
+    return false;
+  default:
+    break;
+  }
+
+  return QVariant();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+  VSAbstractFilter* targetFilter = getFilterFromIndex(index);
+  if(!targetFilter)
+  {
+    return false;
+  }
+
+  const QVector<int> roles(role);
+
+  switch(role)
+  {
+  case Qt::ItemIsEditable:
+    targetFilter->setText(value.toString());
+    emit dataChanged(index, index, roles);
+    return true;
+  case Qt::CheckStateRole:
+    targetFilter->setChecked(value.toInt() == Qt::Checked);
+    emit dataChanged(index, index, roles);
+    return true;
+  default:
+    return QAbstractItemModel::setData(index, value, role);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSFilterModel::index(int row, int column, const QModelIndex& parent) const
+{
+  // column must be 0 for valid indices in this model
+  if(column != 0)
+  {
+    return QModelIndex();
+  }
+  if(parent.isValid() && parent.column() != 0)
+  {
+    return QModelIndex();
+  }
+
+  // Root index
+  if(!parent.isValid() && row == 0)
+  {
+    return createIndex(row, column, m_RootFilter);
+  }
+
+  // Valid parent
+  if(parent.isValid())
+  {
+    VSAbstractFilter* parentFilter = getFilterFromIndex(parent);
+    if(parentFilter && row < parentFilter->getChildren().size())
+    {
+      return createIndex(row, column, parentFilter->getChild(row));
+    }
+  }
+
+  return QModelIndex();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSFilterModel::parent(const QModelIndex& index) const
+{
+  if(!index.isValid())
+  {
+    return QModelIndex();
+  }
+
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(!filter || filter == m_RootFilter)
+  {
+    return QModelIndex();
+  }
+
+  VSAbstractFilter* parentFilter = filter->getParentFilter();
+  if(parentFilter)
+  {
+    return createIndex(parentFilter->getChildIndex(), 0, parentFilter);
+  }
+
+  return QModelIndex();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterModel::rowCount(const QModelIndex& parent) const
+{
+  VSAbstractFilter* filter = getFilterFromIndex(parent);
+  if(filter)
+  {
+    return filter->getChildren().size();
+  }
+
+  return 0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::beginInsertingFilter(VSAbstractFilter* parentFilter)
+{
+  if(nullptr == parentFilter)
+  {
+    return;
+  }
+
+  QModelIndex parentIndex = getIndexFromFilter(parentFilter);
+  int position = parentFilter->getChildCount();
+
+  emit beganInsertingFilter(parentFilter);
+  beginInsertRows(parentIndex, position, position);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::endInsertingFilter(VSAbstractFilter* filter)
+{
+  endInsertRows();
+  emit finishedInsertingFilter();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::beginRemovingFilter(VSAbstractFilter* filter, int row)
+{
+  if(nullptr == filter || row < 0)
+  {
+    return;
+  }
+
+  QModelIndex index = getIndexFromFilter(filter);
+
+  emit beganRemovingFilter(filter, row);
+  beginRemoveRows(index, row, row);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::endRemovingFilter(VSAbstractFilter* filter)
+{
+  endRemoveRows();
+
+  emit filterRemoved(filter);
+  emit finishedRemovingFilter();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex VSFilterModel::rootIndex() const
+{
+  return createIndex(0, 0, m_RootFilter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFilterModel::getFilterText(const QModelIndex& index) const
+{
+  return data(index, Qt::DisplayRole).toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QFont VSFilterModel::getFilterFont(const QModelIndex& index) const
+{
+  VSAbstractFilter* filter = getFilterFromIndex(index);
+  if(filter)
+  {
+    return filter->font();
+  }
+
+  return QFont();
 }

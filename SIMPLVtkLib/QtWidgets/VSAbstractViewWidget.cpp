@@ -47,6 +47,7 @@
 VSAbstractViewWidget::VSAbstractViewWidget(QWidget* parent, Qt::WindowFlags windowFlags)
 : QFrame(parent, windowFlags)
 {
+  setupModel();
 }
 
 // -----------------------------------------------------------------------------
@@ -55,36 +56,70 @@ VSAbstractViewWidget::VSAbstractViewWidget(QWidget* parent, Qt::WindowFlags wind
 VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 : QFrame(nullptr)
 {
+  setupModel();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::copyFilters(VSFilterViewSettings::Map filters)
+void VSAbstractViewWidget::setupModel()
 {
-  clearFilters();
+  m_FilterViewModel = new VSFilterViewModel(this);
+  connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsCreated, this, &VSAbstractViewWidget::addViewSettings);
+  connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsRemoved, this, &VSAbstractViewWidget::removeViewSettings);
+}
 
-  for(auto iter = filters.begin(); iter != filters.end(); iter++)
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::addViewSettings(VSFilterViewSettings* viewSettings)
+{
+  connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, &VSAbstractViewWidget::setFilterVisibility);
+  connect(viewSettings, &VSFilterViewSettings::gridVisibilityChanged, this, &VSAbstractViewWidget::setGridVisibility);
+  connect(viewSettings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSAbstractViewWidget::setFilterArrayName);
+  connect(viewSettings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSAbstractViewWidget::setFilterComponentIndex);
+  connect(viewSettings, &VSFilterViewSettings::mapColorsChanged, this, &VSAbstractViewWidget::setFilterMapColors);
+  connect(viewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSAbstractViewWidget::setFilterShowScalarBar);
+  connect(viewSettings, &VSFilterViewSettings::requiresRender, this, &VSAbstractViewWidget::renderView);
+  connect(viewSettings, &VSFilterViewSettings::actorsUpdated, this, &VSAbstractViewWidget::updateScene);
+
+  checkFilterViewSetting(viewSettings);
+
+  if(dynamic_cast<VSAbstractDataFilter*>(viewSettings->getFilter()))
   {
-    VSAbstractFilter* filter = iter->first;
-    VSFilterViewSettings* viewSettings = new VSFilterViewSettings(*(iter->second));
-    m_FilterViewSettings[filter] = viewSettings;
+    getVisualizationWidget()->resetCamera();
+  }
+}
 
-    connect(filter, &VSAbstractFilter::removeFilter, this, [=] { filterRemoved(filter); });
-
-    connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
-    connect(viewSettings, SIGNAL(actorsUpdated()), this, SLOT(updateScene()));
-
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings)
+{
+  if(viewSettings)
+  {
+    changeFilterVisibility(viewSettings, false);
+    changeScalarBarVisibility(viewSettings, false);
     checkFilterViewSetting(viewSettings);
   }
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::copyFilters(const VSFilterViewModel& filterViewModel)
+{
+  //clearFilters();
+  m_FilterViewModel->deepCopy(filterViewModel);
+
+  std::vector<VSFilterViewSettings*> filterViewSettings = m_FilterViewModel->getAllFilterViewSettings();
+  for(VSFilterViewSettings* viewSettings : filterViewSettings)
+  {
+    checkFilterViewSetting(viewSettings);
+  }
+}
+
+#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -102,44 +137,7 @@ void VSAbstractViewWidget::clearFilters()
 
   m_FilterViewSettings.clear();
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::filterAdded(VSAbstractFilter* filter, bool currentFilter)
-{
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  createFilterViewSettings(filter);
-
-  if(dynamic_cast<VSAbstractDataFilter*>(filter))
-  {
-    getVisualizationWidget()->resetCamera();
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::filterRemoved(VSAbstractFilter* filter)
-{
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  VSFilterViewSettings* viewSettings = m_FilterViewSettings[filter];
-  if(viewSettings)
-  {
-    setFilterVisibility(viewSettings, false);
-    viewSettings->deleteLater();
-  }
-
-  m_FilterViewSettings.erase(filter);
-}
+#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -156,8 +154,8 @@ void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
     setting->getScalarBarWidget()->SetInteractor(getVisualizationWidget()->GetInteractor());
   }
 
-  setFilterVisibility(setting, setting->isVisible());
-  setFilterShowScalarBar(setting, setting->isScalarBarVisible());
+  changeFilterVisibility(setting, setting->isVisible());
+  changeScalarBarVisibility(setting, setting->isScalarBarVisible());
 }
 
 // -----------------------------------------------------------------------------
@@ -181,18 +179,12 @@ void VSAbstractViewWidget::setActiveFilterSettings(VSFilterViewSettings* setting
 // -----------------------------------------------------------------------------
 VSFilterViewSettings* VSAbstractViewWidget::getFilterViewSettings(VSAbstractFilter* filter)
 {
-  if(nullptr == filter)
+  if(nullptr == m_FilterViewModel)
   {
     return nullptr;
   }
 
-  VSFilterViewSettings* settings = m_FilterViewSettings[filter];
-  if(nullptr == settings)
-  {
-    settings = createFilterViewSettings(filter);
-  }
-
-  return settings;
+  return m_FilterViewModel->getFilterViewSettings(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -200,73 +192,18 @@ VSFilterViewSettings* VSAbstractViewWidget::getFilterViewSettings(VSAbstractFilt
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::Map VSAbstractViewWidget::getAllFilterViewSettings() const
 {
-  return m_FilterViewSettings;
+  if(m_FilterViewModel)
+  {
+    return m_FilterViewModel->getFilterViewSettingsMap();
+  }
+
+  return VSFilterViewSettings::Map();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSAbstractViewWidget::getViewSettingsIndex(VSFilterViewSettings* settings)
-{
-  auto iter = m_FilterViewSettings.find(settings->getFilter());
-  if(iter == m_FilterViewSettings.end())
-  {
-    return -1;
-  }
-
-  return std::distance(m_FilterViewSettings.begin(), iter);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSFilterViewSettings* VSAbstractViewWidget::createFilterViewSettings(VSAbstractFilter* filter)
-{
-  if(nullptr == filter)
-  {
-    return nullptr;
-  }
-
-  // Do not overwrite filter view settings that already exist
-  if(nullptr != m_FilterViewSettings[filter])
-  {
-    return m_FilterViewSettings[filter];
-  }
-
-  VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
-
-  connect(filter, &VSAbstractFilter::removeFilter, this, [=] { filterRemoved(filter); });
-
-  connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
-  connect(viewSettings, SIGNAL(gridVisibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setGridVisibility(VSFilterViewSettings*, bool)));
-  connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
-  connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-  connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
-  connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
-  connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
-  connect(viewSettings, SIGNAL(actorsUpdated()), this, SLOT(updateScene()));
-  connect(viewSettings, SIGNAL(swappingActors(vtkProp3D*, vtkProp3D*)), this, SLOT(swapActors(vtkProp3D*, vtkProp3D*)));
-
-  m_FilterViewSettings[filter] = viewSettings;
-
-  if(filter->getParentFilter() && filter->getParentFilter()->getOutput())
-  {
-    VSFilterViewSettings* parentSettings = getFilterViewSettings(filter->getParentFilter());
-    if(parentSettings)
-    {
-      viewSettings->copySettings(parentSettings);
-    }
-  }
-
-  checkFilterViewSetting(viewSettings);
-
-  return viewSettings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSettings, bool filterVisible)
+void VSAbstractViewWidget::changeFilterVisibility(VSFilterViewSettings* viewSettings, const bool& filterVisible)
 {
   if(nullptr == viewSettings)
   {
@@ -321,8 +258,55 @@ void VSAbstractViewWidget::setFilterVisibility(VSFilterViewSettings* viewSetting
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setGridVisibility(VSFilterViewSettings* viewSettings, bool gridVisible)
+void VSAbstractViewWidget::changeScalarBarVisibility(VSFilterViewSettings* viewSettings, const bool& visibility)
 {
+  if(nullptr == viewSettings)
+  {
+    return;
+  }
+
+  if(nullptr == viewSettings->getScalarBarWidget())
+  {
+    return;
+  }
+
+  if(viewSettings->getScalarBarWidget())
+  {
+    if(viewSettings->isVisible())
+    {
+      if(viewSettings->isScalarBarVisible())
+      {
+        viewSettings->getScalarBarWidget()->SetEnabled(1);
+      }
+      else
+      {
+        viewSettings->getScalarBarWidget()->SetEnabled(0);
+      }
+    }
+    else
+    {
+      viewSettings->getScalarBarWidget()->SetEnabled(0);
+    }
+  }
+
+  renderView();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::setFilterVisibility(const bool& filterVisible)
+{
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
+  changeFilterVisibility(viewSettings, filterVisible);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::setGridVisibility(const bool& gridVisible)
+{
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
   if(nullptr == viewSettings)
   {
     return;
@@ -373,7 +357,7 @@ void VSAbstractViewWidget::swapActors(vtkProp3D* oldProp, vtkProp3D* newProp)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterArrayIndex(VSFilterViewSettings* viewSettings, int index)
+void VSAbstractViewWidget::setFilterArrayName(const QString& name)
 {
   // Handle in subclasses
 }
@@ -381,7 +365,7 @@ void VSAbstractViewWidget::setFilterArrayIndex(VSFilterViewSettings* viewSetting
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterComponentIndex(VSFilterViewSettings* viewSettings, int index)
+void VSAbstractViewWidget::setFilterComponentIndex(const int& index)
 {
   renderView();
 }
@@ -389,7 +373,7 @@ void VSAbstractViewWidget::setFilterComponentIndex(VSFilterViewSettings* viewSet
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings, Qt::CheckState mapColorState)
+void VSAbstractViewWidget::setFilterMapColors(const VSFilterViewSettings::ColorMapping& mapColorState)
 {
   renderView();
 }
@@ -397,38 +381,10 @@ void VSAbstractViewWidget::setFilterMapColors(VSFilterViewSettings* viewSettings
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setFilterShowScalarBar(VSFilterViewSettings* viewSettings, bool showScalarBar)
+void VSAbstractViewWidget::setFilterShowScalarBar(const bool& showScalarBar)
 {
-  if(nullptr == viewSettings)
-  {
-    return;
-  }
-
-  if(nullptr == viewSettings->getScalarBarWidget())
-  {
-    return;
-  }
-
-  if(viewSettings->getScalarBarWidget())
-  {
-    if(viewSettings->isVisible())
-    {
-      if(viewSettings->isScalarBarVisible())
-      {
-        viewSettings->getScalarBarWidget()->SetEnabled(1);
-      }
-      else
-      {
-        viewSettings->getScalarBarWidget()->SetEnabled(0);
-      }
-    }
-    else
-    {
-      viewSettings->getScalarBarWidget()->SetEnabled(0);
-    }
-  }
-
-  renderView();
+  VSFilterViewSettings* viewSettings = dynamic_cast<VSFilterViewSettings*>(sender());
+  changeScalarBarVisibility(viewSettings, showScalarBar);
 }
 
 // -----------------------------------------------------------------------------
@@ -764,6 +720,14 @@ VSController* VSAbstractViewWidget::getController() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewModel* VSAbstractViewWidget::getFilterViewModel() const
+{
+  return m_FilterViewModel;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSAbstractViewWidget::isActive()
 {
   return m_Active;
@@ -786,36 +750,27 @@ void VSAbstractViewWidget::setActive(bool active)
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::setController(VSController* controller)
 {
-  if(m_Controller)
-  {
-    disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(filterAdded(VSAbstractFilter*)));
-    disconnect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
-  }
-
   m_Controller = controller;
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(filterAdded(VSAbstractFilter*, bool)));
-  connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
 
-  // Clear old filter view settings and create new ones
-  clearFilters();
+  // Set the new VSFilterModel base
+  m_FilterViewModel->setFilterModel(controller->getFilterModel());
 
-  QVector<VSAbstractFilter*> filters = controller->getAllFilters();
-  for(VSAbstractFilter* filter : filters)
+  std::vector<VSFilterViewSettings*> filterViewSettings = m_FilterViewModel->getAllFilterViewSettings();
+  for(VSFilterViewSettings* viewSettings : filterViewSettings)
   {
-    VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
-    m_FilterViewSettings[filter] = viewSettings;
-
-    connect(viewSettings, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(activeArrayIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterArrayIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(activeComponentIndexChanged(VSFilterViewSettings*, int)), this, SLOT(setFilterComponentIndex(VSFilterViewSettings*, int)));
-    connect(viewSettings, SIGNAL(mapColorsChanged(VSFilterViewSettings*, Qt::CheckState)), this, SLOT(setFilterMapColors(VSFilterViewSettings*, Qt::CheckState)));
-    connect(viewSettings, SIGNAL(showScalarBarChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterShowScalarBar(VSFilterViewSettings*, bool)));
-    connect(viewSettings, SIGNAL(requiresRender()), this, SLOT(renderView()));
-    connect(viewSettings, SIGNAL(actorsUpdated()), this, SLOT(updateScene()));
+    connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, &VSAbstractViewWidget::setFilterVisibility);
+    connect(viewSettings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSAbstractViewWidget::setFilterArrayName);
+    connect(viewSettings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSAbstractViewWidget::setFilterComponentIndex);
+    connect(viewSettings, &VSFilterViewSettings::mapColorsChanged, this, &VSAbstractViewWidget::setFilterMapColors);
+    connect(viewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSAbstractViewWidget::setFilterShowScalarBar);
+    connect(viewSettings, &VSFilterViewSettings::requiresRender, this, &VSAbstractViewWidget::renderView);
+    connect(viewSettings, &VSFilterViewSettings::actorsUpdated, this, &VSAbstractViewWidget::updateScene);
 
     // Check filter and scalar bar visibility
     checkFilterViewSetting(viewSettings);
   }
+
+  emit controllerChanged(controller);
 }
 
 // -----------------------------------------------------------------------------

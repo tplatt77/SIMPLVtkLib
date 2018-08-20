@@ -93,31 +93,26 @@ protected slots:
 
   /**
    * @brief Listens for the active VSFilterViewSettings representation type to change
-   * @param settings
    * @param rep
    */
-  void listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep);
+  void listenRepresentationType(VSFilterViewSettings::Representation rep);
 
   /**
    * @brief Listens for the active VSFilterViewSettings active array name to change
-   * @param settings
    * @param name
    */
-  void listenArrayName(VSFilterViewSettings* settings, QString name);
+  void listenArrayName(QString name);
 
   /**
    * @brief Listens for the active VSFilterViewSettings active component index to change
-   * @param settings
    * @param index
    */
-  void listenComponentIndex(VSFilterViewSettings* settings, int index);
+  void listenComponentIndex(int index);
 
   /**
    * @brief Listens for the active VSFilterViewSettings solid color to change
-   * @param settings
-   * @param color
    */
-  void listenSolidColor(VSFilterViewSettings* settings, double* color);
+  void listenSolidColor();
 
 protected:
   /**

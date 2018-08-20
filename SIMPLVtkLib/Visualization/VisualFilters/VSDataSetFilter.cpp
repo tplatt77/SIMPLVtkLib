@@ -94,7 +94,7 @@ vtkAlgorithmOutput* VSDataSetFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput()
+VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput() const
 {
   if(nullptr == m_DataSet)
   {
@@ -147,6 +147,22 @@ void VSDataSetFilter::createFilter()
   {
     setText("Invalid Import File");
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSDataSetFilter::getText() const
+{
+  return m_Text;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDataSetFilter::setText(QString text)
+{
+  m_Text = text;
 }
 
 // -----------------------------------------------------------------------------
@@ -378,9 +394,9 @@ QUuid VSDataSetFilter::GetUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSDataSetFilter::getFilterName()
+QString VSDataSetFilter::getFilterName() const
 {
-  return text();
+  return getText();
 }
 
 // -----------------------------------------------------------------------------

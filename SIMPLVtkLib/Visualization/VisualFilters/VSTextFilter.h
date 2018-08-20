@@ -74,13 +74,7 @@ public:
    * @brief Returns the filter's name
    * @return
    */
-  virtual const QString getFilterName() override;
-
-  /**
-   * @brief Returns the filter's tooltip
-   * @return
-   */
-  virtual QString getToolTip() const override;
+  QString getFilterName() const override;
 
   /**
    * @brief Sets whether or not the font is italic
@@ -110,13 +104,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the ouput data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required incoming data type

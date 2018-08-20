@@ -62,7 +62,7 @@ void VSAbstractDataFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
+VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType() const
 {
   int dataType = getOutput()->GetDataObjectType();
   switch(dataType)
@@ -90,4 +90,12 @@ VSAbstractFilter::dataType_t VSAbstractDataFilter::getOutputType()
 // -----------------------------------------------------------------------------
 void VSAbstractDataFilter::reloadData()
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractDataFilter::isDataImported() const
+{
+  return m_DataImported;
 }

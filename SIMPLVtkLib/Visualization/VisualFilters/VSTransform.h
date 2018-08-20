@@ -55,6 +55,14 @@ class VSTransform : public QObject
 {
   Q_OBJECT
 
+  Q_PROPERTY(std::vector<double> localPosition READ getLocalPositionVector WRITE setLocalPositionVector NOTIFY updatedLocalPosition)
+  Q_PROPERTY(std::vector<double> localRotation READ getLocalRotationVector WRITE setLocalRotationVector NOTIFY updatedLocalRotation)
+  Q_PROPERTY(std::vector<double> localScale READ getLocalScaleVector WRITE setLocalScaleVector NOTIFY updatedLocalScale)
+
+  Q_PROPERTY(std::vector<double> globalPosition READ getPositionVector NOTIFY updatedPosition)
+  Q_PROPERTY(std::vector<double> globalRotation READ getRotationVector NOTIFY updatedRotation)
+  Q_PROPERTY(std::vector<double> globalScale READ getScaleVector NOTIFY updatedScale)
+
 public:
   /**
    * @brief Constructor
@@ -63,9 +71,21 @@ public:
   VSTransform(VSTransform* parent = nullptr);
 
   /**
+   * @brief Copy Constructor
+   * @param copy
+   */
+  VSTransform(const VSTransform& copy);
+
+  /**
    * @brief Deconstructor
    */
   virtual ~VSTransform() = default;
+
+  /**
+   * @brief Assignment operator
+   * @param copy
+   */
+  void operator=(const VSTransform& copy);
 
   /**
    * @brief Sets the parent transform
@@ -77,7 +97,61 @@ public:
    * @brief Returns the parent transform
    * @return
    */
-  VSTransform* getParent();
+  VSTransform* getParent() const;
+
+  /**
+   * @brief Returns a vector<double> with the global position
+   * @return
+   */
+  std::vector<double> getPositionVector();
+
+  /**
+   * @brief Returns a vector<double> with the global rotation
+   * @return
+   */
+  std::vector<double> getRotationVector();
+
+  /**
+   * @brief Returns a vector<double> with the global scale
+   * @return
+   */
+  std::vector<double> getScaleVector();
+
+  /**
+   * @brief Returns a vector<double> with the local position
+   * @return
+   */
+  std::vector<double> getLocalPositionVector();
+
+  /**
+   * @brief Returns a vector<double> with the local rotation
+   * @return
+   */
+  std::vector<double> getLocalRotationVector();
+
+  /**
+   * @brief Returns a vector<double> with the local scale
+   * @return
+   */
+  std::vector<double> getLocalScaleVector();
+
+  /**
+   * @brief Sets the transform's local position
+   * @param position
+   */
+  void setLocalPositionVector(std::vector<double> position);
+
+  /**
+   * @brief Sets the transform's local rotation
+   * @param rotation
+   */
+  void setLocalRotationVector(std::vector<double> rotation);
+
+  /**
+   * @brief Sets the transform's local scale
+   * @param scale
+   */
+  void setLocalScaleVector(std::vector<double> scale);
 
   /**
    * @brief Returns the transform's global position in 3D space
@@ -249,19 +323,24 @@ public:
   void globalizeTransform(vtkTransform* transform);
 
 signals:
-  void updatedPosition(double* position);
-  void updatedRotation(double* rotation);
-  void updatedScale(double* scale);
+  void updatedPosition();
+  void updatedRotation();
+  void updatedScale();
   void emitPosition();
   void emitRotation();
   void emitScale();
   void emitAll();
   void valuesChanged();
-  void updatedLocalPosition(double* position);
-  void updatedLocalRotation(double* rotation);
-  void updatedLocalScale(double* scale);
+  void updatedLocalPosition();
+  void updatedLocalRotation();
+  void updatedLocalScale();
 
 protected:
+  /**
+   * @brief Sets up the initial signals
+   */
+  void setupSignals();
+
   /**
    * @brief Returns a new vtkTransform based on the given values
    * @param position

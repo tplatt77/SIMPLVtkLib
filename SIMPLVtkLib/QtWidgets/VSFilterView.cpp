@@ -37,15 +37,15 @@
 
 #include <QtWidgets/QMenu>
 
-#include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
+ //
+ // -----------------------------------------------------------------------------
 VSFilterView::VSFilterView(QWidget* parent)
-: QTreeView(parent)
+  : QTreeView(parent)
 {
   connectSlots();
   setupGui();
@@ -64,38 +64,11 @@ void VSFilterView::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterView::setController(VSController* controller)
-{
-  if(selectionModel())
-  {
-    disconnect(selectionModel(), SIGNAL(currentItemChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));
-  }
-
-  if(m_Controller)
-  {
-    disconnect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*)), this, SLOT(insertFilter(VSAbstractFilter*)));
-    disconnect(m_Controller, &VSController::filterCheckStateChanged, 0, 0);
-  }
-
-  m_Controller = controller;
-  setModel(controller->getFilterModel());
-
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(insertFilter(VSAbstractFilter*, bool)));
-  connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(setCurrentItem(const QModelIndex&, const QModelIndex&)));
-  connect(m_Controller, &VSController::filterCheckStateChanged, this, [=](VSAbstractFilter* filter) {
-    QModelIndex filterIndex = m_Controller->getFilterModel()->getIndexFromFilter(filter);
-    itemClicked(filterIndex);
-  });
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSFilterView::insertFilter(VSAbstractFilter* filter, bool currentFilter)
 {
   Q_UNUSED(currentFilter)
 
-  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+    VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
 
   QModelIndex index = filterModel->getIndexFromFilter(filter);
   expand(index);
@@ -109,29 +82,28 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
   // Disconnect from the old view controller
   if(m_ViewWidget)
   {
-    disconnect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    disconnect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
+  }
+  if(selectionModel())
+  {
+    disconnect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
   }
 
   m_ViewWidget = viewWidget;
-  if(nullptr == m_Controller || nullptr == m_ViewWidget)
+
+  if(nullptr == m_ViewWidget)
   {
+    setModel(nullptr);
     return;
   }
 
-  // Connect to the new view controller
-  connect(m_ViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
-}
+  setModel(viewWidget->getFilterViewModel());
+  setRootIndex(viewWidget->getFilterViewModel()->rootIndex());
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, bool visible)
-{
-  VSAbstractFilter* filter = filterSettings->getFilter();
-  if(filter)
-  {
-    filter->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
-  }
+  // Connect to the new view controller
+  connect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
+  connect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
+  connect(m_ViewWidget->getFilterViewModel(), &VSFilterViewModel::rootChanged, [=] { setRootIndex(m_ViewWidget->getFilterViewModel()->rootIndex()); });
 }
 
 // -----------------------------------------------------------------------------
@@ -139,7 +111,7 @@ void VSFilterView::setFilterVisibility(VSFilterViewSettings* filterSettings, boo
 // -----------------------------------------------------------------------------
 void VSFilterView::setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget)
 {
-  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
   if(nullptr == filterModel)
   {
     return;
@@ -168,23 +140,6 @@ void VSFilterView::setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWid
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterView::itemClicked(const QModelIndex& index)
-{
-  VSAbstractFilter* filter = getFilterFromIndex(index);
-  if(m_ViewWidget && filter)
-  {
-    VSFilterViewSettings* settings = m_ViewWidget->getFilterViewSettings(filter);
-    bool checked = filter->checkState() == Qt::Checked;
-    if(settings)
-    {
-      settings->setVisible(checked);
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex& previous)
 {
   VSAbstractFilter* filter = getFilterFromIndex(current);
@@ -201,8 +156,6 @@ void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex&
 // -----------------------------------------------------------------------------
 void VSFilterView::connectSlots()
 {
-  connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
-
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(requestContextMenu(const QPoint&)));
 }
 
@@ -278,6 +231,6 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterView::getFilterFromIndex(const QModelIndex& index)
 {
-  VSFilterModel* filterModel = dynamic_cast<VSFilterModel*>(model());
+  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
   return filterModel->getFilterFromIndex(index);
 }

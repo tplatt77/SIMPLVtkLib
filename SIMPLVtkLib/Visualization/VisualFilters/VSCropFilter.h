@@ -58,12 +58,21 @@ class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
+  Q_PROPERTY(std::vector<int> voi READ getVolumeOfInterestVector NOTIFY voiChanged)
+  Q_PROPERTY(std::vector<int> sampleRate READ getSampleRateVector NOTIFY sampleRateChanged)
+
 public:
   /**
    * @brief Constructor
    * @param parent
    */
-  VSCropFilter(VSAbstractFilter* parent);
+  VSCropFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+  * @brief Copy constructor
+  * @param copy
+  */
+  VSCropFilter(const VSCropFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -81,7 +90,7 @@ public:
    * @brief Returns the filter's name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter
@@ -94,7 +103,14 @@ public:
    * @param voi
    * @param sampleRate
    */
-  void apply(int voi[6], int sampleRate[3]);
+  Q_INVOKABLE void apply(int voi[6], int sampleRate[3]);
+
+  /**
+   * @brief Applies the crop filter with the given volume of interst and sample rate
+   * @param voi
+   * @param sampleRate
+   */
+  Q_INVOKABLE void apply(std::vector<int> voiXMin, std::vector<int> sampleRate);
 
   /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
@@ -106,13 +122,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the output data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required incoming data type
@@ -153,6 +169,18 @@ public:
   void setSampleRate(int* sampleRate);
 
   /**
+   * @brief Returns a vector with the volume of interest
+   * @return
+   */
+  std::vector<int> getVolumeOfInterestVector();
+
+  /**
+   * @brief Returns a vector with the sample rate
+   * @return
+   */
+  std::vector<int> getSampleRateVector();
+
+  /**
    * @brief Writes values to a json file from the filter
    * @param json
    */
@@ -163,6 +191,10 @@ public:
    * @return
    */
   static QUuid GetUuid();
+
+signals:
+  void voiChanged();
+  void sampleRateChanged();
 
 protected:
   /**
@@ -182,3 +214,5 @@ private:
   int m_LastVoi[6];
   int m_LastSampleRate[3];
 };
+
+Q_DECLARE_METATYPE(VSCropFilter)

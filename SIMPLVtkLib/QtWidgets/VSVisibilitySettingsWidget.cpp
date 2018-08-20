@@ -90,7 +90,7 @@ void VSVisibilitySettingsWidget::setFilter(VSAbstractFilter* filter, VSAbstractF
   VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::ActorType::Invalid;
   if(m_ViewSettings && m_ViewSettings->isValid())
   {
-    listenSolidColor(m_ViewSettings, m_ViewSettings->getSolidColor());
+    listenSolidColor();
     actorType = m_ViewSettings->getActorType();
   }
 
@@ -233,9 +233,8 @@ void VSVisibilitySettingsWidget::updateViewSettingInfo()
 
   if(m_ViewSettings->isValid())
   {
-    double* solidColor = m_ViewSettings->getSolidColor();
-    QColor newColor = QColor::fromRgbF(solidColor[0], solidColor[1], solidColor[2]);
-    m_Ui->colorBtn->setColor(newColor, false);
+    QColor solidColor = m_ViewSettings->getSolidColor();
+    m_Ui->colorBtn->setColor(solidColor, false);
   }
 }
 
@@ -325,12 +324,12 @@ void VSVisibilitySettingsWidget::colorButtonChanged(QColor color)
     return;
   }
 
-  double colorArray[3];
-  colorArray[0] = color.redF();
-  colorArray[1] = color.greenF();
-  colorArray[2] = color.blueF();
+  //double colorArray[3];
+  //colorArray[0] = color.redF();
+  //colorArray[1] = color.greenF();
+  //colorArray[2] = color.blueF();
 
-  m_ViewSettings->setSolidColor(colorArray);
+  m_ViewSettings->setSolidColor(color);
 }
 
 // -----------------------------------------------------------------------------
@@ -351,7 +350,7 @@ void VSVisibilitySettingsWidget::setComboArrayName(QString arrayName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSVisibilitySettingsWidget::listenRepresentationType(VSFilterViewSettings* settings, VSFilterViewSettings::Representation rep)
+void VSVisibilitySettingsWidget::listenRepresentationType(VSFilterViewSettings::Representation rep)
 {
   int index = static_cast<int>(rep);
   m_Ui->representationCombo->blockSignals(true);
@@ -362,7 +361,7 @@ void VSVisibilitySettingsWidget::listenRepresentationType(VSFilterViewSettings* 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSVisibilitySettingsWidget::listenArrayName(VSFilterViewSettings* settings, QString arrayName)
+void VSVisibilitySettingsWidget::listenArrayName(QString arrayName)
 {
   m_Ui->activeArrayCombo->blockSignals(true);
   if(arrayName.isNull())
@@ -379,7 +378,7 @@ void VSVisibilitySettingsWidget::listenArrayName(VSFilterViewSettings* settings,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSVisibilitySettingsWidget::listenComponentIndex(VSFilterViewSettings* settings, int index)
+void VSVisibilitySettingsWidget::listenComponentIndex(int index)
 {
   m_Ui->activeComponentCombo->blockSignals(true);
   m_Ui->activeComponentCombo->setCurrentIndex(index + 1);
@@ -389,13 +388,18 @@ void VSVisibilitySettingsWidget::listenComponentIndex(VSFilterViewSettings* sett
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSVisibilitySettingsWidget::listenSolidColor(VSFilterViewSettings* settings, double* color)
+void VSVisibilitySettingsWidget::listenSolidColor()
 {
-  if(nullptr == color)
+  if(nullptr == m_ViewSettings)
   {
     return;
   }
 
-  QColor newColor = QColor::fromRgbF(color[0], color[1], color[2]);
-  m_Ui->colorBtn->setColor(newColor, false);
+  QColor color = m_ViewSettings->getSolidColor();
+  if(false == color.isValid())
+  {
+    return;
+  }
+
+  m_Ui->colorBtn->setColor(color, false);
 }

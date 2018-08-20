@@ -59,7 +59,13 @@ public:
    * @brief Constructor
    * @param parent
    */
-  VSMaskFilter(VSAbstractFilter* parent);
+  VSMaskFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+   * @brief Copy constructor
+   * @param copy
+   */
+  VSMaskFilter(const VSMaskFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -78,7 +84,7 @@ public:
    * Brief Returns the filter name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter
@@ -102,13 +108,13 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the output data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required input data type
@@ -171,3 +177,5 @@ private:
 
   QString m_LastArrayName;
 };
+
+Q_DECLARE_METATYPE(VSMaskFilter)

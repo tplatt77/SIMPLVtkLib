@@ -50,8 +50,17 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
-  setText(getFilterName());
-  setToolTip(getToolTip());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSMaskFilter::VSMaskFilter(const VSMaskFilter& copy)
+  : VSAbstractFilter()
+  , m_LastArrayName(copy.m_LastArrayName)
+{
+  m_MaskAlgorithm = nullptr;
+  setParentFilter(copy.getParentFilter());
 }
 
 // -----------------------------------------------------------------------------
@@ -82,7 +91,7 @@ void VSMaskFilter::createFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString VSMaskFilter::getFilterName()
+QString VSMaskFilter::getFilterName() const
 {
   return "Mask";
 }
@@ -154,7 +163,7 @@ vtkAlgorithmOutput* VSMaskFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSMaskFilter::getOutput()
+VTK_PTR(vtkDataSet) VSMaskFilter::getOutput() const
 {
   if(getConnectedInput() && m_MaskAlgorithm)
   {
@@ -201,7 +210,7 @@ QUuid VSMaskFilter::GetUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSMaskFilter::getOutputType()
+VSAbstractFilter::dataType_t VSMaskFilter::getOutputType() const
 {
   return UNSTRUCTURED_GRID;
 }

@@ -65,15 +65,20 @@ public:
    * @brief Returns the output data type for the filter
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Reloads the data in the item
    */
   virtual void reloadData();
 
+  /**
+   * @brief Returns true if the data has been imported.  Returns false otherwise.
+   * @return
+   */
+  bool isDataImported() const override;
+
 signals:
-  void dataImported();
   void dataReloaded();
   void filterReloaded(VSAbstractFilter* filter);
 
@@ -89,4 +94,7 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  bool m_DataImported = false;
 };

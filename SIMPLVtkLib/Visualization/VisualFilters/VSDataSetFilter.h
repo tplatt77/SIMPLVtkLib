@@ -93,13 +93,13 @@ public:
    * @brief Returns the output data for the filter
    * @return
    */
-  VTK_PTR(vtkDataSet) getOutput() override;
+  VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the filter's name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter
@@ -138,10 +138,23 @@ protected:
    */
   void createFilter() override;
 
+  /**
+   * @brief Returns the text to display for the filter's display role
+   * @return
+   */
+  QString getText() const;
+
+  /**
+   * @brief Sets the text to display for the filter's display role
+   * @param text
+   */
+  void setText(QString text);
+
 private:
   QString m_FilePath;
   VTK_PTR(vtkDataSet) m_DataSet = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
+  QString m_Text;
 
   /**
    * @brief readDataSet

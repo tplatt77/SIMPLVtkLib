@@ -41,6 +41,8 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+
 QString fetchPipelineName(FilterPipeline::Pointer pipeline)
 {
   if(pipeline->getName().isEmpty())
@@ -58,9 +60,8 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 : VSTextFilter(parent, fetchPipelineName(pipeline), fetchPipelineName(pipeline))
 , m_FilterPipeline(pipeline)
 {
-  setCheckState(Qt::Unchecked);
   setCheckable(false);
-  setEditable(false);
+  //setEditable(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -126,9 +127,17 @@ FilterPipeline::Pointer VSPipelineFilter::getFilterPipeline()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSPipelineFilter::getPipelineName()
+QString VSPipelineFilter::getPipelineName() const
 {
   return fetchPipelineName(m_FilterPipeline);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSPipelineFilter::getFilterName() const
+{
+  return getPipelineName();
 }
 
 // -----------------------------------------------------------------------------
@@ -142,4 +151,21 @@ bool VSPipelineFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPipelineFilter::apply()
+{
+  // Finish importing any VSSIMPLDataContainerFilters
+  VSAbstractFilter::FilterListType children = getChildren();
+  for(VSAbstractFilter* child : children)
+  {
+    VSSIMPLDataContainerFilter* childCast = dynamic_cast<VSSIMPLDataContainerFilter*>(child);
+    if(childCast)
+    {
+      childCast->apply();
+    }
+  }
 }

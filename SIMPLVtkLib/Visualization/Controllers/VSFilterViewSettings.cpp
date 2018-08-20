@@ -55,7 +55,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
-double* VSFilterViewSettings::NULL_COLOR = new double[3]{0.0, 0.0, 0.0};
+double* VSFilterViewSettings::NULL_COLOR = new double[3]{ 0.0, 0.0, 0.0 };
 QIcon* VSFilterViewSettings::m_SolidColorIcon = nullptr;
 QIcon* VSFilterViewSettings::m_CellDataIcon = nullptr;
 QIcon* VSFilterViewSettings::m_PointDataIcon = nullptr;
@@ -63,9 +63,22 @@ QIcon* VSFilterViewSettings::m_PointDataIcon = nullptr;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewSettings::VSFilterViewSettings()
+  : QObject(nullptr)
+  , m_ShowFilter(false)
+  , m_Filter(nullptr)
+  , m_Representation(Representation::Invalid)
+  , m_ActiveComponent(-1)
+{
+  setupStaticIcons();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
-: QObject(nullptr)
-, m_ShowFilter(true)
+  : QObject(nullptr)
+  , m_ShowFilter(true)
 {
   setupStaticIcons();
 
@@ -83,12 +96,12 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
 //
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
-: QObject(nullptr)
-, m_ShowFilter(copy.m_ShowFilter)
-, m_ActiveArrayName(copy.m_ActiveArrayName)
-, m_ActiveComponent(copy.m_ActiveComponent)
-, m_MapColors(copy.m_MapColors)
-, m_Alpha(copy.m_Alpha)
+  : QObject(nullptr)
+  , m_ShowFilter(copy.m_ShowFilter)
+  , m_ActiveArrayName(copy.m_ActiveArrayName)
+  , m_ActiveComponent(copy.m_ActiveComponent)
+  , m_MapColors(copy.m_MapColors)
+  , m_Alpha(copy.m_Alpha)
 {
   connectFilter(copy.m_Filter);
   setupActions();
@@ -160,10 +173,56 @@ VSAbstractFilter* VSFilterViewSettings::getFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString VSFilterViewSettings::getFilterName() const
+{
+  if(m_Filter)
+  {
+    return m_Filter->getFilterName();
+  }
+  else
+  {
+    return "[Filter Missing]";
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTransform* VSFilterViewSettings::getTransform() const
+{
+  if(nullptr == m_Filter)
+  {
+    return new VSTransform();
+  }
+
+  return m_Filter->getTransform();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isValid() const
 {
+  if(nullptr == m_Filter)
+  {
+    return false;
+  }
+
   bool valid = m_Mapper && m_Actor;
   return valid;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isDataImported() const
+{
+  if(nullptr == m_Filter)
+  {
+    return false;
+  }
+
+  return m_Filter->isDataImported();
 }
 
 // -----------------------------------------------------------------------------
@@ -173,10 +232,10 @@ void VSFilterViewSettings::setupActions()
 {
   m_SetColorAction = new QAction("Set Color", this);
   connect(m_SetColorAction, &QAction::triggered, [=] {
-    QColor color = QColorDialog::getColor(getSolidQColor());
+    QColor color = QColorDialog::getColor(getSolidColor());
     if(color.isValid())
     {
-      setSolidQColor(color);
+      setSolidColor(color);
     }
   });
 
@@ -197,12 +256,12 @@ void VSFilterViewSettings::setupActions()
   m_ToggleScalarBarAction->setCheckable(true);
   m_ToggleScalarBarAction->setChecked(true);
   connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) { setScalarBarVisible(checked); });
-}
+  }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isVisible()
+bool VSFilterViewSettings::isVisible() const
 {
   return m_ShowFilter;
 }
@@ -210,7 +269,7 @@ bool VSFilterViewSettings::isVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isGridVisible()
+bool VSFilterViewSettings::isGridVisible() const
 {
   return m_GridVisible;
 }
@@ -218,7 +277,7 @@ bool VSFilterViewSettings::isGridVisible()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSFilterViewSettings::getActiveArrayName()
+QString VSFilterViewSettings::getActiveArrayName() const
 {
   return m_ActiveArrayName;
 }
@@ -226,9 +285,50 @@ QString VSFilterViewSettings::getActiveArrayName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSFilterViewSettings::getActiveComponentIndex()
+int VSFilterViewSettings::getActiveComponentIndex() const
 {
   return m_ActiveComponent;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getArrayNames() const
+{
+  if(m_Filter)
+  {
+    QStringList arrayNames = m_Filter->getArrayNames();
+    arrayNames.prepend("Solid Colors");
+    return arrayNames;
+  }
+
+  return QStringList("Solid Colors");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getScalarNames() const
+{
+  if(m_Filter)
+  {
+    return m_Filter->getScalarNames();
+  }
+
+  return QStringList();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList VSFilterViewSettings::getComponentNames()
+{
+  if(m_Filter)
+  {
+    return m_Filter->getComponentList(getActiveArrayName());
+  }
+
+  return QStringList();
 }
 
 // -----------------------------------------------------------------------------
@@ -428,7 +528,7 @@ void VSFilterViewSettings::setVisible(bool visible)
 
   m_ShowFilter = visible;
 
-  emit visibilityChanged(this, m_ShowFilter);
+  emit visibilityChanged(m_ShowFilter);
 }
 
 // -----------------------------------------------------------------------------
@@ -443,7 +543,7 @@ void VSFilterViewSettings::setGridVisible(bool visible)
 
   m_GridVisible = visible;
 
-  emit gridVisibilityChanged(this, m_GridVisible);
+  emit gridVisibilityChanged(m_GridVisible);
 }
 
 // -----------------------------------------------------------------------------
@@ -461,7 +561,7 @@ QString VSFilterViewSettings::getArrayNameByIndex(int index)
   {
     return arrayNames[index];
   }
-  
+
   return QString::null;
 }
 
@@ -539,8 +639,9 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     getDataSetMapper()->SelectColorArray(-1);
     m_ActiveArrayName = QString::null;
 
-    emit activeArrayNameChanged(this, m_ActiveArrayName);
+    emit activeArrayNameChanged(m_ActiveArrayName);
     emit requiresRender();
+    emit componentNamesChanged();
     return;
   }
 
@@ -552,7 +653,8 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
 
   m_ActiveArrayName = name;
 
-  emit activeArrayNameChanged(this, m_ActiveArrayName);
+  emit activeArrayNameChanged(m_ActiveArrayName);
+  emit componentNamesChanged();
   setActiveComponentIndex(-1);
 
   if(isColorArray(dataArray) && m_MapColors == ColorMapping::Always)
@@ -624,7 +726,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
   m_Mapper->Update();
 
-  emit activeComponentIndexChanged(this, m_ActiveComponent);
+  emit activeComponentIndexChanged(m_ActiveComponent);
 }
 
 // -----------------------------------------------------------------------------
@@ -702,7 +804,7 @@ void VSFilterViewSettings::setMapColors(ColorMapping mapColors)
   m_MapColors = mapColors;
 
   updateColorMode();
-  emit mapColorsChanged(this, m_MapColors);
+  emit mapColorsChanged(m_MapColors);
   emit requiresRender();
 }
 
@@ -734,7 +836,7 @@ void VSFilterViewSettings::setAlpha(double alpha)
     return;
   }
 
-  emit alphaChanged(this, m_Alpha);
+  emit alphaChanged(m_Alpha);
   emit requiresRender();
 }
 
@@ -810,7 +912,7 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 
   m_ToggleScalarBarAction->setChecked(visible);
 
-  emit showScalarBarChanged(this, visible);
+  emit showScalarBarChanged(visible);
 }
 
 // -----------------------------------------------------------------------------
@@ -869,7 +971,7 @@ bool VSFilterViewSettings::isFlatImage()
     return false;
   }
 
-  // Check extents
+  // Check dimensions
   int* dims = imageData->GetDimensions();
   for(int i = 0; i < 3; i++)
   {
@@ -1114,6 +1216,9 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     disconnect(m_Filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
     disconnect(m_Filter, SIGNAL(transformChanged()), this, SIGNAL(updateTransform()));
     disconnect(m_Filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
+    disconnect(m_Filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    disconnect(m_Filter, &VSAbstractFilter::scalarNamesChanged, this, &VSFilterViewSettings::scalarNamesChanged);
+    disconnect(m_Filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(dynamic_cast<VSAbstractDataFilter*>(m_Filter))
     {
@@ -1128,6 +1233,9 @@ void VSFilterViewSettings::connectFilter(VSAbstractFilter* filter)
     connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(updateInputPort(VSAbstractFilter*)));
     connect(filter, SIGNAL(transformChanged()), this, SLOT(updateTransform()));
     connect(filter, &VSAbstractFilter::removeFilter, this, &VSFilterViewSettings::filterDeleted);
+    connect(filter, &VSAbstractFilter::arrayNamesChanged, this, &VSFilterViewSettings::arrayNamesChanged);
+    connect(filter, &VSAbstractFilter::scalarNamesChanged, this, &VSFilterViewSettings::scalarNamesChanged);
+    connect(filter, &VSAbstractFilter::dataImported, this, &VSFilterViewSettings::dataLoaded);
 
     if(filter->getArrayNames().size() < 1)
     {
@@ -1161,7 +1269,7 @@ void VSFilterViewSettings::filterDeleted()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSFilterViewSettings::getSolidColor() const
+double* VSFilterViewSettings::getSolidColorPtr() const
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1175,7 +1283,7 @@ double* VSFilterViewSettings::getSolidColor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setSolidColor(double color[3])
+void VSFilterViewSettings::setSolidColorPtr(double* color)
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1185,17 +1293,17 @@ void VSFilterViewSettings::setSolidColor(double color[3])
 
   actor->GetProperty()->SetColor(color);
 
-  emit solidColorChanged(this, color);
+  emit solidColorChanged();
   emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QColor VSFilterViewSettings::getSolidQColor() const
+QColor VSFilterViewSettings::getSolidColor() const
 {
   QColor colorOut;
-  double* color = getSolidColor();
+  double* color = getSolidColorPtr();
   colorOut.setRgbF(color[0], color[1], color[2]);
   return colorOut;
 }
@@ -1203,14 +1311,14 @@ QColor VSFilterViewSettings::getSolidQColor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setSolidQColor(QColor color)
+void VSFilterViewSettings::setSolidColor(QColor color)
 {
   double dColor[3];
   dColor[0] = color.redF();
   dColor[1] = color.greenF();
   dColor[2] = color.blueF();
 
-  setSolidColor(dColor);
+  setSolidColorPtr(dColor);
 }
 
 // -----------------------------------------------------------------------------
@@ -1274,7 +1382,7 @@ void VSFilterViewSettings::setPointSize(int pointSize)
   if(ActorType::DataSet == getActorType() && getDataSetActor())
   {
     getDataSetActor()->GetProperty()->SetPointSize(pointSize);
-    emit pointSizeChanged(this, pointSize);
+    emit pointSizeChanged(pointSize);
     emit requiresRender();
   }
 }
@@ -1300,7 +1408,7 @@ void VSFilterViewSettings::setRenderPointsAsSpheres(bool renderSpheres)
   if(ActorType::DataSet == getActorType() && getDataSetActor())
   {
     getDataSetActor()->GetProperty()->SetRenderPointsAsSpheres(renderSpheres);
-    emit renderPointSpheresChanged(this, renderSpheres);
+    emit renderPointSpheresChanged(renderSpheres);
     emit requiresRender();
   }
 }
@@ -1308,7 +1416,7 @@ void VSFilterViewSettings::setRenderPointsAsSpheres(bool renderSpheres)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setRepresentation(Representation type)
+void VSFilterViewSettings::setRepresentation(const Representation& type)
 {
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
@@ -1340,7 +1448,7 @@ void VSFilterViewSettings::setRepresentation(Representation type)
   }
 
   updateTransform();
-  emit representationChanged(this, type);
+  emit representationChanged(type);
   emit requiresRender();
 }
 
@@ -1565,14 +1673,14 @@ QIcon VSFilterViewSettings::getSolidColorIcon()
   {
     return *m_SolidColorIcon;
   }
-  
+
   return QIcon();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QIcon VSFilterViewSettings::getCellDataIcon() 
+QIcon VSFilterViewSettings::getCellDataIcon()
 {
   if(m_CellDataIcon)
   {
@@ -1593,4 +1701,12 @@ QIcon VSFilterViewSettings::getPointDataIcon()
   }
 
   return QIcon();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setTarget(const QQmlProperty& property)
+{
+  m_TargetProperty = property;
 }

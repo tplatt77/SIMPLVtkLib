@@ -64,18 +64,36 @@ class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
+  Q_PROPERTY(bool lastBoxInverted READ getLastBoxInverted NOTIFY lastBoxInvertedChanged)
+  Q_PROPERTY(bool lastPlaneInverted READ getLastPlaneInverted NOTIFY lastPlaneInvertedChanged)
+  Q_PROPERTY(std::vector<double> lastPlaneOrigin READ getLastPlaneOriginVector NOTIFY lastPlaneOriginChanged)
+  Q_PROPERTY(std::vector<double> lastPlaneNormal READ getLastPlaneNormalVector NOTIFY lastPlaneNormalChanged)
+  Q_PROPERTY(std::vector<double> lastBoxTranslation READ getLastBoxTranslationVector NOTIFY lastBoxTranslationChanged)
+  Q_PROPERTY(std::vector<double> lastBoxRotation READ getLastBoxRotationVector NOTIFY lastBoxRotationChanged)
+  Q_PROPERTY(std::vector<double> lastBoxScale READ getLastBoxScaleVector NOTIFY lastBoxScaleChanged)
+
 public:
   enum class ClipType : int
   {
     PLANE = 0,
     BOX = 1
   };
+  Q_ENUMS(ClipType)
+
+  Q_PROPERTY(ClipType lastClipType READ getLastClipType WRITE setLastClipType NOTIFY clipTypeChanged)
+  Q_PROPERTY(QStringList clipTypes READ getClipTypes)
 
   /**
    * @brief Constructor
    * @param parent
    */
-  VSClipFilter(VSAbstractFilter* parent);
+  VSClipFilter(VSAbstractFilter* parent = nullptr);
+
+  /**
+  * @brief Copy constructor
+  * @param copy
+  */
+  VSClipFilter(const VSClipFilter& copy);
 
   /**
    * @brief Deconstructor
@@ -91,10 +109,16 @@ public:
   static VSClipFilter* Create(QJsonObject& json, VSAbstractFilter* parent);
 
   /**
+   * @brief Returns a QStringList of all ClipTypes
+   * @return
+   */
+  static QStringList getClipTypes();
+
+  /**
    * @brief Returns the filter's name
    * @return
    */
-  const QString getFilterName() override;
+  QString getFilterName() const override;
 
   /**
    * @brief Returns the tooltip to use for the filter
@@ -118,6 +142,23 @@ public:
   void apply(VTK_PTR(vtkPlanes) planes, VTK_PTR(vtkTransform) transform, bool inverted = false);
 
   /**
+   * @brief Q_INVOKABLE version of apply for a plane with the given values
+   * @param origin
+   * @param normal
+   * @param inverted
+   */
+  Q_INVOKABLE void apply(std::vector<double> origin, std::vector<double> normal, bool inverted = false);
+
+  /**
+   * @brief Q_INVOKABLE version of apply for a box with the given values
+   * @param origin
+   * @param rotation
+   * @param scale
+   * @param inverted
+   */
+  Q_INVOKABLE void apply(std::vector<double> origin, std::vector<double> rotation, std::vector<double> scale, bool inverted = false);
+
+  /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
    * @return
    */
@@ -127,16 +168,17 @@ public:
    * @brief Returns a smart pointer containing the output data from the filter
    * @return
    */
-  virtual VTK_PTR(vtkDataSet) getOutput() override;
+  virtual VTK_PTR(vtkDataSet) getOutput() const override;
 
   /**
    * @brief Returns the ouput data type
    * @return
    */
-  dataType_t getOutputType() override;
+  dataType_t getOutputType() const override;
 
   /**
    * @brief Returns the required incoming data type
+   * @return
    */
   static dataType_t getRequiredInputType();
 
@@ -152,7 +194,7 @@ public:
    * @brief Returns whether or not the last applied plane was inverted
    * @return
    */
-  bool getLastPlaneInverted();
+  bool getLastPlaneInverted() const;
 
   /**
    * @brief Returns the origin of the last applied plane
@@ -167,10 +209,22 @@ public:
   double* getLastPlaneNormal();
 
   /**
+   * @brief Returns the origin of the last applied plane
+   * @return
+   */
+  std::vector<double> getLastPlaneOriginVector() const;
+
+  /**
+   * @brief Returns the normal of the last applied plane
+   * @return
+   */
+  std::vector<double> getLastPlaneNormalVector() const;
+
+  /**
    * @brief Returns whether or not the last applied box was inverted
    * @return
    */
-  bool getLastBoxInverted();
+  bool getLastBoxInverted() const;
 
   /**
    * @brief Sets whether or not the last applied plane was inverted
@@ -207,6 +261,24 @@ public:
   VTK_PTR(vtkTransform) getLastBoxTransform();
 
   /**
+   * @brief Returns the translation portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxTranslationVector() const;
+
+  /**
+   * @brief Returns the rotation portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxRotationVector() const;
+
+  /**
+   * @brief Returns the scale portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxScaleVector() const;
+
+  /**
    * @brief Sets the vtkTransform of the last applied box
    * @return
    */
@@ -236,6 +308,16 @@ public:
    */
   static QUuid GetUuid();
 
+signals:
+  void clipTypeChanged();
+  void lastPlaneInvertedChanged();
+  void lastBoxInvertedChanged();
+  void lastPlaneOriginChanged();
+  void lastPlaneNormalChanged();
+  void lastBoxTranslationChanged();
+  void lastBoxRotationChanged();
+  void lastBoxScaleChanged();
+
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -259,3 +341,5 @@ private:
   double m_LastPlaneNormal[3];
   VTK_PTR(vtkTransform) m_LastBoxTransform;
 };
+
+Q_DECLARE_METATYPE(VSClipFilter)

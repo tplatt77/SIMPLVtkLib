@@ -172,7 +172,7 @@ void VSConcurrentImport::partialWrappingThreadFinished()
   {
     m_ThreadCountLock.release();
 
-    QVector<VSAbstractFilter*> childFilters = m_DataParentFilter->getChildren();
+    VSAbstractFilter::FilterListType childFilters = m_DataParentFilter->getChildren();
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
       VSSIMPLDataContainerFilter* filter = nullptr;
@@ -183,9 +183,8 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
       {
         // Find the DataContainer filter from the parent container
-        for(int i = 0; i < childFilters.size(); i++)
+        for(VSAbstractFilter* childFilter : childFilters)
         {
-          VSAbstractFilter* childFilter = childFilters[i];
           if(childFilter->getFilterName() != wrappedDc->m_Name)
           {
             continue;
@@ -202,8 +201,8 @@ void VSConcurrentImport::partialWrappingThreadFinished()
 
             filter->setWrappedDataContainer(wrappedDc);
             // Remove from the list of childFilters
-            int index = childFilters.indexOf(filter);
-            childFilters.remove(index);
+            auto iter = std::find(childFilters.begin(), childFilters.end(), filter);
+            childFilters.erase(iter);
           }
         }
       }
@@ -234,10 +233,9 @@ void VSConcurrentImport::partialWrappingThreadFinished()
     // When reloading, delete any extra data that no longer exists
     if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
     {
-      int count = childFilters.size();
-      for(int i = 0; i < count; i++)
+      for(VSAbstractFilter* filter : childFilters)
       {
-        childFilters[i]->deleteFilter();
+        filter->deleteFilter();
       }
     }
 

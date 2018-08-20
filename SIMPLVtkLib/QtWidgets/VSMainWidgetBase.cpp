@@ -149,8 +149,6 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
     disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
   }
 
-  view->setController(m_Controller);
-
   m_FilterView = view;
   connect(view, SIGNAL(deleteFilterRequested(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
   connect(view, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)), this, SLOT(reloadDataFilter(VSAbstractDataFilter*)));
@@ -595,7 +593,7 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(false);
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    //disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     disconnect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     disconnect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
   }
@@ -608,12 +606,12 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(true);
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    //connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     connect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     connect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
 
     // Update filter check states to match the current view widget
-    getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
+    //getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
 
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
@@ -628,19 +626,19 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
-{
-  if(false == (viewSettings && viewSettings->getFilter()))
-  {
-    return;
-  }
-  if(nullptr == m_ActiveViewWidget)
-  {
-    return;
-  }
-
-  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
-}
+//void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
+//{
+//  if(false == (viewSettings && viewSettings->getFilter()))
+//  {
+//    return;
+//  }
+//  if(nullptr == m_ActiveViewWidget)
+//  {
+//    return;
+//  }
+//
+//  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -720,7 +718,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     }
   }
 
-  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  VSAbstractFilter::FilterListType childFilters = filter->getChildren();
   for(VSAbstractFilter* child : childFilters)
   {
     deleteFilter(child);
@@ -750,11 +748,11 @@ void VSMainWidgetBase::reloadDataFilter(VSAbstractDataFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::reloadFileFilter(VSFileNameFilter* filter)
 {
-  QVector<VSAbstractFilter*> childFilters = filter->getChildren();
+  VSAbstractFilter::FilterListType childFilters = filter->getChildren();
   std::vector<VSAbstractDataFilter*> filters;
-  for(int i = 0; i < childFilters.size(); i++)
+  for(VSAbstractFilter* childFilter : childFilters)
   {
-    VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilters[i]);
+    VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(childFilter);
     if(dataFilter)
     {
       filters.push_back(dataFilter);

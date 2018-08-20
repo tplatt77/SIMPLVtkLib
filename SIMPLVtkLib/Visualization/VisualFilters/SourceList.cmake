@@ -8,6 +8,7 @@ set(VSVisualFilters
   VSFileNameFilter
   VSMaskFilter
   VSPipelineFilter
+  VSRootFilter
   VSSIMPLDataContainerFilter
   VSSliceFilter
   VSTextFilter

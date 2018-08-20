@@ -62,7 +62,6 @@ VSFileNameFilter::VSFileNameFilter(QString filePath, VSAbstractFilter* parent)
 : VSTextFilter(parent, fetchFileName(filePath), filePath)
 , m_FilePath(filePath)
 {
-  setCheckState(Qt::Unchecked);
   setCheckable(false);
   setEditable(false);
 }
@@ -137,6 +136,14 @@ QString VSFileNameFilter::getFileName()
 {
   QFileInfo fi(m_FilePath);
   return fi.fileName();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFileNameFilter::getFilterName() const
+{
+  return "File Input Filter";
 }
 
 // -----------------------------------------------------------------------------
