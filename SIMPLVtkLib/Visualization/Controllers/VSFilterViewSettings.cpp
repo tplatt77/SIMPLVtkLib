@@ -308,6 +308,42 @@ int VSFilterViewSettings::getActiveComponentIndex() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString VSFilterViewSettings::getActiveComponentName() const
+{
+  if(getActiveArrayName().isEmpty())
+  {
+    return "Solid Color";
+  }
+
+  vtkDataArray* dataArray = getArrayByName(m_ActiveArrayName);
+  if(nullptr == dataArray)
+  {
+    return "No Data";
+  }
+
+  int numComponents = dataArray->GetNumberOfComponents();
+  bool isColorArray = dataArray->IsA("vtkUnsignedCharArray") && numComponents == 3;
+  if(numComponents == 1)
+  {
+    return m_ActiveArrayName;
+  }
+  else if(isColorArray && m_ActiveComponent == -1)
+  {
+    return m_ActiveArrayName;
+  }
+  else if(m_ActiveComponent == -1)
+  {
+    return m_ActiveArrayName + " Magnitude";
+  }
+  else
+  {
+    return dataArray->GetComponentName(m_ActiveComponent);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QStringList VSFilterViewSettings::getArrayNames() const
 {
   if(m_Filter)
@@ -612,7 +648,7 @@ vtkDataArray* VSFilterViewSettings::getArrayAtIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkDataArray* VSFilterViewSettings::getArrayByName(QString name)
+vtkDataArray* VSFilterViewSettings::getArrayByName(QString name) const
 {
   vtkDataSet* dataSet = m_Filter->getOutput();
   if(nullptr == dataSet)
@@ -1363,7 +1399,7 @@ VSFilterViewSettings::ActorType VSFilterViewSettings::getActorType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isPointData()
+bool VSFilterViewSettings::isPointData() const
 {
   return m_Filter->isPointData();
 }
@@ -1440,6 +1476,7 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
     return;
   }
 
+  const Representation prevRep = m_Representation;
   m_Representation = type;
   if(type == Representation::Outline)
   {
@@ -1460,6 +1497,13 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
       actor->GetProperty()->SetRepresentation(static_cast<int>(type) - 1);
       actor->GetProperty()->EdgeVisibilityOff();
     }
+  }
+
+  // Emit a signal if the Representation changes to or from Points
+  if((prevRep == Representation::Points && type != Representation::Points)
+    || (prevRep != Representation::Points && type == Representation::Points))
+  {
+    emit pointRenderingChanged();
   }
 
   updateTransform();

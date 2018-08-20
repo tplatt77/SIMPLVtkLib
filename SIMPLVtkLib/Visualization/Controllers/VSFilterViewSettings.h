@@ -81,6 +81,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPrope
     Q_PROPERTY(bool gridVisibility READ isGridVisible WRITE setGridVisible NOTIFY gridVisibilityChanged)
     Q_PROPERTY(QString activeArrayName READ getActiveArrayName WRITE setActiveArrayName NOTIFY activeArrayNameChanged)
     Q_PROPERTY(int activeComponentIndex READ getActiveComponentIndex WRITE setActiveComponentIndex NOTIFY activeComponentIndexChanged)
+    Q_PROPERTY(bool pointRendering READ isRenderingPoints NOTIFY pointRenderingChanged)
     Q_PROPERTY(int pointSize READ getPointSize WRITE setPointSize NOTIFY pointSizeChanged)
     Q_PROPERTY(double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged)
     Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
@@ -120,11 +121,11 @@ public:
   };
 
   Q_ENUMS(Representation)
-    Q_ENUMS(ActorType)
-    Q_ENUMS(ColorMapping)
+  Q_ENUMS(ActorType)
+  Q_ENUMS(ColorMapping)
 
-    Q_PROPERTY(Representation representation READ getRepresentation WRITE setRepresentation NOTIFY representationChanged)
-    Q_PROPERTY(ColorMapping mapColors READ getMapColors WRITE setMapColors NOTIFY mapColorsChanged)
+  Q_PROPERTY(Representation representation READ getRepresentation WRITE setRepresentation NOTIFY representationChanged)
+  Q_PROPERTY(ColorMapping mapColors READ getMapColors WRITE setMapColors NOTIFY mapColorsChanged)
 
     VSFilterViewSettings();
 
@@ -205,6 +206,12 @@ public:
    * @return
    */
   int getActiveComponentIndex() const;
+
+  /**
+   * @brief Return the name for the active component
+   * @return
+   */
+  QString getActiveComponentName() const;
 
   /**
    * @brief Returns the array names that can be used to color the data
@@ -314,7 +321,7 @@ public:
    * Return false otherwise.
    * @return
    */
-  bool isPointData();
+  bool isPointData() const;
 
   /**
    * @brief Returns true if the current actor is set to render points.
@@ -533,6 +540,7 @@ signals:
   void gridVisibilityChanged(const bool&);
   void activeArrayNameChanged(const QString&);
   void activeComponentIndexChanged(const int&);
+  void pointRenderingChanged();
   void pointSizeChanged(const int&);
   void alphaChanged(const double&);
   void showScalarBarChanged(const bool&);
@@ -662,7 +670,7 @@ protected:
    * @param name
    * @return
    */
-  vtkDataArray* getArrayByName(QString name);
+  vtkDataArray* getArrayByName(QString name) const;
 
   /**
    * @brief Updates the mapper color mode to match variable values
