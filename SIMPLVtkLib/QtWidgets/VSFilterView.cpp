@@ -95,6 +95,7 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
   setModel(viewWidget->getFilterViewModel());
   setRootIndex(viewWidget->getFilterViewModel()->rootIndex());
   setSelectionModel(viewWidget->getSelectionModel());
+  expandAll();
 
   // Connect to the new view controller
   connect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
