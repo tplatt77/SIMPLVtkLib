@@ -64,11 +64,11 @@ QIcon* VSFilterViewSettings::m_PointDataIcon = nullptr;
 //
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings()
-  : QObject(nullptr)
-  , m_ShowFilter(false)
-  , m_Filter(nullptr)
-  , m_Representation(Representation::Invalid)
-  , m_ActiveComponent(-1)
+: QObject(nullptr)
+, m_Filter(nullptr)
+, m_ShowFilter(false)
+, m_ActiveComponent(-1)
+, m_Representation(Representation::Invalid)
 {
   setupStaticIcons();
 }
@@ -77,8 +77,8 @@ VSFilterViewSettings::VSFilterViewSettings()
 //
 // -----------------------------------------------------------------------------
 VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
-  : QObject(nullptr)
-  , m_ShowFilter(true)
+: QObject(nullptr)
+, m_ShowFilter(true)
 {
   setupStaticIcons();
 
@@ -271,7 +271,7 @@ void VSFilterViewSettings::setupActions()
   m_ToggleScalarBarAction->setCheckable(true);
   m_ToggleScalarBarAction->setChecked(true);
   connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) { setScalarBarVisible(checked); });
-  }
+}
 
 // -----------------------------------------------------------------------------
 //

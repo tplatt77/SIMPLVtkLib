@@ -904,8 +904,6 @@ void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter, SelectionType 
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::listenControllerSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-  VSFilterModel* filterModel = m_Controller->getFilterModel();
-
   QItemSelection selection;
   QModelIndexList filterIndicesSelected = m_FilterViewModel->convertIndicesFromFilterModel(selected.indexes());
   for(QModelIndex index : filterIndicesSelected)
@@ -922,8 +920,6 @@ void VSAbstractViewWidget::listenControllerSelectionChanged(const QItemSelection
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-  VSFilterModel* filterModel = m_Controller->getFilterModel();
-
   QItemSelection selection;
   QModelIndexList filterIndicesSelected = m_FilterViewModel->convertIndicesToFilterModel(selected.indexes());
   for(QModelIndex index : filterIndicesSelected)

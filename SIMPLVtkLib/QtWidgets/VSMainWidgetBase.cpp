@@ -215,7 +215,6 @@ void VSMainWidgetBase::setFilterSettingsWidget(VSFilterSettingsWidget* widget)
   if(m_FilterSettingsWidget)
   {
     connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_FilterSettingsWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
     connect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
 
     VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
