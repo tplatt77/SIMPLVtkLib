@@ -1524,6 +1524,18 @@ void VSFilterViewSettings::importedData()
       getDataSetActor()->VisibilityOff();
       getDataSetMapper()->ScalarVisibilityOff();
     }
+
+    // Force active arrays
+    QStringList arrayNames = getFilter()->getArrayNames();
+    if(arrayNames.count() > 0)
+    {
+      setActiveArrayName(arrayNames[0]);
+    }
+    else
+    {
+      setActiveArrayName("");
+    }
+
     setRepresentation(Representation::Surface);
     emit requiresRender();
   }
