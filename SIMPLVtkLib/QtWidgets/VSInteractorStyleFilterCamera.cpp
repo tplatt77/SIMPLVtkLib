@@ -209,6 +209,8 @@ VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilt
   filterProp.first = picker->GetProp3D();
   filterProp.second = m_ViewWidget->getFilterFromProp(filterProp.first);
 
+  renderer->GetRenderWindow()->Render();
+
   return filterProp;
 }
 
