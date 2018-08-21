@@ -47,8 +47,8 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
@@ -890,7 +890,7 @@ VSFilterModel* VSAbstractFilter::getModel() const
   {
     return getParentFilter()->getModel();
   }
-  
+
   return nullptr;
 }
 

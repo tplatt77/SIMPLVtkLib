@@ -61,7 +61,7 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 , m_FilterPipeline(pipeline)
 {
   setCheckable(false);
-  //setEditable(false);
+  // setEditable(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -70,9 +70,8 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 VSPipelineFilter* VSPipelineFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   QJsonObject pipelineObj = json["Pipeline"].toObject();
-
   FilterPipeline::Pointer pipeline = FilterPipeline::FromJson(pipelineObj);
-  
+
   // Check error conditions
   pipeline->preflightPipeline();
   if(pipeline->getErrorCondition() < 0)

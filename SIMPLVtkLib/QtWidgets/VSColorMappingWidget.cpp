@@ -54,12 +54,12 @@ void VSColorMappingWidget::setupGui()
 {
   m_presetsDialog = new ColorPresetsDialog();
 
-   connect(m_Ui->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
-   connect(m_Ui->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSColorMappingWidget::setScalarBarVisible);
-   connect(m_Ui->invertColorScaleBtn, &QPushButton::clicked, this, &VSColorMappingWidget::invertScalarBar);
-   connect(m_Ui->alphaSlider, &QSlider::valueChanged, this, &VSColorMappingWidget::alphaSliderMoved);
-   connect(m_Ui->selectPresetColorsBtn, &QPushButton::clicked, this, &VSColorMappingWidget::selectPresetColors);
-   connect(m_presetsDialog, &ColorPresetsDialog::applyPreset, this, &VSColorMappingWidget::loadPresetColors);
+  connect(m_Ui->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
+  connect(m_Ui->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSColorMappingWidget::setScalarBarVisible);
+  connect(m_Ui->invertColorScaleBtn, &QPushButton::clicked, this, &VSColorMappingWidget::invertScalarBar);
+  connect(m_Ui->alphaSlider, &QSlider::valueChanged, this, &VSColorMappingWidget::alphaSliderMoved);
+  connect(m_Ui->selectPresetColorsBtn, &QPushButton::clicked, this, &VSColorMappingWidget::selectPresetColors);
+  connect(m_presetsDialog, &ColorPresetsDialog::applyPreset, this, &VSColorMappingWidget::loadPresetColors);
 }
 
 // -----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void VSColorMappingWidget::setupGui()
 void VSColorMappingWidget::updateViewSettingInfo()
 {
   // Clear the visualization settings if the current VSFilterViewSettings is null
-   if(nullptr == m_ViewSettings)
+  if(nullptr == m_ViewSettings)
   {
     m_Ui->showScalarBarCheckBox->setChecked(Qt::Unchecked);
     m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ColorMapping::None));
@@ -77,11 +77,11 @@ void VSColorMappingWidget::updateViewSettingInfo()
     return;
   }
 
-   this->setEnabled(true);
+  this->setEnabled(true);
 
-   m_Ui->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
-   m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getMapColors()));
-   m_Ui->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
+  m_Ui->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
+  m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getMapColors()));
+  m_Ui->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
 }
 
 // -----------------------------------------------------------------------------

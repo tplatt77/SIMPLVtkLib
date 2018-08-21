@@ -90,9 +90,9 @@ public:
   VSClipFilter(VSAbstractFilter* parent = nullptr);
 
   /**
-  * @brief Copy constructor
-  * @param copy
-  */
+   * @brief Copy constructor
+   * @param copy
+   */
   VSClipFilter(const VSClipFilter& copy);
 
   /**

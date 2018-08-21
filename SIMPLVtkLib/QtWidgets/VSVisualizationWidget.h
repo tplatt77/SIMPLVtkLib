@@ -90,9 +90,9 @@ public:
   VTK_PTR(vtkRenderer) getRenderer();
 
   /**
-  * @brief Sets the renderer's vtkInteractorStyle
-  * @param style
-  */
+   * @brief Sets the renderer's vtkInteractorStyle
+   * @param style
+   */
   void setInteractorStyle(vtkInteractorStyle* style);
 
   /**
@@ -102,16 +102,16 @@ public:
   LinkedRenderWindowType getLinkedRenderWindows();
 
   /**
-  * @brief Returns the QAction for linking this widget's camera with another.
-  * @return
-  */
+   * @brief Returns the QAction for linking this widget's camera with another.
+   * @return
+   */
   QAction* getLinkCamerasAction();
 
   /**
-  * @brief Returns the visualization filter found at the given screen coordinates
-  * @param pos
-  * @return
-  */
+   * @brief Returns the visualization filter found at the given screen coordinates
+   * @param pos
+   * @return
+   */
   VSAbstractFilter* getFilterFromScreenCoords(int pos[2]);
 
   /**
@@ -205,8 +205,8 @@ protected:
   virtual void focusInEvent(QFocusEvent* event) override;
 
   /**
-  * @brief Links the rendering camera with the given visualization widget.
-  */
+   * @brief Links the rendering camera with the given visualization widget.
+   */
   void linkCameraWith(VSVisualizationWidget* widget);
 
 protected slots:

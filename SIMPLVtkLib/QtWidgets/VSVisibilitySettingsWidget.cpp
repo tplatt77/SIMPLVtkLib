@@ -324,11 +324,6 @@ void VSVisibilitySettingsWidget::colorButtonChanged(QColor color)
     return;
   }
 
-  //double colorArray[3];
-  //colorArray[0] = color.redF();
-  //colorArray[1] = color.greenF();
-  //colorArray[2] = color.blueF();
-
   m_ViewSettings->setSolidColor(color);
 }
 

@@ -322,7 +322,7 @@ protected slots:
    * @param viewSettings
    * @param visible
    */
-  //virtual void setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible);
+  // virtual void setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible);
 
   /**
    * @brief Adds a filter to the model and sets it as the selected filter if requested

@@ -73,10 +73,10 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
 //
 // -----------------------------------------------------------------------------
 VSClipFilter::VSClipFilter(const VSClipFilter& copy)
-  : VSAbstractFilter()
-  , m_LastClipType(copy.m_LastClipType)
-  , m_LastPlaneInverted(copy.m_LastPlaneInverted)
-  , m_LastBoxInverted(copy.m_LastBoxInverted)
+: VSAbstractFilter()
+, m_LastClipType(copy.m_LastClipType)
+, m_LastPlaneInverted(copy.m_LastPlaneInverted)
+, m_LastBoxInverted(copy.m_LastBoxInverted)
 {
   m_ClipAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
@@ -87,7 +87,7 @@ VSClipFilter::VSClipFilter(const VSClipFilter& copy)
     m_LastPlaneNormal[i] = copy.m_LastPlaneNormal[i];
   }
 
-  m_LastBoxTransform = VTK_PTR(vtkTransform)::New(); 
+  m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
   m_LastBoxTransform->DeepCopy(copy.m_LastBoxTransform);
 }
 
@@ -259,7 +259,6 @@ void VSClipFilter::apply(std::vector<double> originVector, std::vector<double> n
 void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotation, std::vector<double> scale, bool inverted)
 {
   qDebug() << "Implement Box Clip from Transform";
-  //return;
 
   VSTransform* transform = new VSTransform();
   transform->setLocalPositionVector(origin);
@@ -276,10 +275,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Front
   {
-    double normal[3] { 0.0, 0.0, 1.0 };
+    double normal[3]{0.0, 0.0, 1.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ 0.0, 0.0, 1.0 };
+    double planeOrigin[3]{0.0, 0.0, 1.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)
@@ -294,10 +293,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Back
   {
-    double normal[3]{ 0.0, 0.0, -1.0 };
+    double normal[3]{0.0, 0.0, -1.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ 0.0, 0.0, -1.0 };
+    double planeOrigin[3]{0.0, 0.0, -1.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)
@@ -312,10 +311,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Left
   {
-    double normal[3]{ -1.0, 0.0, 0.0 };
+    double normal[3]{-1.0, 0.0, 0.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ -1.0, 0.0, 0.0 };
+    double planeOrigin[3]{-1.0, 0.0, 0.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)
@@ -330,10 +329,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Right
   {
-    double normal[3]{ 1.0, 0.0, 0.0 };
+    double normal[3]{1.0, 0.0, 0.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ 1.0, 0.0, 0.0 };
+    double planeOrigin[3]{1.0, 0.0, 0.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)
@@ -348,10 +347,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Top
   {
-    double normal[3]{ 0.0, 1.0, 0.0 };
+    double normal[3]{0.0, 1.0, 0.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ 0.0, 1.0, 0.0 };
+    double planeOrigin[3]{0.0, 1.0, 0.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)
@@ -366,10 +365,10 @@ void VSClipFilter::apply(std::vector<double> origin, std::vector<double> rotatio
 
   // Bottom
   {
-    double normal[3]{ 0.0, -1.0, 0.0 };
+    double normal[3]{0.0, -1.0, 0.0};
     transform->globalizeNormal(normal);
 
-    double planeOrigin[3]{ 0.0, -1.0, 0.0 };
+    double planeOrigin[3]{0.0, -1.0, 0.0};
     transform->globalizePoint(planeOrigin);
 
     for(int i = 0; i < 3; i++)

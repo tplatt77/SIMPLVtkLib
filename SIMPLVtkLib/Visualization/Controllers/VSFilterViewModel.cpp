@@ -269,10 +269,6 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
   }
 
   VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
-
-  //connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
-  //connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
-
   m_FilterViewSettings[filter] = viewSettings;
 
   if(filter->getParentFilter() && filter->getParentFilter()->getOutput())

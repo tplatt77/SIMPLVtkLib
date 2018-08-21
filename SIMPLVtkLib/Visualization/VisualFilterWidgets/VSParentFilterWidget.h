@@ -43,9 +43,9 @@
 /**
  * @class VSParentFilterWidget VSParentFilterWidget.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSParentFilterWidget.h
- * @brief This class stores a VSTextFilter and provides an easy apply button for 
+ * @brief This class stores a VSTextFilter and provides an easy apply button for
  * all child VSSIMPLDataContainerFilters rather than having to press the apply button
- * for each one.  This is useful because importing pipelines for the first time does 
+ * for each one.  This is useful because importing pipelines for the first time does
  * not automatically import data into VTK beyond a DataContainer's geometry.
  */
 class SIMPLVtkLib_EXPORT VSParentFilterWidget : public VSAbstractFilterWidget

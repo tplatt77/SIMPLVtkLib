@@ -294,7 +294,7 @@ void VSTransformWidget::updateTranslationLabels()
   {
     position = m_Transform->getPosition();
   }
-  
+
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(position[0]);
@@ -354,7 +354,7 @@ void VSTransformWidget::updateScaleLabels()
   {
     scale = m_Transform->getScale();
   }
-  
+
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(scale[0]);

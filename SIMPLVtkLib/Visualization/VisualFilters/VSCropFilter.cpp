@@ -66,7 +66,7 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
 //
 // -----------------------------------------------------------------------------
 VSCropFilter::VSCropFilter(const VSCropFilter& copy)
-  : VSAbstractFilter()
+: VSAbstractFilter()
 {
   m_CropAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
@@ -174,7 +174,7 @@ void VSCropFilter::apply(std::vector<int> voiVector, std::vector<int> sampleRate
   {
     sampleRate[i] = sampleRateVector[i];
   }
-  
+
   apply(voi, sampleRate);
 }
 

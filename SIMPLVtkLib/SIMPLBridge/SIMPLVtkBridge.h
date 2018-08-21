@@ -89,7 +89,7 @@ public:
     WrappedDataArrayPtrCollection m_PointData;
     QString m_Name;
     DataContainer::Pointer m_DataContainer = nullptr;
-    double m_Origin[3] = { 0.0, 0.0, 0.0 };
+    double m_Origin[3] = {0.0, 0.0, 0.0};
   };
 
   using WrappedDataContainerPtr = std::shared_ptr<WrappedDataContainer>;
@@ -253,7 +253,7 @@ public:
     {
       for(int i = 0; i < numComp; i++)
       {
-        QString compName = array->getName() + " Comp_" + QString::number(i+1);
+        QString compName = array->getName() + " Comp_" + QString::number(i + 1);
         vtkArray->SetComponentName(i, qPrintable(compName));
       }
     }

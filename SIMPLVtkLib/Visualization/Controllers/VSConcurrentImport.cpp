@@ -178,7 +178,7 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       VSSIMPLDataContainerFilter* filter = nullptr;
       // Do not fully load for LoadType::Geometry
       bool fullLoad = (m_LoadType != LoadType::Geometry);
-      
+
       // Reload existing data and search for old DataContainers that no longer exist
       if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
       {

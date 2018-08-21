@@ -41,11 +41,11 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
- // -----------------------------------------------------------------------------
- //
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterView::VSFilterView(QWidget* parent)
-  : QTreeView(parent)
+: QTreeView(parent)
 {
   connectSlots();
   setupGui();
@@ -68,8 +68,7 @@ void VSFilterView::insertFilter(VSAbstractFilter* filter, bool currentFilter)
 {
   Q_UNUSED(currentFilter)
 
-    VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
-
+  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
   QModelIndex index = filterModel->getIndexFromFilter(filter);
   expand(index);
 }

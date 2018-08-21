@@ -593,7 +593,7 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(false);
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    //disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    // disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     disconnect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     disconnect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
   }
@@ -606,12 +606,12 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(true);
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    //connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
+    // connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     connect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     connect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
 
     // Update filter check states to match the current view widget
-    //getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
+    // getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
 
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
@@ -626,7 +626,7 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
+// void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
 //{
 //  if(false == (viewSettings && viewSettings->getFilter()))
 //  {

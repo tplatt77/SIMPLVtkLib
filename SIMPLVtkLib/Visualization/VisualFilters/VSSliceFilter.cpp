@@ -65,7 +65,7 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
 //
 // -----------------------------------------------------------------------------
 VSSliceFilter::VSSliceFilter(const VSSliceFilter& copy)
-  : VSAbstractFilter()
+: VSAbstractFilter()
 {
   m_SliceAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());

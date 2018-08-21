@@ -252,18 +252,6 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
     wrappedDcStruct->m_DataContainer = dc;
     wrappedDcStruct->m_Name = dc->getName();
 
-    //vtkImageData* imageData = vtkImageData::SafeDownCast(dataSet);
-    //if(imageData)
-    //{
-    //  double origin[3];
-    //  imageData->GetOrigin(origin);
-    //  for(int i = 0; i < 3; i++)
-    //  {
-    //    wrappedDcStruct->m_Origin[i] = origin[i];
-    //  }
-    //  imageData->SetOrigin(0.0, 0.0, 0.0);
-    //}
-
     return wrappedDcStruct;
   }
 }
@@ -319,7 +307,6 @@ void SIMPLVtkBridge::HandleArrayNameCollisions(WrappedDataArrayPtrCollection& co
   return;
 #endif
 
-
   // Handle Collisions
   if(hasCollision)
   {
@@ -354,7 +341,7 @@ bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrappi
     }
 #endif
   }
-  
+
   return compatible;
 }
 

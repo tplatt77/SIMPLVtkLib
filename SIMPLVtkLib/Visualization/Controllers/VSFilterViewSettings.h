@@ -38,13 +38,13 @@
 #include <map>
 #include <vector>
 
-#include <QtGui/QIcon>
 #include <QtCore/QObject>
 #include <QtGui/QColor>
-#include <QtWidgets/QAction>
-#include <QtWidgets/QMenu>
+#include <QtGui/QIcon>
 #include <QtQml/QQmlProperty>
 #include <QtQml/QQmlPropertyValueSource>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMenu>
 
 #include <vtkAbstractMapper3D.h>
 #include <vtkActor.h>
@@ -74,23 +74,23 @@ class vtkImageSlice;
 class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPropertyValueSource
 {
   Q_OBJECT
-    Q_INTERFACES(QQmlPropertyValueSource)
+  Q_INTERFACES(QQmlPropertyValueSource)
 
-    Q_PROPERTY(QString filterName READ getFilterName)
-    Q_PROPERTY(bool visibility READ isVisible WRITE setVisible NOTIFY visibilityChanged)
-    Q_PROPERTY(bool gridVisibility READ isGridVisible WRITE setGridVisible NOTIFY gridVisibilityChanged)
-    Q_PROPERTY(QString activeArrayName READ getActiveArrayName WRITE setActiveArrayName NOTIFY activeArrayNameChanged)
-    Q_PROPERTY(int activeComponentIndex READ getActiveComponentIndex WRITE setActiveComponentIndex NOTIFY activeComponentIndexChanged)
-    Q_PROPERTY(bool pointRendering READ isRenderingPoints NOTIFY pointRenderingChanged)
-    Q_PROPERTY(int pointSize READ getPointSize WRITE setPointSize NOTIFY pointSizeChanged)
-    Q_PROPERTY(double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged)
-    Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
-    Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
-    Q_PROPERTY(QStringList scalarNames READ getScalarNames NOTIFY scalarNamesChanged)
-    Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
-    Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
-    Q_PROPERTY(VSTransform transform READ getTransform)
-    Q_PROPERTY(bool fullyImported READ isDataImported NOTIFY dataLoaded)
+  Q_PROPERTY(QString filterName READ getFilterName)
+  Q_PROPERTY(bool visibility READ isVisible WRITE setVisible NOTIFY visibilityChanged)
+  Q_PROPERTY(bool gridVisibility READ isGridVisible WRITE setGridVisible NOTIFY gridVisibilityChanged)
+  Q_PROPERTY(QString activeArrayName READ getActiveArrayName WRITE setActiveArrayName NOTIFY activeArrayNameChanged)
+  Q_PROPERTY(int activeComponentIndex READ getActiveComponentIndex WRITE setActiveComponentIndex NOTIFY activeComponentIndexChanged)
+  Q_PROPERTY(bool pointRendering READ isRenderingPoints NOTIFY pointRenderingChanged)
+  Q_PROPERTY(int pointSize READ getPointSize WRITE setPointSize NOTIFY pointSizeChanged)
+  Q_PROPERTY(double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged)
+  Q_PROPERTY(bool showScalarBar READ isScalarBarVisible WRITE setScalarBarVisible NOTIFY showScalarBarChanged)
+  Q_PROPERTY(QStringList arrayNames READ getArrayNames NOTIFY arrayNamesChanged)
+  Q_PROPERTY(QStringList scalarNames READ getScalarNames NOTIFY scalarNamesChanged)
+  Q_PROPERTY(QStringList componentNames READ getComponentNames NOTIFY componentNamesChanged)
+  Q_PROPERTY(QColor solidColor READ getSolidColor WRITE setSolidColor NOTIFY solidColorChanged)
+  Q_PROPERTY(VSTransform transform READ getTransform)
+  Q_PROPERTY(bool fullyImported READ isDataImported NOTIFY dataLoaded)
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
@@ -127,7 +127,7 @@ public:
   Q_PROPERTY(Representation representation READ getRepresentation WRITE setRepresentation NOTIFY representationChanged)
   Q_PROPERTY(ColorMapping mapColors READ getMapColors WRITE setMapColors NOTIFY mapColorsChanged)
 
-    VSFilterViewSettings();
+  VSFilterViewSettings();
 
   /**
    * @brief Constructor
@@ -166,10 +166,10 @@ public:
   QString getFilterName() const;
 
   /**
-  * @brief getTransform required for transform property
-  * Retrieves the VSTransform from the current filter
-  * @return
-  */
+   * @brief getTransform required for transform property
+   * Retrieves the VSTransform from the current filter
+   * @return
+   */
   VSTransform* getTransform() const;
 
   /**
@@ -246,9 +246,9 @@ public:
   int getNumberOfComponents(QString name);
 
   /**
-  * @brief Returns true if the active array has multiple components
-  * @return
-  */
+   * @brief Returns true if the active array has multiple components
+   * @return
+   */
   bool hasMulipleComponents();
 
   /**

@@ -88,9 +88,9 @@ public:
   QString getFileName();
 
   /**
-  * @brief Returns the filter's name
-  * @return
-  */
+   * @brief Returns the filter's name
+   * @return
+   */
   QString getFilterName() const override;
 
   /**

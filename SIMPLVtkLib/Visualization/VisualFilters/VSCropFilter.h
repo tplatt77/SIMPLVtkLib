@@ -69,9 +69,9 @@ public:
   VSCropFilter(VSAbstractFilter* parent = nullptr);
 
   /**
-  * @brief Copy constructor
-  * @param copy
-  */
+   * @brief Copy constructor
+   * @param copy
+   */
   VSCropFilter(const VSCropFilter& copy);
 
   /**

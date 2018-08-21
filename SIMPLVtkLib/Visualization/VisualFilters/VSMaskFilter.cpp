@@ -56,8 +56,8 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 //
 // -----------------------------------------------------------------------------
 VSMaskFilter::VSMaskFilter(const VSMaskFilter& copy)
-  : VSAbstractFilter()
-  , m_LastArrayName(copy.m_LastArrayName)
+: VSAbstractFilter()
+, m_LastArrayName(copy.m_LastArrayName)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());

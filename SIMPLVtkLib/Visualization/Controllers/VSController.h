@@ -95,10 +95,10 @@ public:
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
-  * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
-  * @param pipeline
-  * @param dca
-  */
+   * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
+   * @param pipeline
+   * @param dca
+   */
   void importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**

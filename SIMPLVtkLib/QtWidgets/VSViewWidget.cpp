@@ -79,7 +79,6 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
   m_InteractorStyle->setViewWidget(this);
 
-  
   copyFilters(*other.getFilterViewModel());
   getVisualizationWidget()->copy(other.getVisualizationWidget());
 

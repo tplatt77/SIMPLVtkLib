@@ -35,9 +35,9 @@
 
 #include "VSVisualizationWidget.h"
 
+#include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
-#include <QtWidgets/QAction>
 
 #include <vtkAutoInit.h>
 #include <vtkInteractionStyleModule.h>
@@ -82,8 +82,7 @@ VSVisualizationWidget::VSVisualizationWidget(QWidget* parent, unsigned int numLa
 void VSVisualizationWidget::setupGui()
 {
   this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-    this, SLOT(showContextMenu(const QPoint&)));
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
   initializeRendererAndAxes();
 }
@@ -547,7 +546,7 @@ QAction* VSVisualizationWidget::getLinkCamerasAction()
     m_LinkCameraAction = new QAction("Link Cameras", this);
     connect(m_LinkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
   }
-  
+
   return m_LinkCameraAction;
 }
 
@@ -566,7 +565,7 @@ VSAbstractFilter* VSVisualizationWidget::getFilterFromScreenCoords(int pos[2])
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
   std::tie(prop, filter) = style->getFilterFromScreenCoords(pos);
-  
+
   render();
   return filter;
 }

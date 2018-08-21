@@ -58,7 +58,6 @@ VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 , m_Controller(other.m_Controller)
 {
   setupModel();
-  //copyModel(*other.m_FilterViewModel);
 }
 
 // -----------------------------------------------------------------------------
@@ -112,7 +111,6 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
   if(viewSettings)
   {
     changeFilterVisibility(viewSettings, false);
-    //changeScalarBarVisibility(viewSettings, false);
     viewSettings->setScalarBarVisible(false);
     checkFilterViewSetting(viewSettings);
   }
@@ -123,7 +121,7 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::copyFilters(const VSFilterViewModel& filterViewModel)
 {
-  //clearFilters();
+  // clearFilters();
   m_FilterViewModel->deepCopy(filterViewModel);
 
   std::vector<VSFilterViewSettings*> filterViewSettings = m_FilterViewModel->getAllFilterViewSettings();

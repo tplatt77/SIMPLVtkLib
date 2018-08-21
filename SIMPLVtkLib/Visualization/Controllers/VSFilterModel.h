@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QSemaphore>
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QSemaphore>
 
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -58,7 +58,6 @@ class SIMPLVtkLib_EXPORT VSFilterModel : public QAbstractItemModel
   Q_PROPERTY(QModelIndex rootIndex READ rootIndex)
 
 public:
-  
   enum FilterDataRole : int
   {
     FilterRole = 0x100
@@ -114,9 +113,9 @@ public:
   VSAbstractFilter::FilterListType getAllFilters() const;
 
   /**
-  * @brief Returns the root filter in the model.
-  * @return
-  */
+   * @brief Returns the root filter in the model.
+   * @return
+   */
   VSRootFilter* getRootFilter() const;
 
   /**
@@ -166,7 +165,7 @@ public:
    * @return
    */
   bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
-  
+
   /**
    * @brief Returns the QModelIndex for the row and column under the specified parent index
    * @param row
@@ -189,7 +188,7 @@ public:
    * @return
    */
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
-  
+
   /**
    * @brief beginInsertingFilter
    * @param parentFilter
@@ -222,17 +221,17 @@ public:
   Q_INVOKABLE QModelIndex rootIndex() const;
 
   /**
-  * @brief Returns the filter text for the given index
-  * @param index
-  * @return
-  */
+   * @brief Returns the filter text for the given index
+   * @param index
+   * @return
+   */
   Q_INVOKABLE QString getFilterText(const QModelIndex& index) const;
 
   /**
-  * @brief Returns the filter font for the given index
-  * @param index
-  * @return
-  */
+   * @brief Returns the filter font for the given index
+   * @param index
+   * @return
+   */
   Q_INVOKABLE QFont getFilterFont(const QModelIndex& index) const;
 
 signals:

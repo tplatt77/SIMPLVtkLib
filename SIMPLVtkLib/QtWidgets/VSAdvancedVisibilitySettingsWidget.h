@@ -82,7 +82,7 @@ protected slots:
    * @param checkState
    */
   void setAxesGridVisible(int checkState);
-  
+
   /**
    * @brief Listens for the active VSFilterViewSettings point size to change
    * @param size

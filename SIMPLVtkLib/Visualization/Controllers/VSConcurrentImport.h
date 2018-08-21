@@ -89,10 +89,10 @@ public:
   void addDataContainerArray(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**
-  * @brief Add a DataContainerArray with the given pipeline filter to the list of items to import
-  * @param pipelineFilter
-  * @param dca
-  */
+   * @brief Add a DataContainerArray with the given pipeline filter to the list of items to import
+   * @param pipelineFilter
+   * @param dca
+   */
   void addDataContainerArray(VSPipelineFilter* pipelineFilter, DataContainerArray::Pointer dca);
 
   /**

@@ -121,9 +121,9 @@ public:
   Qt::ItemFlags flags() const;
 
   /**
-  * @brief Returns true if the filter is checkable. Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the filter is checkable. Returns false otherwise.
+   * @return
+   */
   bool isCheckable() const;
 
   /**
@@ -223,9 +223,9 @@ public:
   QStringList getArrayNames();
 
   /**
-  * @brief Returns a list of scalar array names
-  * @return
-  */
+   * @brief Returns a list of scalar array names
+   * @return
+   */
   QStringList getScalarNames();
 
   /**
@@ -501,9 +501,9 @@ protected:
   bool isEditable() const;
 
   /**
-  * @brief Sets the ItemIsEditable flag for the filter.
-  * @param editable
-  */
+   * @brief Sets the ItemIsEditable flag for the filter.
+   * @param editable
+   */
   void setEditable(bool editable);
 
 private:

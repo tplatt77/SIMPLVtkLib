@@ -151,9 +151,9 @@ public:
   void reloadData(DataContainer::Pointer dc);
 
   /**
-  * @brief Returns true if the data has been fully wrapped and loaded into a vtkDataSet. Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the data has been fully wrapped and loaded into a vtkDataSet. Returns false otherwise.
+   * @return
+   */
   bool dataFullyLoaded();
 
   /**
@@ -172,8 +172,8 @@ public slots:
   void apply();
 
   /**
-  * @brief This slot is called when a data container is finished being wrapped on a separate thread
-  */
+   * @brief This slot is called when a data container is finished being wrapped on a separate thread
+   */
   void reloadWrappingFinished();
 
 signals:

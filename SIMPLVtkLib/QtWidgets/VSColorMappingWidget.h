@@ -141,7 +141,7 @@ protected:
   void connectFilterViewSettings(VSFilterViewSettings* settings);
 
 private:
-   QSharedPointer<Ui::VSColorMappingWidget> m_Ui;
+  QSharedPointer<Ui::VSColorMappingWidget> m_Ui;
   VSAbstractFilter* m_Filter = nullptr;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
   VSFilterViewSettings* m_ViewSettings = nullptr;
