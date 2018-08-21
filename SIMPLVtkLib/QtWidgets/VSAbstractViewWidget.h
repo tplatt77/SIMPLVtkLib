@@ -37,6 +37,7 @@
 
 #include <vector>
 
+#include <QtCore/QItemSelectionModel>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QSplitter>
 
@@ -58,6 +59,12 @@ class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QFrame
 
 public:
   Q_PROPERTY(bool Active READ isActive WRITE setActive)
+  enum class SelectionType : unsigned int
+  {
+    Current,
+    AddSelection,
+    RemoveSelection
+  };
 
   /**
    * @brief Deconstructor
@@ -105,6 +112,12 @@ public:
    * @return
    */
   VSFilterViewModel* getFilterViewModel() const;
+
+  /**
+  * @brief Returns the QItemSelectionModel for the view
+  * @return
+  */
+  QItemSelectionModel* getSelectionModel() const;
 
   /**
    * @brief Returns true if the view is active.  Returns false otherwise.
@@ -209,7 +222,7 @@ public slots:
    * @brief Select the given filter
    * @param filter
    */
-  void selectFilter(VSAbstractFilter* filter);
+  void selectFilter(VSAbstractFilter* filter, SelectionType selectionType = SelectionType::Current);
 
 protected slots:
   /**
@@ -321,7 +334,18 @@ protected:
    */
   void removeViewSettings(VSFilterViewSettings* viewSettings);
 
+  /**
+   * @brief changeFilterVisibility
+   * @param settings
+   * @param visibility
+   */
   void changeFilterVisibility(VSFilterViewSettings* settings, const bool& visibility);
+
+  /**
+   * @brief changeScalarBarVisibility
+   * @param settings
+   * @param visibility
+   */
   void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
@@ -336,18 +360,34 @@ protected:
   void copyFilters(const VSFilterViewModel& filterViewModel);
 
   /**
+   * @brief Copies the filter selection from another VSAbstractViewWidget
+   * @param other
+   */
+  void copySelection(const VSAbstractViewWidget& other);
+
+  /**
+   * @brief Creates a QItemSelection from the provided QModelIndexList
+   * @param indexList
+   * @return
+   */
+  QItemSelection createSelection(const QModelIndexList& indexList) const;
+
+  /**
    * @brief Check the visibility of a filter and scalar bar through VSFilterViewSettings
+   * @param settings
    */
   void checkFilterViewSetting(VSFilterViewSettings* setting);
 
   /**
    * @brief Returns a QSplitter with this widget and a clone of it
+   * @param orientation
    * @return
    */
   virtual QSplitter* splitWidget(Qt::Orientation orientation);
 
   /**
    * @brief Returns true if the widget is closable.  Returns false otherwise.
+   * @return
    */
   virtual bool isClosable();
 
@@ -368,10 +408,24 @@ protected:
    */
   void keyPressEvent(QKeyEvent* event) override;
 
+  /**
+   * @brief Listens for the VSController's selection model to change and apply it to the local model
+   * @param selected
+   * @param deselected
+   */
+  void listenControllerSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
+  /**
+  * @brief Applies local selection changes to the VSController's selection model
+  * @param selected
+  * @param deselected
+  */
+  void localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  // VSFilterViewSettings::Map m_FilterViewSettings;
   VSFilterViewModel* m_FilterViewModel = nullptr;
+  QItemSelectionModel* m_SelectionModel = nullptr;
   VSController* m_Controller = nullptr;
   bool m_BlockRender = false;
   bool m_Active = false;

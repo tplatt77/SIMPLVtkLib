@@ -257,7 +257,7 @@ void VSInteractorStyleFilterCamera::addSelection(VSAbstractFilter* filter, vtkPr
     m_Selection.push_front(filter);
   }
 
-  m_ViewWidget->selectFilter(m_ActiveFilter);
+  m_ViewWidget->selectFilter(m_ActiveFilter, VSAbstractViewWidget::SelectionType::AddSelection);
 }
 
 // -----------------------------------------------------------------------------
@@ -280,7 +280,7 @@ void VSInteractorStyleFilterCamera::removeSelection(VSAbstractFilter* filter)
     }
   }
 
-  m_ViewWidget->selectFilter(m_ActiveFilter);
+  m_ViewWidget->selectFilter(m_ActiveFilter, VSAbstractViewWidget::SelectionType::RemoveSelection);
 }
 
 // -----------------------------------------------------------------------------

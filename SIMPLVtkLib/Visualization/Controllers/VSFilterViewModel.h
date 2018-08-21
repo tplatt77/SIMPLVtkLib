@@ -139,7 +139,21 @@ public:
    * @param filter
    * @return
    */
-  QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
+  QModelIndex getIndexFromFilter(VSAbstractFilter* filter) const;
+
+  /**
+   * @brief Return a collection of VSAbstractFilters based on the QModelIndexList provided
+   * @param indexes
+   * @return
+   */
+  VSAbstractFilter::FilterListType getFiltersFromIndexes(const QModelIndexList& indexes) const;
+
+  /**
+   * @brief Returns a QModelIndexList based on the provided VSAbstractFilters
+   * @param filters
+   * @return
+   */
+  QModelIndexList getIndexesFromFilters(VSAbstractFilter::FilterListType filters) const;
 
   /**
    * @brief Returns the QModelIndex for the parent of the given index
@@ -196,6 +210,20 @@ public:
    * @return
    */
   Q_INVOKABLE bool setFilterCheckState(const QModelIndex& index, QVariant value);
+
+  /**
+   * @brief Returns a QModelIndexList for the VSFilterModel based on the given QModelIndexList
+   * @param incides
+   * @return
+   */
+  QModelIndexList convertIndicesToFilterModel(const QModelIndexList& indices) const;
+
+  /**
+   * @brief Returns a localized QModelIndexList based on the VSFilterModel from the given QModelIndexList
+   * @param incides
+   * @return
+   */
+  QModelIndexList convertIndicesFromFilterModel(const QModelIndexList& indices) const;
 
   //////////////////////////////
   // VSFilterViewSettings Map //

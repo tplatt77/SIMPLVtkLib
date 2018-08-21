@@ -76,21 +76,7 @@ public slots:
    */
   void setViewWidget(VSAbstractViewWidget* viewWidget);
 
-  /**
-   * @brief Handles changing the active filter through other widgets or controls
-   * @param filter
-   * @param widget
-   */
-  void setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget);
-
 protected slots:
-  /**
-   * @brief Handles changes in the current item
-   * @param current
-   * @param previous
-   */
-  void setCurrentItem(const QModelIndex& current, const QModelIndex& previous);
-
   /**
    * @brief Handles a new filter being inserted and automatically expands it
    * @param filter

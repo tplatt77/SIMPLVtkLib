@@ -81,6 +81,7 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
 
   copyFilters(*other.getFilterViewModel());
   getVisualizationWidget()->copy(other.getVisualizationWidget());
+  copySelection(other);
 
   setupGui();
 }

@@ -141,21 +141,19 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
 {
   if(m_FilterView)
   {
-    disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(deleteFilterRequested(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(m_FilterView, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+    disconnect(m_FilterView, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_FilterView, &VSFilterView::setViewWidget);
   }
 
   m_FilterView = view;
-  connect(view, SIGNAL(deleteFilterRequested(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
-  connect(view, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)), this, SLOT(reloadDataFilter(VSAbstractDataFilter*)));
-  connect(view, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)), this, SLOT(reloadFileFilter(VSFileNameFilter*)));
-  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
-  connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-  connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+  connect(view, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+  connect(view, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+  connect(view, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+  connect(view, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+  connect(this, &VSMainWidgetBase::changedActiveView, view, &VSFilterView::setViewWidget);
 
   view->setViewWidget(m_ActiveViewWidget);
 }
@@ -593,7 +591,6 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(false);
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    // disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     disconnect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     disconnect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
   }
@@ -606,12 +603,8 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(true);
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    // connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     connect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     connect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
-
-    // Update filter check states to match the current view widget
-    // getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
 
     VSAbstractFilterWidget* fw;
     foreach(fw, m_FilterToFilterWidgetMap.values())
@@ -622,23 +615,6 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
 
   emit changedActiveView(viewWidget);
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-// void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
-//{
-//  if(false == (viewSettings && viewSettings->getFilter()))
-//  {
-//    return;
-//  }
-//  if(nullptr == m_ActiveViewWidget)
-//  {
-//    return;
-//  }
-//
-//  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -726,7 +702,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
 
   if(m_CurrentFilter == filter)
   {
-    setCurrentFilter(filter->getParentFilter());
+    m_Controller->selectFilter(filter->getParentFilter());
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
@@ -930,6 +906,7 @@ void VSMainWidgetBase::finishAddingFilter(VSAbstractFilter* filter, VSAbstractFi
   }
 
   m_Controller->getFilterModel()->addFilter(filter);
+  m_Controller->selectFilter(filter);
 
   // Set parent filter to invisible for the active view
   if(getActiveViewWidget() && parent)

@@ -83,10 +83,6 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
   {
     disconnect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
   }
-  if(selectionModel())
-  {
-    disconnect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
-  }
 
   m_ViewWidget = viewWidget;
 
@@ -98,56 +94,11 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
 
   setModel(viewWidget->getFilterViewModel());
   setRootIndex(viewWidget->getFilterViewModel()->rootIndex());
+  setSelectionModel(viewWidget->getSelectionModel());
 
   // Connect to the new view controller
   connect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
-  connect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
   connect(m_ViewWidget->getFilterViewModel(), &VSFilterViewModel::rootChanged, [=] { setRootIndex(m_ViewWidget->getFilterViewModel()->rootIndex()); });
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget)
-{
-  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
-  if(nullptr == filterModel)
-  {
-    return;
-  }
-  if(nullptr == selectionModel())
-  {
-    return;
-  }
-  if(nullptr == filter)
-  {
-    selectionModel()->clear();
-    return;
-  }
-
-  QModelIndex currentIndex = selectionModel()->currentIndex();
-  QModelIndex newIndex = filterModel->getIndexFromFilter(filter);
-
-  // Do not update the selection if there is no change
-  if(newIndex != currentIndex)
-  {
-    QFlags<QItemSelectionModel::SelectionFlag> flags = QItemSelectionModel::ClearAndSelect;
-    selectionModel()->setCurrentIndex(newIndex, flags);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex& previous)
-{
-  VSAbstractFilter* filter = getFilterFromIndex(current);
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  emit filterClicked(filter);
 }
 
 // -----------------------------------------------------------------------------

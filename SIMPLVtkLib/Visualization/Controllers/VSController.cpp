@@ -58,6 +58,7 @@
 VSController::VSController(QObject* parent)
 : QObject(parent)
 , m_FilterModel(new VSFilterModel())
+, m_SelectionModel(new QItemSelectionModel(m_FilterModel))
 {
   m_ImportObject = new VSConcurrentImport(this);
 
@@ -67,6 +68,8 @@ VSController::VSController(QObject* parent)
   connect(m_ImportObject, SIGNAL(blockRender(bool)), this, SIGNAL(blockRender(bool)));
   connect(m_ImportObject, SIGNAL(applyingDataFilters(int)), this, SIGNAL(applyingDataFilters(int)));
   connect(m_ImportObject, SIGNAL(dataFilterApplied(int)), this, SIGNAL(dataFilterApplied(int)));
+
+  connect(m_SelectionModel, &QItemSelectionModel::selectionChanged, this, &VSController::listenSelectionModel);
 }
 
 // -----------------------------------------------------------------------------
@@ -180,7 +183,8 @@ void VSController::importData(const QString& filePath)
 // -----------------------------------------------------------------------------
 void VSController::selectFilter(VSAbstractFilter* filter)
 {
-  emit filterSelected(filter);
+  QModelIndex index = m_FilterModel->getIndexFromFilter(filter);
+  m_SelectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
 }
 
 // -----------------------------------------------------------------------------
@@ -382,4 +386,60 @@ VSAbstractFilter::FilterListType VSController::getAllFilters()
 VSFilterModel* VSController::getFilterModel()
 {
   return m_FilterModel;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QItemSelectionModel* VSController::getSelectionModel()
+{
+  return m_SelectionModel;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSController::getCurrentFilter() const
+{
+  QModelIndex currentIndex = m_SelectionModel->currentIndex();
+  return m_FilterModel->getFilterFromIndex(currentIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSController::getFilterSelection() const
+{
+  VSAbstractFilter::FilterListType filterList;
+  QModelIndexList selectionIndices = m_SelectionModel->selectedIndexes();
+  for(QModelIndex index : selectionIndices)
+  {
+    VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(index);
+    filterList.push_back(filter);
+  }
+
+  return filterList;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected)
+{
+  Q_UNUSED(selected);
+  Q_UNUSED(deselected);
+
+  if(getCurrentFilter())
+  {
+    emit filterSelected(getCurrentFilter());
+  }
+  else
+  {
+    QModelIndexList selection = m_SelectionModel->selectedIndexes();
+    if(selection.size() > 0)
+    {
+      VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(selection.first());
+      emit filterSelected(filter);
+    }
+  }
 }

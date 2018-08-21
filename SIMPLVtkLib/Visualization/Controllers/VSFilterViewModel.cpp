@@ -440,7 +440,7 @@ VSAbstractFilter* VSFilterViewModel::getFilterFromIndex(const QModelIndex& index
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
+QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter) const
 {
   if(filter == nullptr)
   {
@@ -448,6 +448,38 @@ QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
   }
 
   return createIndex(filter->getChildIndex(), 0, filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getFiltersFromIndexes(const QModelIndexList& indexes) const
+{
+  VSAbstractFilter::FilterListType filterList;
+  for(QModelIndex index : indexes)
+  {
+    VSAbstractFilter* filter = getFilterFromIndex(index);
+    if(filter)
+    {
+      filterList.push_back(filter);
+    }
+  }
+
+  return filterList;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::getIndexesFromFilters(VSAbstractFilter::FilterListType filters) const
+{
+  QModelIndexList indexes;
+  for(VSAbstractFilter* filter : filters)
+  {
+    indexes.push_back(getIndexFromFilter(filter));
+  }
+
+  return indexes;
 }
 
 // -----------------------------------------------------------------------------
@@ -594,4 +626,42 @@ void VSFilterViewModel::filterVisibilityChanged()
   QVector<int> roles(Qt::CheckStateRole);
   QModelIndex index = getIndexFromFilter(viewSettings->getFilter());
   emit dataChanged(index, index, roles);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::convertIndicesToFilterModel(const QModelIndexList& indices) const
+{
+  QModelIndexList filterModelIndices;
+  for(QModelIndex localIndex : indices)
+  {
+    VSAbstractFilter* filter = getFilterFromIndex(localIndex);
+    if(filter)
+    {
+      QModelIndex targetIndex = m_FilterModel->getIndexFromFilter(filter);
+      filterModelIndices.push_back(targetIndex);
+    }
+  }
+
+  return filterModelIndices;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelIndexList& indices) const
+{
+  QModelIndexList localModelIndices;
+  for(QModelIndex filterIndex : indices)
+  {
+    VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(filterIndex);
+    if(filter)
+    {
+      QModelIndex targetIndex = this->getIndexFromFilter(filter);
+      localModelIndices.push_back(targetIndex);
+    }
+  }
+
+  return localModelIndices;
 }

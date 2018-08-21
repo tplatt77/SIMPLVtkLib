@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <QtCore/QItemSelectionModel>
 #include <QtCore/QObject>
 #include <QtCore/QVector>
 
@@ -162,10 +163,19 @@ public:
   VSFilterModel* getFilterModel();
 
   /**
+   * @brief Returns the QItemSelectionModel for the VSFilterModel
+   * @return
+   */
+  QItemSelectionModel* getSelectionModel();
+
+  /**
    * @brief Alert the VSMainWidgetBase, if available, that the given filter should be selected.
    * @param filter
    */
   void selectFilter(VSAbstractFilter* filter);
+
+  VSAbstractFilter* getCurrentFilter() const;
+  VSAbstractFilter::FilterListType getFilterSelection() const;
 
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
@@ -177,9 +187,13 @@ signals:
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
 
+protected:
+  void listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected);
+
 private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
+  QItemSelectionModel* m_SelectionModel;
 
   /**
    * @brief saveFilter
