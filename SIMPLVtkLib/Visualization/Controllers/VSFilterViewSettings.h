@@ -120,12 +120,21 @@ public:
     None
   };
 
+  enum class ScalarBarSetting : int
+  {
+    Always = 0,
+    OnSelection,
+    Never
+  };
+
   Q_ENUMS(Representation)
   Q_ENUMS(ActorType)
   Q_ENUMS(ColorMapping)
+  Q_ENUMS(ScalarBarSetting)
 
   Q_PROPERTY(Representation representation READ getRepresentation WRITE setRepresentation NOTIFY representationChanged)
   Q_PROPERTY(ColorMapping mapColors READ getMapColors WRITE setMapColors NOTIFY mapColorsChanged)
+  Q_PROPERTY(ScalarBarSetting scalarBarSetting READ getScalarBarSetting WRITE setScalarBarSetting NOTIFY scalarBarSettingChanged)
 
   VSFilterViewSettings();
 
@@ -267,6 +276,24 @@ public:
    * @return
    */
   bool isScalarBarVisible() const;
+
+  /**
+   * @brief Returns the ScalarBarSetting enum value
+   * @return
+   */
+  ScalarBarSetting getScalarBarSetting() const;
+
+  /**
+   * @brief Sets the ScalarBarSetting
+   * @param setting
+   */
+  void setScalarBarSetting(ScalarBarSetting setting);
+
+  /**
+   * @brief Sets the selection state
+   * @param selected
+   */
+  void setIsSelected(bool selected);
 
   /**
    * @brief Returns the vtkActor used to render the filter
@@ -486,10 +513,9 @@ public slots:
   void loadPresetColors(const QJsonObject& json);
 
   /**
-   * @brief Updates whether or not the vtkScalarBarWidget is visible for this view
-   * @param visible
+   * @brief Helper method to disable the ScalarBarWidget
    */
-  void setScalarBarVisible(bool visible);
+  void hideScalarBarWidget();
 
   /**
    * @brief Sets the color to use when there are no scalar values to map
@@ -544,6 +570,7 @@ signals:
   void pointSizeChanged(const int&);
   void alphaChanged(const double&);
   void showScalarBarChanged(const bool&);
+  void scalarBarSettingChanged(const ScalarBarSetting&);
   void arrayNamesChanged();
   void scalarNamesChanged();
   void componentNamesChanged();
@@ -689,6 +716,12 @@ protected:
    */
   vtkDataArray* getDataArray();
 
+  /**
+   * @brief Updates whether or not the vtkScalarBarWidget is visible for this view
+   * @param visible
+   */
+  void setScalarBarVisible(bool visible);
+
 private:
   VSAbstractFilter* m_Filter = nullptr;
   ActorType m_ActorType = ActorType::Invalid;
@@ -702,6 +735,7 @@ private:
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
   VSLookupTableController* m_LookupTable = nullptr;
+  ScalarBarSetting m_ScalarBarSetting = ScalarBarSetting::OnSelection;
   double m_Alpha = 1.0;
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
   VTK_PTR(vtkScalarBarWidget) m_ScalarBarWidget = nullptr;
@@ -709,6 +743,7 @@ private:
   VTK_PTR(vtkCubeAxesActor) m_CubeAxesActor = nullptr;
   bool m_GridVisible = false;
   QQmlProperty m_TargetProperty;
+  bool m_Selected = false;
 
   QAction* m_SetColorAction = nullptr;
   QAction* m_SetOpacityAction = nullptr;

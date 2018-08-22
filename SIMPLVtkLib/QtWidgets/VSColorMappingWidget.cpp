@@ -55,7 +55,7 @@ void VSColorMappingWidget::setupGui()
   m_presetsDialog = new ColorPresetsDialog();
 
   connect(m_Ui->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
-  connect(m_Ui->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSColorMappingWidget::setScalarBarVisible);
+  connect(m_Ui->showScalarBarComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarBarVisible(int)));
   connect(m_Ui->invertColorScaleBtn, &QPushButton::clicked, this, &VSColorMappingWidget::invertScalarBar);
   connect(m_Ui->alphaSlider, &QSlider::valueChanged, this, &VSColorMappingWidget::alphaSliderMoved);
   connect(m_Ui->selectPresetColorsBtn, &QPushButton::clicked, this, &VSColorMappingWidget::selectPresetColors);
@@ -70,7 +70,7 @@ void VSColorMappingWidget::updateViewSettingInfo()
   // Clear the visualization settings if the current VSFilterViewSettings is null
   if(nullptr == m_ViewSettings)
   {
-    m_Ui->showScalarBarCheckBox->setChecked(Qt::Unchecked);
+    m_Ui->showScalarBarComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ScalarBarSetting::Never));
     m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ColorMapping::None));
 
     this->setEnabled(false);
@@ -79,7 +79,7 @@ void VSColorMappingWidget::updateViewSettingInfo()
 
   this->setEnabled(true);
 
-  m_Ui->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
+  m_Ui->showScalarBarComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getScalarBarSetting()));
   m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getMapColors()));
   m_Ui->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
 }
@@ -186,15 +186,15 @@ void VSColorMappingWidget::setScalarsMapped(int colorMappingIndex)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::setScalarBarVisible(int checkState)
+void VSColorMappingWidget::setScalarBarVisible(int index)
 {
   if(nullptr == m_ViewSettings)
   {
     return;
   }
 
-  bool checked = checkState == Qt::Checked;
-  m_ViewSettings->setScalarBarVisible(checked);
+  VSFilterViewSettings::ScalarBarSetting setting = static_cast<VSFilterViewSettings::ScalarBarSetting>(index);
+  m_ViewSettings->setScalarBarSetting(setting);
 }
 
 // -----------------------------------------------------------------------------

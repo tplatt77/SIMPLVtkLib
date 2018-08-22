@@ -149,6 +149,7 @@ void VSFilterViewSettings::deepCopy(VSFilterViewSettings* target)
   connectFilter(target->m_Filter);
   setVisible(target->isVisible());
   setScalarBarVisible(target->isScalarBarVisible());
+  setScalarBarSetting(target->getScalarBarSetting());
   setRepresentation(target->getRepresentation());
   setActiveArrayName(target->m_ActiveArrayName);
   setActiveComponentIndex(target->m_ActiveComponent);
@@ -269,7 +270,7 @@ void VSFilterViewSettings::setupActions()
 
   m_ToggleScalarBarAction = new QAction("Enable Scalar Bar", this);
   m_ToggleScalarBarAction->setCheckable(true);
-  m_ToggleScalarBarAction->setChecked(true);
+  m_ToggleScalarBarAction->setChecked(false);
   connect(m_ToggleScalarBarAction, &QAction::toggled, [=](bool checked) { setScalarBarVisible(checked); });
 }
 
@@ -473,6 +474,52 @@ double VSFilterViewSettings::getAlpha()
 bool VSFilterViewSettings::isScalarBarVisible() const
 {
   return m_ScalarBarWidget && m_ToggleScalarBarAction->isChecked();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings::ScalarBarSetting VSFilterViewSettings::getScalarBarSetting() const
+{
+  return m_ScalarBarSetting;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setScalarBarSetting(ScalarBarSetting setting)
+{
+  m_ScalarBarSetting = setting;
+  emit scalarBarSettingChanged(setting);
+
+  switch(setting)
+  {
+  case ScalarBarSetting::Always:
+    setScalarBarVisible(true);
+    break;
+  case ScalarBarSetting::OnSelection:
+    setScalarBarVisible(m_Selected);
+    break;
+  case ScalarBarSetting::Never:
+    setScalarBarVisible(false);
+    break;
+  default:
+    setScalarBarVisible(false);
+    break;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setIsSelected(bool selected)
+{
+  m_Selected = selected;
+
+  if(m_ScalarBarWidget && m_ScalarBarSetting == ScalarBarSetting::OnSelection)
+  {
+    setScalarBarVisible(selected);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -954,6 +1001,19 @@ void VSFilterViewSettings::loadPresetColors(const QJsonObject& colors)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterViewSettings::hideScalarBarWidget()
+{
+  if(false == isValid())
+  {
+    return;
+  }
+
+  setScalarBarVisible(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::setScalarBarVisible(bool visible)
 {
   if(false == isValid())
@@ -962,7 +1022,6 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
   }
 
   m_ToggleScalarBarAction->setChecked(visible);
-
   emit showScalarBarChanged(visible);
 }
 
@@ -988,7 +1047,12 @@ void VSFilterViewSettings::setupActors(bool outline)
 
     if(isFlatImage())
     {
-      setScalarBarVisible(false);
+      setScalarBarSetting(ScalarBarSetting::Never);
+    }
+    else
+    {
+      // Refresh ScalarBarSetting
+      setScalarBarSetting(m_ScalarBarSetting);
     }
   }
 
@@ -1584,6 +1648,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setActiveComponentIndex(copy->m_ActiveComponent);
   setMapColors(copy->m_MapColors);
   setScalarBarVisible(copy->m_ToggleScalarBarAction->isChecked());
+  setScalarBarSetting(copy->m_ScalarBarSetting);
   setAlpha(copy->m_Alpha);
   setSolidColor(copy->getSolidColor());
   setRepresentation(copy->getRepresentation());

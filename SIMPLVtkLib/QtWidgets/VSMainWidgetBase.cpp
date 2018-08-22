@@ -683,7 +683,6 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     VSFilterViewSettings* viewSettings = widget->getFilterViewSettings(filter);
     bool visible = viewSettings->isVisible();
     viewSettings->setVisible(false);
-    viewSettings->setScalarBarVisible(false);
 
     VSFilterViewSettings* parentSettings = widget->getFilterViewSettings(filter->getParentFilter());
     if(parentSettings)

@@ -128,7 +128,6 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
   if(viewSettings)
   {
     changeFilterVisibility(viewSettings, false);
-    viewSettings->setScalarBarVisible(false);
     checkFilterViewSetting(viewSettings);
   }
 }
@@ -484,11 +483,11 @@ void VSAbstractViewWidget::changeFilterMapColors(VSFilterViewSettings::ColorMapp
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterShowScalarBar(bool showScalarBar)
+void VSAbstractViewWidget::changeFilterShowScalarBar(VSFilterViewSettings::ScalarBarSetting setting)
 {
   if(m_ActiveFilterSettings)
   {
-    m_ActiveFilterSettings->setScalarBarVisible(showScalarBar);
+    m_ActiveFilterSettings->setScalarBarSetting(setting);
   }
 }
 
@@ -926,6 +925,22 @@ void VSAbstractViewWidget::localSelectionChanged(const QItemSelection& selected,
   {
     QItemSelection temp(index, index);
     selection.merge(temp, ::mergeFlags);
+  }
+
+  // Selected indices
+  QModelIndexList selectedIndices = selected.indexes();
+  for(QModelIndex index : selectedIndices)
+  {
+    VSFilterViewSettings* settings = m_FilterViewModel->getFilterViewSettingsByIndex(index);
+    settings->setIsSelected(true);
+  }
+
+  // Deselected indices
+  QModelIndexList deselectedIndices = deselected.indexes();
+  for(QModelIndex index : deselectedIndices)
+  {
+    VSFilterViewSettings* settings = m_FilterViewModel->getFilterViewSettingsByIndex(index);
+    settings->setIsSelected(false);
   }
 
   m_Controller->getSelectionModel()->select(selection, ::selectFlags);

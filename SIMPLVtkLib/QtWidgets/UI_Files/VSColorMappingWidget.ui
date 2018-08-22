@@ -135,13 +135,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="QCheckBox" name="showScalarBarCheckBox">
-           <property name="text">
-            <string>Show Scalar Bar</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0" colspan="3">
           <widget class="QWidget" name="scalarBarButtons" native="true">
            <property name="sizePolicy">
@@ -193,6 +186,35 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>ShowScalar Bar: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QComboBox" name="showScalarBarComboBox">
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Always</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>On Selection</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Never</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

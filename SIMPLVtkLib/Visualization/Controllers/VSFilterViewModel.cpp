@@ -316,7 +316,6 @@ void VSFilterViewModel::removeFilterViewSettings(VSAbstractFilter* filter)
   if(viewSettings)
   {
     viewSettings->setVisible(false);
-    viewSettings->setScalarBarVisible(false);
 
     emit viewSettingsRemoved(viewSettings);
     m_FilterViewSettings.erase(filter);

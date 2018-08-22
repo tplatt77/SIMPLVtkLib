@@ -263,10 +263,10 @@ protected slots:
   void changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState);
 
   /**
-   * @brief Change the active filter's scalar bar visibility
-   * @param showScalarBar
+   * @brief Change the active filter's scalar bar visibility setting
+   * @param setting
    */
-  void changeFilterShowScalarBar(bool showScalarBar);
+  void changeFilterShowScalarBar(VSFilterViewSettings::ScalarBarSetting setting);
 
   /**
    * @brief Active array changed for filter
