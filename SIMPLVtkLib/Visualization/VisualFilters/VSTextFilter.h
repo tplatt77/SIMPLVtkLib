@@ -95,6 +95,12 @@ public:
   void setUnderline(bool underline = true);
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Returns the output port to be used by vtkMappers and subsequent filters
    * @return
    */

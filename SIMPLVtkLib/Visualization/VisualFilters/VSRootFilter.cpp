@@ -100,3 +100,11 @@ bool VSRootFilter::compatibleWithParent(VSAbstractFilter* filter)
 
   return false;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSRootFilter::getFilterType() const
+{
+  return FilterType::Placeholder;
+}

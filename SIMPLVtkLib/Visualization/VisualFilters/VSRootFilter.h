@@ -83,6 +83,12 @@ public:
   QString getFilterName() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
    * @param

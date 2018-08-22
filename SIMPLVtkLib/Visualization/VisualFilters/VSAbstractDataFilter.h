@@ -78,6 +78,12 @@ public:
    */
   bool isDataImported() const override;
 
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
 signals:
   void dataReloaded();
   void filterReloaded(VSAbstractFilter* filter);

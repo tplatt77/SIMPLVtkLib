@@ -133,6 +133,14 @@ QString VSSliceFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSSliceFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSSliceFilter::apply(double origin[3], double normal[3])
 {
   if(nullptr == m_SliceAlgorithm)

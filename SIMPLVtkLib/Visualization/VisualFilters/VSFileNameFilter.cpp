@@ -149,6 +149,14 @@ QString VSFileNameFilter::getFilterName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSFileNameFilter::getFilterType() const
+{
+  return FilterType::File;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFileNameFilter::compatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)

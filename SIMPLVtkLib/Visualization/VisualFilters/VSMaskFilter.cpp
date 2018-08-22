@@ -107,6 +107,14 @@ QString VSMaskFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSMaskFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMaskFilter::apply(QString name)
 {
   if(nullptr == m_MaskAlgorithm)

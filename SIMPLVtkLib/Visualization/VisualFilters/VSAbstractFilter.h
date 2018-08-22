@@ -99,6 +99,15 @@ public:
     INVALID_DATA
   };
 
+  enum class FilterType : unsigned char
+  {
+    Placeholder = 0,
+    Filter,
+    Data,
+    File,
+    Pipeline
+  };
+
   using FilterListType = std::list<VSAbstractFilter*>;
 
   SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
@@ -338,6 +347,12 @@ public:
    * @return
    */
   QModelIndex getIndex();
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  virtual FilterType getFilterType() const = 0;
 
   /**
    * @brief Returns the CheckState for the filter

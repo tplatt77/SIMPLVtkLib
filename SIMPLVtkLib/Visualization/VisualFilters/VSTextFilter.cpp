@@ -213,3 +213,11 @@ void VSTextFilter::updateAlgorithmInput(VSAbstractFilter* filter)
 
   emit updatedOutputPort(filter);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSTextFilter::getFilterType() const
+{
+  return FilterType::Placeholder;
+}

@@ -87,6 +87,12 @@ public:
   QString getFilterName() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Returns the tooltip to use for the filter
    * @return
    */

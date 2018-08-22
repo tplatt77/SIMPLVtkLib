@@ -97,6 +97,12 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Applies the updated values to the algorithm and updates the output
    * @param origin
    * @param normals

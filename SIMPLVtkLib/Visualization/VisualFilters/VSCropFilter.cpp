@@ -230,6 +230,14 @@ QString VSCropFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSCropFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 vtkAlgorithmOutput* VSCropFilter::getOutputPort()
 {
   if(getConnectedInput() && m_CropAlgorithm)

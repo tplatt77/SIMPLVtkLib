@@ -124,6 +124,14 @@ QString VSThresholdFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSThresholdFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSThresholdFilter::apply(QString arrayName, double min, double max)
 {
   if(nullptr == m_ThresholdAlgorithm)

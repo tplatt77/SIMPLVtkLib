@@ -168,3 +168,11 @@ void VSPipelineFilter::apply()
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSPipelineFilter::getFilterType() const
+{
+  return FilterType::Pipeline;
+}

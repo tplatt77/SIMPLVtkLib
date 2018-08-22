@@ -99,6 +99,12 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Applies a threshold over a specified array between a given min and max
    * @param arrayName
    * @param min

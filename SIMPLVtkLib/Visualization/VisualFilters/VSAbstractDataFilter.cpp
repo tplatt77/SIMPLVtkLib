@@ -99,3 +99,11 @@ bool VSAbstractDataFilter::isDataImported() const
 {
   return m_DataImported;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSAbstractDataFilter::getFilterType() const
+{
+  return FilterType::Data;
+}

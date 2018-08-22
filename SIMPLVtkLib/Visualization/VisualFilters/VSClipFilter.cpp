@@ -166,6 +166,14 @@ QString VSClipFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSClipFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSClipFilter::apply(double origin[3], double normal[3], bool inverted)
 {
   if(nullptr == m_ClipAlgorithm)

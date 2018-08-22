@@ -99,6 +99,12 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Applies the crop filter with the given volume of interest and sample rate
    * @param voi
    * @param sampleRate
