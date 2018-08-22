@@ -156,7 +156,7 @@ void VSAbstractViewWidget::copySelection(const VSAbstractViewWidget& other)
   QModelIndexList selection = other.getSelectionModel()->selectedIndexes();
   VSAbstractFilter::FilterListType selectedFilters = other.getFilterViewModel()->getFiltersFromIndexes(selection);
   QModelIndexList indexList = getFilterViewModel()->getIndexesFromFilters(selectedFilters);
-  getSelectionModel()->select(createSelection(indexList), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
+  getSelectionModel()->select(createSelection(indexList), ::selectFlags);
   getSelectionModel()->blockSignals(false);
 }
 
@@ -881,14 +881,14 @@ VSAbstractFilter* VSAbstractViewWidget::getFilterFromProp(vtkProp3D* prop)
 void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter, SelectionType selectionType)
 {
   QModelIndex filterIndex = m_FilterViewModel->getIndexFromFilter(filter);
-  QItemSelectionModel::SelectionFlag selectionFlag;
+  QItemSelectionModel::SelectionFlags selectionFlag;
   switch(selectionType)
   {
   case SelectionType::Current:
-    selectionFlag = QItemSelectionModel::Current;
+    selectionFlag = ::selectFlags;
     break;
   case SelectionType::AddSelection:
-    selectionFlag = QItemSelectionModel::Select;
+    selectionFlag = ::mergeFlags;
     break;
   case SelectionType::RemoveSelection:
     selectionFlag = QItemSelectionModel::Deselect;
