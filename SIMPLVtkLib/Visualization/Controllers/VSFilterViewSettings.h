@@ -705,22 +705,33 @@ protected:
   void updateColorMode();
 
   /**
+   * @brief Returns true if colors are mapped. Returns false otherwise.
+   * @return
+   */
+  bool isMappingColors() const;
+
+  /**
    * @brief Returns true if the given array is a 3-Component color array
    * @param array
    * @return
    */
-  bool isColorArray(vtkDataArray* array);
+  bool isColorArray(vtkDataArray* array) const;
 
   /**
    * @brief Returns the current vtkDataArray specified by the given array index
    */
-  vtkDataArray* getDataArray();
+  vtkDataArray* getDataArray() const;
 
   /**
    * @brief Updates whether or not the vtkScalarBarWidget is visible for this view
    * @param visible
    */
   void setScalarBarVisible(bool visible);
+
+  /**
+   * @brief Checks if the vtkScalarBarWidget should be visible and updates accordingly
+   */
+  void updateScalarBarVisibility();
 
 private:
   VSAbstractFilter* m_Filter = nullptr;

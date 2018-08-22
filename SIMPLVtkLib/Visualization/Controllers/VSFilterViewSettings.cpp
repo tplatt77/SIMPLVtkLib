@@ -515,11 +515,7 @@ void VSFilterViewSettings::setScalarBarSetting(ScalarBarSetting setting)
 void VSFilterViewSettings::setIsSelected(bool selected)
 {
   m_Selected = selected;
-
-  if(m_ScalarBarWidget && m_ScalarBarSetting == ScalarBarSetting::OnSelection)
-  {
-    setScalarBarVisible(selected);
-  }
+  updateScalarBarVisibility();
 }
 
 // -----------------------------------------------------------------------------
@@ -740,6 +736,8 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     emit activeArrayNameChanged(m_ActiveArrayName);
     emit requiresRender();
     emit componentNamesChanged();
+
+    updateScalarBarVisibility();
     return;
   }
 
@@ -754,11 +752,6 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
   emit activeArrayNameChanged(m_ActiveArrayName);
   emit componentNamesChanged();
   setActiveComponentIndex(-1);
-
-  if(isColorArray(dataArray) && m_MapColors == ColorMapping::Always)
-  {
-    setMapColors(ColorMapping::NonColors);
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -830,7 +823,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkDataArray* VSFilterViewSettings::getDataArray()
+vtkDataArray* VSFilterViewSettings::getDataArray() const
 {
   if(nullptr == m_Filter->getOutput())
   {
@@ -843,7 +836,7 @@ vtkDataArray* VSFilterViewSettings::getDataArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray)
+bool VSFilterViewSettings::isColorArray(vtkDataArray* dataArray) const
 {
   if(nullptr == dataArray)
   {
@@ -887,6 +880,35 @@ void VSFilterViewSettings::updateColorMode()
   }
 
   mapper->Update();
+  updateScalarBarVisibility();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFilterViewSettings::isMappingColors() const
+{
+  vtkDataSetMapper* mapper = getDataSetMapper();
+  if(nullptr == mapper)
+  {
+    return false;
+  }
+
+  switch(m_MapColors)
+  {
+  case ColorMapping::Always:
+    return true;
+  case ColorMapping::None:
+    return false;
+  case ColorMapping::NonColors:
+  {
+    vtkDataArray* dataArray = getDataArray();
+    bool isColorData = isColorArray(dataArray) && (m_ActiveComponent == -1);
+    return !isColorData;
+  }
+  default:
+    return false;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1023,6 +1045,43 @@ void VSFilterViewSettings::setScalarBarVisible(bool visible)
 
   m_ToggleScalarBarAction->setChecked(visible);
   emit showScalarBarChanged(visible);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::updateScalarBarVisibility()
+{
+  if(false == isValid())
+  {
+    return;
+  }
+
+  if(m_ActiveArrayName.isNull() || m_Representation == Representation::Outline)
+  {
+    setScalarBarVisible(false);
+    return;
+  }
+
+  if(false == isMappingColors())
+  {
+    setScalarBarVisible(false);
+  }
+  else
+  {
+    switch(m_ScalarBarSetting)
+    {
+    case ScalarBarSetting::Always:
+      setScalarBarVisible(true);
+      break;
+    case ScalarBarSetting::Never:
+      setScalarBarVisible(false);
+      break;
+    case ScalarBarSetting::OnSelection:
+      setScalarBarVisible(m_Selected);
+      break;
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1571,6 +1630,7 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
   }
 
   updateTransform();
+  updateScalarBarVisibility();
   emit representationChanged(type);
   emit requiresRender();
 }
@@ -1649,6 +1709,7 @@ void VSFilterViewSettings::copySettings(VSFilterViewSettings* copy)
   setMapColors(copy->m_MapColors);
   setScalarBarVisible(copy->m_ToggleScalarBarAction->isChecked());
   setScalarBarSetting(copy->m_ScalarBarSetting);
+  m_Selected = copy->m_Selected;
   setAlpha(copy->m_Alpha);
   setSolidColor(copy->getSolidColor());
   setRepresentation(copy->getRepresentation());
