@@ -43,7 +43,7 @@
 
 namespace
 {
-  QItemSelectionModel::SelectionFlags mergeFlags = QItemSelectionModel::Select;
+  QItemSelectionModel::SelectionFlags mergeFlags = QItemSelectionModel::Select | QItemSelectionModel::Current;
   QItemSelectionModel::SelectionFlags selectFlags = QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current;
 }
 
@@ -215,22 +215,6 @@ void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
     changeFilterVisibility(setting, setting->isVisible());
     changeScalarBarVisibility(setting, setting->isScalarBarVisible());
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSFilterViewSettings* VSAbstractViewWidget::getActiveFilterSettings() const
-{
-  return m_ActiveFilterSettings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setActiveFilterSettings(VSFilterViewSettings* settings)
-{
-  m_ActiveFilterSettings = settings;
 }
 
 // -----------------------------------------------------------------------------
@@ -450,50 +434,6 @@ void VSAbstractViewWidget::setFilterShowScalarBar(const bool& showScalarBar)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterArrayName(QString name)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveArrayName(name);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterComponentIndex(int index)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveComponentIndex(index);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setMapColors(mapColorState);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterShowScalarBar(VSFilterViewSettings::ScalarBarSetting setting)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setScalarBarSetting(setting);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSAbstractViewWidget::mousePressed()
 {
   emit markActive(this);
@@ -505,23 +445,6 @@ void VSAbstractViewWidget::mousePressed()
 void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
 {
   mousePressed();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::keyPressEvent(QKeyEvent* event)
-{
-  QFrame::keyPressEvent(event);
-
-  if(event->key() == Qt::Key::Key_Return)
-  {
-    emit applyCurrentFilter();
-  }
-  else if(event->key() == Qt::Key::Key_Escape)
-  {
-    emit resetCurrentFilter();
-  }
 }
 
 // -----------------------------------------------------------------------------

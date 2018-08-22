@@ -78,6 +78,14 @@ VSMaskFilterWidget::VSMaskFilterWidget(VSMaskFilter* filter, vtkRenderWindowInte
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSMaskFilterWidget::getFilter() const
+{
+  return m_MaskFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMaskFilterWidget::setBounds(double* bounds)
 {
   if(nullptr == bounds)

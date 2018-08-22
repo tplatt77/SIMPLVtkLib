@@ -45,6 +45,8 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSAbstractFilter;
+
 /**
  * @class VSAbstractFilterWidget VSAbstractFilterWidget.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilterWidget.h
@@ -64,6 +66,12 @@ public:
    * @brief Deconstructor
    */
   virtual ~VSAbstractFilterWidget() = default;
+
+  /**
+   * @brief Returns the filter used by the widget
+   * @return
+   */
+  virtual VSAbstractFilter* getFilter() const = 0;
 
   /**
    * @brief Applies changes to the filter and updates the output

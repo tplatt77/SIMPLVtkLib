@@ -65,6 +65,12 @@ public:
   virtual ~VSDataSetFilterWidget() = default;
 
   /**
+   * @brief Returns the filter used by the widget
+   * @return
+   */
+  VSAbstractFilter* getFilter() const override;
+
+  /**
    * @brief Sets the filter's bounds
    * @param bounds
    */

@@ -160,6 +160,18 @@ public:
   int getChildIndex() const;
 
   /**
+   * @brief Returns the previous sibling from its parent's list of children
+   * @return
+   */
+  VSAbstractFilter* getPrevSibling() const;
+
+  /**
+   * @brief Returns the next sibling from its parent's list of children
+   * @return
+   */
+  VSAbstractFilter* getNextSibling() const;
+
+  /**
    * @brief Returns the highest-level ancestor
    * @return
    */

@@ -170,6 +170,62 @@ int VSAbstractFilter::getChildIndex() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractFilter::getPrevSibling() const
+{
+  VSAbstractFilter* parentFilter = getParentFilter();
+  if(nullptr == parentFilter)
+  {
+    return nullptr;
+  }
+
+  int siblingCount = parentFilter->getChildCount();
+  if(siblingCount == 1)
+  {
+    return nullptr;
+  }
+
+  int index = getChildIndex();
+  if(index == 0)
+  {
+    return parentFilter->getChild(siblingCount - 1);
+  }
+  else
+  {
+    return parentFilter->getChild(index - 1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractFilter::getNextSibling() const
+{
+  VSAbstractFilter* parentFilter = getParentFilter();
+  if(nullptr == parentFilter)
+  {
+    return nullptr;
+  }
+
+  int siblingCount = parentFilter->getChildCount();
+  if(siblingCount == 1)
+  {
+    return nullptr;
+  }
+
+  int index = getChildIndex();
+  if(index == siblingCount - 1)
+  {
+    return parentFilter->getChild(0);
+  }
+  else
+  {
+    return parentFilter->getChild(index + 1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
   connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)), Qt::UniqueConnection);

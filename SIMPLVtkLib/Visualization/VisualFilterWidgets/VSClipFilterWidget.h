@@ -73,6 +73,12 @@ public:
   virtual ~VSClipFilterWidget();
 
   /**
+   * @brief Returns the filter used by the widget
+   * @return
+   */
+  VSAbstractFilter* getFilter() const override;
+
+  /**
    * @brief Sets the visualization filter's bounds
    * @param bounds
    */

@@ -54,6 +54,14 @@ VSParentFilterWidget::VSParentFilterWidget(VSTextFilter* filter, QWidget* widget
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSParentFilterWidget::getFilter() const
+{
+  return m_Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSParentFilterWidget::setBounds(double* bounds)
 {
 }

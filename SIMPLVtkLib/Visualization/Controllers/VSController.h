@@ -61,6 +61,14 @@ class SIMPLVtkLib_EXPORT VSController : public QObject
   Q_OBJECT
 
 public:
+  enum class FilterStepChange : unsigned char
+  {
+    Parent,
+    Child,
+    PrevSibling,
+    NextSibling
+  };
+
   /**
    * @brief Constructor
    * @param parent
@@ -174,8 +182,23 @@ public:
    */
   void selectFilter(VSAbstractFilter* filter);
 
+  /**
+   * @brief Returns the current filter
+   * @return
+   */
   VSAbstractFilter* getCurrentFilter() const;
+
+  /**
+   * @brief Returns the selected filters
+   * @return
+   */
   VSAbstractFilter::FilterListType getFilterSelection() const;
+
+  /**
+   * @brief Change the filter selected by a single step in the given direction
+   * @param stepDirection
+   */
+  void changeFilterSelected(FilterStepChange stepDirection);
 
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
@@ -189,6 +212,7 @@ signals:
 
 protected:
   void listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected);
+  void listenFilterAdded(VSAbstractFilter*, bool);
 
 private:
   VSFilterModel* m_FilterModel;

@@ -59,7 +59,7 @@ class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QFrame
 
 public:
   Q_PROPERTY(bool Active READ isActive WRITE setActive)
-  enum class SelectionType : unsigned int
+  enum class SelectionType : unsigned char
   {
     Current,
     AddSelection,
@@ -70,18 +70,6 @@ public:
    * @brief Deconstructor
    */
   virtual ~VSAbstractViewWidget() = default;
-
-  /**
-   * @brief Returns a pointer to the active VSFilterViewSettings
-   * @return
-   */
-  VSFilterViewSettings* getActiveFilterSettings() const;
-
-  /**
-   * @brief Sets the active VSFilterViewSettings
-   * @param settings
-   */
-  virtual void setActiveFilterSettings(VSFilterViewSettings* settings);
 
   /**
    * @brief Returns the VSFilterViewSettings for the given filter.
@@ -245,30 +233,6 @@ protected slots:
   void swapActors(vtkProp3D* oldProp, vtkProp3D* newProp);
 
   /**
-   * @brief Change the active filter's array name
-   * @param name
-   */
-  void changeFilterArrayName(QString name);
-
-  /**
-   * @brief Change the active filter's component index
-   * @param index
-   */
-  void changeFilterComponentIndex(int index);
-
-  /**
-   * @brief Change the active filter's color map setting
-   * @param mapColorState
-   */
-  void changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState);
-
-  /**
-   * @brief Change the active filter's scalar bar visibility setting
-   * @param setting
-   */
-  void changeFilterShowScalarBar(VSFilterViewSettings::ScalarBarSetting setting);
-
-  /**
    * @brief Active array changed for filter
    * @param index
    */
@@ -401,12 +365,6 @@ protected:
    * @param event
    */
   virtual void mousePressEvent(QMouseEvent* event) override;
-
-  /**
-   * @brief Handle key press events including applying or resetting the active filter
-   * @param event
-   */
-  void keyPressEvent(QKeyEvent* event) override;
 
   /**
    * @brief Listens for the VSController's selection model to change and apply it to the local model

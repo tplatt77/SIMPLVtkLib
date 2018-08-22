@@ -42,6 +42,8 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QThread>
 #include <QtCore/QUuid>
+#include <QtGui/QKeySequence>
+#include <QtWidgets/QShortcut>
 
 #include <QtWidgets/QMessageBox>
 
@@ -77,6 +79,7 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 , m_Controller(new VSController())
 {
   connectSlots();
+  setupShortcuts();
 }
 
 // -----------------------------------------------------------------------------
@@ -89,7 +92,34 @@ void VSMainWidgetBase::connectSlots()
   connect(m_Controller, SIGNAL(blockRender(bool)), this, SLOT(setBlockRender(bool)));
   connect(m_Controller, SIGNAL(filterSelected(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
 
-  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString&)), this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString&)));
+  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString&)), this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString&)));  
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setupShortcuts()
+{
+  QShortcut* filterUpShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Up), this);
+  QShortcut* filterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Down), this);
+  QShortcut* filterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Left), this);
+  QShortcut* filterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Right), this);
+
+  connect(filterUpShortcut, &QShortcut::activated, [=] { m_Controller->changeFilterSelected(VSController::FilterStepChange::Parent); });
+  connect(filterDownShortcut, &QShortcut::activated, [=] { m_Controller->changeFilterSelected(VSController::FilterStepChange::Child); });
+  connect(filterLeftShortcut, &QShortcut::activated, [=] { m_Controller->changeFilterSelected(VSController::FilterStepChange::PrevSibling); });
+  connect(filterRightShortcut, &QShortcut::activated, [=] { m_Controller->changeFilterSelected(VSController::FilterStepChange::NextSibling); });
+
+  QShortcut* applyFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+  QShortcut* resetFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  QShortcut* deleteFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+
+  connect(applyFilterShortcut, &QShortcut::activated, [=] { applyCurrentFilter(); });
+  connect(resetFilterShortcut, &QShortcut::activated, [=] { resetCurrentFilter(); });
+  connect(deleteFilterShortcut, &QShortcut::activated, [=] { deleteCurrentFilter(); });
+
+  QShortcut* toggleVisibleShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), this);
+  connect(toggleVisibleShortcut, &QShortcut::activated, [=] { toggleCurrentFilterVisibility(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -217,8 +247,9 @@ void VSMainWidgetBase::setFilterSettingsWidget(VSFilterSettingsWidget* widget)
     connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
     connect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_FilterSettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+    VSAbstractFilter* currentFilter = getCurrentFilter();
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(currentFilter);
+    m_FilterSettingsWidget->setFilter(currentFilter, filterWidget);
   }
 }
 
@@ -240,8 +271,9 @@ void VSMainWidgetBase::setVisibilitySettingsWidget(VSVisibilitySettingsWidget* w
     connect(this, &VSMainWidgetBase::changedActiveFilter, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilter);
     connect(this, &VSMainWidgetBase::changedActiveView, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_VisibilitySettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+    VSAbstractFilter* currentFilter = getCurrentFilter();
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(currentFilter);
+    m_VisibilitySettingsWidget->setFilter(currentFilter, filterWidget);
     m_VisibilitySettingsWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -264,8 +296,9 @@ void VSMainWidgetBase::setColorMappingWidget(VSColorMappingWidget* widget)
     connect(this, &VSMainWidgetBase::changedActiveFilter, m_ColorMappingWidget, &VSColorMappingWidget::setFilter);
     connect(this, &VSMainWidgetBase::changedActiveView, m_ColorMappingWidget, &VSColorMappingWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_ColorMappingWidget->setFilter(m_CurrentFilter, filterWidget);
+    VSAbstractFilter* currentFilter = getCurrentFilter();
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(currentFilter);
+    m_ColorMappingWidget->setFilter(currentFilter, filterWidget);
     m_ColorMappingWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -288,8 +321,9 @@ void VSMainWidgetBase::setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsW
     connect(this, &VSMainWidgetBase::changedActiveFilter, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilter);
     connect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_AdvancedVisibilityWidget->setFilter(m_CurrentFilter, filterWidget);
+    VSAbstractFilter* currentFilter = getCurrentFilter();
+    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(currentFilter);
+    m_AdvancedVisibilityWidget->setFilter(currentFilter, filterWidget);
     m_AdvancedVisibilityWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -310,9 +344,9 @@ void VSMainWidgetBase::setTransformWidget(VSTransformWidget* widget)
   {
     connect(this, &VSMainWidgetBase::changedActiveFilter, m_TransformWidget, &VSTransformWidget::setFilter);
 
-    if(m_CurrentFilter)
+    if(getCurrentFilter())
     {
-      m_TransformWidget->setTransform(m_CurrentFilter->getTransform());
+      m_TransformWidget->setTransform(getCurrentFilter()->getTransform());
     }
   }
 }
@@ -336,7 +370,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 {
-  return m_CurrentFilter;
+  return m_Controller->getCurrentFilter();
 }
 
 // -----------------------------------------------------------------------------
@@ -628,21 +662,19 @@ void VSMainWidgetBase::activeViewClosed()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
-  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-  if(filterWidget)
+  if(m_CurrentFilterWidget)
   {
-    filterWidget->setRenderingEnabled(false);
+    m_CurrentFilterWidget->setRenderingEnabled(false);
   }
 
-  m_CurrentFilter = filter;
-  filterWidget = m_FilterToFilterWidgetMap.value(filter);
+  m_CurrentFilterWidget = m_FilterToFilterWidgetMap.value(filter);
 
-  if(filterWidget)
+  if(m_CurrentFilterWidget)
   {
-    filterWidget->setRenderingEnabled(true);
+    m_CurrentFilterWidget->setRenderingEnabled(true);
   }
 
-  emit changedActiveFilter(m_CurrentFilter, filterWidget);
+  emit changedActiveFilter(filter, m_CurrentFilterWidget);
 }
 
 // -----------------------------------------------------------------------------
@@ -664,6 +696,29 @@ void VSMainWidgetBase::resetCurrentFilter()
   if(m_FilterSettingsWidget)
   {
     m_FilterSettingsWidget->resetFilter();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::deleteCurrentFilter()
+{
+  if(m_FilterSettingsWidget)
+  {
+    m_FilterSettingsWidget->deleteFilter();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::toggleCurrentFilterVisibility()
+{
+  if(getActiveViewWidget() && getActiveViewWidget()->getFilterViewSettings(getCurrentFilter()))
+  {
+    VSFilterViewSettings* viewSettings = getActiveViewWidget()->getFilterViewSettings(getCurrentFilter());
+    viewSettings->setVisible(!viewSettings->isVisible());
   }
 }
 
@@ -698,7 +753,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     deleteFilter(child);
   }
 
-  if(m_CurrentFilter == filter)
+  if(m_CurrentFilterWidget->getFilter() == filter)
   {
     m_Controller->selectFilter(filter->getParentFilter());
   }
@@ -798,7 +853,7 @@ void VSMainWidgetBase::createClipFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSClipFilter::compatibleWithParent(parent))
@@ -815,7 +870,7 @@ void VSMainWidgetBase::createCropFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSCropFilter::compatibleWithParent(parent))
@@ -832,7 +887,7 @@ void VSMainWidgetBase::createSliceFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSSliceFilter::compatibleWithParent(parent))
@@ -849,7 +904,7 @@ void VSMainWidgetBase::createMaskFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSMaskFilter::compatibleWithParent(parent))
@@ -866,7 +921,7 @@ void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSThresholdFilter::compatibleWithParent(parent))
@@ -883,7 +938,7 @@ void VSMainWidgetBase::createTextFilter(VSAbstractFilter* parent)
 {
   if(nullptr == parent)
   {
-    parent = m_CurrentFilter;
+    parent = getCurrentFilter();
   }
 
   if(parent && VSTextFilter::compatibleWithParent(parent))

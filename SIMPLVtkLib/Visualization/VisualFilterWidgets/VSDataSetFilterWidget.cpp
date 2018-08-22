@@ -70,6 +70,14 @@ VSDataSetFilterWidget::VSDataSetFilterWidget(VSDataSetFilter* filter, QWidget* w
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSDataSetFilterWidget::getFilter() const
+{
+  return m_DataSetFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSDataSetFilterWidget::setBounds(double* bounds)
 {
 }

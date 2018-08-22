@@ -47,6 +47,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
@@ -62,9 +63,10 @@ VSController::VSController(QObject* parent)
 {
   m_ImportObject = new VSConcurrentImport(this);
 
-  connect(m_FilterModel, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SIGNAL(filterAdded(VSAbstractFilter*, bool)));
-  connect(m_FilterModel, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SIGNAL(filterRemoved(VSAbstractFilter*)));
+  connect(m_FilterModel, &VSFilterModel::filterAdded, this, &VSController::listenFilterAdded);
+  connect(m_FilterModel, &VSFilterModel::filterRemoved, this, &VSController::filterRemoved);
 
+  // VSConcurrentImport works on another thread, so use the old-style connections to forward signals on the current thread
   connect(m_ImportObject, SIGNAL(blockRender(bool)), this, SIGNAL(blockRender(bool)));
   connect(m_ImportObject, SIGNAL(applyingDataFilters(int)), this, SIGNAL(applyingDataFilters(int)));
   connect(m_ImportObject, SIGNAL(dataFilterApplied(int)), this, SIGNAL(dataFilterApplied(int)));
@@ -183,6 +185,12 @@ void VSController::importData(const QString& filePath)
 // -----------------------------------------------------------------------------
 void VSController::selectFilter(VSAbstractFilter* filter)
 {
+  // Do not change the selection when nullptr is passed in
+  if(nullptr == filter || m_FilterModel->getRootFilter() == filter)
+  {
+    return;
+  }
+
   QModelIndex index = m_FilterModel->getIndexFromFilter(filter);
   m_SelectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
 }
@@ -401,8 +409,18 @@ QItemSelectionModel* VSController::getSelectionModel()
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSController::getCurrentFilter() const
 {
+#if 0
   QModelIndex currentIndex = m_SelectionModel->currentIndex();
   return m_FilterModel->getFilterFromIndex(currentIndex);
+#else
+  VSAbstractFilter::FilterListType selectedFilters = getFilterSelection();
+  if(selectedFilters.size() > 0)
+  {
+    return selectedFilters.front();
+  }
+
+  return nullptr;
+#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -419,6 +437,36 @@ VSAbstractFilter::FilterListType VSController::getFilterSelection() const
   }
 
   return filterList;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::changeFilterSelected(FilterStepChange stepDirection)
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  if(nullptr == currentFilter)
+  {
+    return;
+  }
+
+  switch(stepDirection)
+  {
+  case FilterStepChange::Parent:
+    selectFilter(currentFilter->getParentFilter());
+    break;
+  case FilterStepChange::Child:
+    selectFilter(currentFilter->getChild(0));
+    break;
+  case FilterStepChange::PrevSibling:
+    selectFilter(currentFilter->getPrevSibling());
+    break;
+  case FilterStepChange::NextSibling:
+    selectFilter(currentFilter->getNextSibling());
+    break;
+  default:
+    break;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -442,4 +490,17 @@ void VSController::listenSelectionModel(const QItemSelection& selected, const QI
       emit filterSelected(filter);
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::listenFilterAdded(VSAbstractFilter* filter, bool setCurrent)
+{
+  if(setCurrent)
+  {
+    selectFilter(filter);
+  }
+  
+  emit filterAdded(filter, setCurrent);
 }

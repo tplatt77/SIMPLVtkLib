@@ -88,6 +88,14 @@ VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInte
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSClipFilterWidget::getFilter() const
+{
+  return m_ClipFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSClipFilterWidget::~VSClipFilterWidget()
 {
   delete m_PlaneWidget;

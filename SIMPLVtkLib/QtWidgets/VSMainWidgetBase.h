@@ -253,6 +253,11 @@ protected:
   virtual void connectSlots();
 
   /**
+   * @brief Creates shortcuts for changing, applying, resetting, and deleting the current filter
+   */
+  void setupShortcuts();
+
+  /**
    * @brief Returns the current visual filter
    * @return
    */
@@ -292,6 +297,16 @@ protected slots:
    * @brief Resets the current filter to the last applied values
    */
   virtual void resetCurrentFilter();
+
+  /**
+   * @brief Deletes the current filter
+   */
+  virtual void deleteCurrentFilter();
+
+  /**
+   * @brief Toggles the current filter's visibility in the active view
+   */
+  virtual void toggleCurrentFilterVisibility();
 
   /**
    * @brief Deletes the given filter and its children from the model and
@@ -352,8 +367,8 @@ protected slots:
   void generateError(const QString& title, const QString& msg, const int& code);
 
 private:
-  VSController* m_Controller;
-  VSAbstractFilter* m_CurrentFilter = nullptr;
+  VSController* m_Controller = nullptr;
+  VSAbstractFilterWidget* m_CurrentFilterWidget = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
   VSFilterSettingsWidget* m_FilterSettingsWidget = nullptr;

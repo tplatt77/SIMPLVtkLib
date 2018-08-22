@@ -76,6 +76,14 @@ VSCropFilterWidget::VSCropFilterWidget(VSCropFilter* filter, vtkRenderWindowInte
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSCropFilterWidget::getFilter() const
+{
+  return m_CropFilter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSCropFilterWidget::setupGui()
 {
   if(false == (m_CropFilter && m_CropFilter->getParentFilter() && m_CropFilter->getParentFilter()->getOutput()))
