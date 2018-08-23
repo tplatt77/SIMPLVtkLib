@@ -219,7 +219,14 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 // -----------------------------------------------------------------------------
 void VSTransformWidget::setFilter(VSAbstractFilter* filter)
 {
-  setTransform(filter->getTransform());
+  if(nullptr == filter)
+  {
+    setTransform(nullptr);
+  }
+  else
+  {
+    setTransform(filter->getTransform());
+  }
 }
 
 // -----------------------------------------------------------------------------
