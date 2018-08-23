@@ -499,6 +499,20 @@ void VSVisualizationWidget::mouseMoveEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseDoubleClickEvent(event);
+
+  VSInteractorStyleFilterCamera* filterCamera = dynamic_cast<VSInteractorStyleFilterCamera*>(GetInteractor()->GetInteractorStyle());
+  if(filterCamera)
+  {
+    filterCamera->OnDoubleClick();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSVisualizationWidget::focusInEvent(QFocusEvent* event)
 {
   if(m_LinkingWidget && m_LinkingWidget != this)

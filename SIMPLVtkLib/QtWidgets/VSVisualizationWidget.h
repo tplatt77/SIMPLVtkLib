@@ -211,6 +211,12 @@ protected:
   void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 
   /**
+   * @brief Overrides the mouseDoubleClickEvent
+   * @param event
+   */
+  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
    * @brief Check if linking cameras
    * @param event
    */

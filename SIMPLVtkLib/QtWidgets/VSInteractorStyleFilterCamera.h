@@ -78,6 +78,11 @@ public:
   void OnKeyDown() override;
 
   /**
+   * @brief Performs any necessary actions when the mouse is double clicked
+   */
+  void OnDoubleClick();
+
+  /**
    * @brief Sets the VSAbstractViewWidget for selecting filters from
    * @param viewWidget
    */
@@ -249,8 +254,6 @@ protected:
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;
-  //std::list<VSAbstractFilter*> m_Selection;
-  int m_MousePress = 0;
   ActionType m_ActionType = ActionType::None;
   // Position
   double* m_InitialPosition;

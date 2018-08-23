@@ -52,17 +52,8 @@ vtkStandardNewMacro(VSInteractorStyleFilterCamera);
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::OnLeftButtonDown()
 {
-  m_MousePress++;
-  endAction();
-  if(m_MousePress >= 2)
-  {
-    grabFilter();
-  }
-  else
-  {
-    vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-    updateLinkedRenderWindows();
-  }
+  vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+  updateLinkedRenderWindows();
 }
 
 // -----------------------------------------------------------------------------
@@ -75,9 +66,14 @@ void VSInteractorStyleFilterCamera::OnRightButtonDown()
 
   // Cancel the current action
   cancelAction();
+}
 
-  // Reset left-mouse button presses
-  m_MousePress = 0;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::OnDoubleClick()
+{
+  grabFilter();
 }
 
 // -----------------------------------------------------------------------------
@@ -85,8 +81,6 @@ void VSInteractorStyleFilterCamera::OnRightButtonDown()
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::OnMouseMove()
 {
-  m_MousePress = 0;
-
   if(m_ActiveFilter && ActionType::None != m_ActionType)
   {
     switch(m_ActionType)
@@ -223,8 +217,6 @@ VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilt
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::grabFilter()
 {
-  m_MousePress = 0;
-
   int* clickPos = this->GetInteractor()->GetEventPosition();
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
