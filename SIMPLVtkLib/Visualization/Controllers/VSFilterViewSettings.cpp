@@ -734,8 +734,8 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     m_ActiveArrayName = QString::null;
 
     emit activeArrayNameChanged(m_ActiveArrayName);
-    emit requiresRender();
     emit componentNamesChanged();
+    emit requiresRender();
 
     updateScalarBarVisibility();
     return;
@@ -780,9 +780,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
     index = -1;
   }
 
-  int numComponents = dataArray->GetNumberOfComponents();
-  mapper->ColorByArrayComponent(qPrintable(m_ActiveArrayName), index);
-
+  // Set data type to map
   if(isPointData())
   {
     mapper->SetScalarModeToUsePointFieldData();
@@ -791,8 +789,14 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   {
     mapper->SetScalarModeToUseCellFieldData();
   }
+
+  // Set array component index in the vtkDataSetMapper
+  int numComponents = dataArray->GetNumberOfComponents();
+  mapper->ColorByArrayComponent(qPrintable(m_ActiveArrayName), index);
+  mapper->Update();
   updateColorMode();
 
+  // Set ScalarBar title
   if(numComponents == 1)
   {
     double* range = dataArray->GetRange();
@@ -814,8 +818,6 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
     m_LookupTable->setRange(range);
     m_ScalarBarActor->SetTitle(dataArray->GetComponentName(index));
   }
-
-  m_Mapper->Update();
 
   emit activeComponentIndexChanged(m_ActiveComponent);
 }
@@ -1121,6 +1123,7 @@ void VSFilterViewSettings::setupActors(bool outline)
   {
     setRepresentation(Representation::Outline);
   }
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
@@ -1262,7 +1265,15 @@ void VSFilterViewSettings::setupDataSetActors()
   m_DataSetFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
   m_OutlineFilter->SetInputConnection(m_Filter->getOutputPort());
 
-  mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
+  if(getRepresentation() == Representation::Outline)
+  {
+    mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
+  }
+  else
+  {
+    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
+  }
+  
   actor->SetMapper(mapper);
 
   // Check if there are any arrays to use
@@ -1281,6 +1292,7 @@ void VSFilterViewSettings::setupDataSetActors()
   {
     if(m_HadNoArrays)
     {
+      setMapColors(ColorMapping::NonColors);
       setActiveArrayName(getArrayNameByIndex(0));
       m_HadNoArrays = false;
     }
@@ -1661,9 +1673,9 @@ void VSFilterViewSettings::importedData()
     }
 
     setRepresentation(Representation::Surface);
-    emit requiresRender();
   }
 
+  emit requiresRender();
   emit dataLoaded();
 }
 
