@@ -196,7 +196,19 @@ protected:
    * @brief Overrides the mousePressEvent
    * @param event
    */
-  virtual void mousePressEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Overrides the mouseReleaseEvent
+   * @param event
+   */
+  void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Overrides the mouseMoveEvent
+   * @param event
+   */
+  void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 
   /**
    * @brief Check if linking cameras
@@ -219,6 +231,7 @@ private:
   LinkedRenderWindowType m_LinkedRenderWindows;
   QAction* m_LinkCameraAction = nullptr;
   bool m_OwnContextMenu = true;
+  bool m_CheckContextMenu = false;
 
   unsigned int m_NumRenderLayers;
 

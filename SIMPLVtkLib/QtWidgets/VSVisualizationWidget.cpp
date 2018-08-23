@@ -35,6 +35,7 @@
 
 #include "VSVisualizationWidget.h"
 
+#include <QtGui/QMouseEvent>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
@@ -82,9 +83,6 @@ VSVisualizationWidget::VSVisualizationWidget(QWidget* parent, unsigned int numLa
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::setupGui()
 {
-  this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
-
   initializeRendererAndAxes();
 }
 
@@ -463,7 +461,39 @@ void VSVisualizationWidget::mousePressEvent(QMouseEvent* event)
 {
   QVTKOpenGLWidget::mousePressEvent(event);
 
+  if(event->button() == Qt::RightButton)
+  {
+    m_CheckContextMenu = true;
+  }
+  else
+  {
+    m_CheckContextMenu = false;
+  }
+
   emit mousePressed();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseReleaseEvent(event);
+
+  if(m_CheckContextMenu)
+  {
+    emit customContextMenuRequested(event->pos());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseMoveEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseMoveEvent(event);
+
+  m_CheckContextMenu = false;
 }
 
 // -----------------------------------------------------------------------------

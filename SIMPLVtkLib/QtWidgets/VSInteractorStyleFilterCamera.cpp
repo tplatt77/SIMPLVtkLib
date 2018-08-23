@@ -70,10 +70,14 @@ void VSInteractorStyleFilterCamera::OnLeftButtonDown()
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::OnRightButtonDown()
 {
+  vtkInteractorStyleTrackballCamera::OnRightButtonDown();
   updateLinkedRenderWindows();
 
   // Cancel the current action
   cancelAction();
+
+  // Reset left-mouse button presses
+  m_MousePress = 0;
 }
 
 // -----------------------------------------------------------------------------
