@@ -219,6 +219,8 @@ VSInteractorStyleFilterCamera::FilterProp VSInteractorStyleFilterCamera::getFilt
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::grabFilter()
 {
+  m_MousePress = 0;
+
   int* clickPos = this->GetInteractor()->GetEventPosition();
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
@@ -239,8 +241,7 @@ void VSInteractorStyleFilterCamera::grabFilter()
   }
   else
   {
-    clearSelection();
-    addSelection(filter, prop);
+    setSelection(filter, prop);
   }
 }
 
@@ -252,12 +253,18 @@ void VSInteractorStyleFilterCamera::addSelection(VSAbstractFilter* filter, vtkPr
   m_ActiveFilter = filter;
   m_ActiveProp = prop;
 
-  if(false == selectionIncludes(filter))
-  {
-    m_Selection.push_front(filter);
-  }
-
   m_ViewWidget->selectFilter(m_ActiveFilter, VSAbstractViewWidget::SelectionType::AddSelection);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::setSelection(VSAbstractFilter* filter, vtkProp3D* prop)
+{
+  m_ActiveFilter = filter;
+  m_ActiveProp = prop;
+
+  m_ViewWidget->selectFilter(m_ActiveFilter, VSAbstractViewWidget::SelectionType::Current);
 }
 
 // -----------------------------------------------------------------------------
@@ -265,22 +272,23 @@ void VSInteractorStyleFilterCamera::addSelection(VSAbstractFilter* filter, vtkPr
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::removeSelection(VSAbstractFilter* filter)
 {
-  m_Selection.remove(filter);
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  selection.remove(filter);
   if(m_ActiveFilter == filter)
   {
-    if(m_Selection.size() == 0)
+    if(selection.size() == 0)
     {
       m_ActiveFilter = nullptr;
       m_ActiveProp = nullptr;
     }
     else
     {
-      m_ActiveFilter = (*m_Selection.begin());
+      m_ActiveFilter = (*selection.begin());
       m_ActiveProp = m_ViewWidget->getFilterViewSettings(m_ActiveFilter)->getActor();
     }
   }
 
-  m_ViewWidget->selectFilter(m_ActiveFilter, VSAbstractViewWidget::SelectionType::RemoveSelection);
+  m_ViewWidget->selectFilter(filter, VSAbstractViewWidget::SelectionType::RemoveSelection);
 }
 
 // -----------------------------------------------------------------------------
@@ -301,19 +309,18 @@ void VSInteractorStyleFilterCamera::toggleSelection(VSAbstractFilter* filter, vt
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInteractorStyleFilterCamera::clearSelection()
+bool VSInteractorStyleFilterCamera::selectionIncludes(VSAbstractFilter* filter)
 {
-  m_ActiveFilter = nullptr;
-  m_ActiveProp = nullptr;
-  m_Selection.clear();
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  return std::find(selection.begin(), selection.end(), filter) != selection.end();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSInteractorStyleFilterCamera::selectionIncludes(VSAbstractFilter* filter)
+VSAbstractFilter::FilterListType VSInteractorStyleFilterCamera::getFilterSelection() const
 {
-  return std::find(m_Selection.begin(), m_Selection.end(), filter) != m_Selection.end();
+  return m_ViewWidget->getSelectedFilters();
 }
 
 // -----------------------------------------------------------------------------
@@ -392,8 +399,6 @@ void VSInteractorStyleFilterCamera::releaseFilter()
 
   m_ActiveFilter = nullptr;
   m_ActiveProp = nullptr;
-
-  clearSelection();
 }
 
 // -----------------------------------------------------------------------------
@@ -438,7 +443,8 @@ void VSInteractorStyleFilterCamera::translateFilter()
   }
 
   // Translate all filters selected
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->translate(localDelta);
   }
@@ -469,7 +475,8 @@ void VSInteractorStyleFilterCamera::cancelTranslation()
     m_Translation[i] *= -1;
   }
 
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->translate(m_Translation);
   }
@@ -502,7 +509,8 @@ void VSInteractorStyleFilterCamera::rotateFilter()
   m_RotationAmt += rotateAmt;
 
   // Rotate all selected filters
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->rotate(rotateAmt, m_CameraAxis);
   }
@@ -532,7 +540,8 @@ void VSInteractorStyleFilterCamera::beginRotation()
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::cancelRotation()
 {
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->rotate(-1 * m_RotationAmt, m_CameraAxis);
   }
@@ -566,7 +575,8 @@ void VSInteractorStyleFilterCamera::scaleFilter()
   m_ScaleAmt *= deltaScale;
 
   // Scale all selected filters
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->scale(deltaScale);
   }
@@ -607,7 +617,8 @@ void VSInteractorStyleFilterCamera::beginScaling()
 // -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::cancelScaling()
 {
-  for(VSAbstractFilter* filter : m_Selection)
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->scale(1.0 / m_ScaleAmt);
   }

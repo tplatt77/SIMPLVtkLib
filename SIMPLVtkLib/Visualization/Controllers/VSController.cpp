@@ -444,28 +444,110 @@ VSAbstractFilter::FilterListType VSController::getFilterSelection() const
 // -----------------------------------------------------------------------------
 void VSController::changeFilterSelected(FilterStepChange stepDirection)
 {
-  VSAbstractFilter* currentFilter = getCurrentFilter();
-  if(nullptr == currentFilter)
-  {
-    return;
-  }
-
   switch(stepDirection)
   {
   case FilterStepChange::Parent:
-    selectFilter(currentFilter->getParentFilter());
+    selectFilterParent();
     break;
   case FilterStepChange::Child:
-    selectFilter(currentFilter->getChild(0));
+    selectFilterChild();
     break;
   case FilterStepChange::PrevSibling:
-    selectFilter(currentFilter->getPrevSibling());
+    selectFilterPrevSibling();
     break;
   case FilterStepChange::NextSibling:
-    selectFilter(currentFilter->getNextSibling());
+    selectFilterNextSibling();
     break;
   default:
     break;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::selectFilterParent()
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  if(nullptr == currentFilter)
+  {
+    // Select the first base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.front());
+    }
+  }
+  else
+  {
+    // Select the parent filter
+    selectFilter(currentFilter->getParentFilter());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::selectFilterChild()
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  if(nullptr == currentFilter)
+  {
+    // Select the last base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.back());
+    }
+  }
+  else
+  {
+    // Select the first child filter
+    selectFilter(currentFilter->getChild(0));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::selectFilterPrevSibling()
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  if(nullptr == currentFilter)
+  {
+    // Select the first base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.front());
+    }
+  }
+  else
+  {
+    // Select the previous sibling filter
+    selectFilter(currentFilter->getPrevSibling());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::selectFilterNextSibling()
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  if(nullptr == currentFilter)
+  {
+    // Select the last base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.back());
+    }
+  }
+  else
+  {
+    // Select the next sibling filter
+    selectFilter(currentFilter->getNextSibling());
   }
 }
 
@@ -488,6 +570,10 @@ void VSController::listenSelectionModel(const QItemSelection& selected, const QI
     {
       VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(selection.first());
       emit filterSelected(filter);
+    }
+    else
+    {
+      emit filterSelected(nullptr);
     }
   }
 }

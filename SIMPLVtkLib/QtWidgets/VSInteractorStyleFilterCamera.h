@@ -134,15 +134,17 @@ protected:
   void addSelection(VSAbstractFilter* filter, vtkProp3D* prop);
 
   /**
+   * @brief Sets the filter and prop as the current selection
+   * @param filter
+   * @param prop
+   */
+  void setSelection(VSAbstractFilter* filter, vtkProp3D* prop);
+
+  /**
    * @brief Removes the filter from the current selection
    * @param filter
    */
   void removeSelection(VSAbstractFilter* filter);
-
-  /**
-   * @brief Clears the current selection
-   */
-  void clearSelection();
 
   /**
    * @brief Toggles the filter into or out of the current selection
@@ -158,6 +160,12 @@ protected:
    * @return
    */
   bool selectionIncludes(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns the list of VSAbstactFilters selected
+   * @return
+   */
+  VSAbstractFilter::FilterListType getFilterSelection() const;
 
   /**
    * @brief Releases the selected filter
@@ -241,7 +249,7 @@ protected:
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;
-  std::list<VSAbstractFilter*> m_Selection;
+  //std::list<VSAbstractFilter*> m_Selection;
   int m_MousePress = 0;
   ActionType m_ActionType = ActionType::None;
   // Position

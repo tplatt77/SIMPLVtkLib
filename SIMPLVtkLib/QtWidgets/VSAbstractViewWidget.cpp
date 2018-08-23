@@ -868,3 +868,12 @@ void VSAbstractViewWidget::localSelectionChanged(const QItemSelection& selected,
 
   m_Controller->getSelectionModel()->select(selection, ::selectFlags);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSAbstractViewWidget::getSelectedFilters() const
+{
+  QModelIndexList selection = m_SelectionModel->selectedIndexes();
+  return m_FilterViewModel->getFiltersFromIndexes(selection);
+}

@@ -152,7 +152,18 @@ public:
    */
   virtual VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) = 0;
 
+  /**
+   * @brief Returns the context menu for the given filter
+   * @param filter
+   * @return
+   */
   virtual QMenu* getContextMenu(VSAbstractFilter* filter) = 0;
+
+  /**
+   * @brief Returns a list of the selected filters
+   * @return
+   */
+  VSAbstractFilter::FilterListType getSelectedFilters() const;
 
 signals:
   void viewWidgetClosed();

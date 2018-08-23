@@ -211,8 +211,24 @@ signals:
   void dataFilterApplied(int num);
 
 protected:
+  /**
+   * @brief Listen to changes in the selection model
+   * @param selected
+   * @param deselected
+   */
   void listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected);
-  void listenFilterAdded(VSAbstractFilter*, bool);
+
+  /**
+   * @brief Listen to filters being added
+   * @param filter
+   * @param select
+   */
+  void listenFilterAdded(VSAbstractFilter* filter, bool select);
+
+  void selectFilterParent();
+  void selectFilterChild();
+  void selectFilterPrevSibling();
+  void selectFilterNextSibling();
 
 private:
   VSFilterModel* m_FilterModel;
