@@ -122,7 +122,7 @@ public:
    * @param ptIds
    * @return
    */
-  vtkIdType InsertNextCell(int type, vtkIdList* ptIds);
+  vtkIdType InsertNextCell(int type, const vtkIdList ptIds[]);
 
   /**
    * @brief Required by vtkMappedUnstructuredGrid but should not be called on this read-only implementation
@@ -131,7 +131,7 @@ public:
    * @param ptIds
    * @return
    */
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]);
 
   /**
    * @brief Required by vtkMappedUnstructuredGrid but should not be called on this read-only implementation
@@ -142,7 +142,7 @@ public:
    * @param faces
    * @return
    */
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[]);
 
   /**
    * @brief Required by vtkMappedUnstructuredGrid but should not be called on this read-only implementation
@@ -150,7 +150,7 @@ public:
    * @param npts
    * @param pts
    */
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType* pts);
+  void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]);
 
 protected:
   /**

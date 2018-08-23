@@ -47,6 +47,8 @@
 
 #include <QtWidgets/QMessageBox>
 
+#include <QVTKInteractor.h>
+
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
@@ -378,7 +380,7 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
-  QVTKInteractor* interactor = nullptr;
+  vtkRenderWindowInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
   if(activeViewWidget != nullptr)
   {

@@ -44,6 +44,7 @@
 VTK_MODULE_INIT(vtkRenderingOpenGL2)
 VTK_MODULE_INIT(vtkInteractionStyle)
 
+#include <QVTKInteractor.h>
 #include <vtkAxesActor.h>
 #include <vtkBMPWriter.h>
 #include <vtkCamera.h>
