@@ -37,6 +37,7 @@
 
 #include <QtWidgets/QMenu>
 
+#include "SIMPLVtkLib/QtWidgets/VSFilterViewDelegate.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
@@ -59,6 +60,8 @@ void VSFilterView::setupGui()
   setHeaderHidden(true);
   setSelectionMode(QAbstractItemView::SingleSelection);
   setContextMenuPolicy(Qt::CustomContextMenu);
+
+  setItemDelegate(new VSFilterViewDelegate(this));
 }
 
 // -----------------------------------------------------------------------------
