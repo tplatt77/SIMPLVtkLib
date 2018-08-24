@@ -1911,11 +1911,3 @@ QIcon VSFilterViewSettings::getPointDataIcon()
 
   return QIcon();
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterViewSettings::setTarget(const QQmlProperty& property)
-{
-  m_TargetProperty = property;
-}

@@ -41,8 +41,6 @@
 #include <QtCore/QObject>
 #include <QtGui/QColor>
 #include <QtGui/QIcon>
-#include <QtQml/QQmlProperty>
-#include <QtQml/QQmlPropertyValueSource>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
 
@@ -71,10 +69,9 @@ class vtkImageSlice;
  * to color by, whether or not to map values to a lookup table, and the visibility of
  * both the vtkActor and vtkScalarBarWidget.
  */
-class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject, public QQmlPropertyValueSource
+class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
 {
   Q_OBJECT
-  Q_INTERFACES(QQmlPropertyValueSource)
 
   Q_PROPERTY(QString filterName READ getFilterName)
   Q_PROPERTY(bool visibility READ isVisible WRITE setVisible NOTIFY visibilityChanged)
@@ -447,12 +444,6 @@ public:
    */
   QIcon getPointDataIcon();
 
-  /**
-   * @brief Handle QML property value source
-   * @param property
-   */
-  void setTarget(const QQmlProperty& property) override;
-
 public slots:
   /**
    * @brief Displays the vtkActor for this view
@@ -753,7 +744,6 @@ private:
   bool m_HadNoArrays = false;
   VTK_PTR(vtkCubeAxesActor) m_CubeAxesActor = nullptr;
   bool m_GridVisible = false;
-  QQmlProperty m_TargetProperty;
   bool m_Selected = false;
 
   QAction* m_SetColorAction = nullptr;
