@@ -1,3 +1,16 @@
+set(VSVisualFilterValues
+		VSAbstractFilterValues
+		VSClipValues
+		VSCropValues
+		VSDataSetValues
+		VSFileNameValues
+		VSMaskValues
+		VSPipelineValues
+		VSSIMPLDataContainerValues
+		VSSliceValues
+		VSTextValues
+		VSThresholdValues
+	)
 
 set(VSVisualFilters
   VSAbstractDataFilter
@@ -16,6 +29,16 @@ set(VSVisualFilters
   VSTransform
 )
 
+set(VSVisualFilter_UIS
+	VSClipFilterWidget
+  VSCropFilterWidget
+  VSDataSetFilterWidget
+  VSMaskFilterWidget
+  VSSIMPLDataContainerFilterWidget
+  VSSliceFilterWidget
+  VSThresholdFilterWidget
+)
+
 # --------------------------------------------------------------------
 # Loop through Visualization Filters
 # --------------------------------------------------------------------
@@ -30,6 +53,31 @@ foreach(VisFilter ${VSVisualFilters})
     ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/${VisFilter}.h
   )
 endforeach(VisFilter)
+
+# --------------------------------------------------------------------
+# Loop through Visualization Filter Values
+# --------------------------------------------------------------------
+foreach(FilterValues ${VSVisualFilterValues})
+  set(VS_VisualFilters_SRCS 
+    ${VS_VisualFilters_SRCS}
+    ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/${FilterValues}.cpp
+  )
+
+  set(VS_VisualFilters_HDRS 
+    ${VS_VisualFilters_HDRS}
+    ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/${FilterValues}.h
+  )
+endforeach(VisFilter)
+
+# --------------------------------------------------------------------
+# Loop through Filter Widget UIS
+# --------------------------------------------------------------------
+foreach(VisFilterWidget ${VSVisualFilter_UIS})
+	set(VS_VisualFilterWidgets_UIS 
+    ${VS_VisualFilterWidgets_UIS}
+    ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilterWidgets/UI_Files/${VisFilterWidget}.ui
+  )
+endforeach(VisFilterWidget)
 
 
 cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/VisualFilters" "${VS_VisualFilters_HDRS}" "${VS_VisualFilters_SRCS}" "0")

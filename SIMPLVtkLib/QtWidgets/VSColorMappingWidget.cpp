@@ -44,7 +44,7 @@ VSColorMappingWidget::VSColorMappingWidget(QWidget* parent)
 {
   m_Ui->setupUi(this);
   setupGui();
-  setFilter(nullptr, nullptr);
+  setFilters(VSAbstractFilter::FilterListType());
 }
 
 // -----------------------------------------------------------------------------
@@ -87,16 +87,14 @@ void VSColorMappingWidget::updateViewSettingInfo()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
+void VSColorMappingWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
-  Q_UNUSED(filterWidget)
+  m_Filters = filters;
 
-  m_Filter = filter;
-
-  bool filterExists = (nullptr != filter);
+  bool filterExists = (filters.size() > 0);
   if(filterExists && m_ViewWidget)
   {
-    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filter));
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters.front()));
   }
   else
   {
@@ -136,9 +134,9 @@ void VSColorMappingWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
   m_ViewWidget = viewWidget;
 
-  if(m_ViewWidget)
+  if(m_ViewWidget && m_Filters.size() > 0)
   {
-    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filter));
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters.front()));
   }
   else
   {

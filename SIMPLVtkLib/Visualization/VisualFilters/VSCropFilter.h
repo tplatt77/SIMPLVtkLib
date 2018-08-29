@@ -45,6 +45,8 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropValues.h"
+
 /**
  * @class VSCropFilter VSCropFilter.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h
@@ -105,6 +107,12 @@ public:
   FilterType getFilterType() const override;
 
   /**
+   * @brief Applies the given values to the filter
+   * @param values
+   */
+  void applyValues(VSCropValues* values);
+
+  /**
    * @brief Applies the crop filter with the given volume of interest and sample rate
    * @param voi
    * @param sampleRate
@@ -140,15 +148,29 @@ public:
    * @brief Returns the required incoming data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
+   * @return
+   */
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Return the VOI last applied to the filter
@@ -216,6 +238,7 @@ protected:
 
 private:
   VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
+  VSCropValues* m_CropValues = nullptr;
 
   int m_LastVoi[6];
   int m_LastSampleRate[3];

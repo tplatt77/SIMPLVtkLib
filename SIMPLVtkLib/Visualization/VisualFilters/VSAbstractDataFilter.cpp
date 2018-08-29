@@ -46,7 +46,7 @@ VSAbstractDataFilter::VSAbstractDataFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSAbstractDataFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSAbstractDataFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }

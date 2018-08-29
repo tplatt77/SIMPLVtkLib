@@ -44,7 +44,6 @@
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -66,6 +65,14 @@ public:
     RemoveSelection
   };
 
+  enum class FilterStepChange : unsigned char
+  {
+    Parent,
+    Child,
+    PrevSibling,
+    NextSibling
+  };
+
   /**
    * @brief Deconstructor
    */
@@ -76,6 +83,12 @@ public:
    * @param filter
    */
   VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns the VSFilterViewSettings for the given filters.
+   * @param filter
+   */
+  VSFilterViewSettings::Collection getFilterViewSettings(VSAbstractFilter::FilterListType filter);
 
   /**
    * @brief Returns the container of VSFilterViewSettings
@@ -102,9 +115,9 @@ public:
   VSFilterViewModel* getFilterViewModel() const;
 
   /**
-  * @brief Returns the QItemSelectionModel for the view
-  * @return
-  */
+   * @brief Returns the QItemSelectionModel for the view
+   * @return
+   */
   QItemSelectionModel* getSelectionModel() const;
 
   /**
@@ -165,6 +178,12 @@ public:
    */
   VSAbstractFilter::FilterListType getSelectedFilters() const;
 
+  /**
+   * @brief Returns the current filter
+   * @return
+   */
+  VSAbstractFilter* getCurrentFilter() const;
+
 signals:
   void viewWidgetClosed();
   void markActive(VSAbstractViewWidget*);
@@ -179,6 +198,8 @@ signals:
   void applyCurrentFilter();
   void resetCurrentFilter();
   void controllerChanged(VSController*);
+  void currentFilterChanged(VSAbstractFilter*);
+  void selectionChanged(QItemSelection);
 
 public slots:
   /**
@@ -220,8 +241,15 @@ public slots:
   /**
    * @brief Select the given filter
    * @param filter
+   * @param selectionType
    */
   void selectFilter(VSAbstractFilter* filter, SelectionType selectionType = SelectionType::Current);
+
+  /**
+   * @brief Change the filter selected by a single step in the given direction
+   * @param stepDirection
+   */
+  void changeFilterSelected(FilterStepChange stepDirection);
 
 protected slots:
   /**
@@ -324,11 +352,6 @@ protected:
   void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
-   * @brief Clears the filters from the view widget
-   */
-  // void clearFilters();
-
-  /**
    * @brief Copies the VSFilterViewModel
    * @param filterViewModel
    */
@@ -378,18 +401,40 @@ protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
 
   /**
-   * @brief Listens for the VSController's selection model to change and apply it to the local model
+   * @brief emits the currentFilterChanged signal when the current index changes
+   * @param current
+   * @param previous
+   */
+  void listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous);
+
+  /**
+   * @brief Applies local selection changes to the VSController's selection model
    * @param selected
    * @param deselected
    */
-  void listenControllerSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+  void localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
   /**
-  * @brief Applies local selection changes to the VSController's selection model
-  * @param selected
-  * @param deselected
-  */
-  void localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+   * @brief Selects the current filter's parent.  If the current filter is not set, 
+   * select the first base filter in the model.
+   */
+  void selectFilterParent();
+
+  /**
+   * @brief Selects the current filter's first child.  If the current filter is not set,
+   * select the last base filter in the model.
+   */
+  void selectFilterChild();
+
+  /**
+   * @brief Selects the previous item in the current filter's list of siblings.
+   */
+  void selectFilterPrevSibling();
+
+  /**
+   * @brief Selects the next item in the current filter's list of siblings.
+   */
+  void selectFilterNextSibling();
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;

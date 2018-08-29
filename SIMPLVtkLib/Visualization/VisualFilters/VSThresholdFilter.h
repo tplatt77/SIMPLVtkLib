@@ -40,6 +40,7 @@
 #include <vtkThreshold.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -105,6 +106,12 @@ public:
   FilterType getFilterType() const override;
 
   /**
+   * @brief Applies the given values to the current filter
+   * @param values
+   */
+  void applyValues(VSThresholdValues* values);
+
+  /**
    * @brief Applies a threshold over a specified array between a given min and max
    * @param arrayName
    * @param min
@@ -134,7 +141,7 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
@@ -142,7 +149,21 @@ public:
    * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
+   * @return
+   */
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Returns the name of the array last used for thresholding
@@ -217,6 +238,7 @@ protected:
 
 private:
   VTK_PTR(vtkThreshold) m_ThresholdAlgorithm;
+  VSThresholdValues* m_ThresholdValues = nullptr;
 
   QString m_LastArrayName;
   double m_LastMinValue = 0.0;

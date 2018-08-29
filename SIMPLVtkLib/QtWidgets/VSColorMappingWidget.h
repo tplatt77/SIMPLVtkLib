@@ -46,6 +46,10 @@
 
 #include "ui_VSColorMappingWidget.h"
 
+/**
+ * @class VSColorMappingWidget VSColorMappingWidget.h SIMPLVtkLib/QtWidgets/VSColorMappingWidget.h
+ * @brief This widget handles the color mapping settings for VSMainWidgetBase
+ */
 class SIMPLVtkLib_EXPORT VSColorMappingWidget : public QWidget
 {
   Q_OBJECT
@@ -57,10 +61,10 @@ public:
 public slots:
   /**
    * @brief Changes the filter being displayed
-   * @param filter
+   * @param filters
    * @param filterWidget
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
   /**
    * @brief Changes the VSViewController used for fetching VSFilterViewSettings
@@ -142,7 +146,7 @@ protected:
 
 private:
   QSharedPointer<Ui::VSColorMappingWidget> m_Ui;
-  VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractFilter::FilterListType m_Filters;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
   VSFilterViewSettings* m_ViewSettings = nullptr;
   ColorPresetsDialog* m_presetsDialog = nullptr;

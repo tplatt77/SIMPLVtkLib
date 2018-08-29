@@ -91,7 +91,7 @@ QUuid VSRootFilter::GetUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSRootFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSRootFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -99,6 +99,14 @@ bool VSRootFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSRootFilter::getValues()
+{
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

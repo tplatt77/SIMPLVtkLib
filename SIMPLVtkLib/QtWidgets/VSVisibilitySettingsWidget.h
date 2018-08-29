@@ -44,6 +44,12 @@
 
 #include "ui_VSVisibilitySettingsWidget.h"
 
+/**
+ * @class VSVisibilitySettingsWidget VSVisibilitySettingsWidget.h
+ * SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget
+ * @brief This class handles the visibility settings for VSMainWidgetBase, mainly
+ * covering the Representation, DataArray, and Component for a given filter or filters.
+ */
 class SIMPLVtkLib_EXPORT VSVisibilitySettingsWidget : public QWidget
 {
   Q_OBJECT
@@ -55,10 +61,10 @@ public:
 public slots:
   /**
    * @brief Changes the filter being displayed
-   * @param filter
+   * @param filters
    * @param filterWidget
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
   /**
    * @brief Changes the VSViewController used for fetching VSFilterViewSettings
@@ -71,19 +77,19 @@ protected slots:
    * @brief Sets the actorRepresentation for the current filter
    * @param index
    */
-  void setRepresentationIndex(int index);
+  void representationComboChanged(int index);
 
   /**
    * @brief Handles the active array combo box being changed
    * @param index
    */
-  void updateActiveArrayName(QString name);
+  void arrayNameComboChanged(const QString& name);
 
   /**
    * @brief Handles the active component combo box being changed
    * @param index
    */
-  void updateActiveComponentIndex(int index);
+  void arrayComponentComboChanged(int index);
 
   /**
    * @brief Slot for handling changes in the VSColorButton used for selecting the VSFilterViewSetting's solid color
@@ -133,7 +139,7 @@ protected:
    * @brief Connects to the given VSFilterViewSettings to take advantage of its signals and slots
    * @param settings
    */
-  void connectFilterViewSettings(VSFilterViewSettings* settings);
+  void connectFilterViewSettings(VSFilterViewSettings::Collection settings);
 
   /**
    * @brief Updates the active array combo box
@@ -143,7 +149,7 @@ protected:
 
 private:
   QSharedPointer<Ui::VSVisibilitySettingsWidget> m_Ui;
-  VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractFilter::FilterListType m_Filters;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
-  VSFilterViewSettings* m_ViewSettings = nullptr;
+  VSFilterViewSettings::Collection m_ViewSettings;
 };

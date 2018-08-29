@@ -73,6 +73,8 @@ public:
    */
   virtual ~VSPlaneWidget();
 
+  double* getNormals();
+
   /**
    * @brief Copies the normals into the double array passed in
    * @param normals

@@ -64,6 +64,7 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSAbstractFilterValues;
 class VSAbstractDataFilter;
 class VSFilterModel;
 
@@ -334,7 +335,7 @@ public:
    * @param requiredType
    * @return
    */
-  static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
+  static bool CompatibleInput(dataType_t inputType, dataType_t requiredType);
 
   /**
    * @brief Returns a pointer to the object's transform
@@ -413,6 +414,15 @@ public:
    * @param font
    */
   void setFont(QFont font);
+
+  virtual VSAbstractFilterValues* getValues() = 0;
+
+  //////////////////
+  // Filter Lists //
+  //////////////////
+  static bool HasSameDataFilter(VSAbstractFilter::FilterListType filters);
+  static bool SameFilterType(VSAbstractFilter::FilterListType filters);
+  static bool HasPointData(VSAbstractFilter::FilterListType filters);
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);

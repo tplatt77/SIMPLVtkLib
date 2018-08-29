@@ -44,7 +44,7 @@ VSInfoWidget::VSInfoWidget(QWidget* parent)
 {
   m_Ui->setupUi(this);
   setupGui();
-  setFilter(nullptr, nullptr);
+  setFilters(VSAbstractFilter::FilterListType());
 }
 
 // -----------------------------------------------------------------------------
@@ -82,16 +82,16 @@ void VSInfoWidget::deleteFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSInfoWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
+void VSInfoWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
-  m_Ui->filterWidget->setFilter(filter, filterWidget);
-  m_Ui->visibilityWidget->setFilter(filter, filterWidget);
-  m_Ui->colorMappingWidget->setFilter(filter, filterWidget);
-  m_Ui->advVisibilityWidget->setFilter(filter, filterWidget);
+  m_Ui->filterWidget->setFilters(filters);
+  m_Ui->visibilityWidget->setFilters(filters);
+  m_Ui->colorMappingWidget->setFilters(filters);
+  m_Ui->advVisibilityWidget->setFilters(filters);
 
-  if(filter)
+  if(filters.size() > 0)
   {
-    m_Ui->transformWidget->setTransform(filter->getTransform());
+    m_Ui->transformWidget->setTransform(filters.front()->getTransform());
   }
   else
   {

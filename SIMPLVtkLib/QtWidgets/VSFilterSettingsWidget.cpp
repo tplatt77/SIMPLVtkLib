@@ -46,7 +46,7 @@ VSFilterSettingsWidget::VSFilterSettingsWidget(QWidget* parent)
 {
   m_Ui->setupUi(this);
   setupGui();
-  setFilter(nullptr, nullptr);
+  setFilters(VSAbstractFilter::FilterListType());
 }
 
 // -----------------------------------------------------------------------------
@@ -68,16 +68,13 @@ void VSFilterSettingsWidget::setupGui()
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::applyFilter()
 {
-  if(nullptr == m_Filter)
+  for(VSAbstractFilter* filter : m_Filters)
   {
-    return;
+    filter->getValues()->applyValues();
   }
 
-  m_FilterWidget->apply();
-
-  bool hasChanges = m_FilterWidget->hasChanges();
-  m_Ui->applyBtn->setEnabled(hasChanges);
-  m_Ui->resetBtn->setEnabled(hasChanges);
+  m_Ui->applyBtn->setEnabled(false);
+  m_Ui->resetBtn->setEnabled(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -85,14 +82,13 @@ void VSFilterSettingsWidget::applyFilter()
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::resetFilter()
 {
-  if(nullptr == m_Filter)
+  bool hasChanges = false;
+  for(VSAbstractFilter* filter : m_Filters)
   {
-    return;
+    filter->getValues()->resetValues();
+    hasChanges &= filter->getValues()->hasChanges();
   }
 
-  m_FilterWidget->reset();
-
-  bool hasChanges = m_FilterWidget->hasChanges();
   m_Ui->applyBtn->setEnabled(hasChanges);
   m_Ui->resetBtn->setEnabled(hasChanges);
 }
@@ -102,49 +98,95 @@ void VSFilterSettingsWidget::resetFilter()
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::deleteFilter()
 {
-  if(nullptr == m_Filter)
+  for(VSAbstractFilter* filter : m_Filters)
   {
-    return;
+    emit filterDeleted(filter);
   }
-
-  emit filterDeleted(m_Filter);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterSettingsWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
+VSAbstractFilter* VSFilterSettingsWidget::getCurrentFilter() const
+{
+  //if(m_CurrentFilter)
+  //{
+  //  return m_CurrentFilter;
+  //}
+
+  if(m_Filters.size() > 0)
+  {
+    return m_Filters.front();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterSettingsWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
   if(m_FilterWidget != nullptr)
   {
-    m_Ui->filterWidgetLayout->removeWidget(m_FilterWidget);
     m_FilterWidget->hide();
+    m_Ui->filterWidgetLayout->removeWidget(m_FilterWidget);
+    //m_FilterWidget->deleteLater();
     m_FilterWidget = nullptr;
 
-    disconnect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
+    disconnect(getCurrentFilter()->getValues(), &VSAbstractFilterValues::alertChangesWaiting, this, &VSFilterSettingsWidget::changesWaiting);
   }
 
-  m_Filter = filter;
-  m_FilterWidget = filterWidget;
-
-  if(m_FilterWidget != nullptr)
+  m_Filters = filters;
+  if(filters.size() > 0)
   {
-    m_Ui->filterWidgetLayout->addWidget(m_FilterWidget);
-    m_FilterWidget->show();
+    m_Ui->filterControlsWidget->show();
 
-    connect(m_FilterWidget, SIGNAL(changesMade()), this, SLOT(changesWaiting()));
-    bool hasChanges = m_FilterWidget->hasChanges();
-    m_Ui->applyBtn->setEnabled(hasChanges);
-    m_Ui->resetBtn->setEnabled(hasChanges);
+    if(VSAbstractFilter::SameFilterType(filters) && filters.size() > 0)
+    {
+      m_FilterWidget = getCurrentFilter()->getValues()->createFilterWidget();
+      m_Ui->filterWidgetLayout->addWidget(m_FilterWidget);
+      m_FilterWidget->show();
+
+      connect(getCurrentFilter()->getValues(), &VSAbstractFilterValues::alertChangesWaiting, this, &VSFilterSettingsWidget::changesWaiting);
+      bool hasChanges = getCurrentFilter()->getValues()->hasChanges();
+      m_Ui->applyBtn->setEnabled(hasChanges);
+      m_Ui->resetBtn->setEnabled(hasChanges);
+    }
+    else
+    {
+      // Incompatible filters selected
+      m_Ui->applyBtn->setEnabled(false);
+      m_Ui->resetBtn->setEnabled(false);
+    }
   }
   else
   {
-    m_Ui->applyBtn->setEnabled(false);
-    m_Ui->resetBtn->setEnabled(false);
+    m_Ui->filterControlsWidget->hide();
   }
 
-  bool filterExists = (nullptr != filter);
+  bool filterExists = (filters.size() > 0);
   m_Ui->deleteBtn->setEnabled(filterExists);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterSettingsWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
+{
+  m_ViewWidget = viewWidget;
+
+  vtkRenderWindowInteractor* interactor = nullptr;
+  if(m_ViewWidget)
+  {
+    vtkRenderWindowInteractor* interactor = m_ViewWidget->getVisualizationWidget()->GetInteractor();
+  }
+  
+  // Update where filter widgets are rendering
+  for(VSAbstractFilter* filter : m_Filters)
+  {
+    filter->getValues()->setInteractor(interactor);
+  }
 }
 
 // -----------------------------------------------------------------------------

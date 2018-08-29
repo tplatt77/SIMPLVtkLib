@@ -39,6 +39,8 @@
 #pragma GCC diagnostic ignored "-Winconsistent-missing-override"
 #endif
 
+#include <list>
+
 #include <QtWidgets/QWidget>
 
 #include <vtkRenderWindowInteractor.h>
@@ -62,6 +64,8 @@ class SIMPLVtkLib_EXPORT VSAbstractFilterWidget : public QWidget
   Q_OBJECT
 
 public:
+  using ListType = std::list<VSAbstractFilterWidget*>;
+
   /**
    * @brief Deconstructor
    */
@@ -72,34 +76,6 @@ public:
    * @return
    */
   virtual VSAbstractFilter* getFilter() const = 0;
-
-  /**
-   * @brief Applies changes to the filter and updates the output
-   */
-  virtual void apply();
-
-  /**
-   * @brief Resets the filter
-   */
-  virtual void reset();
-
-  /**
-   * @brief Sets whether the filter widget should render its vtkWidget in the visualization window
-   * @param enabled
-   */
-  virtual void setRenderingEnabled(bool enabled);
-
-  /**
-   * @brief Returns whether the filter widget is rendered
-   * @return
-   */
-  bool getRenderingEnabled();
-
-  /**
-   * @brief Sets the vtkRenderWindowInteractor for the filter widget
-   * @param interactor
-   */
-  virtual void setInteractor(vtkRenderWindowInteractor* interactor);
 
   /**
    * @brief Returns true if there are unapplied changes waiting. Returns false otherwise.
@@ -129,7 +105,6 @@ protected slots:
   void changesWaiting();
 
 private:
-  bool m_RenderingEnabled = true;
   bool m_ChangesWaiting = true;
 };
 

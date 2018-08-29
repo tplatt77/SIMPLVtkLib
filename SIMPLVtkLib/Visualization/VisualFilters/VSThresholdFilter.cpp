@@ -54,6 +54,8 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
 {
   m_ThresholdAlgorithm = nullptr;
   setParentFilter(parent);
+
+  m_ThresholdValues = new VSThresholdValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -67,6 +69,8 @@ VSThresholdFilter::VSThresholdFilter(const VSThresholdFilter& copy)
 {
   m_ThresholdAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
+
+  m_ThresholdValues = new VSThresholdValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -127,6 +131,17 @@ QString VSThresholdFilter::getToolTip() const
 VSAbstractFilter::FilterType VSThresholdFilter::getFilterType() const
 {
   return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdFilter::applyValues(VSThresholdValues* values)
+{
+  if(values)
+  {
+    apply(values->getArrayName(), values->getMinValue(), values->getMaxValue());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -249,7 +264,7 @@ VSAbstractFilter::dataType_t VSThresholdFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSThresholdFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSThresholdFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -257,7 +272,7 @@ VSAbstractFilter::dataType_t VSThresholdFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSThresholdFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSThresholdFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -268,13 +283,42 @@ bool VSThresholdFilter::compatibleWithParent(VSAbstractFilter* filter)
   vtkDataSet* output = filter->getOutput();
   if(output && output->GetCellData() && output->GetCellData()->GetScalars())
   {
-    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
     {
       return true;
     }
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSThresholdFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSThresholdFilter::getValues()
+{
+  return m_ThresholdValues;
 }
 
 // -----------------------------------------------------------------------------

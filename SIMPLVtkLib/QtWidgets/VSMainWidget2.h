@@ -41,15 +41,19 @@
 #include "SVWidgetsLib/Widgets/PopUpWidget.h"
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
-
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+#include "ui_VSMainWidget2.h"
+#include "ui_VisualizationFilterWidgets.h"
 
 /**
  * @class VSMainWidget2 VSMainWidget2.h SIMPLVtkLib/QtWidgets/VSMainWidget2.h
  * @brief This class works as SIMPLVtkLib's main widget that displays information
  * relating to the stored VSController. It subclasses from VSMainWidgetBase for
  * most of its implementation but is provided with a UI file for formatting the
- * widget.  This widget includes its own VSInfoWidget and VSFilterView
+ * widget.  This widget includes its own information and filter view widgets
+ * accessible through PopUpWidgets available through the buttons at the bottom
+ * of the widget
  */
 class SIMPLVtkLib_EXPORT VSMainWidget2 : public VSMainWidgetBase
 {
@@ -85,10 +89,41 @@ protected:
   virtual void createFilterMenu();
 
   /**
-   * @brief Sets the visibility of the VSFilterView and VSInfoWidget as a popup
-   * @param visible
+   * @brief Opens the given PopUpWidget based on the provided button position
+   * @param popup
+   * @param button
    */
-  void showFilterView(bool visible);
+  void showPopup(PopUpWidget* popup, QPushButton* button);
+
+  /**
+   * @brief showVisualizationFilters
+   */
+  void showVisualizationFilters();
+
+  /**
+   * @brief showVisibilitySettings
+   */
+  void showVisibilitySettings();
+
+  /**
+   * @brief showColorMapping
+   */
+  void showColorMapping();
+
+  /**
+   * @brief showAdvVisibilitySettings
+   */
+  void showAdvVisibilitySettings();
+
+  /**
+   * @brief showVisualTransform
+   */
+  void showVisualTransform();
+
+  /**
+   * @brief Updates the filter label based on the current array and component
+   */
+  void updateFilterLabel();
 
 protected slots:
   /**
@@ -102,6 +137,29 @@ protected slots:
    * @param filter
    */
   void setCurrentFilter(VSAbstractFilter* filter) override;
+
+  /**
+   * @brief Handle cases where the selected filters were changed
+   * @param filtersSelected
+   */
+  void listenFiltersChanged(VSAbstractFilter::FilterListType filtersSelected);
+
+  /**
+   * @brief Sets the visualization settings to use for the bottom bar.  If multiple filters are used, none are connected
+   * @param viewSettings
+   * @param multipleFilters
+   */
+  void setVisualizationSettings(VSFilterViewSettings::Collection viewSettings);
+
+  /**
+   * @brief Handles changes in VSFilterViewSettings visibility
+   */
+  void vsVisibilityChanged();
+
+  /**
+   * @brief Handles changes in VSFilterViewSettings active array and component
+   */
+  void vsArrayChanged();
 
   /**
    * @brief Sets the active view camera position to the X+ axis
@@ -158,8 +216,7 @@ protected slots:
   void importedFilterNum(int value);
 
 private:
-  class vsInternals;
-  vsInternals* m_Internals;
+  QSharedPointer<Ui::VSMainWidget2> m_Ui = nullptr;
 
   QMenu* m_FilterMenu = nullptr;
   QAction* m_ActionAddText = nullptr;
@@ -168,4 +225,12 @@ private:
   QAction* m_ActionAddSlice = nullptr;
   QAction* m_ActionAddMask = nullptr;
   QAction* m_ActionAddThreshold = nullptr;
+
+  PopUpWidget* m_VisualizationFiltersPopup = nullptr;
+  PopUpWidget* m_VisualizationSettingsPopup = nullptr;
+  PopUpWidget* m_ColorMappingPopup = nullptr;
+  PopUpWidget* m_AdvVisualizationSettingsPopup = nullptr;
+  PopUpWidget* m_VisualizationTransformPopup = nullptr;
+  QSharedPointer<Ui::VisualizationFilterWidgets> m_VisualizationFiltersUi = nullptr;
+  VSFilterViewSettings::Collection m_VisualizationViewSettings;
 };

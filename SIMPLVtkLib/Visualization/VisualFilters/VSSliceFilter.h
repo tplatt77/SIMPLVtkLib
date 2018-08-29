@@ -43,6 +43,7 @@
 #include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceValues.h"
 
 /**
  * @class VSSliceFilter VSSliceFilter.h
@@ -103,6 +104,12 @@ public:
   FilterType getFilterType() const override;
 
   /**
+   * @brief Applies the current filter with the given values
+   * @param values
+   */
+  void applyValues(VSSliceValues* values);
+
+  /**
    * @brief Applies the updated values to the algorithm and updates the output
    * @param origin
    * @param normals
@@ -138,15 +145,29 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
+   * @return
+   */
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Returns the origin of the last applied slice
@@ -222,6 +243,7 @@ protected:
 
 private:
   VTK_PTR(vtkCutter) m_SliceAlgorithm;
+  VSSliceValues* m_SliceValues = nullptr;
 
   double m_LastOrigin[3];
   double m_LastNormal[3];

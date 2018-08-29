@@ -44,6 +44,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -157,12 +158,18 @@ public:
   bool dataFullyLoaded();
 
   /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
+
+  /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
    * @param
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
 public slots:
   /**
@@ -192,4 +199,5 @@ private:
   QSemaphore m_ApplyLock;
   bool m_WrappingTransform = false;
   bool m_FullyWrapped = false;
+  VSSIMPLDataContainerValues* m_DCValues = nullptr;
 };

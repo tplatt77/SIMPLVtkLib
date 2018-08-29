@@ -51,6 +51,8 @@ VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolT
   setToolTip(toolTip);
   setItalic();
   setEditable(true);
+
+  m_TextValues = new VSTextValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -164,7 +166,7 @@ VSAbstractFilter::dataType_t VSTextFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSTextFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -187,9 +189,38 @@ void VSTextFilter::writeJson(QJsonObject& json)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSTextFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSTextFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSTextFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSTextFilter::getValues()
+{
+  return m_TextValues;
 }
 
 // -----------------------------------------------------------------------------

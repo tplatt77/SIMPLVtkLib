@@ -64,6 +64,8 @@ VSFileNameFilter::VSFileNameFilter(QString filePath, VSAbstractFilter* parent)
 {
   setCheckable(false);
   setEditable(false);
+
+  m_FileNameValues = new VSFileNameValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -157,7 +159,15 @@ VSAbstractFilter::FilterType VSFileNameFilter::getFilterType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFileNameFilter::compatibleWithParent(VSAbstractFilter* filter)
+VSAbstractFilterValues* VSFileNameFilter::getValues()
+{
+  return m_FileNameValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFileNameFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {

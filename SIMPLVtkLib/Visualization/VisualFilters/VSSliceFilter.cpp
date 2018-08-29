@@ -59,6 +59,8 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
   m_LastNormal[0] = 1.0;
   m_LastNormal[1] = 0.0;
   m_LastNormal[2] = 0.0;
+
+  m_SliceValues = new VSSliceValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -136,6 +138,14 @@ QString VSSliceFilter::getToolTip() const
 VSAbstractFilter::FilterType VSSliceFilter::getFilterType() const
 {
   return FilterType::Filter;
+}
+
+void VSSliceFilter::applyValues(VSSliceValues* values)
+{
+  if(values)
+  {
+    apply(values->getOrigin(), values->getNormal());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -295,7 +305,7 @@ VSAbstractFilter::dataType_t VSSliceFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSSliceFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -303,19 +313,48 @@ VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSSliceFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSSliceFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
     return false;
   }
 
-  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
   {
     return true;
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSliceFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSSliceFilter::getValues()
+{
+  return m_SliceValues;
 }
 
 // -----------------------------------------------------------------------------

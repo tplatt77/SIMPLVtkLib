@@ -51,6 +51,8 @@
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSClipValues;
+
 /**
  * @class VSClipFilter VSClipFilter.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h
@@ -133,6 +135,18 @@ public:
   FilterType getFilterType() const override;
 
   /**
+   * @brief Returns the VSClipValues for displaying and interacting with the filter values
+   * @return
+   */
+  VSClipValues* getValues() const;
+
+  /**
+   * @brief Sets the VSClipValues for displaying and interacting with the filter
+   * @param values
+   */
+  void applyValues(VSClipValues* values);
+
+  /**
    * @brief Applies the clip filter using a plane with the given values
    * @param origin
    * @param normal
@@ -186,15 +200,29 @@ public:
    * @brief Returns the required incoming data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
+   * @return
+   */
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Returns whether or not the last applied plane was inverted
@@ -338,6 +366,7 @@ protected:
 
 private:
   VTK_PTR(vtkTableBasedClipDataSet) m_ClipAlgorithm;
+  VSClipValues* m_ClipValues = nullptr;
 
   ClipType m_LastClipType;
   bool m_LastPlaneInverted = false;

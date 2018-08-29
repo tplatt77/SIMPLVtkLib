@@ -128,6 +128,18 @@ public:
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   /**
+   * @brief Returns a vector of top-level filters in the model
+   * @return
+   */
+  VSAbstractFilter::FilterListType getBaseFilters() const;
+
+  /**
+   * @brief Returns a vector of all visual filters in the model
+   * @return
+   */
+  VSAbstractFilter::FilterListType getAllFilters() const;
+
+  /**
    * @brief Returns the visual filter stored at the given index
    * @param index
    * @return
@@ -168,6 +180,12 @@ public:
    * @return
    */
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Returns the root filter item
+   * @return
+   */
+  VSRootFilter* getRootFilter() const;
 
   /**
    * @brief Returns the root index for the model
@@ -234,6 +252,13 @@ public:
    * @return
    */
   VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter) const;
+
+  /**
+   * @brief Returns the VSFilterViewSettings for the given filters.
+   * @param filter
+   * @return
+   */
+  VSFilterViewSettings::Collection getFilterViewSettings(VSAbstractFilter::FilterListType filters) const;
 
   /**
    * @brief Returns the VSFilterViewSettings for the given model index.

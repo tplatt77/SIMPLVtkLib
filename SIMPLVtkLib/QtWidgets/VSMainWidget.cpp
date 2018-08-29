@@ -163,30 +163,30 @@ void VSMainWidget::setCurrentFilter(VSAbstractFilter* filter)
 
   // Check if each Filter Type can be added
   // Clip Filter
-  bool enableClip = VSClipFilter::compatibleWithParent(filter);
+  bool enableClip = VSClipFilter::CompatibleWithParent(filter);
   m_Internals->clipBtn->setEnabled(enableClip);
   m_ActionAddClip->setEnabled(enableClip);
 
   // Slice
-  bool enableSlice = VSSliceFilter::compatibleWithParent(filter);
+  bool enableSlice = VSSliceFilter::CompatibleWithParent(filter);
   m_Internals->sliceBtn->setEnabled(enableSlice);
   m_ActionAddSlice->setEnabled(enableSlice);
 
   // Crop Filter
-  bool enableCrop = VSCropFilter::compatibleWithParent(filter);
+  bool enableCrop = VSCropFilter::CompatibleWithParent(filter);
   m_ActionAddCrop->setEnabled(enableCrop);
 
   // Mask
-  bool enableMask = VSMaskFilter::compatibleWithParent(filter);
+  bool enableMask = VSMaskFilter::CompatibleWithParent(filter);
   m_ActionAddMask->setEnabled(enableMask);
 
   // Threshold
-  bool enableThreshold = VSThresholdFilter::compatibleWithParent(filter);
+  bool enableThreshold = VSThresholdFilter::CompatibleWithParent(filter);
   m_Internals->thresholdBtn->setEnabled(enableThreshold);
   m_ActionAddThreshold->setEnabled(enableThreshold);
 
   // Text
-  bool enableText = VSTextFilter::compatibleWithParent(filter);
+  bool enableText = VSTextFilter::CompatibleWithParent(filter);
   m_ActionAddText->setEnabled(enableText);
 }
 

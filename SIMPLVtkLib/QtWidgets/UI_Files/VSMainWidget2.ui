@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
+    <width>913</width>
     <height>555</height>
    </rect>
   </property>
@@ -15,21 +15,18 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>1</number>
+    <number>0</number>
    </property>
-   <property name="horizontalSpacing">
-    <number>1</number>
-   </property>
-   <property name="verticalSpacing">
+   <property name="spacing">
     <number>4</number>
    </property>
    <item row="0" column="0">
@@ -56,35 +53,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QPushButton" name="toggleFiltersButton">
-        <property name="toolTip">
-         <string>Show Filter Info</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../../Resources/VtkSIMPL.qrc">
-          <normaloff>:/icons/pqGear.png</normaloff>:/icons/pqGear.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QWidget" name="filterBtnWidget" native="true">
         <property name="sizePolicy">
@@ -389,6 +357,16 @@
      </layout>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="VSViewWidget" name="viewWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="0">
     <widget class="QWidget" name="progressWidget" native="true">
      <property name="minimumSize">
@@ -413,7 +391,7 @@
       <property name="spacing">
        <number>4</number>
       </property>
-      <item row="0" column="0">
+      <item row="0" column="3">
        <spacer name="progressSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -426,7 +404,7 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="4">
        <widget class="QProgressBar" name="progressBar">
         <property name="enabled">
          <bool>true</bool>
@@ -439,83 +417,116 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="0">
+       <widget class="QWidget" name="popupBtnContainer" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="visualizationFiltersBtn">
+           <property name="toolTip">
+            <string>Visualization Filters</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../SIMPL/Resources/SIMPL.qrc">
+             <normaloff>:/SIMPL/icons/images/BlankGroup_Icon.png</normaloff>:/SIMPL/icons/images/BlankGroup_Icon.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="visualizationSettingsBtn">
+           <property name="toolTip">
+            <string>Color Filter By</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Resources/VtkSIMPL.qrc">
+             <normaloff>:/icons/pqCellData.png</normaloff>:/icons/pqCellData.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="colorMappingBtn">
+           <property name="toolTip">
+            <string>Color Mapping</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Resources/VtkSIMPL.qrc">
+             <normaloff>:/icons/pqColorBar.png</normaloff>:/icons/pqColorBar.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="advVisualizationSettingsBtn">
+           <property name="toolTip">
+            <string>Advanced Visualization Settings</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Resources/VtkSIMPL.qrc">
+             <normaloff>:/icons/pqGear.png</normaloff>:/icons/pqGear.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="transformBtn">
+           <property name="toolTip">
+            <string>Visualization Transform</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../SIMPL/Resources/SIMPL.qrc">
+             <normaloff>:/SIMPL/icons/images/zoom_in.png</normaloff>:/SIMPL/icons/images/zoom_in.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="filterLabel">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QSplitter" name="visualizationSplitter">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
-     </property>
-     <widget class="QSplitter" name="filterSplitter">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="VSFilterView" name="filterView">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>250</height>
-        </size>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
-       </property>
-      </widget>
-      <widget class="VSInfoWidget" name="infoWidget" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>1</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </widget>
-     <widget class="VSViewWidget" name="viewWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>1</horstretch>
-        <verstretch>1</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>VSFilterView</class>
-   <extends>QTreeView</extends>
-   <header>VSFilterView.h</header>
-  </customwidget>
-  <customwidget>
-   <class>VSInfoWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">VSInfoWidget.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>VSViewWidget</class>
    <extends>QWidget</extends>
@@ -525,6 +536,7 @@
  </customwidgets>
  <resources>
   <include location="../../../Resources/VtkSIMPL.qrc"/>
+  <include location="../../../../SIMPL/Resources/SIMPL.qrc"/>
  </resources>
  <connections/>
 </ui>

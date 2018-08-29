@@ -36,6 +36,7 @@
 #pragma once
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextValues.h"
 
 /**
  * @class VSTextFilter VSTextFilter.h
@@ -122,7 +123,7 @@ public:
    * @brief Returns the required incoming data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Writes values to a json file from the filter
@@ -139,10 +140,24 @@ public:
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
+   * @return
+   */
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
 protected:
   /**
@@ -155,4 +170,7 @@ protected:
    * @param filter
    */
   void updateAlgorithmInput(VSAbstractFilter* filter) override;
+
+private:
+  VSTextValues* m_TextValues = nullptr;
 };

@@ -61,14 +61,6 @@ class SIMPLVtkLib_EXPORT VSController : public QObject
   Q_OBJECT
 
 public:
-  enum class FilterStepChange : unsigned char
-  {
-    Parent,
-    Child,
-    PrevSibling,
-    NextSibling
-  };
-
   /**
    * @brief Constructor
    * @param parent
@@ -171,34 +163,10 @@ public:
   VSFilterModel* getFilterModel();
 
   /**
-   * @brief Returns the QItemSelectionModel for the VSFilterModel
-   * @return
-   */
-  QItemSelectionModel* getSelectionModel();
-
-  /**
    * @brief Alert the VSMainWidgetBase, if available, that the given filter should be selected.
    * @param filter
    */
-  void selectFilter(VSAbstractFilter* filter);
-
-  /**
-   * @brief Returns the current filter
-   * @return
-   */
-  VSAbstractFilter* getCurrentFilter() const;
-
-  /**
-   * @brief Returns the selected filters
-   * @return
-   */
-  VSAbstractFilter::FilterListType getFilterSelection() const;
-
-  /**
-   * @brief Change the filter selected by a single step in the given direction
-   * @param stepDirection
-   */
-  void changeFilterSelected(FilterStepChange stepDirection);
+  //void selectFilter(VSAbstractFilter* filter);
 
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
@@ -206,34 +174,13 @@ signals:
   void filterCheckStateChanged(VSAbstractFilter* filter);
   void blockRender(bool block);
   void dataImported();
-  void filterSelected(VSAbstractFilter* filter);
+  //void filterSelected(VSAbstractFilter* filter);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
-
-protected:
-  /**
-   * @brief Listen to changes in the selection model
-   * @param selected
-   * @param deselected
-   */
-  void listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected);
-
-  /**
-   * @brief Listen to filters being added
-   * @param filter
-   * @param select
-   */
-  void listenFilterAdded(VSAbstractFilter* filter, bool select);
-
-  void selectFilterParent();
-  void selectFilterChild();
-  void selectFilterPrevSibling();
-  void selectFilterNextSibling();
 
 private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
-  QItemSelectionModel* m_SelectionModel;
 
   /**
    * @brief saveFilter

@@ -38,9 +38,9 @@
 #include <QtWidgets/QWidget>
 
 #include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
-#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipValues.h"
+//#include "SIMPLVtkLib/Visualization/VtkWidgets/VSBoxWidget.h"
+//#include "SIMPLVtkLib/Visualization/VtkWidgets/VSPlaneWidget.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -61,11 +61,10 @@ class SIMPLVtkLib_EXPORT VSClipFilterWidget : public VSAbstractFilterWidget
 public:
   /**
    * @brief Constructor
-   * @param filter
-   * @param interactor
+   * @param values
    * @param widget
    */
-  VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget = nullptr);
+  VSClipFilterWidget(VSClipValues* values, QWidget* widget = nullptr);
 
   /**
    * @brief Deconstructor
@@ -84,28 +83,6 @@ public:
    */
   void setBounds(double* bounds);
 
-  /**
-   * @brief Applies changes to the filter and updates the output
-   */
-  void apply() override;
-
-  /**
-   * @brief reset
-   */
-  void reset() override;
-
-  /**
-   * @brief Sets whether the filter widget should render drawings in the visualization window
-   * @param enabled
-   */
-  void setRenderingEnabled(bool enabled) override;
-
-  /**
-   * @brief Sets the vtkRenderWindowInteractor for the filter widget
-   * @param interactor
-   */
-  void setInteractor(vtkRenderWindowInteractor* interactor) override;
-
 protected slots:
   /**
    * @brief changeClipType
@@ -122,7 +99,5 @@ private:
   class vsInternals;
   vsInternals* m_Internals;
 
-  VSClipFilter* m_ClipFilter;
-  VSPlaneWidget* m_PlaneWidget;
-  VSBoxWidget* m_BoxWidget;
+  VSClipValues* m_ClipValues;
 };

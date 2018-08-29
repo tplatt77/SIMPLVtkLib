@@ -50,6 +50,8 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
+
+  m_MaskValues = new VSMaskValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +63,8 @@ VSMaskFilter::VSMaskFilter(const VSMaskFilter& copy)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
+
+  m_MaskValues = new VSMaskValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -110,6 +114,17 @@ QString VSMaskFilter::getToolTip() const
 VSAbstractFilter::FilterType VSMaskFilter::getFilterType() const
 {
   return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::applyValues(VSMaskValues* values)
+{
+  if(values)
+  {
+    apply(values->getMaskName());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -226,7 +241,7 @@ VSAbstractFilter::dataType_t VSMaskFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSMaskFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -234,7 +249,7 @@ VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSMaskFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -245,13 +260,42 @@ bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
   vtkDataSet* output = filter->getOutput();
   if(output && output->GetCellData() && output->GetCellData()->GetScalars())
   {
-    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
     {
       return true;
     }
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMaskFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSMaskFilter::getValues()
+{
+  return m_MaskValues;
 }
 
 // -----------------------------------------------------------------------------

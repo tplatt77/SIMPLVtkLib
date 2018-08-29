@@ -228,7 +228,7 @@ VSAbstractFilter* VSAbstractFilter::getNextSibling() const
 // -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
-  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)), Qt::UniqueConnection);
+  connect(this, &VSAbstractFilter::updatedOutputPort, child, &VSAbstractFilter::connectToOutput, Qt::UniqueConnection);
 
   // Avoid crashing when adding children from multiple threads
   m_ChildLock.acquire();
@@ -249,7 +249,7 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 {
   int row = getIndexOfChild(child);
 
-  disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)));
+  disconnect(this, &VSAbstractFilter::updatedOutputPort, child, &VSAbstractFilter::connectToOutput);
   m_ChildLock.acquire();
   VSFilterModel* model = getModel();
   if(model)
@@ -300,18 +300,18 @@ int VSAbstractFilter::getIndexOfChild(const VSAbstractFilter* childFilter) const
     return -1;
   }
 
-  m_ChildLock.acquire();
+  //m_ChildLock.acquire();
   int i = 0;
   for(auto iter = m_Children.begin(); iter != m_Children.end(); iter++)
   {
     if(childFilter == (*iter))
     {
-      m_ChildLock.release();
+      //m_ChildLock.release();
       return i;
     }
     i++;
   }
-  m_ChildLock.release();
+  //m_ChildLock.release();
 
   return -1;
 }
@@ -674,7 +674,7 @@ VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSAbstractFilter::compatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
+bool VSAbstractFilter::CompatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
 {
   if(inputType == INVALID_DATA)
   {
@@ -1081,4 +1081,64 @@ QFont VSAbstractFilter::font() const
 void VSAbstractFilter::setFont(QFont font)
 {
   m_Font = font;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::HasSameDataFilter(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() <= 1)
+  {
+    return true;
+  }
+
+  const VSAbstractDataFilter* dataFilter = filters.front()->getDataSetFilter();
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter->getDataSetFilter() != dataFilter)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::SameFilterType(VSAbstractFilter::FilterListType filters)
+{
+  bool valueSet = false;
+  QString filterName;
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(!valueSet)
+    {
+      filterName = filter->getFilterName();
+    }
+    else if(filter->getFilterName().compare(filterName) != 0)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::HasPointData(VSAbstractFilter::FilterListType filters)
+{
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter->isPointData())
+    {
+      return true;
+    }
+  }
+
+  return false;
 }

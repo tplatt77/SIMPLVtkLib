@@ -59,19 +59,16 @@
 VSController::VSController(QObject* parent)
 : QObject(parent)
 , m_FilterModel(new VSFilterModel())
-, m_SelectionModel(new QItemSelectionModel(m_FilterModel))
 {
   m_ImportObject = new VSConcurrentImport(this);
 
-  connect(m_FilterModel, &VSFilterModel::filterAdded, this, &VSController::listenFilterAdded);
+  connect(m_FilterModel, &VSFilterModel::filterAdded, this, &VSController::filterAdded);
   connect(m_FilterModel, &VSFilterModel::filterRemoved, this, &VSController::filterRemoved);
 
   // VSConcurrentImport works on another thread, so use the old-style connections to forward signals on the current thread
   connect(m_ImportObject, SIGNAL(blockRender(bool)), this, SIGNAL(blockRender(bool)));
   connect(m_ImportObject, SIGNAL(applyingDataFilters(int)), this, SIGNAL(applyingDataFilters(int)));
   connect(m_ImportObject, SIGNAL(dataFilterApplied(int)), this, SIGNAL(dataFilterApplied(int)));
-
-  connect(m_SelectionModel, &QItemSelectionModel::selectionChanged, this, &VSController::listenSelectionModel);
 }
 
 // -----------------------------------------------------------------------------
@@ -180,6 +177,7 @@ void VSController::importData(const QString& filePath)
   }
 }
 
+#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -192,8 +190,9 @@ void VSController::selectFilter(VSAbstractFilter* filter)
   }
 
   QModelIndex index = m_FilterModel->getIndexFromFilter(filter);
-  m_SelectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
+  //m_SelectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
 }
+#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -394,199 +393,4 @@ VSAbstractFilter::FilterListType VSController::getAllFilters()
 VSFilterModel* VSController::getFilterModel()
 {
   return m_FilterModel;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QItemSelectionModel* VSController::getSelectionModel()
-{
-  return m_SelectionModel;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter* VSController::getCurrentFilter() const
-{
-#if 0
-  QModelIndex currentIndex = m_SelectionModel->currentIndex();
-  return m_FilterModel->getFilterFromIndex(currentIndex);
-#else
-  VSAbstractFilter::FilterListType selectedFilters = getFilterSelection();
-  if(selectedFilters.size() > 0)
-  {
-    return selectedFilters.front();
-  }
-
-  return nullptr;
-#endif
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSAbstractFilter::FilterListType VSController::getFilterSelection() const
-{
-  VSAbstractFilter::FilterListType filterList;
-  QModelIndexList selectionIndices = m_SelectionModel->selectedIndexes();
-  for(QModelIndex index : selectionIndices)
-  {
-    VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(index);
-    filterList.push_back(filter);
-  }
-
-  return filterList;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::changeFilterSelected(FilterStepChange stepDirection)
-{
-  switch(stepDirection)
-  {
-  case FilterStepChange::Parent:
-    selectFilterParent();
-    break;
-  case FilterStepChange::Child:
-    selectFilterChild();
-    break;
-  case FilterStepChange::PrevSibling:
-    selectFilterPrevSibling();
-    break;
-  case FilterStepChange::NextSibling:
-    selectFilterNextSibling();
-    break;
-  default:
-    break;
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::selectFilterParent()
-{
-  VSAbstractFilter* currentFilter = getCurrentFilter();
-  if(nullptr == currentFilter)
-  {
-    // Select the first base filter if no selection exists
-    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
-    if(baseFilters.size() > 0)
-    {
-      selectFilter(baseFilters.front());
-    }
-  }
-  else
-  {
-    // Select the parent filter
-    selectFilter(currentFilter->getParentFilter());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::selectFilterChild()
-{
-  VSAbstractFilter* currentFilter = getCurrentFilter();
-  if(nullptr == currentFilter)
-  {
-    // Select the last base filter if no selection exists
-    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
-    if(baseFilters.size() > 0)
-    {
-      selectFilter(baseFilters.back());
-    }
-  }
-  else
-  {
-    // Select the first child filter
-    selectFilter(currentFilter->getChild(0));
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::selectFilterPrevSibling()
-{
-  VSAbstractFilter* currentFilter = getCurrentFilter();
-  if(nullptr == currentFilter)
-  {
-    // Select the first base filter if no selection exists
-    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
-    if(baseFilters.size() > 0)
-    {
-      selectFilter(baseFilters.front());
-    }
-  }
-  else
-  {
-    // Select the previous sibling filter
-    selectFilter(currentFilter->getPrevSibling());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::selectFilterNextSibling()
-{
-  VSAbstractFilter* currentFilter = getCurrentFilter();
-  if(nullptr == currentFilter)
-  {
-    // Select the last base filter if no selection exists
-    VSAbstractFilter::FilterListType baseFilters = m_FilterModel->getBaseFilters();
-    if(baseFilters.size() > 0)
-    {
-      selectFilter(baseFilters.back());
-    }
-  }
-  else
-  {
-    // Select the next sibling filter
-    selectFilter(currentFilter->getNextSibling());
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::listenSelectionModel(const QItemSelection& selected, const QItemSelection& deselected)
-{
-  Q_UNUSED(selected);
-  Q_UNUSED(deselected);
-
-  if(getCurrentFilter())
-  {
-    emit filterSelected(getCurrentFilter());
-  }
-  else
-  {
-    QModelIndexList selection = m_SelectionModel->selectedIndexes();
-    if(selection.size() > 0)
-    {
-      VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(selection.first());
-      emit filterSelected(filter);
-    }
-    else
-    {
-      emit filterSelected(nullptr);
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::listenFilterAdded(VSAbstractFilter* filter, bool setCurrent)
-{
-  if(setCurrent)
-  {
-    selectFilter(filter);
-  }
-  
-  emit filterAdded(filter, setCurrent);
 }

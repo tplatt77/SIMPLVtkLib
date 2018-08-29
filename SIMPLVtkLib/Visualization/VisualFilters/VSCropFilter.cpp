@@ -60,6 +60,8 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
     m_LastVoi[i + 3] = 0;
     m_LastSampleRate[i] = 1;
   }
+
+  m_CropValues = new VSCropValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -77,6 +79,8 @@ VSCropFilter::VSCropFilter(const VSCropFilter& copy)
     m_LastVoi[i + 3] = copy.m_LastVoi[i + 3];
     m_LastSampleRate[i] = copy.m_LastSampleRate[i];
   }
+
+  m_CropValues = new VSCropValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -119,6 +123,17 @@ void VSCropFilter::createFilter()
   m_CropAlgorithm->SetInputConnection(getParentFilter()->getOutputPort());
 
   setConnectedInput(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropFilter::applyValues(VSCropValues* values)
+{
+  if(values)
+  {
+    apply(values->getVOI(), values->getSampleRate());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -302,7 +317,7 @@ VSAbstractFilter::dataType_t VSCropFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSCropFilter::GetRequiredInputType()
 {
   return IMAGE_DATA;
 }
@@ -310,19 +325,48 @@ VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSCropFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSCropFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
     return false;
   }
 
-  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
   {
     return true;
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSCropFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSCropFilter::getValues()
+{
+  return m_CropValues;
 }
 
 // -----------------------------------------------------------------------------

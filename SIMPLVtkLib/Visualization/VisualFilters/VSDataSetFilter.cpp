@@ -66,6 +66,8 @@ VSDataSetFilter::VSDataSetFilter(const QString& filePath, VSAbstractFilter* pare
 {
   createFilter();
   setParentFilter(parent);
+
+  m_DataSetValues = new VSDataSetValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -386,6 +388,14 @@ void VSDataSetFilter::readSTLFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSDataSetFilter::getValues()
+{
+  return m_DataSetValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QUuid VSDataSetFilter::GetUuid()
 {
   return QUuid("{e6596215-3f53-5e62-8f04-cc123f27d1e3}");
@@ -410,7 +420,7 @@ QString VSDataSetFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSDataSetFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSDataSetFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {

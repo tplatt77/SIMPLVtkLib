@@ -64,6 +64,8 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
   createFilter();
   setParentFilter(parent);
 
+  m_DCValues = new VSSIMPLDataContainerValues(this);
+
   connect(this, SIGNAL(finishedWrapping()), this, SLOT(apply()));
 }
 
@@ -83,6 +85,8 @@ VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
     m_WrappedDataContainer->m_CellData.clear();
     m_WrappedDataContainer = nullptr;
   }
+
+  delete m_DCValues;
 }
 
 // -----------------------------------------------------------------------------
@@ -430,6 +434,14 @@ bool VSSIMPLDataContainerFilter::dataFullyLoaded()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSSIMPLDataContainerFilter::getValues()
+{
+  return m_DCValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
 {
   return m_WrappedDataContainer;
@@ -447,7 +459,7 @@ void VSSIMPLDataContainerFilter::setWrappedDataContainer(SIMPLVtkBridge::Wrapped
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSSIMPLDataContainerFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSSIMPLDataContainerFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {

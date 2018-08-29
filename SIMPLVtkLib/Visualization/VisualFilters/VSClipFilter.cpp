@@ -44,6 +44,8 @@
 #include <vtkDoubleArray.h>
 #include <vtkUnstructuredGrid.h>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSClipValues.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -67,6 +69,8 @@ VSClipFilter::VSClipFilter(VSAbstractFilter* parent)
   m_LastClipType = VSClipFilter::ClipType::PLANE;
   m_LastPlaneInverted = false;
   m_LastBoxInverted = false;
+
+  m_ClipValues = new VSClipValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -89,6 +93,8 @@ VSClipFilter::VSClipFilter(const VSClipFilter& copy)
 
   m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
   m_LastBoxTransform->DeepCopy(copy.m_LastBoxTransform);
+
+  m_ClipValues = new VSClipValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -169,6 +175,59 @@ QString VSClipFilter::getToolTip() const
 VSAbstractFilter::FilterType VSClipFilter::getFilterType() const
 {
   return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipValues* VSClipFilter::getValues() const
+{
+  return m_ClipValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipFilter::applyValues(VSClipValues* values)
+{
+  // Copy these values if they are not the ones owned by this filter
+  bool ownedValues = (values == m_ClipValues);
+
+  switch(values->getClipType())
+  {
+  case ClipType::BOX:
+  {
+    VSBoxWidget* boxWidget = values->getBoxWidget();
+    apply(boxWidget->getPlanes(), boxWidget->getTransform(), values->isInverted());
+
+    if(!ownedValues)
+    {
+      m_ClipValues->getBoxWidget()->setTransform(boxWidget->getTransform());
+      m_ClipValues->setInverted(values->isInverted());
+    }
+    break;
+  }
+  case ClipType::PLANE:
+  {
+    VSPlaneWidget* planeWidget = values->getPlaneWidget();
+    double origin[3];
+    double normal[3];
+    planeWidget->getOrigin(origin);
+    planeWidget->getNormals(normal);
+    apply(origin, normal, values->isInverted());
+
+    if(!ownedValues)
+    {
+      m_ClipValues->setClipType(values->getClipType());
+      m_ClipValues->getPlaneWidget()->setOrigin(origin);
+      m_ClipValues->getPlaneWidget()->setNormals(normal);
+      m_ClipValues->setInverted(values->isInverted());
+    }
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -509,7 +568,7 @@ VSAbstractFilter::dataType_t VSClipFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSClipFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSClipFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -517,7 +576,7 @@ VSAbstractFilter::dataType_t VSClipFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSClipFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -525,13 +584,42 @@ bool VSClipFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   dataType_t outputType = filter->getOutputType();
-  dataType_t requiredType = getRequiredInputType();
-  if(compatibleInput(outputType, requiredType))
+  dataType_t requiredType = GetRequiredInputType();
+  if(CompatibleInput(outputType, requiredType))
   {
     return true;
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSClipFilter::getValues()
+{
+  return m_ClipValues;
 }
 
 // -----------------------------------------------------------------------------

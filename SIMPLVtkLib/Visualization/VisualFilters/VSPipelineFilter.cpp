@@ -62,6 +62,8 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 {
   setCheckable(false);
   // setEditable(false);
+
+  m_PipelineValues = new VSPipelineValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -142,7 +144,7 @@ QString VSPipelineFilter::getFilterName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSPipelineFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSPipelineFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -175,4 +177,12 @@ void VSPipelineFilter::apply()
 VSAbstractFilter::FilterType VSPipelineFilter::getFilterType() const
 {
   return FilterType::Pipeline;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSPipelineFilter::getValues()
+{
+  return m_PipelineValues;
 }

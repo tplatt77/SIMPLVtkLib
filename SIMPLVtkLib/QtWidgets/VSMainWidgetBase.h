@@ -49,6 +49,7 @@
 #include "SIMPLVtkLib/QtWidgets/VSTransformWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilterValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -186,44 +187,44 @@ public slots:
   /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createClipFilter(VSAbstractFilter* parent = nullptr);
+  void createClipFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a crop filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createCropFilter(VSAbstractFilter* parent = nullptr);
+  void createCropFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a slice filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createSliceFilter(VSAbstractFilter* parent = nullptr);
+  void createSliceFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a mask filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createMaskFilter(VSAbstractFilter* parent = nullptr);
+  void createMaskFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a threshold filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createThresholdFilter(VSAbstractFilter* parent = nullptr);
+  void createThresholdFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a text filter and ste the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createTextFilter(VSAbstractFilter* parent = nullptr);
+  void createTextFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Renders the active view widget
@@ -241,10 +242,17 @@ public slots:
    */
   void setBlockRender(bool block);
 
+  /**
+   * @brief Selects the given filter in the active view
+   * @param filter
+   */
+  void selectFilter(VSAbstractFilter* filter);
+
 signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
-  void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  // void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
+  void selectedFiltersChanged(VSAbstractFilter::FilterListType filters);
 
 protected:
   /**
@@ -261,7 +269,13 @@ protected:
    * @brief Returns the current visual filter
    * @return
    */
-  VSAbstractFilter* getCurrentFilter();
+  VSAbstractFilter* getCurrentFilter() const;
+
+  /**
+   * @brief Returns the filter selection for the active view
+   * @return
+   */
+  VSAbstractFilter::FilterListType getCurrentSelection() const;
 
   /**
    * @brief Performs handling adding a filter and toggling parent visibility
@@ -269,6 +283,13 @@ protected:
    * @param parent
    */
   void finishAddingFilter(VSAbstractFilter* filter, VSAbstractFilter* parent);
+
+  /**
+   * @brief Returns a list of filter widgets that map to the given set of filters
+   * @param filters
+   * @return
+   */
+  // VSAbstractFilterWidget::ListType getFilterWidgets(VSAbstractFilter::FilterListType filters);
 
 protected slots:
   /**
@@ -283,10 +304,28 @@ protected slots:
   virtual void activeViewClosed();
 
   /**
-   * @brief Changes the active visual filter
+   * @brief setCurrentFilter
    * @param filter
    */
   virtual void setCurrentFilter(VSAbstractFilter* filter);
+
+  /**
+   * @brief Change the current filter selection by a step in the given direction
+   * @param stepDirection
+   */
+  virtual void changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection);
+
+  /**
+   * @brief Listens for changes to the active view's filter selection
+   * @param selection
+   */
+  virtual void listenSelectionChanged(QItemSelection selection);
+
+  /**
+   * @brief Listens for the current filter to change
+   * @param filter
+   */
+  virtual void listenCurrentFilterChanged(VSAbstractFilter* filter);
 
   /**
    * @brief Applies the current filter
@@ -368,7 +407,8 @@ protected slots:
 
 private:
   VSController* m_Controller = nullptr;
-  VSAbstractFilterWidget* m_CurrentFilterWidget = nullptr;
+  // VSAbstractFilterWidget::ListType m_CurrentFilterWidgets;
+  VSAbstractFilter* m_CurrentFilter = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
   VSFilterSettingsWidget* m_FilterSettingsWidget = nullptr;
@@ -377,7 +417,7 @@ private:
   VSTransformWidget* m_TransformWidget = nullptr;
   VSAdvancedVisibilitySettingsWidget* m_AdvancedVisibilityWidget = nullptr;
 
-  QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
+  // QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
 
   /**
    * @brief openDREAM3DFile

@@ -91,6 +91,7 @@ class SIMPLVtkLib_EXPORT VSFilterViewSettings : public QObject
 
 public:
   using Map = std::map<VSAbstractFilter*, VSFilterViewSettings*>;
+  using Collection = std::list<VSFilterViewSettings*>;
 
   enum class Representation : int
   {
@@ -236,6 +237,12 @@ public:
    * @return
    */
   QStringList getComponentNames();
+
+  /**
+   * @brief Returns the component names available for the given array
+   * @return
+   */
+  QStringList getComponentNames(QString arrayName);
 
   /**
    * @brief Returns the number of components for the given array
@@ -430,19 +437,46 @@ public:
    * @brief Returns the QIcon used for solid colors
    * @return
    */
-  QIcon getSolidColorIcon();
+  static QIcon GetSolidColorIcon();
 
   /**
    * @brief Returns the QIcon used for cell data
    * @return
    */
-  QIcon getCellDataIcon();
+  static QIcon GetCellDataIcon();
 
   /**
    * @brief Returns the QIcon used for point data
    * @return
    */
-  QIcon getPointDataIcon();
+  static QIcon GetPointDataIcon();
+
+  /////////////////
+  // Collections //
+  /////////////////
+  static QStringList GetArrayNames(VSFilterViewSettings::Collection collection);
+  static QStringList GetComponentNames(VSFilterViewSettings::Collection collection, QString arrayName);
+  static int GetPointSize(VSFilterViewSettings::Collection collection);
+  static void SetPointSize(VSFilterViewSettings::Collection collection, int size);
+  static Qt::CheckState IsRenderingPoints(VSFilterViewSettings::Collection collection);
+  static Qt::CheckState IsRenderingPointsAsSpheres(VSFilterViewSettings::Collection collection);
+  static void SetRenderPointsAsSpheres(VSFilterViewSettings::Collection collection, bool renderSpheres);
+  static Qt::CheckState IsGridVisible(VSFilterViewSettings::Collection collection);
+  static void SetGridVisible(VSFilterViewSettings::Collection collection, bool visible);
+  static bool HasValidSettings(VSFilterViewSettings::Collection collection);
+  static bool ActiveArrayNamesConsistent(VSFilterViewSettings::Collection collection);
+  static QString GetActiveArrayName(VSFilterViewSettings::Collection collection);
+  static void SetActiveArrayName(VSFilterViewSettings::Collection collection, QString arrayName);
+  static int GetActiveComponentIndex(VSFilterViewSettings::Collection collection);
+  static void SetActiveComponentIndex(VSFilterViewSettings::Collection collection, int index);
+  static int GetNumberOfComponents(VSFilterViewSettings::Collection collection, QString arrayName);
+  static bool CheckComponentNamesCompatible(VSFilterViewSettings::Collection collection, QString arrayName);
+  static QString GetActiveComponentName(VSFilterViewSettings::Collection collection);
+  static int GetRepresentationi(VSFilterViewSettings::Collection collection);
+  static void SetRepresentation(VSFilterViewSettings::Collection collection, Representation rep);
+  static QColor GetSolidColor(VSFilterViewSettings::Collection collection);
+  static void SetSolidColor(VSFilterViewSettings::Collection collection, QColor color);
+  static bool IsActorType(VSFilterViewSettings::Collection collection, ActorType type);
 
 public slots:
   /**
@@ -581,7 +615,7 @@ protected:
   /**
    * @brief Creates the static icons used used.
    */
-  void setupStaticIcons();
+  static void SetupStaticIcons();
 
   /**
    * @brief Performs initial setup commands for any actors used in the view settings
@@ -749,9 +783,9 @@ private:
   QAction* m_SetColorAction = nullptr;
   QAction* m_SetOpacityAction = nullptr;
   QAction* m_ToggleScalarBarAction = nullptr;
-  static QIcon* m_SolidColorIcon;
-  static QIcon* m_CellDataIcon;
-  static QIcon* m_PointDataIcon;
+  static QIcon* s_SolidColorIcon;
+  static QIcon* s_CellDataIcon;
+  static QIcon* s_PointDataIcon;
 
   static double* NULL_COLOR;
 };

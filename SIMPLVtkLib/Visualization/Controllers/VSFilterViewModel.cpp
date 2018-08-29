@@ -222,6 +222,25 @@ VSFilterViewSettings* VSFilterViewModel::getFilterViewSettings(VSAbstractFilter*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewSettings::Collection VSFilterViewModel::getFilterViewSettings(VSAbstractFilter::FilterListType filters) const
+{
+  VSFilterViewSettings::Collection collection;
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    VSFilterViewSettings* settings = getFilterViewSettings(filter);
+    if(nullptr != settings)
+    {
+      collection.push_back(settings);
+    }
+  }
+
+  return collection;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterViewSettings* VSFilterViewModel::getFilterViewSettingsByIndex(const QModelIndex& index) const
 {
   VSAbstractFilter* targetFilter = getFilterFromIndex(index);
@@ -426,6 +445,32 @@ QModelIndex VSFilterViewModel::index(int row, int column, const QModelIndex& par
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getBaseFilters() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getBaseFilters();
+  }
+
+  return VSAbstractFilter::FilterListType();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getAllFilters() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getAllFilters();
+  }
+
+  return VSAbstractFilter::FilterListType();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterViewModel::getFilterFromIndex(const QModelIndex& index) const
 {
   if(m_FilterModel)
@@ -569,6 +614,19 @@ QModelIndex VSFilterViewModel::rootIndex() const
   }
 
   return QModelIndex();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSRootFilter* VSFilterViewModel::getRootFilter() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getRootFilter();
+  }
+
+  return nullptr;
 }
 
 // -----------------------------------------------------------------------------

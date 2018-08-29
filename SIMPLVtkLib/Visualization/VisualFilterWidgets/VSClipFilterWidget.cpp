@@ -57,10 +57,10 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSClipFilterWidget::VSClipFilterWidget(VSClipFilter* filter, vtkRenderWindowInteractor* interactor, QWidget* widget)
+VSClipFilterWidget::VSClipFilterWidget(VSClipValues* values, QWidget* widget)
 : VSAbstractFilterWidget(widget)
 , m_Internals(new vsInternals())
-, m_ClipFilter(filter)
+, m_ClipFilter(values)
 {
   m_Internals->setupUi(this);
 
