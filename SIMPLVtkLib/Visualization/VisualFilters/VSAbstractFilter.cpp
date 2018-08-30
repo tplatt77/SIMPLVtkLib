@@ -300,18 +300,15 @@ int VSAbstractFilter::getIndexOfChild(const VSAbstractFilter* childFilter) const
     return -1;
   }
 
-  //m_ChildLock.acquire();
   int i = 0;
-  for(auto iter = m_Children.begin(); iter != m_Children.end(); iter++)
+  for(auto iter = m_Children.cbegin(); iter != m_Children.cend(); iter++)
   {
     if(childFilter == (*iter))
     {
-      //m_ChildLock.release();
       return i;
     }
     i++;
   }
-  //m_ChildLock.release();
 
   return -1;
 }
