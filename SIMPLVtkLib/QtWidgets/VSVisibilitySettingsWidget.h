@@ -147,6 +147,31 @@ protected:
    */
   void setComboArrayName(QString arrayName);
 
+  /**
+   * @brief Updates the active component combo box based on the given array name
+   * @param arrayName
+   */
+  void updateComponentComboBox(QString arrayName);
+
+  /**
+   * @brief Returns true if the combo box has an option for multiple values.  Returns false otherwise.
+   * @param comboBox
+   * @return
+   */
+  bool hasMultiValueOption(QComboBox* comboBox) const;
+
+  /**
+   * @brief Adds a multi-value option to the given QComboBox if it does not have one already
+   * @param comboBox
+   */
+  void addMultiValueOption(QComboBox* comboBox);
+
+  /**
+   * @brief Removes the multi-value option from the given QComboBox
+   * @param comboBox
+   */
+  void removeMultiValueOption(QComboBox* comboBox);
+
 private:
   QSharedPointer<Ui::VSVisibilitySettingsWidget> m_Ui;
   VSAbstractFilter::FilterListType m_Filters;

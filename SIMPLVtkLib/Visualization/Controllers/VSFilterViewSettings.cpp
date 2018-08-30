@@ -2158,13 +2158,15 @@ bool VSFilterViewSettings::ActiveArrayNamesConsistent(VSFilterViewSettings::Coll
 // -----------------------------------------------------------------------------
 QString VSFilterViewSettings::GetActiveArrayName(VSFilterViewSettings::Collection collection)
 {
+  // Return empty string when there are no values or the value is to use the solid color
+  // Reserve null string for multiple values
   if(collection.size() == 0)
   {
-    return QString();
+    return QString("");
   }
 
   bool valueSet = false;
-  QString activeArray;
+  QString activeArray("");
   for(VSFilterViewSettings* settings : collection)
   {
     if(settings->isValid())
@@ -2180,7 +2182,7 @@ QString VSFilterViewSettings::GetActiveArrayName(VSFilterViewSettings::Collectio
       }
       else if(settings->getActiveArrayName().compare(activeArray) != 0)
       {
-        return QString();
+        return QString::Null();
       }
     }
   }
@@ -2376,7 +2378,7 @@ int VSFilterViewSettings::GetRepresentationi(VSFilterViewSettings::Collection co
       }
       else if(settings->getRepresentation() != representation)
       {
-        return -2;
+        return static_cast<int>(Representation::MultiValues);
       }
     }
   }
@@ -2429,20 +2431,99 @@ QColor VSFilterViewSettings::GetSolidColor(VSFilterViewSettings::Collection coll
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterViewSettings::IsActorType(VSFilterViewSettings::Collection collection, ActorType type)
+VSFilterViewSettings::ActorType VSFilterViewSettings::GetActorType(VSFilterViewSettings::Collection collection)
 {
-  if(collection.size() == 0)
-  {
-    return false;
-  }
-
+  bool valueSet = false;
+  ActorType value = ActorType::Invalid;
   for(VSFilterViewSettings* settings : collection)
   {
-    if(settings->isValid() && settings->getActorType() != type)
+    if(settings->isValid())
     {
-      return false;
+      if(!valueSet)
+      {
+        value = settings->getActorType();
+        valueSet = true;
+      }
+      else if(settings->getActorType() != value)
+      {
+        return ActorType::Invalid;
+      }
     }
   }
 
-  return true;
+  return value;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings::ColorMapping VSFilterViewSettings::GetColorMapping(VSFilterViewSettings::Collection collection)
+{
+  if(collection.size() == 0)
+  {
+    return ColorMapping::NonColors;
+  }
+
+  bool valueSet = false;
+  ColorMapping value = ColorMapping::MultiValues;
+  for(VSFilterViewSettings* settings : collection)
+  {
+    if(settings->isValid())
+    {
+      if(!valueSet)
+      {
+        value = settings->getMapColors();
+        valueSet = true;
+      }
+      else if(value != settings->getMapColors())
+      {
+        return ColorMapping::MultiValues;
+      }
+    }
+  }
+
+  return value;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings::ScalarBarSetting VSFilterViewSettings::GetScalarBarSettings(VSFilterViewSettings::Collection collection)
+{
+  bool valueSet = false;
+  ScalarBarSetting value = ScalarBarSetting::OnSelection;
+  for(VSFilterViewSettings* settings : collection)
+  {
+    if(settings->isValid())
+    {
+      if(!valueSet)
+      {
+        value = settings->getScalarBarSetting();
+        valueSet = true;
+      }
+      else if(settings->getScalarBarSetting() != value)
+      {
+        return ScalarBarSetting::MultiValues;
+      }
+    }
+  }
+
+  return value;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSFilterViewSettings::GetAlpha(VSFilterViewSettings::Collection collection)
+{
+  // Returns the first valid setting's alpha value
+  for(VSFilterViewSettings* settings : collection)
+  {
+    if(settings->isValid())
+    {
+      return settings->getAlpha();
+    }
+  }
+
+  return 1.0;
 }

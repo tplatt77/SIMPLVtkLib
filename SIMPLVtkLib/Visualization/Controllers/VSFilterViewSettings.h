@@ -95,6 +95,7 @@ public:
 
   enum class Representation : int
   {
+    MultiValues = -2,
     Invalid = -1,
     Outline,
     Points,
@@ -113,6 +114,7 @@ public:
 
   enum class ColorMapping : int
   {
+    MultiValues = -1,
     Always = 0,
     NonColors,
     None
@@ -120,6 +122,7 @@ public:
 
   enum class ScalarBarSetting : int
   {
+    MultiValues = -1,
     Always = 0,
     OnSelection,
     Never
@@ -476,7 +479,10 @@ public:
   static void SetRepresentation(VSFilterViewSettings::Collection collection, Representation rep);
   static QColor GetSolidColor(VSFilterViewSettings::Collection collection);
   static void SetSolidColor(VSFilterViewSettings::Collection collection, QColor color);
-  static bool IsActorType(VSFilterViewSettings::Collection collection, ActorType type);
+  static ActorType GetActorType(VSFilterViewSettings::Collection collection);
+  static ColorMapping GetColorMapping(VSFilterViewSettings::Collection collection);
+  static ScalarBarSetting GetScalarBarSettings(VSFilterViewSettings::Collection collection);
+  static double GetAlpha(VSFilterViewSettings::Collection collection);
 
 public slots:
   /**

@@ -83,7 +83,7 @@ protected slots:
    * @brief Slot for handling user interaction with the showScalarBarCheckBox
    * @param checkState
    */
-  void setScalarBarVisible(int checkState);
+  void setScalarBarSetting(int checkState);
 
   /**
    * @brief Slot for creating color preset dialog
@@ -122,10 +122,10 @@ protected slots:
   void listenAlpha(double alpha);
 
   /**
-   * @brief Listens for the active VSFilterViewSettings scalar bar visibility to change
-   * @param show
+   * @brief Listens for the active VSFilterViewSettings ScalarBarSetting to change
+   * @param scalarBar
    */
-  void listenScalarBar(bool show);
+  void listenScalarBar(const VSFilterViewSettings::ScalarBarSetting& scalarBar);
 
 protected:
   /**
@@ -142,12 +142,31 @@ protected:
    * @brief Connects to the given VSFilterViewSettings to take advantage of its signals and slots
    * @param settings
    */
-  void connectFilterViewSettings(VSFilterViewSettings* settings);
+  void connectFilterViewSettings(VSFilterViewSettings::Collection settings);
+
+  /**
+   * @brief Returns true if the combo box has an option for multiple values.  Returns false otherwise.
+   * @param comboBox
+   * @return
+   */
+  bool hasMultiValueOption(QComboBox* comboBox) const;
+
+  /**
+   * @brief Adds a multi-value option to the given QComboBox if it does not have one already
+   * @param comboBox
+   */
+  void addMultiValueOption(QComboBox* comboBox);
+
+  /**
+   * @brief Removes the multi-value option from the given QComboBox
+   * @param comboBox
+   */
+  void removeMultiValueOption(QComboBox* comboBox);
 
 private:
   QSharedPointer<Ui::VSColorMappingWidget> m_Ui;
   VSAbstractFilter::FilterListType m_Filters;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
-  VSFilterViewSettings* m_ViewSettings = nullptr;
+  VSFilterViewSettings::Collection m_ViewSettings;
   ColorPresetsDialog* m_presetsDialog = nullptr;
 };

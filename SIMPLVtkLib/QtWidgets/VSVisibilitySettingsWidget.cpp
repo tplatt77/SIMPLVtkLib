@@ -39,8 +39,9 @@
 
 namespace
 {
-QString SolidColorStr = "Solid Color";
-}
+const QString SolidColorStr = "Solid Color";
+const QString MultiOption = "---";
+} // namespace
 
 // -----------------------------------------------------------------------------
 //
@@ -91,7 +92,8 @@ void VSVisibilitySettingsWidget::setFilters(VSAbstractFilter::FilterListType fil
   if(VSFilterViewSettings::HasValidSettings(m_ViewSettings))
   {
     listenSolidColor();
-    isDataSetType = VSFilterViewSettings::IsActorType(m_ViewSettings, VSFilterViewSettings::ActorType::DataSet);
+    VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::GetActorType(m_ViewSettings);
+    isDataSetType = (VSFilterViewSettings::ActorType::DataSet == actorType);
   }
 
   if(isDataSetType)
@@ -177,13 +179,27 @@ void VSVisibilitySettingsWidget::updateFilterInfo()
     {
       QString activeArrayName = VSFilterViewSettings::GetActiveArrayName(m_ViewSettings);
       int activeCompIndex = VSFilterViewSettings::GetActiveComponentIndex(m_ViewSettings);
+
       setComboArrayName(activeArrayName);
-      m_Ui->activeComponentCombo->setCurrentIndex(activeCompIndex + 1);
+      if(activeCompIndex == -2)
+      {
+        addMultiValueOption(m_Ui->activeComponentCombo);
+      }
+      else
+      {
+        removeMultiValueOption(m_Ui->activeComponentCombo);
+        m_Ui->activeComponentCombo->setCurrentIndex(activeCompIndex + 1);
+      }
     }
     else
     {
       m_Ui->activeArrayCombo->setCurrentIndex(-1);
+      removeMultiValueOption(m_Ui->activeComponentCombo);
     }
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->activeComponentCombo);
   }
 
   m_Ui->activeArrayCombo->blockSignals(false);
@@ -198,6 +214,10 @@ void VSVisibilitySettingsWidget::updateViewSettingInfo()
   // Clear the visualization settings if the current VSFilterViewSettings is null
   if(m_ViewSettings.size() == 0)
   {
+    removeMultiValueOption(m_Ui->activeArrayCombo);
+    removeMultiValueOption(m_Ui->activeComponentCombo);
+    removeMultiValueOption(m_Ui->representationCombo);
+
     m_Ui->activeArrayCombo->setCurrentIndex(-1);
     m_Ui->activeComponentCombo->setCurrentIndex(-1);
 
@@ -210,21 +230,47 @@ void VSVisibilitySettingsWidget::updateViewSettingInfo()
   this->setEnabled(validSettings);
 
   // Representation
-  m_Ui->representationCombo->setCurrentIndex(VSFilterViewSettings::GetRepresentationi(m_ViewSettings));
+  m_Ui->representationCombo->blockSignals(true);
+  int index = VSFilterViewSettings::GetRepresentationi(m_ViewSettings);
+  if(static_cast<int>(VSFilterViewSettings::Representation::MultiValues) == index)
+  {
+    addMultiValueOption(m_Ui->representationCombo);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->representationCombo);
+    m_Ui->representationCombo->setCurrentIndex(index);
+  }
+  m_Ui->representationCombo->blockSignals(false);
 
   QString activeArrayName = VSFilterViewSettings::GetActiveArrayName(m_ViewSettings);
   int activeComponentIndex = VSFilterViewSettings::GetActiveComponentIndex(m_ViewSettings) + 1;
 
+  m_Ui->activeArrayCombo->blockSignals(true);
+  m_Ui->activeComponentCombo->blockSignals(true);
+
   // Array
   setComboArrayName(activeArrayName);
-  arrayNameComboChanged(activeArrayName);
+  updateComponentComboBox(activeArrayName);
 
   // Components
   int numComponents = VSFilterViewSettings::GetNumberOfComponents(m_ViewSettings, activeArrayName);
   if(numComponents > 1)
   {
-    m_Ui->activeComponentCombo->setCurrentIndex(activeComponentIndex);
+    // Check for multiple values
+    if(-1 == activeComponentIndex)
+    {
+      addMultiValueOption(m_Ui->activeComponentCombo);
+    }
+    else
+    {
+      removeMultiValueOption(m_Ui->activeComponentCombo);
+      m_Ui->activeComponentCombo->setCurrentIndex(activeComponentIndex);
+    }
   }
+
+  m_Ui->activeArrayCombo->blockSignals(false);
+  m_Ui->activeComponentCombo->blockSignals(false);
 
   if(VSFilterViewSettings::HasValidSettings(m_ViewSettings))
   {
@@ -243,6 +289,16 @@ void VSVisibilitySettingsWidget::representationComboChanged(int index)
     return;
   }
 
+  if(hasMultiValueOption(m_Ui->representationCombo))
+  {
+    if(index == 0)
+    {
+      return;
+    }
+
+    index--;
+  }
+
   VSFilterViewSettings::Representation rep = static_cast<VSFilterViewSettings::Representation>(index);
   VSFilterViewSettings::SetRepresentation(m_ViewSettings, rep);
 }
@@ -252,41 +308,34 @@ void VSVisibilitySettingsWidget::representationComboChanged(int index)
 // -----------------------------------------------------------------------------
 void VSVisibilitySettingsWidget::arrayNameComboChanged(const QString& text)
 {
+  // Use empty string for solid color array
+  // Reserve QString::Null() for multiple arrays
+
   QString name = text;
-  if(::SolidColorStr == text && m_Ui->activeArrayCombo->currentIndex() == 0)
+  if(hasMultiValueOption(m_Ui->activeArrayCombo))
   {
-    name = QString::null;
+    if(m_Ui->activeArrayCombo->currentIndex() == 0)
+    {
+      name = QString::Null();
+    }
+    else if(::SolidColorStr == text && m_Ui->activeArrayCombo->currentIndex() == 1)
+    {
+      name = QString("");
+      removeMultiValueOption(m_Ui->activeArrayCombo);
+    }
+  }
+  else if(::SolidColorStr == text && m_Ui->activeArrayCombo->currentIndex() == 0)
+  {
+    name = QString("");
   }
 
-  bool isColor = name.isNull();
+  bool isColor = name.isEmpty() && !name.isNull();
   m_Ui->colorBtn->setVisible(isColor);
   m_Ui->colorLabel->setVisible(isColor);
   m_Ui->componentLabel->setVisible(!isColor);
   m_Ui->activeComponentCombo->setVisible(!isColor);
 
-  int componentIndex = 0;
-  if(VSFilterViewSettings::GetActiveArrayName(m_ViewSettings) == name)
-  {
-    componentIndex = VSFilterViewSettings::GetActiveComponentIndex(m_ViewSettings);
-  }
-
-  // Set the active component combo box values
-  m_Ui->activeComponentCombo->clear();
-
-  QStringList componentList = VSFilterViewSettings::GetComponentNames(m_ViewSettings, name);
-  bool multiComponents = componentList.size() > 1;
-  m_Ui->activeComponentCombo->setEnabled(multiComponents);
-
-  if(multiComponents)
-  {
-    m_Ui->activeComponentCombo->setEnabled(true);
-    m_Ui->activeComponentCombo->addItems(componentList);
-    m_Ui->activeComponentCombo->setCurrentIndex(componentIndex);
-  }
-  else
-  {
-    m_Ui->activeComponentCombo->setEnabled(false);
-  }
+  updateComponentComboBox(name);
 
   VSFilterViewSettings::SetActiveArrayName(m_ViewSettings, name);
 }
@@ -298,6 +347,17 @@ void VSVisibilitySettingsWidget::arrayComponentComboChanged(int index)
 {
   if(m_ViewSettings.size() > 0)
   {
+    if(hasMultiValueOption(m_Ui->activeComponentCombo))
+    {
+      index--;
+
+      // Do not change components for the multi-value option
+      if(m_Ui->activeComponentCombo->currentIndex() == 0)
+      {
+        return;
+      }
+    }
+
     if(m_Ui->activeComponentCombo->maxCount() > 1)
     {
       index--;
@@ -325,13 +385,65 @@ void VSVisibilitySettingsWidget::colorButtonChanged(QColor color)
 // -----------------------------------------------------------------------------
 void VSVisibilitySettingsWidget::setComboArrayName(QString arrayName)
 {
+  m_Ui->activeArrayCombo->blockSignals(true);
   if(arrayName.isNull())
   {
-    m_Ui->activeArrayCombo->setCurrentText(::SolidColorStr);
+    addMultiValueOption(m_Ui->activeArrayCombo);
   }
   else
   {
-    m_Ui->activeArrayCombo->setCurrentText(arrayName);
+    removeMultiValueOption(m_Ui->activeArrayCombo);
+    if(arrayName.isEmpty())
+    {
+      m_Ui->activeArrayCombo->setCurrentText(::SolidColorStr);
+    }
+    else
+    {
+      m_Ui->activeArrayCombo->setCurrentText(arrayName);
+    }
+  }
+  m_Ui->activeArrayCombo->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisibilitySettingsWidget::updateComponentComboBox(QString arrayName)
+{
+  m_Ui->activeComponentCombo->clear();
+
+  int componentIndex = 0;
+  if(VSFilterViewSettings::GetActiveArrayName(m_ViewSettings) == arrayName)
+  {
+    componentIndex = VSFilterViewSettings::GetActiveComponentIndex(m_ViewSettings);
+  }
+
+  // Only add items to the component QComboBox if the arrays are compatible
+  QStringList componentList = VSFilterViewSettings::GetComponentNames(m_ViewSettings, arrayName);
+  bool multiComponents = componentList.size() > 1;
+  m_Ui->activeComponentCombo->setEnabled(multiComponents);
+
+  if(multiComponents)
+  {
+    m_Ui->activeComponentCombo->setEnabled(true);
+    m_Ui->activeComponentCombo->blockSignals(true);
+    m_Ui->activeComponentCombo->addItems(componentList);
+
+    // Check for multiple components selected
+    if(-2 == componentIndex)
+    {
+      addMultiValueOption(m_Ui->activeComponentCombo);
+    }
+    else
+    {
+      removeMultiValueOption(m_Ui->activeComponentCombo);
+      m_Ui->activeComponentCombo->setCurrentIndex(componentIndex);
+    }
+    m_Ui->activeComponentCombo->blockSignals(false);
+  }
+  else
+  {
+    m_Ui->activeComponentCombo->setEnabled(false);
   }
 }
 
@@ -343,7 +455,15 @@ void VSVisibilitySettingsWidget::listenRepresentationType(VSFilterViewSettings::
   int index = VSFilterViewSettings::GetRepresentationi(m_ViewSettings);
 
   m_Ui->representationCombo->blockSignals(true);
-  m_Ui->representationCombo->setCurrentIndex(index);
+  if(static_cast<int>(VSFilterViewSettings::Representation::MultiValues) == index)
+  {
+    addMultiValueOption(m_Ui->representationCombo);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->representationCombo);
+    m_Ui->representationCombo->setCurrentIndex(index);
+  }
   m_Ui->representationCombo->blockSignals(false);
 }
 
@@ -357,11 +477,19 @@ void VSVisibilitySettingsWidget::listenArrayName(QString arrayName)
   m_Ui->activeArrayCombo->blockSignals(true);
   if(arrayName.isNull())
   {
-    m_Ui->activeArrayCombo->setCurrentText(::SolidColorStr);
+    addMultiValueOption(m_Ui->activeArrayCombo);
   }
   else
   {
-    m_Ui->activeArrayCombo->setCurrentText(arrayName);
+    removeMultiValueOption(m_Ui->activeArrayCombo);
+    if(arrayName.isEmpty())
+    {
+      m_Ui->activeArrayCombo->setCurrentText(::SolidColorStr);
+    }
+    else
+    {
+      m_Ui->activeArrayCombo->setCurrentText(arrayName);
+    }
   }
   m_Ui->activeArrayCombo->blockSignals(false);
 }
@@ -374,7 +502,15 @@ void VSVisibilitySettingsWidget::listenComponentIndex(int index)
   index = VSFilterViewSettings::GetActiveComponentIndex(m_ViewSettings);
 
   m_Ui->activeComponentCombo->blockSignals(true);
-  m_Ui->activeComponentCombo->setCurrentIndex(index + 1);
+  if(-2 == index)
+  {
+    addMultiValueOption(m_Ui->activeComponentCombo);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->activeComponentCombo);
+    m_Ui->activeComponentCombo->setCurrentIndex(index + 1);
+  }
   m_Ui->activeComponentCombo->blockSignals(false);
 }
 
@@ -395,4 +531,42 @@ void VSVisibilitySettingsWidget::listenSolidColor()
   }
 
   m_Ui->colorBtn->setColor(color, false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSVisibilitySettingsWidget::hasMultiValueOption(QComboBox* comboBox) const
+{
+  return comboBox->findText(::MultiOption) != -1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisibilitySettingsWidget::addMultiValueOption(QComboBox* comboBox)
+{
+  if(hasMultiValueOption(comboBox))
+  {
+    // Select the Multi-Value option
+    comboBox->setCurrentIndex(comboBox->findText(::MultiOption));
+    return;
+  }
+
+  comboBox->insertItem(0, ::MultiOption);
+  comboBox->setCurrentIndex(0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisibilitySettingsWidget::removeMultiValueOption(QComboBox* comboBox)
+{
+  if(!hasMultiValueOption(comboBox))
+  {
+    return;
+  }
+
+  int index = comboBox->findText(::MultiOption);
+  comboBox->removeItem(index);
 }
