@@ -42,7 +42,7 @@
 // -----------------------------------------------------------------------------
 VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 : VSAbstractFilterValues(filter)
-, m_PlaneWidget()
+, m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
 {
 }
 
@@ -59,6 +59,9 @@ void VSSliceValues::applyValues()
     if(filterType)
     {
       filterType->applyValues(this);
+
+      // Disable the draw plane
+      m_PlaneWidget->drawPlaneOff();
     }
   }
 }
@@ -93,7 +96,10 @@ VSPlaneWidget* VSSliceValues::getPlaneWidget() const
 // -----------------------------------------------------------------------------
 void VSSliceValues::setInteractor(vtkRenderWindowInteractor* interactor)
 {
+  VSAbstractFilterValues::setInteractor(interactor);
+
   m_PlaneWidget->setInteractor(interactor);
+  updateRendering();
 }
 
 // -----------------------------------------------------------------------------
@@ -101,18 +107,34 @@ void VSSliceValues::setInteractor(vtkRenderWindowInteractor* interactor)
 // -----------------------------------------------------------------------------
 void VSSliceValues::setRenderingEnabled(bool enabled)
 {
+  VSAbstractFilterValues::setRenderingEnabled(enabled);
+
   m_PlaneWidget->setEnabled(enabled);
+  updateRendering();
 }
 
-#if 0
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceValues::updateRendering()
+{
+  if(isRenderingEnabled() && getInteractor())
+  {
+    m_PlaneWidget->enable();
+  }
+  else
+  {
+    m_PlaneWidget->disable();
+  }
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QWidget* VSSliceValues::createFilterWidget()
 {
-
+  return m_PlaneWidget;
 }
-#endif
 
 // -----------------------------------------------------------------------------
 //

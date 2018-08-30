@@ -62,6 +62,18 @@ void VSClipValues::applyValues()
     if(clipFilter)
     {
       clipFilter->applyValues(this);
+
+      // Update visualization accordingly
+      switch(m_ClipType)
+      {
+      case VSClipFilter::ClipType::PLANE:
+        m_PlaneWidget->drawPlaneOff();
+        break;
+      case VSClipFilter::ClipType::BOX:
+        break;
+      default:
+        break;
+      }
     }
   }
 }

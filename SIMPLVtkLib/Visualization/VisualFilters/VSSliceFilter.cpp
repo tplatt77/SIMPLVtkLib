@@ -140,6 +140,9 @@ VSAbstractFilter::FilterType VSSliceFilter::getFilterType() const
   return FilterType::Filter;
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSSliceFilter::applyValues(VSSliceValues* values)
 {
   if(values)

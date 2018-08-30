@@ -85,7 +85,11 @@ public:
    */
   void setRenderingEnabled(bool enabled) override;
 
-  // QWidget* createFilterWidget() override;
+  /**
+   * @brief Returns the plane widget
+   * @return
+   */
+  QWidget* createFilterWidget() override;
 
   /**
    * @brief Returns the plane representation's origin
@@ -98,6 +102,12 @@ public:
    * @return
    */
   double* getNormal() const;
+
+protected:
+  /**
+   * @brief Updates the enabled state for the VSPlaneWidget
+   */
+  void updateRendering();
 
 private:
   VSPlaneWidget* m_PlaneWidget = nullptr;
