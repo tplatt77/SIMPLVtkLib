@@ -386,6 +386,17 @@ void VSMainWidgetBase::selectFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSMainWidgetBase::selectFilters(VSAbstractFilter::FilterListType filters)
+{
+  if(m_ActiveViewWidget)
+  {
+    m_ActiveViewWidget->selectFilters(filters);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
   vtkRenderWindowInteractor* interactor = nullptr;
@@ -880,14 +891,18 @@ void VSMainWidgetBase::createClipFilter(VSAbstractFilter::FilterListType parents
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSClipFilter::CompatibleWithParent(parent))
     {
       VSClipFilter* filter = new VSClipFilter(parent);
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
@@ -900,14 +915,18 @@ void VSMainWidgetBase::createCropFilter(VSAbstractFilter::FilterListType parents
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSCropFilter::CompatibleWithParent(parent))
     {
       VSCropFilter* filter = new VSCropFilter(parent);
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
@@ -920,14 +939,18 @@ void VSMainWidgetBase::createSliceFilter(VSAbstractFilter::FilterListType parent
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSSliceFilter::CompatibleWithParent(parent))
     {
       VSSliceFilter* filter = new VSSliceFilter(parent);
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
@@ -940,14 +963,18 @@ void VSMainWidgetBase::createMaskFilter(VSAbstractFilter::FilterListType parents
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSMaskFilter::CompatibleWithParent(parent))
     {
       VSMaskFilter* filter = new VSMaskFilter(parent);
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
@@ -960,14 +987,18 @@ void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter::FilterListType pa
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSThresholdFilter::CompatibleWithParent(parent))
     {
       VSThresholdFilter* filter = new VSThresholdFilter(parent);
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
@@ -980,14 +1011,18 @@ void VSMainWidgetBase::createTextFilter(VSAbstractFilter::FilterListType parents
     parents = getCurrentSelection();
   }
 
+  VSAbstractFilter::FilterListType createdFilters;
   for(VSAbstractFilter* parent : parents)
   {
     if(parent && VSTextFilter::CompatibleWithParent(parent))
     {
       VSTextFilter* filter = new VSTextFilter(parent, "Text", "Tool Tip");
       finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
     }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------

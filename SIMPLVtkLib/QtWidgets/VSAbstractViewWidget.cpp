@@ -836,6 +836,24 @@ void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter, SelectionType 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilters(VSAbstractFilter::FilterListType filters)
+{
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter == *filters.begin())
+    {
+      selectFilter(filter, SelectionType::Current);
+    }
+    else
+    {
+      selectFilter(filter, SelectionType::AddSelection);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractViewWidget::listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous)
 {
   emit currentFilterChanged(getCurrentFilter());

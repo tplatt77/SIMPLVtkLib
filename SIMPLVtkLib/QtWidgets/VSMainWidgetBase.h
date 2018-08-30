@@ -248,6 +248,12 @@ public slots:
    */
   void selectFilter(VSAbstractFilter* filter);
 
+  /**
+   * @brief Selects the given filters in the active view
+   * @param filters
+   */
+  void selectFilters(VSAbstractFilter::FilterListType filters);
+
 signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
   // void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);

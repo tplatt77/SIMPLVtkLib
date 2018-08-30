@@ -246,6 +246,12 @@ public slots:
   void selectFilter(VSAbstractFilter* filter, SelectionType selectionType = SelectionType::Current);
 
   /**
+   * @brief Select the given filters
+   * @param filter
+   */
+  void selectFilters(VSAbstractFilter::FilterListType filters);
+
+  /**
    * @brief Change the filter selected by a single step in the given direction
    * @param stepDirection
    */
