@@ -67,7 +67,7 @@ foreach(FilterValues ${VSVisualFilterValues})
     ${VS_VisualFilters_HDRS}
     ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/${FilterValues}.h
   )
-endforeach(VisFilter)
+endforeach(FilterValues)
 
 # --------------------------------------------------------------------
 # Loop through Filter Widget UIS
@@ -75,21 +75,22 @@ endforeach(VisFilter)
 foreach(VisFilterWidget ${VSVisualFilter_UIS})
 	set(VS_VisualFilterWidgets_UIS 
     ${VS_VisualFilterWidgets_UIS}
-    ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilterWidgets/UI_Files/${VisFilterWidget}.ui
+    ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/UI_Files/${VisFilterWidget}.ui
   )
 endforeach(VisFilterWidget)
 
 
 cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/VisualFilters" "${VS_VisualFilters_HDRS}" "${VS_VisualFilters_SRCS}" "0")
-# cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/VisualFilters/FilterWidgets" "${VS_VisualFilterWidgets_HDRS}" "${VS_VisualFilterWidgets_SRCS}" "0")
 
-# Organize the Source files for things like Visual Studio and Xcode
-# cmp_IDE_GENERATED_PROPERTIES("${PROJECT_NAME}/VisualFilters/UI_Files" "${VS_VisualFilters_UIS}" "")
+cmp_IDE_GENERATED_PROPERTIES("${PROJECT_NAME}/VisualFilters/UI_Files" "${VS_VisualFilterWidgets_UIS}" "")
 
 # --------------------------------------------------------------------
 # -- Run UIC on the necessary files
-# QT5_WRAP_UI( ${PROJECT_NAME}_VisualFilters_Generated_UI_HDRS ${VS_VisualFilters_UIS} )
+QT5_WRAP_UI( ${PROJECT_NAME}_VisualFilterWidgets_Generated_UI_HDRS ${VS_VisualFilterWidgets_UIS} )
+foreach(h ${${PROJECT_NAME}_VisualFilterWidgets_Generated_UI_HDRS})
+  set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
 
-# cmp_IDE_SOURCE_PROPERTIES( "Generated/Qt_Uic" "${${PROJECT_NAME}_VisualFilters_Generated_UI_HDRS}" "" "0")
+cmp_IDE_SOURCE_PROPERTIES( "Generated/Qt_Uic" "${${PROJECT_NAME}_VisualFilterWidgets_Generated_UI_HDRS}" "" "0")
 
 include_directories(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters/UI_Files)
