@@ -316,10 +316,11 @@ protected slots:
   virtual void setCurrentFilter(VSAbstractFilter* filter);
 
   /**
-   * @brief Change the current filter selection by a step in the given direction
+   * @brief Change the current filter selection by a step in the given direction.
    * @param stepDirection
+   * @param addSelection
    */
-  virtual void changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection);
+  virtual void changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection, bool addSelection = false);
 
   /**
    * @brief Listens for changes to the active view's filter selection

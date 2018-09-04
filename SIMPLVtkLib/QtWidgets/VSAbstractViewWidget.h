@@ -255,7 +255,7 @@ public slots:
    * @brief Change the filter selected by a single step in the given direction
    * @param stepDirection
    */
-  void changeFilterSelected(FilterStepChange stepDirection);
+  void changeFilterSelected(FilterStepChange stepDirection, bool addSelection = false);
 
 protected slots:
   /**
@@ -423,24 +423,28 @@ protected:
   /**
    * @brief Selects the current filter's parent.  If the current filter is not set, 
    * select the first base filter in the model.
+   * @param addSelection
    */
-  void selectFilterParent();
+  void selectFilterParent(bool addSelection);
 
   /**
    * @brief Selects the current filter's first child.  If the current filter is not set,
    * select the last base filter in the model.
+   * @param addSelection
    */
-  void selectFilterChild();
+  void selectFilterChild(bool addSelection);
 
   /**
    * @brief Selects the previous item in the current filter's list of siblings.
+   * @param addSelection
    */
-  void selectFilterPrevSibling();
+  void selectFilterPrevSibling(bool addSelection);
 
   /**
    * @brief Selects the next item in the current filter's list of siblings.
+   * @param addSelection
    */
-  void selectFilterNextSibling();
+  void selectFilterNextSibling(bool addSelection);
 
 private:
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;

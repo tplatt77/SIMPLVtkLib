@@ -104,6 +104,16 @@ void VSMainWidgetBase::setupShortcuts()
   connect(filterLeftShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::PrevSibling); });
   connect(filterRightShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::NextSibling); });
 
+  QShortcut* addFilterUpShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Up), this);
+  QShortcut* addFilterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Down), this);
+  QShortcut* addFilterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Left), this);
+  QShortcut* addFilterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Right), this);
+
+  connect(addFilterUpShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Parent, true); });
+  connect(addFilterDownShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Child, true); });
+  connect(addFilterLeftShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::PrevSibling, true); });
+  connect(addFilterRightShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::NextSibling, true); });
+
   QShortcut* applyFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
   QShortcut* resetFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   QShortcut* deleteFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
@@ -665,11 +675,11 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection)
+void VSMainWidgetBase::changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection, bool addSelection)
 {
   if(m_ActiveViewWidget)
   {
-    m_ActiveViewWidget->changeFilterSelected(stepDirection);
+    m_ActiveViewWidget->changeFilterSelected(stepDirection, addSelection);
   }
 }
 

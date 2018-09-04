@@ -44,7 +44,7 @@
 
 namespace
 {
-QItemSelectionModel::SelectionFlags mergeFlags = QItemSelectionModel::Select | QItemSelectionModel::Current;
+QItemSelectionModel::SelectionFlags mergeFlags = QItemSelectionModel::Select;
 QItemSelectionModel::SelectionFlags selectFlags = QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current;
 } // namespace
 
@@ -824,6 +824,7 @@ void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter, SelectionType 
     break;
   case SelectionType::AddSelection:
     selectionFlag = ::mergeFlags;
+    m_SelectionModel->setCurrentIndex(filterIndex, selectionFlag);
     break;
   case SelectionType::RemoveSelection:
     selectionFlag = QItemSelectionModel::Deselect;
@@ -922,21 +923,21 @@ VSAbstractFilter* VSAbstractViewWidget::getCurrentFilter() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterSelected(FilterStepChange stepDirection)
+void VSAbstractViewWidget::changeFilterSelected(FilterStepChange stepDirection, bool addSelection)
 {
   switch(stepDirection)
   {
   case FilterStepChange::Parent:
-    selectFilterParent();
+    selectFilterParent(addSelection);
     break;
   case FilterStepChange::Child:
-    selectFilterChild();
+    selectFilterChild(addSelection);
     break;
   case FilterStepChange::PrevSibling:
-    selectFilterPrevSibling();
+    selectFilterPrevSibling(addSelection);
     break;
   case FilterStepChange::NextSibling:
-    selectFilterNextSibling();
+    selectFilterNextSibling(addSelection);
     break;
   default:
     break;
@@ -946,87 +947,91 @@ void VSAbstractViewWidget::changeFilterSelected(FilterStepChange stepDirection)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::selectFilterParent()
+void VSAbstractViewWidget::selectFilterParent(bool addSelection)
 {
   VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
   if(nullptr == currentFilter)
   {
     // Select the first base filter if no selection exists
     VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
     if(baseFilters.size() > 0)
     {
-      selectFilter(baseFilters.front());
+      selectFilter(baseFilters.front(), selectionType);
     }
   }
   else if(currentFilter->getParentFilter() != m_FilterViewModel->getRootFilter())
   {
     // Select the parent filter
-    selectFilter(currentFilter->getParentFilter());
+    selectFilter(currentFilter->getParentFilter(), selectionType);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::selectFilterChild()
+void VSAbstractViewWidget::selectFilterChild(bool addSelection)
 {
   VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
   if(nullptr == currentFilter)
   {
     // Select the last base filter if no selection exists
     VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
     if(baseFilters.size() > 0)
     {
-      selectFilter(baseFilters.back());
+      selectFilter(baseFilters.back(), selectionType);
     }
   }
   else if(currentFilter->getChildCount() > 0)
   {
     // Select the first child filter
-    selectFilter(currentFilter->getChild(0));
+    selectFilter(currentFilter->getChild(0), selectionType);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::selectFilterPrevSibling()
+void VSAbstractViewWidget::selectFilterPrevSibling(bool addSelection)
 {
   VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
   if(nullptr == currentFilter)
   {
     // Select the first base filter if no selection exists
     VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
     if(baseFilters.size() > 0)
     {
-      selectFilter(baseFilters.front());
+      selectFilter(baseFilters.front(), selectionType);
     }
   }
-  else
+  else if(currentFilter->getPrevSibling())
   {
     // Select the previous sibling filter
-    selectFilter(currentFilter->getPrevSibling());
+    selectFilter(currentFilter->getPrevSibling(), selectionType);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::selectFilterNextSibling()
+void VSAbstractViewWidget::selectFilterNextSibling(bool addSelection)
 {
   VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
   if(nullptr == currentFilter)
   {
     // Select the last base filter if no selection exists
     VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
     if(baseFilters.size() > 0)
     {
-      selectFilter(baseFilters.back());
+      selectFilter(baseFilters.back(), selectionType);
     }
   }
-  else
+  else if(currentFilter->getNextSibling())
   {
     // Select the next sibling filter
-    selectFilter(currentFilter->getNextSibling());
+    selectFilter(currentFilter->getNextSibling(), selectionType);
   }
 }
