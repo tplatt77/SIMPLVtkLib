@@ -1955,16 +1955,21 @@ void VSFilterViewSettings::SetPointSize(VSFilterViewSettings::Collection collect
 // -----------------------------------------------------------------------------
 Qt::CheckState VSFilterViewSettings::IsRenderingPoints(VSFilterViewSettings::Collection collection)
 {
-  bool renderingPoints;
+  bool renderingPoints = false;
+  bool valueSet = false;
   for(VSFilterViewSettings* settings : collection)
   {
-    if(settings == *collection.begin())
+    if(settings->isValid())
     {
-      renderingPoints = settings->isRenderingPoints();
-    }
-    else if(settings->isRenderingPoints() != renderingPoints)
-    {
-      return Qt::CheckState::PartiallyChecked;
+      if(!valueSet)
+      {
+        renderingPoints = settings->isRenderingPoints();
+        valueSet = true;
+      }
+      else if(settings->isRenderingPoints() != renderingPoints)
+      {
+        return Qt::CheckState::PartiallyChecked;
+      }
     }
   }
 
@@ -1976,15 +1981,21 @@ Qt::CheckState VSFilterViewSettings::IsRenderingPoints(VSFilterViewSettings::Col
 // -----------------------------------------------------------------------------
 Qt::CheckState VSFilterViewSettings::IsRenderingPointsAsSpheres(VSFilterViewSettings::Collection collection)
 {
-  bool renderSpheres;
+  bool renderSpheres = false;
+  bool valueSet = false;
   for(VSFilterViewSettings* settings : collection)
   {
-    if(settings == *collection.begin())
+    if(settings->isValid())
     {
-      renderSpheres = settings->renderPointsAsSpheres();
-    }
-    else
-    {
+      if(!valueSet)
+      {
+        renderSpheres = settings->renderPointsAsSpheres();
+        valueSet = true;
+      }
+      else if(settings->renderPointsAsSpheres() != renderSpheres)
+      {
+        return Qt::PartiallyChecked;
+      }
     }
   }
 
@@ -2007,21 +2018,21 @@ void VSFilterViewSettings::SetRenderPointsAsSpheres(VSFilterViewSettings::Collec
 // -----------------------------------------------------------------------------
 Qt::CheckState VSFilterViewSettings::IsGridVisible(VSFilterViewSettings::Collection collection)
 {
-  if(collection.size() == 0)
-  {
-    return Qt::Unchecked;
-  }
-
-  bool gridVisible;
+  bool gridVisible = false;
+  bool valueSet = false;
   for(VSFilterViewSettings* settings : collection)
   {
-    if(settings == collection.front())
+    if(settings->isValid())
     {
-      gridVisible = settings->isGridVisible();
-    }
-    else if(settings->isGridVisible() != gridVisible)
-    {
-      return Qt::PartiallyChecked;
+      if(!valueSet)
+      {
+        gridVisible = settings->isGridVisible();
+        valueSet = true;
+      }
+      else if(settings->isGridVisible() != gridVisible)
+      {
+        return Qt::PartiallyChecked;
+      }
     }
   }
 
@@ -2044,11 +2055,6 @@ void VSFilterViewSettings::SetGridVisible(VSFilterViewSettings::Collection colle
 // -----------------------------------------------------------------------------
 bool VSFilterViewSettings::HasValidSettings(VSFilterViewSettings::Collection collection)
 {
-  if(collection.size() == 0)
-  {
-    return false;
-  }
-
   for(VSFilterViewSettings* settings : collection)
   {
     if(settings->isValid())
@@ -2066,7 +2072,6 @@ bool VSFilterViewSettings::HasValidSettings(VSFilterViewSettings::Collection col
 QStringList getMutualArrayNames(QStringList list1, QStringList list2)
 {
   QStringList mutualItems;
-
   for(QString item : list1)
   {
     if(list2.contains(item))

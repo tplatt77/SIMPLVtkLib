@@ -58,6 +58,8 @@ void VSAdvancedVisibilitySettingsWidget::setupGui()
   pointSizeValidator->setBottom(1);
   m_Ui->pointSizeEdit->setValidator(pointSizeValidator);
 
+  m_Ui->viewAxesGridCheckBox->
+
   connect(m_Ui->pointSizeEdit, &QLineEdit::textChanged, this, &VSAdvancedVisibilitySettingsWidget::updatePointSize);
   connect(m_Ui->pointSphereCheckBox, &QCheckBox::stateChanged, this, &VSAdvancedVisibilitySettingsWidget::updateRenderPointSpheres);
   connect(m_Ui->viewAxesGridCheckBox, &QCheckBox::stateChanged, this, &VSAdvancedVisibilitySettingsWidget::setAxesGridVisible);
@@ -139,7 +141,7 @@ void VSAdvancedVisibilitySettingsWidget::updateFilterInfo()
     int pointSize = VSFilterViewSettings::GetPointSize(m_ViewSettings);
     m_Ui->pointSizeEdit->setText(QString::number(pointSize));
 
-    m_Ui->pointSphereCheckBox->setChecked(VSFilterViewSettings::IsRenderingPointsAsSpheres(m_ViewSettings));
+    m_Ui->pointSphereCheckBox->setCheckState(VSFilterViewSettings::IsRenderingPointsAsSpheres(m_ViewSettings));
 
     m_Ui->pointSizeEdit->blockSignals(false);
     m_Ui->pointSphereCheckBox->blockSignals(false);
@@ -158,11 +160,9 @@ void VSAdvancedVisibilitySettingsWidget::updateViewSettingInfo()
     return;
   }
 
-  // Point Size
-  m_Ui->pointSizeEdit->setText(QString::number(VSFilterViewSettings::GetPointSize(m_ViewSettings)));
-  bool renderingPointSpheres = VSFilterViewSettings::IsRenderingPointsAsSpheres(m_ViewSettings);
-  Qt::CheckState pointSphereCheckState = renderingPointSpheres ? Qt::Checked : Qt::Unchecked;
-  m_Ui->pointSphereCheckBox->setCheckState(pointSphereCheckState);
+  listenPointSize();
+  listenPointSphere();
+  listenAxesGridVisible();
 
   updatePointSettingVisibility();
   updateAnnotationVisibility();
@@ -219,7 +219,7 @@ void VSAdvancedVisibilitySettingsWidget::updateRenderPointSpheres(int checkState
     return;
   }
 
-  VSFilterViewSettings::SetRenderPointsAsSpheres(m_ViewSettings, Qt::Checked == checkState);
+  VSFilterViewSettings::SetRenderPointsAsSpheres(m_ViewSettings, Qt::Unchecked != checkState);
 }
 
 // -----------------------------------------------------------------------------
@@ -232,8 +232,8 @@ void VSAdvancedVisibilitySettingsWidget::setAxesGridVisible(int checkState)
     return;
   }
 
-  bool gridVisible = (checkState == Qt::Checked);
-  VSFilterViewSettings::SetGridVisible(m_ViewSettings, gridVisible);
+  bool visible = checkState != Qt::Unchecked;
+  VSFilterViewSettings::SetGridVisible(m_ViewSettings, visible);
 }
 
 // -----------------------------------------------------------------------------
@@ -241,6 +241,8 @@ void VSAdvancedVisibilitySettingsWidget::setAxesGridVisible(int checkState)
 // -----------------------------------------------------------------------------
 void VSAdvancedVisibilitySettingsWidget::listenPointSize(int size)
 {
+  size = VSFilterViewSettings::GetPointSize(m_ViewSettings);
+
   m_Ui->pointSizeEdit->blockSignals(true);
   m_Ui->pointSizeEdit->setText(QString::number(size));
   m_Ui->pointSizeEdit->blockSignals(false);
@@ -251,8 +253,10 @@ void VSAdvancedVisibilitySettingsWidget::listenPointSize(int size)
 // -----------------------------------------------------------------------------
 void VSAdvancedVisibilitySettingsWidget::listenPointSphere(bool renderAsSpheres)
 {
+  Qt::CheckState checked = VSFilterViewSettings::IsRenderingPointsAsSpheres(m_ViewSettings);
+
   m_Ui->pointSphereCheckBox->blockSignals(true);
-  m_Ui->pointSphereCheckBox->setChecked(renderAsSpheres ? Qt::Checked : Qt::Unchecked);
+  m_Ui->pointSphereCheckBox->setCheckState(checked);
   m_Ui->pointSphereCheckBox->blockSignals(false);
 }
 
@@ -261,7 +265,9 @@ void VSAdvancedVisibilitySettingsWidget::listenPointSphere(bool renderAsSpheres)
 // -----------------------------------------------------------------------------
 void VSAdvancedVisibilitySettingsWidget::listenAxesGridVisible(double show)
 {
+  Qt::CheckState checked = VSFilterViewSettings::IsGridVisible(m_ViewSettings);
+
   m_Ui->viewAxesGridCheckBox->blockSignals(true);
-  m_Ui->viewAxesGridCheckBox->setCheckState(show ? Qt::Checked : Qt::Unchecked);
+  m_Ui->viewAxesGridCheckBox->setCheckState(checked);
   m_Ui->viewAxesGridCheckBox->blockSignals(false);
 }
