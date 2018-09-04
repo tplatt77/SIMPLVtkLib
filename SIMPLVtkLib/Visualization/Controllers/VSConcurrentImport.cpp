@@ -183,7 +183,8 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
       {
         // Find the DataContainer filter from the parent container
-        for(VSAbstractFilter* childFilter : childFilters)
+        VSAbstractFilter::FilterListType filterList = childFilters;
+        for(VSAbstractFilter* childFilter : filterList)
         {
           if(childFilter->getFilterName() != wrappedDc->m_Name)
           {
