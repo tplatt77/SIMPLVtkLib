@@ -368,7 +368,6 @@ void VSColorMappingWidget::addMultiValueOption(QComboBox* comboBox)
     return;
   }
 
-  int index = comboBox->count();
   comboBox->insertItem(0, ::MultiOption);
   comboBox->setCurrentIndex(0);
 }

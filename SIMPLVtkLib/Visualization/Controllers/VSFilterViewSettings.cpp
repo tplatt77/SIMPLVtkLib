@@ -1094,6 +1094,8 @@ void VSFilterViewSettings::updateScalarBarVisibility()
     case ScalarBarSetting::OnSelection:
       setScalarBarVisible(m_Selected);
       break;
+    default:
+      break;
     }
   }
 }

@@ -179,7 +179,7 @@ void VSFilterSettingsWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
   vtkRenderWindowInteractor* interactor = nullptr;
   if(m_ViewWidget)
   {
-    vtkRenderWindowInteractor* interactor = m_ViewWidget->getVisualizationWidget()->GetInteractor();
+    interactor = m_ViewWidget->getVisualizationWidget()->GetInteractor();
   }
   
   // Update where filter widgets are rendering
