@@ -58,3 +58,11 @@ void VSFileNameValues::applyValues()
 void VSFileNameValues::resetValues()
 {
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFileNameValues::hasChanges() const
+{
+  return true;
+}

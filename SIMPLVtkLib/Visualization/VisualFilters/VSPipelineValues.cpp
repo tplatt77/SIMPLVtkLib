@@ -68,3 +68,11 @@ void VSPipelineValues::applyValues()
 void VSPipelineValues::resetValues()
 {
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSPipelineValues::hasChanges() const
+{
+  return true;
+}

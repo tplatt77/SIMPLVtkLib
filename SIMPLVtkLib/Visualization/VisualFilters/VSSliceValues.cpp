@@ -44,6 +44,7 @@ VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 : VSAbstractFilterValues(filter)
 , m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
 {
+  connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSSliceValues::alertChangesWaiting);
 }
 
 // -----------------------------------------------------------------------------
@@ -75,12 +76,33 @@ void VSSliceValues::resetValues()
   {
     return;
   }
-
   VSSliceFilter* filter = dynamic_cast<VSSliceFilter*>(getFilter());
-  
+
   // Reset PlaneWidget
   m_PlaneWidget->setOrigin(filter->getLastOrigin());
-  m_PlaneWidget->setNormals(filter->getLastNormal());
+  m_PlaneWidget->setNormal(filter->getLastNormal());
+
+  m_PlaneWidget->drawPlaneOff();
+  m_PlaneWidget->updatePlaneWidget();
+
+  if(getInteractor())
+  {
+    getInteractor()->Render();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSliceValues::hasChanges() const
+{
+  VSSliceFilter* filter = dynamic_cast<VSSliceFilter*>(getFilter());
+  double* lastNormal = filter->getLastNormal();
+  double* lastOrigin = filter->getLastOrigin();
+  double normal[3];
+  double origin[3];
+
+  return !getPlaneWidget()->equals(lastOrigin, lastNormal);
 }
 
 // -----------------------------------------------------------------------------
@@ -149,5 +171,5 @@ double* VSSliceValues::getOrigin() const
 // -----------------------------------------------------------------------------
 double* VSSliceValues::getNormal() const
 {
-  return m_PlaneWidget->getNormals();
+  return m_PlaneWidget->getNormal();
 }

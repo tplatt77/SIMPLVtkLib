@@ -33,7 +33,6 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 #include "VSClipValues.h"
 
 #include "ui_VSClipFilterWidget.h"
@@ -47,6 +46,9 @@ VSClipValues::VSClipValues(VSClipFilter* filter)
 , m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
 {
   setClipType(VSClipFilter::ClipType::PLANE);
+
+  connect(m_BoxWidget, &VSBoxWidget::modified, this, &VSClipValues::alertChangesWaiting);
+  connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSClipValues::alertChangesWaiting);
 }
 
 // -----------------------------------------------------------------------------
@@ -87,16 +89,21 @@ void VSClipValues::resetValues()
   {
     return;
   }
-
   VSClipFilter* filter = dynamic_cast<VSClipFilter*>(getFilter());
   m_ClipType = filter->getLastClipType();
+  emit clipTypeChanged(m_ClipType);
 
   // Reset BoxWidget
   m_BoxWidget->setTransform(filter->getLastBoxTransform());
 
   // Reset PlaneWidget
   m_PlaneWidget->setOrigin(filter->getLastPlaneOrigin());
-  m_PlaneWidget->setNormals(filter->getLastPlaneNormal());
+  m_PlaneWidget->setNormal(filter->getLastPlaneNormal());
+  
+  if(getInteractor())
+  {
+    getInteractor()->Render();
+  }
 
   // Reset Inverted
   if(VSClipFilter::ClipType::BOX == m_ClipType)
@@ -107,6 +114,55 @@ void VSClipValues::resetValues()
   {
     m_Inverted = filter->getLastPlaneInverted();
   }
+
+  updateRendering();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipValues::hasChanges() const
+{
+  if(getSelection().size() > 1)
+  {
+    return true;
+  }
+
+  VSClipFilter* filter = dynamic_cast<VSClipFilter*>(getFilter());
+  if(m_ClipType != filter->getLastClipType())
+  {
+    return true;
+  }
+
+  switch(m_ClipType)
+  {
+  case VSClipFilter::ClipType::BOX:
+  {
+    if(m_Inverted != filter->getLastBoxInverted())
+    {
+      return true;
+    }
+
+    std::vector<double> lastTranslation = filter->getLastBoxTranslationVector();
+    std::vector<double> lastRotation = filter->getLastBoxRotationVector();
+    std::vector<double> lastScale = filter->getLastBoxScaleVector();
+    if(!getBoxWidget()->equals(lastTranslation, lastRotation, lastScale))
+    {
+      return true;
+    }
+  }
+  break;
+  case VSClipFilter::ClipType::PLANE:
+    if(!getPlaneWidget()->equals(filter->getLastPlaneOrigin(), filter->getLastPlaneNormal()))
+    {
+      return true;
+    }
+    break;
+  default:
+    return false;
+  }
+
+  return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -124,6 +180,8 @@ void VSClipValues::setClipType(VSClipFilter::ClipType type)
 {
   m_ClipType = type;
 
+  emit clipTypeChanged(type);
+  emit alertChangesWaiting();
   updateRendering();
 }
 
@@ -141,6 +199,7 @@ bool VSClipValues::isInverted() const
 void VSClipValues::setInverted(bool inverted)
 {
   m_Inverted = inverted;
+  emit isInvertedChanged(inverted);
 }
 
 // -----------------------------------------------------------------------------
@@ -223,9 +282,11 @@ QWidget* VSClipValues::createFilterWidget()
   ui.insideOutCheckBox->setChecked(m_Inverted);
   ui.clipTypeComboBox->setCurrentIndex(static_cast<int>(getClipType()));
 
-  auto changeClipType = [=](int type)
-  {
-    setClipType(static_cast<VSClipFilter::ClipType>(type));
+  auto changeClipType = [=](int type, bool setType = true) {
+    if(setType)
+    {
+      setClipType(static_cast<VSClipFilter::ClipType>(type));
+    }
     switch(getClipType())
     {
     case VSClipFilter::ClipType::BOX:
@@ -247,6 +308,19 @@ QWidget* VSClipValues::createFilterWidget()
 
   connect(ui.clipTypeComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), changeClipType);
   connect(ui.insideOutCheckBox, &QCheckBox::stateChanged, [=](int state) { setInverted(Qt::Checked == state); });
+
+  connect(this, &VSClipValues::isInvertedChanged, [=](bool inverted) {
+    ui.insideOutCheckBox->blockSignals(true);
+    ui.insideOutCheckBox->setChecked(inverted);
+    ui.insideOutCheckBox->blockSignals(false);
+  });
+  connect(this, &VSClipValues::clipTypeChanged, [=](VSClipFilter::ClipType clipType) {
+    ui.clipTypeComboBox->blockSignals(true);
+    int type = static_cast<int>(clipType);
+    ui.clipTypeComboBox->setCurrentIndex(type);
+    changeClipType(type, false);
+    ui.clipTypeComboBox->blockSignals(false);
+  });
 
   return filterWidget;
 }

@@ -37,9 +37,9 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 
- // -----------------------------------------------------------------------------
- //
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSCropValues::VSCropValues(VSCropFilter* filter)
 : VSAbstractFilterValues(filter)
 , m_Voi(new int[6])
@@ -78,6 +78,32 @@ void VSCropValues::applyValues()
 // -----------------------------------------------------------------------------
 void VSCropValues::resetValues()
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSCropValues::hasChanges() const
+{
+  VSCropFilter* filter = dynamic_cast<VSCropFilter*>(getFilter());
+
+  int* lastVoi = filter->getVOI();
+  int* lastSampleRate = filter->getSampleRate();
+
+  for(int i = 0; i < 3; i++)
+  {
+    if(m_Voi[i * 2] != lastVoi[i * 2] || m_Voi[i * 2 + 1] != lastVoi[i * 2 + 1])
+    {
+      return true;
+    }
+
+    if(m_SampleRate[i] != lastSampleRate[i])
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 #if 0

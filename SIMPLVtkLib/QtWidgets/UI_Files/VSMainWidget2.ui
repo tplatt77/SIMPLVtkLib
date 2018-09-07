@@ -358,13 +358,33 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="VSViewWidget" name="viewWidget" native="true">
+    <widget class="QWidget" name="viewContainer" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>1</horstretch>
        <verstretch>1</verstretch>
       </sizepolicy>
      </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="VSViewWidget" name="viewWidget" native="true"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="2" column="0">
@@ -442,72 +462,16 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="visualizationFiltersBtn">
-           <property name="toolTip">
-            <string>Visualization Filters</string>
-           </property>
+          <widget class="SVOverlayWidgetButton" name="visualizationFiltersOverlayBtn">
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../SIMPL/Resources/SIMPL.qrc">
-             <normaloff>:/SIMPL/icons/images/BlankGroup_Icon.png</normaloff>:/SIMPL/icons/images/BlankGroup_Icon.png</iconset>
+            <string> Visual Filters </string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="visualizationSettingsBtn">
-           <property name="toolTip">
-            <string>Color Filter By</string>
-           </property>
+          <widget class="SVOverlayWidgetButton" name="visualizationSettingsOverlayBtn">
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../Resources/VtkSIMPL.qrc">
-             <normaloff>:/icons/pqCellData.png</normaloff>:/icons/pqCellData.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="colorMappingBtn">
-           <property name="toolTip">
-            <string>Color Mapping</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../Resources/VtkSIMPL.qrc">
-             <normaloff>:/icons/pqColorBar.png</normaloff>:/icons/pqColorBar.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="advVisualizationSettingsBtn">
-           <property name="toolTip">
-            <string>Advanced Visualization Settings</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../Resources/VtkSIMPL.qrc">
-             <normaloff>:/icons/pqGear.png</normaloff>:/icons/pqGear.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="transformBtn">
-           <property name="toolTip">
-            <string>Visualization Transform</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../SIMPL/Resources/SIMPL.qrc">
-             <normaloff>:/SIMPL/icons/images/zoom_in.png</normaloff>:/SIMPL/icons/images/zoom_in.png</iconset>
+            <string> Visualization Settings </string>
            </property>
           </widget>
          </item>
@@ -527,6 +491,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>SVOverlayWidgetButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">SVOverlayWidgetButton.h</header>
+  </customwidget>
   <customwidget>
    <class>VSViewWidget</class>
    <extends>QWidget</extends>

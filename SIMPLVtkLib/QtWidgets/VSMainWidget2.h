@@ -38,13 +38,12 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
 
-#include "SVWidgetsLib/Widgets/PopUpWidget.h"
-
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 #include "ui_VSMainWidget2.h"
 #include "ui_VisualizationFilterWidgets.h"
+#include "ui_VisibilitySettingsContainer.h"
 
 /**
  * @class VSMainWidget2 VSMainWidget2.h SIMPLVtkLib/QtWidgets/VSMainWidget2.h
@@ -77,6 +76,20 @@ public:
    */
   QMenu* getFilterMenu();
 
+  /**
+   * @brief Returns the SVOverlayWidgetButton controlling the filter list
+   * @return
+   */
+  SVOverlayWidgetButton* getFilterListOverlayButton() const;
+
+  /**
+   * @brief Returns the SVOverlayWidgetButton controlling the view settings
+   * @return
+   */
+  SVOverlayWidgetButton* getViewSettingsOverlayButton() const;
+
+  void addOverlayButton(SVOverlayWidgetButton* overlayButton);
+
 protected:
   /**
    * @brief Connect Qt signals and slots
@@ -89,13 +102,6 @@ protected:
   virtual void createFilterMenu();
 
   /**
-   * @brief Opens the given PopUpWidget based on the provided button position
-   * @param popup
-   * @param button
-   */
-  void showPopup(PopUpWidget* popup, QPushButton* button);
-
-  /**
    * @brief showVisualizationFilters
    */
   void showVisualizationFilters();
@@ -104,21 +110,6 @@ protected:
    * @brief showVisibilitySettings
    */
   void showVisibilitySettings();
-
-  /**
-   * @brief showColorMapping
-   */
-  void showColorMapping();
-
-  /**
-   * @brief showAdvVisibilitySettings
-   */
-  void showAdvVisibilitySettings();
-
-  /**
-   * @brief showVisualTransform
-   */
-  void showVisualTransform();
 
   /**
    * @brief Updates the filter label based on the current array and component
@@ -217,6 +208,8 @@ protected slots:
 
 private:
   QSharedPointer<Ui::VSMainWidget2> m_Ui = nullptr;
+  QSharedPointer<Ui::VisualizationFilterWidgets> m_VisualizationFiltersUi = nullptr;
+  QSharedPointer<Ui::VisibilitySettingsContainer> m_VisibilityContainerUi = nullptr;
 
   QMenu* m_FilterMenu = nullptr;
   QAction* m_ActionAddText = nullptr;
@@ -226,11 +219,5 @@ private:
   QAction* m_ActionAddMask = nullptr;
   QAction* m_ActionAddThreshold = nullptr;
 
-  PopUpWidget* m_VisualizationFiltersPopup = nullptr;
-  PopUpWidget* m_VisualizationSettingsPopup = nullptr;
-  PopUpWidget* m_ColorMappingPopup = nullptr;
-  PopUpWidget* m_AdvVisualizationSettingsPopup = nullptr;
-  PopUpWidget* m_VisualizationTransformPopup = nullptr;
-  QSharedPointer<Ui::VisualizationFilterWidgets> m_VisualizationFiltersUi = nullptr;
   VSFilterViewSettings::Collection m_VisualizationViewSettings;
 };

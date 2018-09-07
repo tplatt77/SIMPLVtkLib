@@ -347,7 +347,7 @@ void VSBoxWidget::writeJson(const QJsonObject& json)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::getTranslation(double translation[3])
+void VSBoxWidget::getTranslation(double translation[3]) const
 {
   m_UseTransform->GetPosition(translation);
 }
@@ -355,7 +355,7 @@ void VSBoxWidget::getTranslation(double translation[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::getScale(double scale[3])
+void VSBoxWidget::getScale(double scale[3]) const
 {
   m_UseTransform->GetScale(scale);
 }
@@ -363,7 +363,7 @@ void VSBoxWidget::getScale(double scale[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSBoxWidget::getRotation(double rotation[3])
+void VSBoxWidget::getRotation(double rotation[3]) const
 {
   m_UseTransform->GetOrientation(rotation);
 }
@@ -443,4 +443,48 @@ void VSBoxWidget::updateGlobalSpace()
 {
   // reposition the vtkWidget
   updateBoxWidget();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSBoxWidget::equals(double* translation, double* rotation, double* scale) const
+{
+  double currentTranslation[3];
+  double currentRotation[3];
+  double currentScale[3];
+  getTranslation(currentTranslation);
+  getRotation(currentRotation);
+  getScale(currentScale);
+
+  for(int i = 0; i < 3; i++)
+  {
+    if(translation[i] != currentTranslation[i] ||
+       rotation[i] != currentRotation[i] ||
+       scale[i] != currentScale[i])
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSBoxWidget::equals(std::vector<double> translationVector, std::vector<double> rotationVector, std::vector<double> scaleVector) const
+{
+  double translation[3];
+  double rotation[3];
+  double scale[3];
+
+  for (int i = 0; i < 3; i++)
+  {
+    translation[i] = translationVector[i];
+    rotation[i] = rotationVector[i];
+    scale[i] = scaleVector[i];
+  }
+
+  return equals(translation, rotation, scale);
 }

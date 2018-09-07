@@ -68,6 +68,12 @@ public:
   void resetValues() override;
 
   /**
+   * @brief Returns true if there are changes waiting to be applied.  Returns false otherwise.
+   * @return
+   */
+  bool hasChanges() const override;
+
+  /**
    * @brief Returns the plane representation for the slice
    * @return
    */

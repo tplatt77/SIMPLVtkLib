@@ -68,13 +68,16 @@ void VSFilterSettingsWidget::setupGui()
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::applyFilter()
 {
-  for(VSAbstractFilter* filter : m_Filters)
+  if(nullptr == getCurrentFilter())
   {
-    filter->getValues()->applyValues();
+    return;
   }
 
-  m_Ui->applyBtn->setEnabled(false);
-  m_Ui->resetBtn->setEnabled(false);
+  getCurrentFilter()->getValues()->applyValues();
+
+  bool hasChanges = getCurrentFilter()->getValues()->hasChanges();
+  m_Ui->applyBtn->setEnabled(hasChanges);
+  m_Ui->resetBtn->setEnabled(hasChanges);
 }
 
 // -----------------------------------------------------------------------------

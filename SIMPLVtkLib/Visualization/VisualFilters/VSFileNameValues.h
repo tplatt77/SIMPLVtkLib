@@ -64,4 +64,10 @@ public:
    * @brief resetValues does nothing
    */
   void resetValues() override;
+
+  /**
+   * @brief Returns true if there are changes waiting to be applied.  Returns false otherwise.
+   * @return
+   */
+  bool hasChanges() const override;
 };

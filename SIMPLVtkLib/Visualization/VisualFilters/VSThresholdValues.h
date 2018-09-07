@@ -53,7 +53,7 @@ public:
   using FilterType = VSThresholdFilter;
 
   VSThresholdValues(VSThresholdFilter* filter);
-  virtual ~VSThresholdValues() = default;
+  virtual ~VSThresholdValues();
 
   /**
    * @brief Applies the current values to the selected filters
@@ -65,13 +65,25 @@ public:
    */
   void resetValues() override;
 
-  // QWidget* createFilterWidget() override;
+  /**
+   * @brief Returns true if there are changes waiting to be applied.  Returns false otherwise.
+   * @return
+   */
+  bool hasChanges() const override;
+
+  QWidget* createFilterWidget() override;
 
   /**
    * @brief Returns the name of the array to filter by
    * @return
    */
   QString getArrayName() const;
+
+  /**
+   * @brief Returns the range for the current array
+   * @return
+   */
+  double* getRange() const;
 
   /**
    * @brief Returns the minimum allowed value
@@ -85,7 +97,27 @@ public:
    */
   double getMaxValue() const;
 
+  void setArrayName(QString name);
+  void setMinValue(double value);
+  void setMaxValue(double value);
+
+signals:
+  void arrayNameChanged(QString);
+  void rangeChanged(double[2]);
+  void minValueChanged(double);
+  void maxValueChanged(double);
+
+protected:
+  void setRange(double min, double max);
+  int getMinPercent() const;
+  int getMaxPercent() const;
+
+  void setMinPercent(int percent);
+  void setMaxPercent(int percent);
+
 private:
   QString m_ThresholdArrayName;
-  double m_Range[2];
+  double* m_Range = nullptr;
+  double m_MinValue = 0.0;
+  double m_MaxValue = 1.0;
 };

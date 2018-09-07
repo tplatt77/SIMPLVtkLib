@@ -49,6 +49,7 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
 : VSMainWidgetBase(parent)
 , m_Ui(new Ui::VSMainWidget2)
 , m_VisualizationFiltersUi(new Ui::VisualizationFilterWidgets)
+, m_VisibilityContainerUi(new Ui::VisibilitySettingsContainer)
 {
   m_Ui->setupUi(this);
 
@@ -60,41 +61,30 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
   createFilterMenu();
   connectSlots();
   setCurrentFilter(nullptr);
-
-  // Create pop-up widgets
-  m_VisualizationFiltersPopup = new PopUpWidget();
-  m_VisualizationSettingsPopup = new PopUpWidget();
-  m_ColorMappingPopup = new PopUpWidget();
-  m_AdvVisualizationSettingsPopup = new PopUpWidget();
-  m_VisualizationTransformPopup = new PopUpWidget();
-
+  
   // Create Visualization Widgets
-  QWidget* visualizationFilters = new QWidget();
+  QWidget* visualizationFilters = new QWidget(this);
   m_VisualizationFiltersUi->setupUi(visualizationFilters);
-  VSVisibilitySettingsWidget* visibilitySettingsWidget = new VSVisibilitySettingsWidget();
-  VSColorMappingWidget* colorMappingWidget = new VSColorMappingWidget();
-  VSAdvancedVisibilitySettingsWidget* advVisibilityWidget = new VSAdvancedVisibilitySettingsWidget();
-  VSTransformWidget* transformWidget = new VSTransformWidget();
+  QWidget* visibilityContainer = new QWidget(this);
+  m_VisibilityContainerUi->setupUi(visibilityContainer);
 
   // Set pop-up widgets
-  m_VisualizationFiltersPopup->setWidget(visualizationFilters);
-  m_VisualizationSettingsPopup->setWidget(visibilitySettingsWidget);
-  m_ColorMappingPopup->setWidget(colorMappingWidget);
-  m_AdvVisualizationSettingsPopup->setWidget(advVisibilityWidget);
-  m_VisualizationTransformPopup->setWidget(transformWidget);
+  m_Ui->visualizationFiltersOverlayBtn->setTarget(m_Ui->viewContainer);
+  m_Ui->visualizationSettingsOverlayBtn->setTarget(m_Ui->viewContainer);
+  m_Ui->visualizationFiltersOverlayBtn->setSource(visualizationFilters);
+  m_Ui->visualizationSettingsOverlayBtn->setSource(visibilityContainer);
+
+  m_Ui->visualizationFiltersOverlayBtn->setSide(SVOverlayWidgetButton::TargetSide::Left);
+  m_Ui->visualizationSettingsOverlayBtn->setSide(SVOverlayWidgetButton::TargetSide::Bottom);
+  m_Ui->visualizationFiltersOverlayBtn->addOverlappingButton(m_Ui->visualizationSettingsOverlayBtn);
+  m_Ui->visualizationSettingsOverlayBtn->addOverlappingButton(m_Ui->visualizationFiltersOverlayBtn);
 
   setFilterView(m_VisualizationFiltersUi->visualFilterView);
   setFilterSettingsWidget(m_VisualizationFiltersUi->vsFilterWidget);
-  setVisibilitySettingsWidget(visibilitySettingsWidget);
-  setColorMappingWidget(colorMappingWidget);
-  setAdvancedVisibilityWidget(advVisibilityWidget);
-  setTransformWidget(transformWidget);
-
-  connect(m_Ui->visualizationFiltersBtn, &QPushButton::clicked, this, &VSMainWidget2::showVisualizationFilters);
-  connect(m_Ui->visualizationSettingsBtn, &QPushButton::clicked, this, &VSMainWidget2::showVisibilitySettings);
-  connect(m_Ui->colorMappingBtn, &QPushButton::clicked, this, &VSMainWidget2::showColorMapping);
-  connect(m_Ui->advVisualizationSettingsBtn, &QPushButton::clicked, this, &VSMainWidget2::showAdvVisibilitySettings);
-  connect(m_Ui->transformBtn, &QPushButton::clicked, this, &VSMainWidget2::showVisualTransform);
+  setVisibilitySettingsWidget(m_VisibilityContainerUi->visibilityWidget);
+  setColorMappingWidget(m_VisibilityContainerUi->colorMappingWidget);
+  setAdvancedVisibilityWidget(m_VisibilityContainerUi->advVisibilityWidget);
+  setTransformWidget(m_VisibilityContainerUi->transformWidget);
 }
 
 // -----------------------------------------------------------------------------
@@ -371,10 +361,7 @@ void VSMainWidget2::setVisualizationSettings(VSFilterViewSettings::Collection vi
   }
 
   bool validSettings = VSFilterViewSettings::HasValidSettings(viewSettings);
-  m_Ui->visualizationSettingsBtn->setEnabled(validSettings);
-  m_Ui->colorMappingBtn->setEnabled(validSettings);
-  m_Ui->advVisualizationSettingsBtn->setEnabled(validSettings);
-  m_Ui->transformBtn->setEnabled(viewSettings.size() > 0);
+  m_Ui->visualizationSettingsOverlayBtn->setEnabled(viewSettings.size() > 0);
 
   vsVisibilityChanged();
   vsArrayChanged();
@@ -385,19 +372,7 @@ void VSMainWidget2::setVisualizationSettings(VSFilterViewSettings::Collection vi
 // -----------------------------------------------------------------------------
 void VSMainWidget2::vsVisibilityChanged()
 {
-  if(m_VisualizationViewSettings.size() > 0)
-  {
-    bool settingsValid = VSFilterViewSettings::HasValidSettings(m_VisualizationViewSettings);
-    m_Ui->visualizationSettingsBtn->setEnabled(settingsValid);
-    m_Ui->colorMappingBtn->setEnabled(settingsValid);
-    m_Ui->advVisualizationSettingsBtn->setEnabled(settingsValid);
-  }
-  else
-  {
-    m_Ui->visualizationSettingsBtn->setEnabled(false);
-    m_Ui->colorMappingBtn->setEnabled(false);
-    m_Ui->advVisualizationSettingsBtn->setEnabled(false);
-  }
+  m_Ui->visualizationSettingsOverlayBtn->setEnabled(m_VisualizationViewSettings.size() > 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -411,54 +386,9 @@ void VSMainWidget2::vsArrayChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidget2::showPopup(PopUpWidget* popup, QPushButton* button)
-{
-  QPoint position = button->mapToGlobal(QPoint(button->width() * 0.5, 0));
-  int minimumWidth = 150;
-
-  int padding = 25;
-  QSize minimumSizeHint = popup->getWidget()->sizeHint();
-  if(minimumSizeHint.width() < minimumWidth)
-  {
-    minimumSizeHint.setWidth(minimumWidth);
-  }
-  else if(minimumSizeHint.width() > popup->minimumSizeHint().width())
-  {
-    minimumSizeHint.setWidth(minimumSizeHint.width() + padding);
-  }
-  if(minimumSizeHint.height() > popup->minimumSizeHint().height())
-  {
-    minimumSizeHint.setHeight(minimumSizeHint.height() + padding);
-  }
-  else
-  {
-    minimumSizeHint.setHeight(popup->minimumSizeHint().height());
-  }
-  popup->resize(minimumSizeHint);
-
-  // Try to open the popup widget within the width of this widget
-  int xPos = position.x() - 0.5 * minimumSizeHint.width();
-  int yPos = position.y() - minimumSizeHint.height();
-  if(xPos < mapToGlobal(QPoint(0,0)).x())
-  {
-    xPos = mapToGlobal(QPoint(0,0)).x();
-  }
-  else if(xPos + minimumSizeHint.width() > mapToGlobal(QPoint(width(), 0)).x())
-  {
-    xPos = mapToGlobal(QPoint(width(), 0)).x() - minimumSizeHint.width();
-  }
-
-  QPoint targetPosition(xPos, yPos);
-  popup->move(targetPosition);
-  popup->show();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSMainWidget2::showVisualizationFilters()
 {
-  showPopup(m_VisualizationFiltersPopup, m_Ui->visualizationFiltersBtn);
+  m_Ui->visualizationFiltersOverlayBtn->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -466,31 +396,7 @@ void VSMainWidget2::showVisualizationFilters()
 // -----------------------------------------------------------------------------
 void VSMainWidget2::showVisibilitySettings()
 {
-  showPopup(m_VisualizationSettingsPopup, m_Ui->visualizationSettingsBtn);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::showColorMapping()
-{
-  showPopup(m_ColorMappingPopup, m_Ui->colorMappingBtn);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::showAdvVisibilitySettings()
-{
-  showPopup(m_AdvVisualizationSettingsPopup, m_Ui->advVisualizationSettingsBtn);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::showVisualTransform()
-{
-  showPopup(m_VisualizationTransformPopup, m_Ui->transformBtn);
+  m_Ui->visualizationSettingsOverlayBtn->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -647,4 +553,29 @@ void VSMainWidget2::importedFilterNum(int value)
   {
     m_Ui->progressBar->setValue(value);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SVOverlayWidgetButton* VSMainWidget2::getFilterListOverlayButton() const
+{
+  return m_Ui->visualizationFiltersOverlayBtn;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SVOverlayWidgetButton* VSMainWidget2::getViewSettingsOverlayButton() const
+{
+  return m_Ui->visualizationSettingsOverlayBtn;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::addOverlayButton(SVOverlayWidgetButton* overlayButton)
+{
+  m_Ui->visualizationFiltersOverlayBtn->addOverlappingButton(overlayButton);
+  m_Ui->visualizationSettingsOverlayBtn->addOverlappingButton(overlayButton);
 }

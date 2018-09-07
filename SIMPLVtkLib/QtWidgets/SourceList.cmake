@@ -38,6 +38,7 @@ set(${PROJECT_NAME}_QtWidgets_SRCS
 )
 
 set(${PROJECT_NAME}_QtWidgets_UIS
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VisibilitySettingsContainer.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VisualizationFilterWidgets.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSAdvancedVisibilitySettingsWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSColorMappingWidget.ui

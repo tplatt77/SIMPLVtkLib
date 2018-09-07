@@ -73,19 +73,23 @@ public:
    */
   virtual ~VSPlaneWidget();
 
-  double* getNormals();
+  /**
+   * @brief Returns the current normal
+   * @return
+   */
+  double* getNormal() const;
 
   /**
    * @brief Copies the normals into the double array passed in
    * @param normals
    */
-  void getNormals(double normals[3]);
+  void getNormal(double normals[3]) const;
 
   /**
    * @brief Sets the normals to the given value
    * @param normals
    */
-  void setNormals(double normals[3]);
+  void setNormal(double normals[3]);
 
   /**
    * @brief Sets the normals to match the given values
@@ -93,19 +97,19 @@ public:
    * @param y
    * @param z
    */
-  void setNormals(double x, double y, double z);
+  void setNormal(double x, double y, double z);
 
   /**
    * @brief Returns the origin from the m_UsePlane
    * @return
    */
-  double* getOrigin();
+  double* getOrigin() const;
 
   /**
    * @brief Copies the origin from the m_UsePlane into the double array passed in
    * @param origin
    */
-  void getOrigin(double origin[3]);
+  void getOrigin(double origin[3]) const;
 
   /**
    * @brief Sets the origin to the given value
@@ -149,6 +153,15 @@ public:
    * @brief Updates the VTK plane
    */
   void updatePlaneWidget();
+
+  /**
+   * @brief Returns true if the given origin and normal are consistent with current values.
+   * Returns false otherwise.
+   * @param origin
+   * @param normal
+   * @return
+   */
+  bool equals(double* origin, double* normal) const;
 
   /**
    * @brief Reads values from a json file into the widget

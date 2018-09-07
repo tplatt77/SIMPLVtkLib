@@ -67,7 +67,15 @@ void VSMaskValues::applyValues()
 // -----------------------------------------------------------------------------
 void VSMaskValues::resetValues()
 {
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMaskValues::hasChanges() const
+{
+  VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
+  return m_MaskArrayName != filter->getLastArrayName();
 }
 
 #if 0

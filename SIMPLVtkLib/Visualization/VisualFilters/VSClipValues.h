@@ -67,6 +67,12 @@ public:
   void resetValues() override;
 
   /**
+   * @brief Returns true if there are changes waiting to be applied.  Returns false otherwise.
+   * @return
+   */
+  bool hasChanges() const override;
+
+  /**
    * @brief Returns the current ClipType
    * @return
    */
@@ -119,6 +125,10 @@ public:
    * @return
    */
   QWidget* createFilterWidget() override;
+
+signals:
+  void clipTypeChanged(VSClipFilter::ClipType);
+  void isInvertedChanged(bool);
 
 protected:
   /**

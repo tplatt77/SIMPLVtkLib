@@ -213,14 +213,14 @@ void VSClipFilter::applyValues(VSClipValues* values)
     double origin[3];
     double normal[3];
     planeWidget->getOrigin(origin);
-    planeWidget->getNormals(normal);
+    planeWidget->getNormal(normal);
     apply(origin, normal, values->isInverted());
 
     if(!ownedValues)
     {
       m_ClipValues->setClipType(values->getClipType());
       m_ClipValues->getPlaneWidget()->setOrigin(origin);
-      m_ClipValues->getPlaneWidget()->setNormals(normal);
+      m_ClipValues->getPlaneWidget()->setNormal(normal);
       m_ClipValues->setInverted(values->isInverted());
     }
     break;
