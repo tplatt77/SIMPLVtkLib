@@ -360,7 +360,7 @@ void VSMainWidget2::setVisualizationSettings(VSFilterViewSettings::Collection vi
     connect(settings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSMainWidget2::vsArrayChanged);
   }
 
-  bool validSettings = VSFilterViewSettings::HasValidSettings(viewSettings);
+  // bool validSettings = VSFilterViewSettings::HasValidSettings(viewSettings);
   m_Ui->visualizationSettingsOverlayBtn->setEnabled(viewSettings.size() > 0);
 
   vsVisibilityChanged();

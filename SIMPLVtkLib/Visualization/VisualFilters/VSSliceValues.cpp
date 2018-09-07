@@ -99,8 +99,6 @@ bool VSSliceValues::hasChanges() const
   VSSliceFilter* filter = dynamic_cast<VSSliceFilter*>(getFilter());
   double* lastNormal = filter->getLastNormal();
   double* lastOrigin = filter->getLastOrigin();
-  double normal[3];
-  double origin[3];
 
   return !getPlaneWidget()->equals(lastOrigin, lastNormal);
 }
