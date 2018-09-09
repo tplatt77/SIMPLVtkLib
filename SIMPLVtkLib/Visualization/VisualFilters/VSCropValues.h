@@ -69,7 +69,11 @@ public:
    */
   bool hasChanges() const override;
 
-  // QWidget* createFilterWidget() override;
+  /**
+   * @brief Creates and returns a new filter widget
+   * @return
+   */
+  QWidget* createFilterWidget() override;
 
   /**
    * @brief Returns the current volume of interest
@@ -82,6 +86,22 @@ public:
    * @return
    */
   int* getSampleRate() const;
+
+  /**
+   * @brief Sets the volume of interest
+   * @param volumeOfInterest
+   */
+  void setVOI(int volumeOfInterest[6]);
+
+  /**
+   * @brief Sets the sample rate
+   * @param sampleRate
+   */
+  void setSampleRate(int sampleRate[3]);
+
+signals:
+  void volumeOfInterestChanged(int voi[6]);
+  void sampleRateChanged(int sampleRate[3]);
 
 private:
   int* m_Voi;

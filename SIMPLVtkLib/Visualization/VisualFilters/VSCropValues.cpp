@@ -36,6 +36,7 @@
 #include "VSCropValues.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
+#include "ui_VSCropFilterWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -106,14 +107,77 @@ bool VSCropValues::hasChanges() const
   return false;
 }
 
-#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QWidget* VSCropValues::createFilterWidget()
 {
+  Ui::VSCropFilterWidget ui;
+  QWidget* widget = new QWidget();
+
+  auto updateVOI = [=] {
+    int voi[6];
+    voi[0] = ui.xMinSpinBox->value();
+    voi[1] = ui.xMaxSpinBox->value();
+    voi[2] = ui.yMinSpinBox->value();
+    voi[3] = ui.yMaxSpinBox->value();
+    voi[4] = ui.zMinSpinBox->value();
+    voi[5] = ui.zMaxSpinBox->value();
+    setVOI(voi);
+  };
+
+  auto updateSampleRate = [=] {
+    int sampleRate[3];
+    sampleRate[0] = ui.sampleISpinBox->value();
+    sampleRate[1] = ui.sampleJSpinBox->value();
+    sampleRate[2] = ui.sampleKSpinBox->value();
+    setSampleRate(sampleRate);
+  };
+
+  connect(ui.xMinSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.xMaxSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.yMinSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.yMaxSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.zMinSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.zMaxSpinBox, &QSpinBox::editingFinished, updateVOI);
+  connect(ui.sampleISpinBox, &QSpinBox::editingFinished, updateSampleRate);
+  connect(ui.sampleJSpinBox, &QSpinBox::editingFinished, updateSampleRate);
+  connect(ui.sampleKSpinBox, &QSpinBox::editingFinished, updateSampleRate);
+
+  connect(this, &VSCropValues::volumeOfInterestChanged, [=](int voi[6]) {
+    ui.xMinSpinBox->blockSignals(true);
+    ui.xMaxSpinBox->blockSignals(true);
+    ui.yMinSpinBox->blockSignals(true);
+    ui.yMaxSpinBox->blockSignals(true);
+    ui.zMinSpinBox->blockSignals(true);
+    ui.zMaxSpinBox->blockSignals(true);
+    ui.xMinSpinBox->setValue(voi[0]);
+    ui.xMaxSpinBox->setValue(voi[1]);
+    ui.yMinSpinBox->setValue(voi[2]);
+    ui.yMaxSpinBox->setValue(voi[3]);
+    ui.zMinSpinBox->setValue(voi[4]);
+    ui.zMaxSpinBox->setValue(voi[5]);
+    ui.xMinSpinBox->blockSignals(false);
+    ui.xMaxSpinBox->blockSignals(false);
+    ui.yMinSpinBox->blockSignals(false);
+    ui.yMaxSpinBox->blockSignals(false);
+    ui.zMinSpinBox->blockSignals(false);
+    ui.zMaxSpinBox->blockSignals(false);
+  });
+  connect(this, &VSCropValues::sampleRateChanged, [=](int sampleRate[3]) {
+    ui.sampleISpinBox->blockSignals(true);
+    ui.sampleJSpinBox->blockSignals(true);
+    ui.sampleKSpinBox->blockSignals(true);
+    ui.sampleISpinBox->setValue(sampleRate[0]);
+    ui.sampleJSpinBox->setValue(sampleRate[1]);
+    ui.sampleKSpinBox->setValue(sampleRate[2]);
+    ui.sampleISpinBox->blockSignals(false);
+    ui.sampleJSpinBox->blockSignals(false);
+    ui.sampleKSpinBox->blockSignals(false);
+  });
+
+  return widget;
 }
-#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -129,4 +193,30 @@ int* VSCropValues::getVOI() const
 int* VSCropValues::getSampleRate() const
 {
   return m_SampleRate;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::setVOI(int volumeOfInterest[6])
+{
+  for(int i = 0; i < 6; i++)
+  {
+    m_Voi[i] = volumeOfInterest[i];
+  }
+
+  emit volumeOfInterestChanged(volumeOfInterest);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::setSampleRate(int sampleRate[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m_SampleRate[i] = sampleRate[i];
+  }
+
+  emit sampleRateChanged(sampleRate);
 }
