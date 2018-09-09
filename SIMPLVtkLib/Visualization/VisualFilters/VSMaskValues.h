@@ -70,13 +70,26 @@ public:
    */
   bool hasChanges() const override;
 
-  // QWidget* createFilterWidget() override;
+  /**
+   * @brief Creates and returns a filter input widget for the current values
+   * @return
+   */
+  QWidget* createFilterWidget() override;
 
   /**
    * @brief Returns the current mask array name
    * @return
    */
   QString getMaskName() const;
+
+  /**
+   * @brief Sets the mask array name
+   * @param maskName
+   */
+  void setMaskName(QString maskName);
+
+signals:
+  void maskNameChanged(QString name);
 
 private:
   QString m_MaskArrayName;

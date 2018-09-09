@@ -36,6 +36,7 @@
 #include "VSMaskValues.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
+#include "ui_VSMaskFilterWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -78,20 +79,44 @@ bool VSMaskValues::hasChanges() const
   return m_MaskArrayName != filter->getLastArrayName();
 }
 
-#if 0
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QWidget* VSMaskValues::createFilterWidget()
-{
-
-}
-#endif
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QString VSMaskValues::getMaskName() const
 {
   return m_MaskArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskValues::setMaskName(QString maskName)
+{
+  m_MaskArrayName = maskName;
+  emit maskNameChanged(maskName);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QWidget* VSMaskValues::createFilterWidget()
+{
+  Ui::VSMaskFilterWidget ui;
+  QWidget* filterWidget = new QWidget();
+  VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
+
+  ui.maskComboBox->addItems(getFilter()->getScalarNames());
+  ui.maskComboBox->setCurrentText(filter->getLastArrayName());
+
+  connect(ui.maskComboBox, &QComboBox::currentTextChanged, [=](QString text) {
+    m_MaskArrayName = text;
+  });
+
+  connect(this, &VSMaskValues::maskNameChanged, [=](QString maskName) {
+    ui.maskComboBox->blockSignals(true);
+    ui.maskComboBox->setCurrentText(maskName);
+    ui.maskComboBox->blockSignals(false);
+  });
+
+  return filterWidget;
 }
