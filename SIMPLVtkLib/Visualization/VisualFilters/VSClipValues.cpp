@@ -200,6 +200,7 @@ void VSClipValues::setInverted(bool inverted)
 {
   m_Inverted = inverted;
   emit isInvertedChanged(inverted);
+  emit alertChangesWaiting();
 }
 
 // -----------------------------------------------------------------------------
