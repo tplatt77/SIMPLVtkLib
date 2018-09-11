@@ -64,7 +64,7 @@ public:
 
   VSClipValues(VSClipFilter* filter);
   VSClipValues(const VSClipValues& values);
-  virtual ~VSClipValues();
+  virtual ~VSClipValues() = default;
 
   /**
    * @brief Returns the current VSClipFilter
@@ -274,7 +274,5 @@ private:
   bool m_LastPlaneInverted = false;
   bool m_LastBoxInverted = false;
 
-  double* m_LastPlaneOrigin;
-  double* m_LastPlaneNormal;
   VTK_PTR(vtkTransform) m_LastBoxTransform;
 };

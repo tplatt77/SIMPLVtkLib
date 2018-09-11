@@ -118,6 +118,30 @@ public:
   void setOrigin(double origin[3]);
 
   /**
+   * @brief Returns the Use plane's normal
+   * @return
+   */
+  double* getUsePlaneNormal();
+
+  /**
+   * @brief Returns the Use plane's origin
+   * @return
+   */
+  double* getUsePlaneOrigin();
+
+  /**
+   * @brief Updates the use plane with the given origin
+   * @param origin
+   */
+  void setUsePlaneOrigin(double origin[3]);
+
+  /**
+   * @brief Updates the use plane with the given normal
+   * @param normal
+   */
+  void setUsePlaneNormal(double normal[3]);
+
+  /**
    * @brief Sets the vtkRenderWindowInteractor for the filter widget
    * @param interactor
    */

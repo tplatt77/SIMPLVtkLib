@@ -253,6 +253,38 @@ void VSPlaneWidget::setOrigin(double origin[3])
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+double* VSPlaneWidget::getUsePlaneNormal()
+{
+  return m_UsePlane->GetNormal();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSPlaneWidget::getUsePlaneOrigin()
+{
+  return m_UsePlane->GetOrigin();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setUsePlaneOrigin(double origin[3])
+{
+  m_UsePlane->SetOrigin(origin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setUsePlaneNormal(double normal[3])
+{
+  m_UsePlane->SetNormal(normal);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSPlaneWidget::updateBounds()
 {
   int enabled = m_PlaneWidget->GetEnabled();
@@ -391,6 +423,28 @@ void VSPlaneWidget::updatePlaneWidget()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::readJson(QJsonObject& json)
 {
+  QJsonObject planeObj = json["VSPlane"].toObject();
+
+  QJsonArray lastPlaneOrigin = planeObj["Use Origin"].toArray();
+  QJsonArray lastPlaneNormal = planeObj["Use Normal"].toArray();
+  QJsonArray planeOrigin = planeObj["View Origin"].toArray();
+  QJsonArray planeNormal = planeObj["View Normal"].toArray();
+  double lastOrigin[3];
+  double lastNormal[3];
+  double origin[3];
+  double normal[3];
+  for(int i = 0; i < 3; i++)
+  {
+    lastOrigin[i] = lastPlaneOrigin[i].toDouble();
+    lastNormal[i] = lastPlaneNormal[i].toDouble();
+    origin[i] = planeOrigin[i].toDouble();
+    normal[i] = planeNormal[i].toDouble();
+  }
+
+  m_UsePlane->SetNormal(lastNormal);
+  m_UsePlane->SetOrigin(lastOrigin);
+  m_ViewPlane->SetNormal(normal);
+  m_ViewPlane->SetOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -398,6 +452,25 @@ void VSPlaneWidget::readJson(QJsonObject& json)
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::writeJson(const QJsonObject& json)
 {
+  QJsonObject planeObj;
+
+  QJsonArray lastPlaneOrigin;
+  QJsonArray lastPlaneNormal;
+  QJsonArray planeOrigin;
+  QJsonArray planeNormal;
+  for(int i = 0; i < 3; i++)
+  {
+    lastPlaneOrigin.append(m_UsePlane->GetOrigin()[i]);
+    lastPlaneNormal.append(m_UsePlane->GetNormal()[i]);
+    planeOrigin.append(m_ViewPlane->GetOrigin()[i]);
+    planeNormal.append(m_ViewPlane->GetNormal()[i]);
+  }
+  planeObj["Use Origin"] = lastPlaneOrigin;
+  planeObj["Use Normal"] = lastPlaneNormal;
+  planeObj["View Origin"] = planeOrigin;
+  planeObj["View Normal"] = planeNormal;
+
+  json["VSPlane"] = planeObj;
 }
 
 // -----------------------------------------------------------------------------

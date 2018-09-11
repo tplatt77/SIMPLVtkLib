@@ -160,6 +160,4 @@ protected:
 
 private:
   VSPlaneWidget* m_PlaneWidget = nullptr;
-  double* m_LastOrigin;
-  double* m_LastNormal;
 };

@@ -158,6 +158,24 @@ public:
   void getTranslation(double translation[3]) const;
 
   /**
+   * @brief Gets the box scale
+   * @param scale
+   */
+  void getViewScale(double scale[3]) const;
+
+  /**
+   * @brief Gets the box rotation
+   * @param rotation
+   */
+  void getViewRotation(double rotation[3]) const;
+
+  /**
+   * @brief Gets the box translation
+   * @param translation
+   */
+  void getViewTranslation(double translation[3]) const;
+
+  /**
    * @brief Updates the box widget
    */
   void updateBoxWidget();

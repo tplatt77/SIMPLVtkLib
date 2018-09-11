@@ -43,18 +43,21 @@
 VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 : VSAbstractFilterValues(filter)
 , m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
-, m_LastNormal(new double[3])
-, m_LastOrigin(new double[3])
 {
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSSliceValues::alertChangesWaiting);
 
-  m_LastOrigin[0] = 0.0;
-  m_LastOrigin[1] = 0.0;
-  m_LastOrigin[2] = 0.0;
+  double origin[3];
+  origin[0] = 0.0;
+  origin[1] = 0.0;
+  origin[2] = 0.0;
 
-  m_LastNormal[0] = 1.0;
-  m_LastNormal[1] = 0.0;
-  m_LastNormal[2] = 0.0;
+  double normal[3];
+  normal[0] = 1.0;
+  normal[1] = 0.0;
+  normal[2] = 0.0;
+
+  m_PlaneWidget->setUsePlaneNormal(normal);
+  m_PlaneWidget->setUsePlaneOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -63,18 +66,13 @@ VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 VSSliceValues::VSSliceValues(const VSSliceValues& values)
 : VSAbstractFilterValues(values.getFilter())
 , m_PlaneWidget(new VSPlaneWidget(nullptr, values.getFilter()->getTransform(), values.getFilter()->getBounds(), nullptr))
-, m_LastNormal(new double[3])
-, m_LastOrigin(new double[3])
 {
   m_PlaneWidget->setNormal(values.getNormal());
   m_PlaneWidget->setOrigin(values.getOrigin());
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSSliceValues::alertChangesWaiting);
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastOrigin[i] = values.m_LastOrigin[i];
-    m_LastNormal[i] = values.m_LastNormal[i];
-  }
+  m_PlaneWidget->setUsePlaneNormal(values.m_PlaneWidget->getUsePlaneNormal());
+  m_PlaneWidget->setUsePlaneOrigin(values.m_PlaneWidget->getUsePlaneOrigin());
 }
 
 // -----------------------------------------------------------------------------
@@ -207,7 +205,7 @@ double* VSSliceValues::getNormal() const
 // -----------------------------------------------------------------------------
 double* VSSliceValues::getLastOrigin() const
 {
-  return m_LastOrigin;
+  return m_PlaneWidget->getUsePlaneOrigin();
 }
 
 // -----------------------------------------------------------------------------
@@ -215,7 +213,7 @@ double* VSSliceValues::getLastOrigin() const
 // -----------------------------------------------------------------------------
 double* VSSliceValues::getLastNormal() const
 {
-  return m_LastNormal;
+  return m_PlaneWidget->getUsePlaneNormal();
 }
 
 // -----------------------------------------------------------------------------
@@ -223,11 +221,7 @@ double* VSSliceValues::getLastNormal() const
 // -----------------------------------------------------------------------------
 void VSSliceValues::setLastOrigin(double* origin)
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastOrigin[i] = origin[i];
-  }
-
+  m_PlaneWidget->setUsePlaneOrigin(origin);
   emit lastOriginChanged();
 }
 
@@ -236,11 +230,7 @@ void VSSliceValues::setLastOrigin(double* origin)
 // -----------------------------------------------------------------------------
 void VSSliceValues::setLastNormal(double* normal)
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastNormal[i] = normal[i];
-  }
-
+  m_PlaneWidget->setUsePlaneNormal(normal);
   emit lastNormalChanged();
 }
 
@@ -249,15 +239,7 @@ void VSSliceValues::setLastNormal(double* normal)
 // -----------------------------------------------------------------------------
 void VSSliceValues::writeJson(QJsonObject& json)
 {
-  QJsonArray lastOrigin;
-  QJsonArray lastNormal;
-  for(int i = 0; i < 3; i++)
-  {
-    lastOrigin.append(m_LastOrigin[i]);
-    lastNormal.append(m_LastNormal[i]);
-  }
-  json["Last Origin"] = lastOrigin;
-  json["Last Normal"] = lastNormal;
+  m_PlaneWidget->writeJson(json);
 }
 
 // -----------------------------------------------------------------------------
@@ -265,12 +247,5 @@ void VSSliceValues::writeJson(QJsonObject& json)
 // -----------------------------------------------------------------------------
 void VSSliceValues::readJson(QJsonObject& json)
 {
-  QJsonArray lastOrigin = json["Last Origin"].toArray();
-  QJsonArray lastNormal = json["Last Normal"].toArray();
-
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastOrigin[i] = lastOrigin.at(i).toDouble();
-    m_LastNormal[i] = lastNormal.at(i).toDouble();
-  }
+  m_PlaneWidget->readJson(json);
 }

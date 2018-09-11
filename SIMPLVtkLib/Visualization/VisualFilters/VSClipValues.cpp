@@ -46,25 +46,26 @@ VSClipValues::VSClipValues(VSClipFilter* filter)
 : VSAbstractFilterValues(filter)
 , m_BoxWidget(new VSBoxWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
 , m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
-, m_LastPlaneOrigin(new double[3])
-, m_LastPlaneNormal(new double[3])
 {
   setClipType(VSClipFilter::ClipType::PLANE);
 
   connect(m_BoxWidget, &VSBoxWidget::modified, this, &VSClipValues::alertChangesWaiting);
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSClipValues::alertChangesWaiting);
 
+  double useOrigin[3];
+  double useNormal[3];
   // Reset "Last" values
   for(int i = 0; i < 3; i++)
   {
-    m_LastPlaneOrigin[i] = 0.0;
-    m_LastPlaneNormal[i] = 0.0;
+    useOrigin[i] = 0.0;
+    useNormal[i] = 0.0;
   }
+  // Set the direction of the plane normal
+  useNormal[0] = 1.0;
+  m_PlaneWidget->setUsePlaneNormal(useNormal);
+  m_PlaneWidget->setUsePlaneOrigin(useOrigin);
 
   m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
-
-  // Set the direction of the plane normal
-  m_LastPlaneNormal[0] = 1.0;
 
   m_LastClipType = VSClipFilter::ClipType::PLANE;
   m_LastPlaneInverted = false;
@@ -83,23 +84,9 @@ VSClipValues::VSClipValues(const VSClipValues& values)
 , m_LastBoxInverted(values.m_LastBoxInverted)
 , m_LastBoxTransform(values.m_LastBoxTransform)
 , m_LastPlaneInverted(values.m_LastPlaneInverted)
-, m_LastPlaneOrigin(new double[3])
-, m_LastPlaneNormal(new double[3])
 {
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastPlaneNormal[i] = values.m_LastPlaneNormal[i];
-    m_LastPlaneOrigin[i] = values.m_LastPlaneOrigin[i];
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSClipValues::~VSClipValues()
-{
-  delete[] m_LastPlaneNormal;
-  delete[] m_LastPlaneOrigin;
+  m_PlaneWidget->setUsePlaneNormal(values.m_PlaneWidget->getUsePlaneNormal());
+  m_PlaneWidget->setUsePlaneOrigin(values.m_PlaneWidget->getUsePlaneOrigin());
 }
 
 // -----------------------------------------------------------------------------
@@ -391,37 +378,13 @@ QWidget* VSClipValues::createFilterWidget()
 void VSClipValues::loadJSon(QJsonObject& json)
 {
   setLastClipType(static_cast<VSClipFilter::ClipType>(json["Last Clip Type"].toInt()));
+  setClipType(static_cast<VSClipFilter::ClipType>(json["Clip Type"].toInt()));
   setLastPlaneInverted(json["Last Plane Inverted"].toBool());
   setLastBoxInverted(json["Last Box Inverted"].toBool());
-
-  QJsonArray lastPlaneOrigin = json["Last Plane Origin"].toArray();
-  double origin[3];
-  origin[0] = lastPlaneOrigin.at(0).toDouble();
-  origin[1] = lastPlaneOrigin.at(1).toDouble();
-  origin[2] = lastPlaneOrigin.at(2).toDouble();
-  setLastPlaneOrigin(origin);
-
-  QJsonArray lastPlaneNormal = json["Last Plane Normal"].toArray();
-  double normals[3];
-  normals[0] = lastPlaneNormal.at(0).toDouble();
-  normals[1] = lastPlaneNormal.at(1).toDouble();
-  normals[2] = lastPlaneNormal.at(2).toDouble();
-  setLastPlaneNormal(normals);
-
-  QJsonArray boxTransformDataArray = json["Box Transform Data"].toArray();
-  double boxTransformData[16];
-  for(int i = 0; i < 16; i++)
-  {
-    boxTransformData[i] = boxTransformDataArray[i].toDouble();
-  }
-
-  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(boxTransformData);
-
-  VTK_NEW(vtkTransform, transform);
-  transform->SetMatrix(matrix);
-
-  setLastBoxTransform(transform);
+  setInverted(json["Inverted"].toBool());
+  
+  m_BoxWidget->readJson(json);
+  m_PlaneWidget->readJson(json);
 }
 
 // -----------------------------------------------------------------------------
@@ -429,23 +392,14 @@ void VSClipValues::loadJSon(QJsonObject& json)
 // -----------------------------------------------------------------------------
 void VSClipValues::writeJson(QJsonObject& json)
 {
+  json["Clip Type"] = static_cast<int>(m_ClipType);
   json["Last Clip Type"] = static_cast<int>(m_LastClipType);
   json["Last Plane Inverted"] = m_LastPlaneInverted;
   json["Last Box Inverted"] = m_LastBoxInverted;
+  json["Inverted"] = isInverted();
 
-  QJsonArray lastPlaneOrigin;
-  lastPlaneOrigin.append(m_LastPlaneOrigin[0]);
-  lastPlaneOrigin.append(m_LastPlaneOrigin[1]);
-  lastPlaneOrigin.append(m_LastPlaneOrigin[2]);
-  json["Last Plane Origin"] = lastPlaneOrigin;
-
-  QJsonArray lastPlaneNormal;
-  lastPlaneNormal.append(m_LastPlaneNormal[0]);
-  lastPlaneNormal.append(m_LastPlaneNormal[1]);
-  lastPlaneNormal.append(m_LastPlaneNormal[2]);
-  json["Last Plane Normal"] = lastPlaneNormal;
-
-  json["Uuid"] = VSClipFilter::GetUuid().toString();
+  m_PlaneWidget->writeJson(json);
+  m_BoxWidget->writeJson(json);
 
   vtkMatrix4x4* matrix = m_LastBoxTransform->GetMatrix();
   double* matrixData = matrix->GetData();
@@ -471,7 +425,7 @@ bool VSClipValues::getLastPlaneInverted() const
 // -----------------------------------------------------------------------------
 double* VSClipValues::getLastPlaneOrigin() const
 {
-  return m_LastPlaneOrigin;
+  return m_PlaneWidget->getOrigin();
 }
 
 // -----------------------------------------------------------------------------
@@ -479,7 +433,7 @@ double* VSClipValues::getLastPlaneOrigin() const
 // -----------------------------------------------------------------------------
 double* VSClipValues::getLastPlaneNormal() const
 {
-  return m_LastPlaneNormal;
+  return m_PlaneWidget->getNormal();
 }
 
 // -----------------------------------------------------------------------------
@@ -568,10 +522,7 @@ void VSClipValues::setLastPlaneInverted(bool inverted)
 // -----------------------------------------------------------------------------
 void VSClipValues::setLastPlaneOrigin(double* origin)
 {
-  m_LastPlaneOrigin[0] = origin[0];
-  m_LastPlaneOrigin[1] = origin[1];
-  m_LastPlaneOrigin[2] = origin[2];
-
+  m_PlaneWidget->setUsePlaneOrigin(origin);
   emit lastPlaneOriginChanged();
 }
 
@@ -580,10 +531,7 @@ void VSClipValues::setLastPlaneOrigin(double* origin)
 // -----------------------------------------------------------------------------
 void VSClipValues::setLastPlaneNormal(double* normal)
 {
-  m_LastPlaneNormal[0] = normal[0];
-  m_LastPlaneNormal[1] = normal[1];
-  m_LastPlaneNormal[2] = normal[2];
-
+  m_PlaneWidget->setUsePlaneNormal(normal);
   emit lastPlaneNormalChanged();
 }
 

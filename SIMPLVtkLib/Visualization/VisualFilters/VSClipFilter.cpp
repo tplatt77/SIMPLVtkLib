@@ -461,6 +461,8 @@ void VSClipFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
   m_ClipValues->writeJson(json);
+
+  json["Uuid"] = GetUuid().toString();
 }
 
 // -----------------------------------------------------------------------------
