@@ -52,18 +52,9 @@ VSClipValues::VSClipValues(VSClipFilter* filter)
   connect(m_BoxWidget, &VSBoxWidget::modified, this, &VSClipValues::alertChangesWaiting);
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSClipValues::alertChangesWaiting);
 
-  double useOrigin[3];
-  double useNormal[3];
-  // Reset "Last" values
-  for(int i = 0; i < 3; i++)
-  {
-    useOrigin[i] = 0.0;
-    useNormal[i] = 0.0;
-  }
-  // Set the direction of the plane normal
-  useNormal[0] = 1.0;
-  m_PlaneWidget->setUsePlaneNormal(useNormal);
-  m_PlaneWidget->setUsePlaneOrigin(useOrigin);
+  // Set the last applied plane to the default representation
+  m_PlaneWidget->setUsePlaneNormal(m_PlaneWidget->getNormal());
+  m_PlaneWidget->setUsePlaneOrigin(m_PlaneWidget->getOrigin());
 
   m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
 
@@ -154,11 +145,11 @@ void VSClipValues::resetValues()
   // Reset Inverted
   if(VSClipFilter::ClipType::BOX == m_ClipType)
   {
-    m_Inverted = getLastBoxInverted();
+    setInverted(getLastBoxInverted());
   }
   else
   {
-    m_Inverted = getLastPlaneInverted();
+    setInverted(getLastPlaneInverted());
   }
 
   updateRendering();

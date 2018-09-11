@@ -46,18 +46,8 @@ VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 {
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSSliceValues::alertChangesWaiting);
 
-  double origin[3];
-  origin[0] = 0.0;
-  origin[1] = 0.0;
-  origin[2] = 0.0;
-
-  double normal[3];
-  normal[0] = 1.0;
-  normal[1] = 0.0;
-  normal[2] = 0.0;
-
-  m_PlaneWidget->setUsePlaneNormal(normal);
-  m_PlaneWidget->setUsePlaneOrigin(origin);
+  m_PlaneWidget->setUsePlaneNormal(m_PlaneWidget->getNormal());
+  m_PlaneWidget->setUsePlaneOrigin(m_PlaneWidget->getOrigin());
 }
 
 // -----------------------------------------------------------------------------
