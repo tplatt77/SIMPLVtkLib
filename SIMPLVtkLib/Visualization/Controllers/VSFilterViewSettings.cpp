@@ -106,12 +106,16 @@ VSFilterViewSettings::VSFilterViewSettings(const VSFilterViewSettings& copy)
   connectFilter(copy.m_Filter);
   setupActions();
   setupActors();
+  setActiveArrayName(copy.m_ActiveArrayName);
+  setActiveComponentIndex(copy.m_ActiveComponent);
   setScalarBarVisible(copy.isScalarBarVisible());
   setRepresentation(copy.getRepresentation());
   setActiveArrayName(copy.m_ActiveArrayName);
   setActiveComponentIndex(copy.m_ActiveComponent);
   setSolidColor(copy.getSolidColor());
   setPointSize(copy.getPointSize());
+  setRepresentation(copy.getRepresentation());
+  setIsSelected(copy.m_Selected);
 
   if(copy.m_LookupTable)
   {
@@ -155,6 +159,7 @@ void VSFilterViewSettings::deepCopy(VSFilterViewSettings* target)
   setActiveComponentIndex(target->m_ActiveComponent);
   setSolidColor(target->getSolidColor());
   setPointSize(target->getPointSize());
+  setIsSelected(target->m_Selected);
 }
 
 // -----------------------------------------------------------------------------
