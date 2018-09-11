@@ -285,18 +285,24 @@ void VSCropValues::setLastSampleRate(int sampleRate[3])
 void VSCropValues::writeJson(QJsonObject& json)
 {
   QJsonArray lastVOI;
+  QJsonArray voi;
   for(int i = 0; i < 6; i++)
   {
     lastVOI.append(m_LastVoi[i]);
+    voi.append(m_Voi[i]);
   }
   json["Last VOI"] = lastVOI;
+  json["VOI"] = voi;
 
   QJsonArray lastSampleRate;
+  QJsonArray sampleRate;
   for(int i = 0; i < 3; i++)
   {
-    lastSampleRate.append(m_LastSampleRate[0]);
+    lastSampleRate.append(m_LastSampleRate[i]);
+    sampleRate.append(m_SampleRate[i]);
   }
   json["Last Sample Rate"] = lastSampleRate;
+  json["Sample Rate"] = sampleRate;
 }
 
 // -----------------------------------------------------------------------------

@@ -78,6 +78,7 @@ void VSMaskValues::applyValues()
 // -----------------------------------------------------------------------------
 void VSMaskValues::resetValues()
 {
+  setMaskName(m_LastArrayName);
 }
 
 // -----------------------------------------------------------------------------
@@ -155,6 +156,7 @@ QWidget* VSMaskValues::createFilterWidget()
 void VSMaskValues::loadJson(QJsonObject& json)
 {
   m_LastArrayName = json["Last Array Name"].toString();
+  m_MaskArrayName = json["Mask Name"].toString();
 }
 
 // -----------------------------------------------------------------------------
@@ -163,4 +165,5 @@ void VSMaskValues::loadJson(QJsonObject& json)
 void VSMaskValues::writeJson(QJsonObject& json)
 {
   json["Last Array Name"] = m_LastArrayName;
+  json["Mask Name"] = m_MaskArrayName;
 }
