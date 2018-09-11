@@ -49,6 +49,16 @@ VSMaskValues::VSMaskValues(VSMaskFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSMaskValues::VSMaskValues(const VSMaskValues& values)
+: VSAbstractFilterValues(values.getFilter())
+{
+  m_LastArrayName = values.m_LastArrayName;
+  m_MaskArrayName = values.m_MaskArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMaskValues::applyValues()
 {
   VSAbstractFilter::FilterListType filters = getSelection();
@@ -76,7 +86,7 @@ void VSMaskValues::resetValues()
 bool VSMaskValues::hasChanges() const
 {
   VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
-  return m_MaskArrayName != filter->getLastArrayName();
+  return m_MaskArrayName != getLastArrayName();
 }
 
 // -----------------------------------------------------------------------------
@@ -99,6 +109,24 @@ void VSMaskValues::setMaskName(QString maskName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString VSMaskValues::getLastArrayName() const
+{
+  return m_LastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskValues::setLastArrayName(QString lastArrayName)
+{
+  m_LastArrayName = lastArrayName;
+
+  emit lastArrayNameChanged(lastArrayName);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QWidget* VSMaskValues::createFilterWidget()
 {
   Ui::VSMaskFilterWidget ui;
@@ -106,7 +134,7 @@ QWidget* VSMaskValues::createFilterWidget()
   VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
 
   ui.maskComboBox->addItems(getFilter()->getScalarNames());
-  ui.maskComboBox->setCurrentText(filter->getLastArrayName());
+  ui.maskComboBox->setCurrentText(getLastArrayName());
 
   connect(ui.maskComboBox, &QComboBox::currentTextChanged, [=](QString text) {
     m_MaskArrayName = text;
@@ -119,4 +147,20 @@ QWidget* VSMaskValues::createFilterWidget()
   });
 
   return filterWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskValues::loadJson(QJsonObject& json)
+{
+  m_LastArrayName = json["Last Array Name"].toString();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskValues::writeJson(QJsonObject& json)
+{
+  json["Last Array Name"] = m_LastArrayName;
 }

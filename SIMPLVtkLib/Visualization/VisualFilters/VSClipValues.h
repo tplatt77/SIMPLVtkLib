@@ -50,11 +50,27 @@ class SIMPLVtkLib_EXPORT VSClipValues : public VSAbstractFilterValues
 {
   Q_OBJECT
 
+  Q_PROPERTY(VSClipFilter::ClipType lastClipType READ getLastClipType WRITE setLastClipType NOTIFY clipTypeChanged)
+  Q_PROPERTY(bool lastBoxInverted READ getLastBoxInverted NOTIFY lastBoxInvertedChanged)
+  Q_PROPERTY(bool lastPlaneInverted READ getLastPlaneInverted NOTIFY lastPlaneInvertedChanged)
+  Q_PROPERTY(double* lastPlaneOrigin READ getLastPlaneOrigin NOTIFY lastPlaneOriginChanged)
+  Q_PROPERTY(double* lastPlaneNormal READ getLastPlaneNormal NOTIFY lastPlaneNormalChanged)
+  Q_PROPERTY(std::vector<double> lastBoxTranslation READ getLastBoxTranslationVector NOTIFY lastBoxTranslationChanged)
+  Q_PROPERTY(std::vector<double> lastBoxRotation READ getLastBoxRotationVector NOTIFY lastBoxRotationChanged)
+  Q_PROPERTY(std::vector<double> lastBoxScale READ getLastBoxScaleVector NOTIFY lastBoxScaleChanged)
+
 public:
   using FilterType = VSClipFilter;
 
   VSClipValues(VSClipFilter* filter);
-  virtual ~VSClipValues() = default;
+  VSClipValues(const VSClipValues& values);
+  virtual ~VSClipValues();
+
+  /**
+   * @brief Returns the current VSClipFilter
+   * @return
+   */
+  VSClipFilter* getClipFilter() const;
 
   /**
    * @brief Applies the current values to the selected filters
@@ -126,9 +142,122 @@ public:
    */
   QWidget* createFilterWidget() override;
 
+  /**
+   * @brief Returns whether or not the last applied plane was inverted
+   * @return
+   */
+  bool getLastPlaneInverted() const;
+
+  /**
+   * @brief Returns the origin of the last applied plane
+   * @return
+   */
+  double* getLastPlaneOrigin() const;
+
+  /**
+   * @brief Returns the normal of the last applied plane
+   * @return
+   */
+  double* getLastPlaneNormal() const;
+
+  /**
+   * @brief Returns whether or not the last applied box was inverted
+   * @return
+   */
+  bool getLastBoxInverted() const;
+
+  /**
+   * @brief Sets whether or not the last applied plane was inverted
+   * @param inverted
+   * @return
+   */
+  void setLastPlaneInverted(bool inverted);
+
+  /**
+   * @brief Sets the origin of the last applied plane
+   * @param origin
+   * @return
+   */
+  void setLastPlaneOrigin(double* origin);
+
+  /**
+   * @brief Sets the normal of the last applied plane
+   * @param normal
+   * @return
+   */
+  void setLastPlaneNormal(double* normal);
+
+  /**
+   * @brief Sets whether or not the last applied box was inverted
+   * @param inverted
+   * @return
+   */
+  void setLastBoxInverted(bool inverted);
+
+  /**
+   * @brief Returns the vtkTransform of the last applied box
+   * @return
+   */
+  VTK_PTR(vtkTransform) getLastBoxTransform() const;
+
+  /**
+   * @brief Returns the translation portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxTranslationVector() const;
+
+  /**
+   * @brief Returns the rotation portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxRotationVector() const;
+
+  /**
+   * @brief Returns the scale portion of the last applied box transform
+   * @return
+   */
+  std::vector<double> getLastBoxScaleVector() const;
+
+  /**
+   * @brief Sets the vtkTransform of the last applied box
+   * @return
+   */
+  void setLastBoxTransform(VTK_PTR(vtkTransform) transform);
+
+  /**
+   * @brief Returns the clip type of the last applied clip
+   * @return
+   */
+  VSClipFilter::ClipType getLastClipType() const;
+
+  /**
+   * @brief Sets the clip type of the last applied clip
+   * @param type
+   */
+  void setLastClipType(VSClipFilter::ClipType type);
+
+  /**
+   * @brief Loads JSon values
+   * @param json
+   */
+  void loadJSon(QJsonObject& json);
+
+  /**
+   * @brief Writes values to JSon
+   * @param json
+   */
+  void writeJson(QJsonObject& json);
+
 signals:
   void clipTypeChanged(VSClipFilter::ClipType);
   void isInvertedChanged(bool);
+  void lastPlaneInvertedChanged();
+  void lastBoxInvertedChanged();
+  void lastPlaneOriginChanged();
+  void lastPlaneNormalChanged();
+  void lastBoxTranslationChanged();
+  void lastBoxRotationChanged();
+  void lastBoxScaleChanged();
 
 protected:
   /**
@@ -141,4 +270,11 @@ private:
   VSBoxWidget* m_BoxWidget = nullptr;
   VSPlaneWidget* m_PlaneWidget = nullptr;
   VSClipFilter::ClipType m_ClipType = VSClipFilter::ClipType::PLANE;
+  VSClipFilter::ClipType m_LastClipType = VSClipFilter::ClipType::PLANE;
+  bool m_LastPlaneInverted = false;
+  bool m_LastBoxInverted = false;
+
+  double* m_LastPlaneOrigin;
+  double* m_LastPlaneNormal;
+  VTK_PTR(vtkTransform) m_LastBoxTransform;
 };

@@ -51,7 +51,14 @@ public:
   using FilterType = VSCropFilter;
 
   VSCropValues(VSCropFilter* filter);
+  VSCropValues(const VSCropValues& values);
   virtual ~VSCropValues();
+
+  /**
+   * @brief Returns the current filter as a VSCropFilter
+   * @return
+   */
+  VSCropFilter* getCropFilter() const;
 
   /**
    * @brief Applies the current values to the selected crop filters
@@ -99,11 +106,40 @@ public:
    */
   void setSampleRate(int sampleRate[3]);
 
+  /**
+   * @brief Updates the last applied volume of interest
+   * @param voi
+   */
+  void setLastVOI(int voi[6]);
+
+  /**
+   * @brief Updates the last applied sample rate
+   * @param sampleRate
+   */
+  void setLastSampleRate(int sampleRate[3]);
+
+  /**
+   * @brief Writes values to Json
+   * @param json
+   */
+  void writeJson(QJsonObject& json);
+
+  /**
+   * @brief Loads values from Json
+   * @param json
+   */
+  void loadJson(QJsonObject& json);
+
 signals:
   void volumeOfInterestChanged(int voi[6]);
   void sampleRateChanged(int sampleRate[3]);
+  void lastVolumeOfInterestChanged(int lastVOI[6]);
+  void lastSampleRateChanged(int lastSampleRate[3]);
 
 private:
   int* m_Voi;
   int* m_SampleRate;
+
+  int m_LastVoi[6];
+  int m_LastSampleRate[3];
 };

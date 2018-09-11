@@ -59,6 +59,22 @@ VSThresholdValues::VSThresholdValues(VSThresholdFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSThresholdValues::VSThresholdValues(const VSThresholdValues& values)
+  : VSAbstractFilterValues(values.getFilter())
+  , m_Range(new double[2])
+{
+  QStringList scalarNames = values.getFilter()->getScalarNames();
+  setRange(values.getRange()[0], values.getRange()[1]);
+  setMinValue(values.getMinValue());
+  setMaxValue(values.getMaxValue());
+  setLastArrayName(values.getLastArrayName());
+  setLastMaxValue(values.getLastMaxValue());
+  setLastMinValue(values.getLastMinValue());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSThresholdValues::~VSThresholdValues()
 {
   delete[] m_Range;
@@ -86,6 +102,9 @@ void VSThresholdValues::applyValues()
 // -----------------------------------------------------------------------------
 void VSThresholdValues::resetValues()
 {
+  setArrayName(getLastArrayName());
+  setMinValue(getLastMinValue());
+  setMaxValue(getLastMaxValue());
 }
 
 // -----------------------------------------------------------------------------
@@ -94,16 +113,13 @@ void VSThresholdValues::resetValues()
 bool VSThresholdValues::hasChanges() const
 {
   VSThresholdFilter* filter = dynamic_cast<VSThresholdFilter*>(getFilter());
-  QString lastArrayName = filter->getLastArrayName();
-  double lastMinValue = filter->getLastMinValue();
-  double lastMaxValue = filter->getLastMaxValue();
 
-  if(getArrayName() != lastArrayName)
+  if(getArrayName() != getLastArrayName())
   {
     return true;
   }
 
-  if(getMinValue() != lastMinValue || getMaxValue() != lastMaxValue)
+  if(getMinValue() != getLastMinValue() || getMaxValue() != getLastMaxValue())
   {
     return true;
   }
@@ -336,4 +352,75 @@ void VSThresholdValues::setMaxValue(double value)
   m_MaxValue = value;
   emit maxValueChanged(value);
   emit alertChangesWaiting();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSThresholdValues::getLastArrayName() const
+{
+  return m_LastArrayName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdValues::getLastMinValue() const
+{
+  return m_LastMinValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSThresholdValues::getLastMaxValue() const
+{
+  return m_LastMaxValue;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdValues::setLastArrayName(QString lastArrayName)
+{
+  m_LastArrayName = lastArrayName;
+  emit lastArrayNameChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdValues::setLastMinValue(double lastMinValue)
+{
+  m_LastMinValue = lastMinValue;
+  emit lastMinValueChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdValues::setLastMaxValue(double lastMaxValue)
+{
+  m_LastMaxValue = lastMaxValue;
+  emit lastMaxValueChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdValues::readJson(QJsonObject& json)
+{
+  m_LastArrayName = json["Last Array Name"].toString();
+  m_LastMinValue = json["Last Minimum Value"].toDouble();
+  m_LastMaxValue = json["Last Maximum Value"].toDouble();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSThresholdValues::writeJson(QJsonObject& json)
+{
+  json["Last Array Name"] = m_LastArrayName;
+  json["Last Minimum Value"] = m_LastMinValue;
+  json["Last Maximum Value"] = m_LastMaxValue;
 }

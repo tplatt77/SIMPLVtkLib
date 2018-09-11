@@ -63,14 +63,11 @@ VSThresholdFilter::VSThresholdFilter(VSAbstractFilter* parent)
 // -----------------------------------------------------------------------------
 VSThresholdFilter::VSThresholdFilter(const VSThresholdFilter& copy)
 : VSAbstractFilter()
-, m_LastArrayName(copy.m_LastArrayName)
-, m_LastMinValue(copy.m_LastMinValue)
-, m_LastMaxValue(copy.m_LastMaxValue)
 {
   m_ThresholdAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
 
-  m_ThresholdValues = new VSThresholdValues(this);
+  m_ThresholdValues = new VSThresholdValues(*(copy.m_ThresholdValues));
 }
 
 // -----------------------------------------------------------------------------
@@ -79,11 +76,7 @@ VSThresholdFilter::VSThresholdFilter(const VSThresholdFilter& copy)
 VSThresholdFilter* VSThresholdFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSThresholdFilter* filter = new VSThresholdFilter(parent);
-
-  filter->setLastArrayName(json["Last Array Name"].toString());
-  filter->setLastMinValue(json["Last Minimum Value"].toDouble());
-  filter->setLastMaxValue(json["Last Maximum Value"].toDouble());
-
+  filter->m_ThresholdValues->readJson(json);
   filter->setInitialized(true);
   filter->readTransformJson(json);
 
@@ -155,18 +148,15 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
   }
 
   // Save the applied values for resetting Threshold-Type widgets
-  m_LastArrayName = arrayName;
-  m_LastMinValue = min;
-  m_LastMaxValue = max;
+  m_ThresholdValues->setLastArrayName(arrayName);
+  m_ThresholdValues->setLastMinValue(min);
+  m_ThresholdValues->setLastMaxValue(max);
 
   m_ThresholdAlgorithm->ThresholdBetween(min, max);
   m_ThresholdAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(arrayName));
   m_ThresholdAlgorithm->Update();
 
   emit updatedOutputPort(this);
-  emit lastArrayNameChanged();
-  emit lastMaxValueChanged();
-  emit lastMinValueChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -174,6 +164,7 @@ void VSThresholdFilter::apply(QString arrayName, double min, double max)
 // -----------------------------------------------------------------------------
 void VSThresholdFilter::readJson(QJsonObject& json)
 {
+  m_ThresholdValues->readJson(json);
 }
 
 // -----------------------------------------------------------------------------
@@ -182,11 +173,9 @@ void VSThresholdFilter::readJson(QJsonObject& json)
 void VSThresholdFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
+  m_ThresholdValues->writeJson(json);
 
   json["Uuid"] = GetUuid().toString();
-  json["Last Array Name"] = m_LastArrayName;
-  json["Last Minimum Value"] = m_LastMinValue;
-  json["Last Maximum Value"] = m_LastMaxValue;
 }
 
 // -----------------------------------------------------------------------------
@@ -319,55 +308,4 @@ bool VSThresholdFilter::CompatibleWithParents(VSAbstractFilter::FilterListType f
 VSAbstractFilterValues* VSThresholdFilter::getValues()
 {
   return m_ThresholdValues;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString VSThresholdFilter::getLastArrayName()
-{
-  return m_LastArrayName;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double VSThresholdFilter::getLastMinValue()
-{
-  return m_LastMinValue;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double VSThresholdFilter::getLastMaxValue()
-{
-  return m_LastMaxValue;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setLastArrayName(QString lastArrayName)
-{
-  m_LastArrayName = lastArrayName;
-  emit lastArrayNameChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setLastMinValue(double lastMinValue)
-{
-  m_LastMinValue = lastMinValue;
-  emit lastMinValueChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSThresholdFilter::setLastMaxValue(double lastMaxValue)
-{
-  m_LastMaxValue = lastMaxValue;
-  emit lastMaxValueChanged();
 }

@@ -46,6 +46,33 @@ VSCropValues::VSCropValues(VSCropFilter* filter)
 , m_Voi(new int[6])
 , m_SampleRate(new int[3])
 {
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastVoi[i] = 0;
+    m_LastVoi[i + 3] = 0;
+    m_LastSampleRate[i] = 1;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSCropValues::VSCropValues(const VSCropValues& values)
+: VSAbstractFilterValues(values.getFilter())
+{
+  // Volume of Interest
+  for(int i = 0; i < 6; i++)
+  {
+    m_LastVoi[i] = values.m_LastVoi[i];
+    m_Voi[i] = values.m_Voi[i];
+  }
+
+  // Sample Rate
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastSampleRate[i] = values.m_LastSampleRate[i];
+    m_SampleRate[i] = values.m_SampleRate[i];
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -55,6 +82,14 @@ VSCropValues::~VSCropValues()
 {
   delete[] m_Voi;
   delete[] m_SampleRate;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSCropFilter* VSCropValues::getCropFilter() const
+{
+  return dynamic_cast<VSCropFilter*>(getFilter());
 }
 
 // -----------------------------------------------------------------------------
@@ -88,17 +123,14 @@ bool VSCropValues::hasChanges() const
 {
   VSCropFilter* filter = dynamic_cast<VSCropFilter*>(getFilter());
 
-  int* lastVoi = filter->getVOI();
-  int* lastSampleRate = filter->getSampleRate();
-
   for(int i = 0; i < 3; i++)
   {
-    if(m_Voi[i * 2] != lastVoi[i * 2] || m_Voi[i * 2 + 1] != lastVoi[i * 2 + 1])
+    if(m_Voi[i * 2] != m_LastVoi[i * 2] || m_Voi[i * 2 + 1] != m_LastVoi[i * 2 + 1])
     {
       return true;
     }
 
-    if(m_SampleRate[i] != lastSampleRate[i])
+    if(m_SampleRate[i] != m_LastSampleRate[i])
     {
       return true;
     }
@@ -219,4 +251,70 @@ void VSCropValues::setSampleRate(int sampleRate[3])
   }
 
   emit sampleRateChanged(sampleRate);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::setLastVOI(int voi[6])
+{
+  for(int i = 0; i < 6; i++)
+  {
+    m_LastVoi[i] = voi[i];
+  }
+  
+  emit lastVolumeOfInterestChanged(voi);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::setLastSampleRate(int sampleRate[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastSampleRate[i] = sampleRate[i];
+  }
+  
+  emit lastSampleRateChanged(sampleRate);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::writeJson(QJsonObject& json)
+{
+  QJsonArray lastVOI;
+  for(int i = 0; i < 6; i++)
+  {
+    lastVOI.append(m_LastVoi[i]);
+  }
+  json["Last VOI"] = lastVOI;
+
+  QJsonArray lastSampleRate;
+  for(int i = 0; i < 3; i++)
+  {
+    lastSampleRate.append(m_LastSampleRate[0]);
+  }
+  json["Last Sample Rate"] = lastSampleRate;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSCropValues::loadJson(QJsonObject& json)
+{
+  QJsonArray voiArray = json["Last VOI"].toArray();
+  for(int i = 0; i < 6; i++)
+  {
+    m_LastVoi[i] = voiArray.at(i).toInt();
+  }
+  
+  QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastSampleRate[i] = sampleRateArray.at(i).toInt();
+  }
+
+  emit alertChangesWaiting();
 }

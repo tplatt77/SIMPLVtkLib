@@ -60,9 +60,6 @@ class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
-  Q_PROPERTY(std::vector<int> voi READ getVolumeOfInterestVector NOTIFY voiChanged)
-  Q_PROPERTY(std::vector<int> sampleRate READ getSampleRateVector NOTIFY sampleRateChanged)
-
 public:
   /**
    * @brief Constructor
@@ -171,43 +168,7 @@ public:
    * @return
    */
   VSAbstractFilterValues* getValues() override;
-
-  /**
-   * @brief Return the VOI last applied to the filter
-   * @return
-   */
-  int* getVOI();
-
-  /**
-   * @brief Return the sample rate last applied to the filter
-   * @return
-   */
-  int* getSampleRate();
-
-  /**
-   * @brief Set the VOI last applied to the filter
-   * @param voi
-   */
-  void setVOI(int* voi);
-
-  /**
-   * @brief Set the sample rate last applied to the filter
-   * @param sampleRate
-   */
-  void setSampleRate(int* sampleRate);
-
-  /**
-   * @brief Returns a vector with the volume of interest
-   * @return
-   */
-  std::vector<int> getVolumeOfInterestVector();
-
-  /**
-   * @brief Returns a vector with the sample rate
-   * @return
-   */
-  std::vector<int> getSampleRateVector();
-
+  
   /**
    * @brief Writes values to a json file from the filter
    * @param json
@@ -219,10 +180,6 @@ public:
    * @return
    */
   static QUuid GetUuid();
-
-signals:
-  void voiChanged();
-  void sampleRateChanged();
 
 protected:
   /**
@@ -239,9 +196,6 @@ protected:
 private:
   VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
   VSCropValues* m_CropValues = nullptr;
-
-  int m_LastVoi[6];
-  int m_LastSampleRate[3];
 };
 
 Q_DECLARE_METATYPE(VSCropFilter)

@@ -56,9 +56,6 @@ class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
-  Q_PROPERTY(std::vector<double> lastOrigin READ getLastOriginVector NOTIFY lastOriginChanged)
-  Q_PROPERTY(std::vector<double> lastNormal READ getLastNormalVector NOTIFY lastNormalChanged)
-
 public:
   /**
    * @brief Constructor
@@ -170,44 +167,6 @@ public:
   VSAbstractFilterValues* getValues() override;
 
   /**
-   * @brief Returns the origin of the last applied slice
-   * @return
-   */
-  double* getLastOrigin();
-
-  /**
-   * @brief Returns the normal of the last applied slice
-   * @return
-   */
-  double* getLastNormal();
-
-  /**
-   * @brief Sets the origin of the last applied slice
-   * @param origin
-   * @return
-   */
-  void setLastOrigin(double* origin);
-
-  /**
-   * @brief Sets the normal of the last applied slice
-   * @param normal
-   * @return
-   */
-  void setLastNormal(double* normal);
-
-  /**
-   * @brief Returns a vector of the last applied slice origin
-   * @return
-   */
-  std::vector<double> getLastOriginVector();
-
-  /**
-   * @brief Returns a vector of the last applied slice normal
-   * @return
-   */
-  std::vector<double> getLastNormalVector();
-
-  /**
    * @brief Reads values from a json file into the filter
    * @param json
    */
@@ -225,10 +184,6 @@ public:
    */
   static QUuid GetUuid();
 
-signals:
-  void lastOriginChanged();
-  void lastNormalChanged();
-
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -244,9 +199,6 @@ protected:
 private:
   VTK_PTR(vtkCutter) m_SliceAlgorithm;
   VSSliceValues* m_SliceValues = nullptr;
-
-  double m_LastOrigin[3];
-  double m_LastNormal[3];
 };
 
 Q_DECLARE_METATYPE(VSSliceFilter)

@@ -52,6 +52,7 @@ public:
   using FilterType = VSMaskFilter;
 
   VSMaskValues(VSMaskFilter* filter);
+  VSMaskValues(const VSMaskValues& values);
   virtual ~VSMaskValues() = default;
 
   /**
@@ -88,9 +89,35 @@ public:
    */
   void setMaskName(QString maskName);
 
+  /**
+   * @brief Returns the name of the array last applied as a mask
+   * @return
+   */
+  QString getLastArrayName() const;
+
+  /**
+   * @brief Sets the name of the array last applied as a mask
+   * @return
+   */
+  void setLastArrayName(QString lastArrayName);
+
+  /**
+   * @brief Loads values from Json
+   * @param json
+   */
+  void loadJson(QJsonObject& json);
+
+  /**
+   * @brief Writes value to Json
+   * @param json
+   */
+  void writeJson(QJsonObject& json);
+
 signals:
   void maskNameChanged(QString name);
+  void lastArrayNameChanged(QString name);
 
 private:
   QString m_MaskArrayName;
+  QString m_LastArrayName;
 };

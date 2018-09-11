@@ -35,6 +35,8 @@
 
 #include "VSClipValues.h"
 
+#include <QtCore/QUuid>
+
 #include "ui_VSClipFilterWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -44,11 +46,68 @@ VSClipValues::VSClipValues(VSClipFilter* filter)
 : VSAbstractFilterValues(filter)
 , m_BoxWidget(new VSBoxWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
 , m_PlaneWidget(new VSPlaneWidget(nullptr, filter->getTransform(), filter->getBounds(), nullptr))
+, m_LastPlaneOrigin(new double[3])
+, m_LastPlaneNormal(new double[3])
 {
   setClipType(VSClipFilter::ClipType::PLANE);
 
   connect(m_BoxWidget, &VSBoxWidget::modified, this, &VSClipValues::alertChangesWaiting);
   connect(m_PlaneWidget, &VSPlaneWidget::modified, this, &VSClipValues::alertChangesWaiting);
+
+  // Reset "Last" values
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastPlaneOrigin[i] = 0.0;
+    m_LastPlaneNormal[i] = 0.0;
+  }
+
+  m_LastBoxTransform = VTK_PTR(vtkTransform)::New();
+
+  // Set the direction of the plane normal
+  m_LastPlaneNormal[0] = 1.0;
+
+  m_LastClipType = VSClipFilter::ClipType::PLANE;
+  m_LastPlaneInverted = false;
+  m_LastBoxInverted = false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipValues::VSClipValues(const VSClipValues& values)
+: VSAbstractFilterValues(values.getFilter())
+, m_BoxWidget(new VSBoxWidget(nullptr, values.getFilter()->getTransform(), values.getFilter()->getBounds(), nullptr))
+, m_PlaneWidget(new VSPlaneWidget(nullptr, values.getFilter()->getTransform(), values.getFilter()->getBounds(), nullptr))
+, m_ClipType(values.m_ClipType)
+, m_LastClipType(values.m_LastClipType)
+, m_LastBoxInverted(values.m_LastBoxInverted)
+, m_LastBoxTransform(values.m_LastBoxTransform)
+, m_LastPlaneInverted(values.m_LastPlaneInverted)
+, m_LastPlaneOrigin(new double[3])
+, m_LastPlaneNormal(new double[3])
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m_LastPlaneNormal[i] = values.m_LastPlaneNormal[i];
+    m_LastPlaneOrigin[i] = values.m_LastPlaneOrigin[i];
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipValues::~VSClipValues()
+{
+  delete[] m_LastPlaneNormal;
+  delete[] m_LastPlaneOrigin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipFilter* VSClipValues::getClipFilter() const
+{
+  return dynamic_cast<VSClipFilter*>(getFilter());
 }
 
 // -----------------------------------------------------------------------------
@@ -90,16 +149,16 @@ void VSClipValues::resetValues()
     return;
   }
   VSClipFilter* filter = dynamic_cast<VSClipFilter*>(getFilter());
-  m_ClipType = filter->getLastClipType();
+  m_ClipType = getLastClipType();
   emit clipTypeChanged(m_ClipType);
 
   // Reset BoxWidget
-  m_BoxWidget->setTransform(filter->getLastBoxTransform());
+  m_BoxWidget->setTransform(getLastBoxTransform());
 
   // Reset PlaneWidget
-  m_PlaneWidget->setOrigin(filter->getLastPlaneOrigin());
-  m_PlaneWidget->setNormal(filter->getLastPlaneNormal());
-  
+  m_PlaneWidget->setOrigin(getLastPlaneOrigin());
+  m_PlaneWidget->setNormal(getLastPlaneNormal());
+
   if(getInteractor())
   {
     getInteractor()->Render();
@@ -108,11 +167,11 @@ void VSClipValues::resetValues()
   // Reset Inverted
   if(VSClipFilter::ClipType::BOX == m_ClipType)
   {
-    m_Inverted = filter->getLastBoxInverted();
+    m_Inverted = getLastBoxInverted();
   }
   else
   {
-    m_Inverted = filter->getLastPlaneInverted();
+    m_Inverted = getLastPlaneInverted();
   }
 
   updateRendering();
@@ -129,7 +188,7 @@ bool VSClipValues::hasChanges() const
   }
 
   VSClipFilter* filter = dynamic_cast<VSClipFilter*>(getFilter());
-  if(m_ClipType != filter->getLastClipType())
+  if(m_ClipType != getLastClipType())
   {
     return true;
   }
@@ -138,14 +197,14 @@ bool VSClipValues::hasChanges() const
   {
   case VSClipFilter::ClipType::BOX:
   {
-    if(m_Inverted != filter->getLastBoxInverted())
+    if(m_Inverted != getLastBoxInverted())
     {
       return true;
     }
 
-    std::vector<double> lastTranslation = filter->getLastBoxTranslationVector();
-    std::vector<double> lastRotation = filter->getLastBoxRotationVector();
-    std::vector<double> lastScale = filter->getLastBoxScaleVector();
+    std::vector<double> lastTranslation = getLastBoxTranslationVector();
+    std::vector<double> lastRotation = getLastBoxRotationVector();
+    std::vector<double> lastScale = getLastBoxScaleVector();
     if(!getBoxWidget()->equals(lastTranslation, lastRotation, lastScale))
     {
       return true;
@@ -153,7 +212,7 @@ bool VSClipValues::hasChanges() const
   }
   break;
   case VSClipFilter::ClipType::PLANE:
-    if(!getPlaneWidget()->equals(filter->getLastPlaneOrigin(), filter->getLastPlaneNormal()))
+    if(!getPlaneWidget()->equals(getLastPlaneOrigin(), getLastPlaneNormal()))
     {
       return true;
     }
@@ -324,4 +383,232 @@ QWidget* VSClipValues::createFilterWidget()
   });
 
   return filterWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::loadJSon(QJsonObject& json)
+{
+  setLastClipType(static_cast<VSClipFilter::ClipType>(json["Last Clip Type"].toInt()));
+  setLastPlaneInverted(json["Last Plane Inverted"].toBool());
+  setLastBoxInverted(json["Last Box Inverted"].toBool());
+
+  QJsonArray lastPlaneOrigin = json["Last Plane Origin"].toArray();
+  double origin[3];
+  origin[0] = lastPlaneOrigin.at(0).toDouble();
+  origin[1] = lastPlaneOrigin.at(1).toDouble();
+  origin[2] = lastPlaneOrigin.at(2).toDouble();
+  setLastPlaneOrigin(origin);
+
+  QJsonArray lastPlaneNormal = json["Last Plane Normal"].toArray();
+  double normals[3];
+  normals[0] = lastPlaneNormal.at(0).toDouble();
+  normals[1] = lastPlaneNormal.at(1).toDouble();
+  normals[2] = lastPlaneNormal.at(2).toDouble();
+  setLastPlaneNormal(normals);
+
+  QJsonArray boxTransformDataArray = json["Box Transform Data"].toArray();
+  double boxTransformData[16];
+  for(int i = 0; i < 16; i++)
+  {
+    boxTransformData[i] = boxTransformDataArray[i].toDouble();
+  }
+
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(boxTransformData);
+
+  VTK_NEW(vtkTransform, transform);
+  transform->SetMatrix(matrix);
+
+  setLastBoxTransform(transform);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::writeJson(QJsonObject& json)
+{
+  json["Last Clip Type"] = static_cast<int>(m_LastClipType);
+  json["Last Plane Inverted"] = m_LastPlaneInverted;
+  json["Last Box Inverted"] = m_LastBoxInverted;
+
+  QJsonArray lastPlaneOrigin;
+  lastPlaneOrigin.append(m_LastPlaneOrigin[0]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[1]);
+  lastPlaneOrigin.append(m_LastPlaneOrigin[2]);
+  json["Last Plane Origin"] = lastPlaneOrigin;
+
+  QJsonArray lastPlaneNormal;
+  lastPlaneNormal.append(m_LastPlaneNormal[0]);
+  lastPlaneNormal.append(m_LastPlaneNormal[1]);
+  lastPlaneNormal.append(m_LastPlaneNormal[2]);
+  json["Last Plane Normal"] = lastPlaneNormal;
+
+  json["Uuid"] = VSClipFilter::GetUuid().toString();
+
+  vtkMatrix4x4* matrix = m_LastBoxTransform->GetMatrix();
+  double* matrixData = matrix->GetData();
+  QJsonArray boxTransformData;
+  for(int i = 0; i < 16; i++)
+  {
+    boxTransformData.append(matrixData[i]);
+  }
+
+  json["Box Transform Data"] = boxTransformData;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipValues::getLastPlaneInverted() const
+{
+  return m_LastPlaneInverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipValues::getLastPlaneOrigin() const
+{
+  return m_LastPlaneOrigin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSClipValues::getLastPlaneNormal() const
+{
+  return m_LastPlaneNormal;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSClipValues::getLastBoxInverted() const
+{
+  return m_LastBoxInverted;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VTK_PTR(vtkTransform) VSClipValues::getLastBoxTransform() const
+{
+  return m_LastBoxTransform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipValues::getLastBoxTranslationVector() const
+{
+  std::vector<double> origin(3);
+  double* position = new double[3];
+  m_LastBoxTransform->GetPosition(position);
+  for(int i = 0; i < 3; i++)
+  {
+    origin[i] = position[i];
+  }
+
+  return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipValues::getLastBoxRotationVector() const
+{
+  std::vector<double> rotation(3);
+  double* rotationPtr = new double[3];
+  m_LastBoxTransform->GetOrientation(rotationPtr);
+  for(int i = 0; i < 3; i++)
+  {
+    rotation[i] = rotationPtr[i];
+  }
+
+  return rotation;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<double> VSClipValues::getLastBoxScaleVector() const
+{
+  std::vector<double> scale(3);
+  double* scalePtr = new double[3];
+  m_LastBoxTransform->GetOrientation(scalePtr);
+  for(int i = 0; i < 3; i++)
+  {
+    scale[i] = scalePtr[i];
+  }
+
+  return scale;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSClipFilter::ClipType VSClipValues::getLastClipType() const
+{
+  return m_LastClipType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastPlaneInverted(bool inverted)
+{
+  m_LastPlaneInverted = inverted;
+  emit lastPlaneInvertedChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastPlaneOrigin(double* origin)
+{
+  m_LastPlaneOrigin[0] = origin[0];
+  m_LastPlaneOrigin[1] = origin[1];
+  m_LastPlaneOrigin[2] = origin[2];
+
+  emit lastPlaneOriginChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastPlaneNormal(double* normal)
+{
+  m_LastPlaneNormal[0] = normal[0];
+  m_LastPlaneNormal[1] = normal[1];
+  m_LastPlaneNormal[2] = normal[2];
+
+  emit lastPlaneNormalChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastBoxInverted(bool inverted)
+{
+  m_LastBoxInverted = inverted;
+  emit lastBoxInvertedChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastBoxTransform(VTK_PTR(vtkTransform) transform)
+{
+  m_LastBoxTransform = transform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSClipValues::setLastClipType(VSClipFilter::ClipType type)
+{
+  m_LastClipType = type;
+  emit clipTypeChanged(type);
 }

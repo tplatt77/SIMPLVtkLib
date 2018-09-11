@@ -55,6 +55,7 @@ public:
   using FilterType = VSSliceFilter;
 
   VSSliceValues(VSSliceFilter* filter);
+  VSSliceValues(const VSSliceValues& values);
   virtual ~VSSliceValues() = default;
 
   /**
@@ -109,6 +110,48 @@ public:
    */
   double* getNormal() const;
 
+  /**
+ * @brief Returns the origin of the last applied slice
+ * @return
+ */
+  double* getLastOrigin() const;
+
+  /**
+   * @brief Returns the normal of the last applied slice
+   * @return
+   */
+  double* getLastNormal() const;
+
+  /**
+   * @brief Sets the origin of the last applied slice
+   * @param origin
+   * @return
+   */
+  void setLastOrigin(double* origin);
+
+  /**
+   * @brief Sets the normal of the last applied slice
+   * @param normal
+   * @return
+   */
+  void setLastNormal(double* normal);
+
+  /**
+  * @brief Write values to Json
+  * @param json
+  */
+  void writeJson(QJsonObject& json);
+
+  /**
+  * @brief Read values from Json
+  * @param json
+  */
+  void readJson(QJsonObject& json);
+
+signals:
+  void lastOriginChanged();
+  void lastNormalChanged();
+
 protected:
   /**
    * @brief Updates the enabled state for the VSPlaneWidget
@@ -117,4 +160,6 @@ protected:
 
 private:
   VSPlaneWidget* m_PlaneWidget = nullptr;
+  double* m_LastOrigin;
+  double* m_LastNormal;
 };

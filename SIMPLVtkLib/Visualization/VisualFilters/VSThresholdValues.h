@@ -49,10 +49,15 @@ class SIMPLVtkLib_EXPORT VSThresholdValues : public VSAbstractFilterValues
 {
   Q_OBJECT
 
+  Q_PROPERTY(QString lastArrayName READ getLastArrayName NOTIFY lastArrayNameChanged)
+  Q_PROPERTY(double lastMinValue READ getLastMinValue NOTIFY lastMinValueChanged)
+  Q_PROPERTY(double lastMaxValue READ getLastMaxValue NOTIFY lastMaxValueChanged)
+
 public:
   using FilterType = VSThresholdFilter;
 
   VSThresholdValues(VSThresholdFilter* filter);
+  VSThresholdValues(const VSThresholdValues& values);
   virtual ~VSThresholdValues();
 
   /**
@@ -71,6 +76,10 @@ public:
    */
   bool hasChanges() const override;
 
+  /**
+   * @brief Create and return a new filter widget for the threshold.
+   * @return
+   */
   QWidget* createFilterWidget() override;
 
   /**
@@ -97,22 +106,111 @@ public:
    */
   double getMaxValue() const;
 
+  /**
+   * @brief Sets the current array name
+   * @param name
+   */
   void setArrayName(QString name);
+
+  /**
+   * @brief Sets the current lower limit
+   * @param value.
+   */
   void setMinValue(double value);
+
+  /**
+   * @brief Sets the current upper limit
+   * @param value.
+   */
   void setMaxValue(double value);
+
+  /**
+   * @brief Returns the name of the array last used for thresholding
+   * @return
+   */
+  QString getLastArrayName() const;
+
+  /**
+   * @brief Returns the last minimum value for thresholding
+   * @return
+   */
+  double getLastMinValue() const;
+
+  /**
+   * @brief Returns the last maximum value for thresholding
+   * @return
+   */
+  double getLastMaxValue() const;
+
+  /**
+   * @brief Sets the name of the array last used for thresholding
+   * @param lastArrayName
+   */
+  void setLastArrayName(QString lastArrayName);
+
+  /**
+   * @brief Sets the last minimum value for thresholding
+   * @param lastMinValue
+   */
+  void setLastMinValue(double lastMinValue);
+
+  /**
+   * @brief Sets the last maximum value for thresholding
+   * @param lastMaxValue
+   */
+  void setLastMaxValue(double lastMaxValue);
+
+  /**
+   * @brief Update values from the given Json
+   * @param json
+   */
+  void readJson(QJsonObject& json);
+
+  /**
+   * @brief Write the current values to Json
+   * @param json
+   */
+  void writeJson(QJsonObject& json);
 
 signals:
   void arrayNameChanged(QString);
   void rangeChanged(double[2]);
   void minValueChanged(double);
   void maxValueChanged(double);
+  void lastArrayNameChanged();
+  void lastMinValueChanged();
+  void lastMaxValueChanged();
 
 protected:
+  /**
+   * @brief Updates the range with a new minimum and maximum
+   * @param min
+   * @param max
+   */
   void setRange(double min, double max);
+
+  /**
+  * @brief Return the percent of the way the lower limit is through the entire range.
+  * @return
+  */
   int getMinPercent() const;
+
+  /**
+  * @brief Return the percent of the way the upper limit is through the entire range.
+  * @return
+  */
   int getMaxPercent() const;
 
+  /**
+  * @brief Updates the minimum value based on the percent of the way the value is throughout the entire range.
+  * @param percent
+  */
   void setMinPercent(int percent);
+
+  /**
+  * @brief Updates the maximum value based on the percent of the way the value is throughout the entire range.
+  * @param percent
+  */
   void setMaxPercent(int percent);
 
 private:
@@ -120,4 +218,7 @@ private:
   double* m_Range = nullptr;
   double m_MinValue = 0.0;
   double m_MaxValue = 1.0;
+  QString m_LastArrayName;
+  double m_LastMinValue = 0.0;
+  double m_LastMaxValue = 99.9;
 };

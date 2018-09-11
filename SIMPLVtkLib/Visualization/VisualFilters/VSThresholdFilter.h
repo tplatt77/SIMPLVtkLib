@@ -57,10 +57,6 @@ class SIMPLVtkLib_EXPORT VSThresholdFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString lastArrayName READ getLastArrayName NOTIFY lastArrayNameChanged)
-  Q_PROPERTY(double lastMinValue READ getLastMinValue NOTIFY lastMinValueChanged)
-  Q_PROPERTY(double lastMaxValue READ getLastMaxValue NOTIFY lastMaxValueChanged)
-
 public:
   /**
    * @brief Consructor
@@ -166,42 +162,6 @@ public:
   VSAbstractFilterValues* getValues() override;
 
   /**
-   * @brief Returns the name of the array last used for thresholding
-   * @return
-   */
-  QString getLastArrayName();
-
-  /**
-   * @brief Returns the last minimum value for thresholding
-   * @return
-   */
-  double getLastMinValue();
-
-  /**
-   * @brief Returns the last maximum value for thresholding
-   * @return
-   */
-  double getLastMaxValue();
-
-  /**
-   * @brief Sets the name of the array last used for thresholding
-   * @param lastArrayName
-   */
-  void setLastArrayName(QString lastArrayName);
-
-  /**
-   * @brief Sets the last minimum value for thresholding
-   * @param lastMinValue
-   */
-  void setLastMinValue(double lastMinValue);
-
-  /**
-   * @brief Sets the last maximum value for thresholding
-   * @param lastMaxValue
-   */
-  void setLastMaxValue(double lastMaxValue);
-
-  /**
    * @brief Reads values from a json file into the filter
    * @param json
    */
@@ -219,11 +179,6 @@ public:
    */
   static QUuid GetUuid();
 
-signals:
-  void lastArrayNameChanged();
-  void lastMinValueChanged();
-  void lastMaxValueChanged();
-
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -239,10 +194,6 @@ protected:
 private:
   VTK_PTR(vtkThreshold) m_ThresholdAlgorithm;
   VSThresholdValues* m_ThresholdValues = nullptr;
-
-  QString m_LastArrayName;
-  double m_LastMinValue = 0.0;
-  double m_LastMaxValue = 99.9;
 };
 
 Q_DECLARE_METATYPE(VSThresholdFilter)

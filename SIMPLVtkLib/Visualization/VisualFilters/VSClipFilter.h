@@ -66,14 +66,6 @@ class SIMPLVtkLib_EXPORT VSClipFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
-  Q_PROPERTY(bool lastBoxInverted READ getLastBoxInverted NOTIFY lastBoxInvertedChanged)
-  Q_PROPERTY(bool lastPlaneInverted READ getLastPlaneInverted NOTIFY lastPlaneInvertedChanged)
-  Q_PROPERTY(std::vector<double> lastPlaneOrigin READ getLastPlaneOriginVector NOTIFY lastPlaneOriginChanged)
-  Q_PROPERTY(std::vector<double> lastPlaneNormal READ getLastPlaneNormalVector NOTIFY lastPlaneNormalChanged)
-  Q_PROPERTY(std::vector<double> lastBoxTranslation READ getLastBoxTranslationVector NOTIFY lastBoxTranslationChanged)
-  Q_PROPERTY(std::vector<double> lastBoxRotation READ getLastBoxRotationVector NOTIFY lastBoxRotationChanged)
-  Q_PROPERTY(std::vector<double> lastBoxScale READ getLastBoxScaleVector NOTIFY lastBoxScaleChanged)
-
 public:
   enum class ClipType : int
   {
@@ -82,7 +74,6 @@ public:
   };
   Q_ENUMS(ClipType)
 
-  Q_PROPERTY(ClipType lastClipType READ getLastClipType WRITE setLastClipType NOTIFY clipTypeChanged)
   Q_PROPERTY(QStringList clipTypes READ getClipTypes)
 
   /**
@@ -225,112 +216,6 @@ public:
   VSAbstractFilterValues* getValues() override;
 
   /**
-   * @brief Returns whether or not the last applied plane was inverted
-   * @return
-   */
-  bool getLastPlaneInverted() const;
-
-  /**
-   * @brief Returns the origin of the last applied plane
-   * @return
-   */
-  double* getLastPlaneOrigin();
-
-  /**
-   * @brief Returns the normal of the last applied plane
-   * @return
-   */
-  double* getLastPlaneNormal();
-
-  /**
-   * @brief Returns the origin of the last applied plane
-   * @return
-   */
-  std::vector<double> getLastPlaneOriginVector() const;
-
-  /**
-   * @brief Returns the normal of the last applied plane
-   * @return
-   */
-  std::vector<double> getLastPlaneNormalVector() const;
-
-  /**
-   * @brief Returns whether or not the last applied box was inverted
-   * @return
-   */
-  bool getLastBoxInverted() const;
-
-  /**
-   * @brief Sets whether or not the last applied plane was inverted
-   * @param inverted
-   * @return
-   */
-  void setLastPlaneInverted(bool inverted);
-
-  /**
-   * @brief Sets the origin of the last applied plane
-   * @param origin
-   * @return
-   */
-  void setLastPlaneOrigin(double* origin);
-
-  /**
-   * @brief Sets the normal of the last applied plane
-   * @param normal
-   * @return
-   */
-  void setLastPlaneNormal(double* normal);
-
-  /**
-   * @brief Sets whether or not the last applied box was inverted
-   * @param inverted
-   * @return
-   */
-  void setLastBoxInverted(bool inverted);
-
-  /**
-   * @brief Returns the vtkTransform of the last applied box
-   * @return
-   */
-  VTK_PTR(vtkTransform) getLastBoxTransform();
-
-  /**
-   * @brief Returns the translation portion of the last applied box transform
-   * @return
-   */
-  std::vector<double> getLastBoxTranslationVector() const;
-
-  /**
-   * @brief Returns the rotation portion of the last applied box transform
-   * @return
-   */
-  std::vector<double> getLastBoxRotationVector() const;
-
-  /**
-   * @brief Returns the scale portion of the last applied box transform
-   * @return
-   */
-  std::vector<double> getLastBoxScaleVector() const;
-
-  /**
-   * @brief Sets the vtkTransform of the last applied box
-   * @return
-   */
-  void setLastBoxTransform(VTK_PTR(vtkTransform) transform);
-
-  /**
-   * @brief Returns the clip type of the last applied clip
-   * @return
-   */
-  ClipType getLastClipType();
-
-  /**
-   * @brief Sets the clip type of the last applied clip
-   * @param type
-   */
-  void setLastClipType(ClipType type);
-
-  /**
    * @brief Writes values to a json file from the filter
    * @param json
    */
@@ -344,13 +229,6 @@ public:
 
 signals:
   void clipTypeChanged();
-  void lastPlaneInvertedChanged();
-  void lastBoxInvertedChanged();
-  void lastPlaneOriginChanged();
-  void lastPlaneNormalChanged();
-  void lastBoxTranslationChanged();
-  void lastBoxRotationChanged();
-  void lastBoxScaleChanged();
 
 protected:
   /**
@@ -367,14 +245,6 @@ protected:
 private:
   VTK_PTR(vtkTableBasedClipDataSet) m_ClipAlgorithm;
   VSClipValues* m_ClipValues = nullptr;
-
-  ClipType m_LastClipType;
-  bool m_LastPlaneInverted = false;
-  bool m_LastBoxInverted = false;
-
-  double m_LastPlaneOrigin[3];
-  double m_LastPlaneNormal[3];
-  VTK_PTR(vtkTransform) m_LastBoxTransform;
 };
 
 Q_DECLARE_METATYPE(VSClipFilter)

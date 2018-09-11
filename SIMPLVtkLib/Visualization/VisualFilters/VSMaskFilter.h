@@ -158,18 +158,6 @@ public:
   VSAbstractFilterValues* getValues() override;
 
   /**
-   * @brief Returns the name of the array last applied as a mask
-   * @return
-   */
-  QString getLastArrayName();
-
-  /**
-   * @brief Sets the name of the array last applied as a mask
-   * @return
-   */
-  void setLastArrayName(QString lastArrayName);
-
-  /**
    * @brief Reads values from a json file into the filter
    * @param json
    */
@@ -202,8 +190,6 @@ protected:
 private:
   VTK_PTR(vtkThreshold) m_MaskAlgorithm;
   VSMaskValues* m_MaskValues = nullptr;
-
-  QString m_LastArrayName;
 };
 
 Q_DECLARE_METATYPE(VSMaskFilter)
