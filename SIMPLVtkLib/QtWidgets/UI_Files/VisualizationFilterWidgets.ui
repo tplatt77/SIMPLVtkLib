@@ -29,7 +29,7 @@
    <property name="spacing">
     <number>4</number>
    </property>
-   <item row="0" column="0">
+   <item row="2" column="0">
     <widget class="QSplitter" name="splitter_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -61,7 +61,7 @@
          <x>0</x>
          <y>0</y>
          <width>228</width>
-         <height>171</height>
+         <height>168</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -106,6 +106,26 @@
        </layout>
       </widget>
      </widget>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Visualization Filters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
     </widget>
    </item>
   </layout>
