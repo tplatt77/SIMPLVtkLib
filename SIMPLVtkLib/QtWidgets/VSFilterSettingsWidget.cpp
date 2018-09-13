@@ -101,7 +101,8 @@ void VSFilterSettingsWidget::resetFilter()
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::deleteFilter()
 {
-  for(VSAbstractFilter* filter : m_Filters)
+  VSAbstractFilter::FilterListType filters = m_Filters;
+  for(VSAbstractFilter* filter : filters)
   {
     emit filterDeleted(filter);
   }
