@@ -532,6 +532,12 @@ protected:
   void setCheckable(bool checkable);
 
   /**
+   * @brief Sets whether or not the filter is selectable
+   * @param selectable
+   */
+  void setSelectable(bool selectable);
+
+  /**
    * @brief Returns true if the item is editable. Returns false otherwise.
    * @return
    */

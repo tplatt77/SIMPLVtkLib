@@ -1005,6 +1005,21 @@ void VSAbstractFilter::setCheckable(bool checkable)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSAbstractFilter::setSelectable(bool selectable)
+{
+  if(selectable)
+  {
+    m_Flags |= Qt::ItemIsSelectable;
+  }
+  else
+  {
+    m_Flags &= ~Qt::ItemIsSelectable;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSAbstractFilter::isChecked()
 {
   return isCheckable() && m_Checked;

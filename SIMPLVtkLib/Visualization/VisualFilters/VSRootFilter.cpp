@@ -52,6 +52,7 @@ VSRootFilter::VSRootFilter(VSFilterModel* model)
 {
   setParent(model);
   setCheckable(false);
+  setSelectable(false);
 }
 
 // -----------------------------------------------------------------------------
