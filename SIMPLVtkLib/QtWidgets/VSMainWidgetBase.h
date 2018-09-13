@@ -362,6 +362,11 @@ protected slots:
   virtual void deleteFilter(VSAbstractFilter* filter);
 
   /**
+   * @brief Deletes all filters
+   */
+  void clearFilters();
+
+  /**
    * @brief reloadFilter
    * @param filter
    */

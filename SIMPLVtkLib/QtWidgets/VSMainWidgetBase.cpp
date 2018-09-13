@@ -60,6 +60,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
@@ -707,6 +708,11 @@ void VSMainWidgetBase::listenSelectionChanged(QItemSelection selection)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::listenCurrentFilterChanged(VSAbstractFilter* filter)
 {
+  if(m_Controller->getFilterModel()->getRootFilter() == filter)
+  {
+    filter = nullptr;
+  }
+
   if(m_CurrentFilter)
   {
     m_CurrentFilter->getValues()->setRenderingEnabled(false);
@@ -804,6 +810,18 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::clearFilters()
+{
+  VSAbstractFilter::FilterListType filters = getController()->getFilterModel()->getBaseFilters();
+  for(VSAbstractFilter* filter : filters)
+  {
+    deleteFilter(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------

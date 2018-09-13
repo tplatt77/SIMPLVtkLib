@@ -88,6 +88,10 @@ public:
    */
   SVOverlayWidgetButton* getViewSettingsOverlayButton() const;
 
+  /**
+   * @brief Adds an SVOverlayWidgetButton as overlapping the visualization overlay widgets
+   * @param overlayButton
+   */
   void addOverlayButton(SVOverlayWidgetButton* overlayButton);
 
 protected:
@@ -116,6 +120,11 @@ protected:
    */
   void updateFilterLabel();
 
+  /**
+   * @brief Updates the enabled and check state for overlay buttons based on the number of filters as well as active filter selection.
+   */
+  void updateOverlayButtons();
+
 protected slots:
   /**
    * @brief Notifies change in the active VSAbstractViewWidget
@@ -134,6 +143,10 @@ protected slots:
    * @param filtersSelected
    */
   void listenFiltersChanged(VSAbstractFilter::FilterListType filtersSelected);
+
+  void listenFilterAdded(VSAbstractFilter* filter, bool currentFilter);
+
+  void listenFilterRemoved(VSAbstractFilter* filter);
 
   /**
    * @brief Sets the visualization settings to use for the bottom bar.  If multiple filters are used, none are connected

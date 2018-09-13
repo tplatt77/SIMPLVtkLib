@@ -59,8 +59,6 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
   setActiveView(viewWidget);
 
   createFilterMenu();
-  connectSlots();
-  setCurrentFilter(nullptr);
   
   // Create Visualization Widgets
   QWidget* visualizationFilters = new QWidget(this);
@@ -85,6 +83,10 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
   setColorMappingWidget(m_VisibilityContainerUi->colorMappingWidget);
   setAdvancedVisibilityWidget(m_VisibilityContainerUi->advVisibilityWidget);
   setTransformWidget(m_VisibilityContainerUi->transformWidget);
+
+  connectSlots();
+  setCurrentFilter(nullptr);
+  updateOverlayButtons();
 }
 
 // -----------------------------------------------------------------------------
@@ -105,10 +107,13 @@ void VSMainWidget2::connectSlots()
   connect(m_Ui->cameraYmBtn, SIGNAL(clicked()), this, SLOT(activeCameraYMinus()));
   connect(m_Ui->cameraZmBtn, SIGNAL(clicked()), this, SLOT(activeCameraZMinus()));
 
-  connect(getController(), &VSController::filterAdded, this, [=] { renderAll(); });
+  connect(getController(), &VSController::filterAdded, this, &VSMainWidget2::listenFilterAdded);
+  connect(getController(), &VSController::filterRemoved, this, &VSMainWidget2::listenFilterRemoved);
   connect(getController(), &VSController::dataImported, this, [=] { resetCamera(); });
   connect(getController(), SIGNAL(applyingDataFilters(int)), this, SLOT(importNumFilters(int)));
   connect(getController(), SIGNAL(dataFilterApplied(int)), this, SLOT(importedFilterNum(int)));
+
+  connect(m_VisualizationFiltersUi->clearFiltersBtn, &QPushButton::clicked, this, &VSMainWidget2::clearFilters);
 
   connect(this, &VSMainWidget2::selectedFiltersChanged, this, &VSMainWidget2::listenFiltersChanged);
 }
@@ -171,6 +176,8 @@ void VSMainWidget2::setActiveView(VSAbstractViewWidget* viewWidget)
 
     setVisualizationSettings(VSFilterViewSettings::Collection());
   }
+
+  updateOverlayButtons();
 }
 
 // -----------------------------------------------------------------------------
@@ -179,6 +186,7 @@ void VSMainWidget2::setActiveView(VSAbstractViewWidget* viewWidget)
 void VSMainWidget2::setCurrentFilter(VSAbstractFilter* filter)
 {
   VSMainWidgetBase::setCurrentFilter(filter);
+  updateOverlayButtons();
 
   // Check if each Filter Type can be added
   // Clip Filter
@@ -217,11 +225,13 @@ void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filter
   if(filtersSelected.size() == 0)
   {
     setVisualizationSettings(VSFilterViewSettings::Collection());
+    getViewSettingsOverlayButton()->disable();
   }
   else
   {
     VSFilterViewSettings::Collection viewSettings = getActiveViewWidget()->getFilterViewSettings(filtersSelected);
     setVisualizationSettings(viewSettings);
+    getViewSettingsOverlayButton()->enable();
   }
 
 
@@ -251,6 +261,63 @@ void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filter
   // Text
   bool enableText = VSTextFilter::CompatibleWithParents(filtersSelected);
   m_ActionAddText->setEnabled(enableText);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterAdded(VSAbstractFilter* filter, bool currentFilter)
+{
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterRemoved(VSAbstractFilter* filter)
+{
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::updateOverlayButtons()
+{
+  bool hasFilters = (getController()->getFilterModel()->getBaseFilters().size() != 0);
+  if(!hasFilters)
+  {
+    getFilterListOverlayButton()->disable();
+    getViewSettingsOverlayButton()->disable();
+  }
+  else
+  {
+    getFilterListOverlayButton()->enable();
+
+    // Handle ViewSettings
+    if(getActiveViewWidget())
+    {
+      bool hasSelection = getActiveViewWidget()->getSelectedFilters().size() != 0;
+      if(hasSelection)
+      {
+        getViewSettingsOverlayButton()->enable();
+      }
+      else
+      {
+        getViewSettingsOverlayButton()->disable();
+      }
+    }
+  }
+
+  QStyle* filterListStyle = getFilterListOverlayButton()->style();
+  filterListStyle->unpolish(getFilterListOverlayButton());
+  filterListStyle->polish(getFilterListOverlayButton());
+
+  QStyle* viewSettingsStyle = getViewSettingsOverlayButton()->style();
+  filterListStyle->unpolish(getViewSettingsOverlayButton());
+  filterListStyle->polish(getViewSettingsOverlayButton());
 }
 
 // -----------------------------------------------------------------------------
