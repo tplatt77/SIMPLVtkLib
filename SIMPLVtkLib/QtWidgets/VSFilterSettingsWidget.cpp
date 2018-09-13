@@ -37,6 +37,8 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSColorButton.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -131,6 +133,12 @@ VSAbstractFilter* VSFilterSettingsWidget::getCurrentFilter() const
 // -----------------------------------------------------------------------------
 void VSFilterSettingsWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
+  if(m_ViewWidget)
+  {
+    VSRootFilter* rootFilter = m_ViewWidget->getFilterViewModel()->getRootFilter();
+    filters.remove(rootFilter);
+  }
+
   if(m_FilterWidget != nullptr)
   {
     m_FilterWidget->hide();
