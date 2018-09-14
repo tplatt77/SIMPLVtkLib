@@ -463,6 +463,9 @@
          </property>
          <item>
           <widget class="SVOverlayWidgetButton" name="visualizationFiltersOverlayBtn">
+           <property name="toolTip">
+            <string>Toggle Visualization Filters Widget</string>
+           </property>
            <property name="text">
             <string> Visual Filters </string>
            </property>
@@ -470,6 +473,9 @@
          </item>
          <item>
           <widget class="SVOverlayWidgetButton" name="visualizationSettingsOverlayBtn">
+           <property name="toolTip">
+            <string>Toggle Visualization Settings Widget</string>
+           </property>
            <property name="text">
             <string> Visualization Settings </string>
            </property>
