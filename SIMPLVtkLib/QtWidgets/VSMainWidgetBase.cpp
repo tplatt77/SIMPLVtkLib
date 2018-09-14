@@ -99,6 +99,10 @@ void VSMainWidgetBase::setupShortcuts()
   QShortcut* filterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Down), this);
   QShortcut* filterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Left), this);
   QShortcut* filterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Right), this);
+  filterUpShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterDownShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterLeftShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterRightShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
   connect(filterUpShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Parent); });
   connect(filterDownShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Child); });
@@ -109,6 +113,10 @@ void VSMainWidgetBase::setupShortcuts()
   QShortcut* addFilterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Down), this);
   QShortcut* addFilterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Left), this);
   QShortcut* addFilterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Right), this);
+  addFilterUpShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterDownShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterLeftShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterRightShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
   connect(addFilterUpShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Parent, true); });
   connect(addFilterDownShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Child, true); });
@@ -118,12 +126,16 @@ void VSMainWidgetBase::setupShortcuts()
   QShortcut* applyFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
   QShortcut* resetFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   QShortcut* deleteFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+  applyFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  resetFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  deleteFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
   connect(applyFilterShortcut, &QShortcut::activated, [=] { applyCurrentFilter(); });
   connect(resetFilterShortcut, &QShortcut::activated, [=] { resetCurrentFilter(); });
   connect(deleteFilterShortcut, &QShortcut::activated, [=] { deleteCurrentFilter(); });
 
   QShortcut* toggleVisibleShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), this);
+  toggleVisibleShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
   connect(toggleVisibleShortcut, &QShortcut::activated, [=] { toggleCurrentFilterVisibility(); });
 }
 
