@@ -1356,8 +1356,7 @@ void VSFilterViewSettings::setupCubeAxesActor()
 
   if(m_Filter && m_Filter->getOutput())
   {
-    double* bounds = m_Filter->getOutput()->GetBounds();
-    m_CubeAxesActor->SetBounds(bounds);
+    m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
   }
 }
 
@@ -1406,6 +1405,11 @@ void VSFilterViewSettings::updateTransform()
     m_Actor->SetPosition(0.0, 0.0, 0.0);
     m_Actor->SetOrientation(0.0, 0.0, 0.0);
     m_Actor->SetScale(1.0, 1.0, 1.0);
+  }
+
+  if(m_CubeAxesActor && m_Filter->getOutput())
+  {
+    m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
   }
 
   emit requiresRender();

@@ -821,6 +821,10 @@ void VSAbstractFilter::createTransformFilter()
   }
 
   m_TransformFilter->SetInputConnection(getOutputPort());
+  if(getOutputPort())
+  {
+    m_TransformFilter->Update();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -858,13 +862,13 @@ void VSAbstractFilter::updateTransformFilter()
 // -----------------------------------------------------------------------------
 double* VSAbstractFilter::getTransformBounds()
 {
-  if(nullptr == m_TransformFilter || nullptr == getParentFilter())
+  if(nullptr == m_TransformFilter)
   {
     return getBounds();
   }
 
   vtkTransformFilter* trans = vtkTransformFilter::New();
-  trans->SetInputConnection(getParentFilter()->getOutputPort());
+  trans->SetInputConnection(getOutputPort());
   trans->SetTransform(getTransform()->getGlobalTransform());
   trans->Update();
 
