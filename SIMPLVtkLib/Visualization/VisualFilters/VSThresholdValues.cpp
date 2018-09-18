@@ -139,10 +139,11 @@ QWidget* VSThresholdValues::createFilterWidget()
   ui->scalarsComboBox->addItems(getFilter()->getScalarNames());
   ui->scalarsComboBox->setCurrentText(m_ThresholdArrayName);
 
-  ui->minSlider->setRange(0, 100);
-  ui->maxSlider->setRange(0, 100);
-  ui->minSlider->setValue(getMinPercent());
-  ui->maxSlider->setValue(getMaxPercent());
+  const int numTicks = 1000;
+  ui->minSlider->setRange(0, numTicks);
+  ui->maxSlider->setRange(0, numTicks);
+  ui->minSlider->setValue(getMinPercent() * numTicks);
+  ui->maxSlider->setValue(getMaxPercent() * numTicks);
   ui->minSpinBox->setMinimum(m_Range[0]);
   ui->maxSpinBox->setMinimum(m_Range[0]);
   ui->minSpinBox->setMaximum(m_Range[1]);
@@ -161,13 +162,15 @@ QWidget* VSThresholdValues::createFilterWidget()
   });
   connect(this, &VSThresholdValues::minValueChanged, [=](double value) {
     ui->minSlider->blockSignals(true);
-    ui->minSlider->setValue(getMinPercent());
+    ui->minSlider->setValue(getMinPercent() * numTicks);
     ui->minSpinBox->setValue(value);
     ui->minSlider->blockSignals(false);
   });
   connect(this, &VSThresholdValues::maxValueChanged, [=](double value) {
     ui->maxSlider->blockSignals(true);
-    ui->maxSlider->setValue(getMaxPercent());
+    double percent = getMaxPercent();
+    int sliderValue = getMaxPercent() * numTicks;
+    ui->maxSlider->setValue(getMaxPercent() * numTicks);
     ui->maxSpinBox->setValue(value);
     ui->maxSlider->blockSignals(false);
   });
@@ -195,10 +198,12 @@ QWidget* VSThresholdValues::createFilterWidget()
   });
 
   connect(ui->scalarsComboBox, &QComboBox::currentTextChanged, this, &VSThresholdValues::setArrayName);
-  connect(ui->minSlider, &QSlider::valueChanged, [=](int percent) {
+  connect(ui->minSlider, &QSlider::valueChanged, [=](int tick) {
+    double percent = static_cast<double>(tick) / numTicks;
     setMinPercent(percent);
   });
-  connect(ui->maxSlider, &QSlider::valueChanged, [=](int percent) {
+  connect(ui->maxSlider, &QSlider::valueChanged, [=](int tick) {
+    double percent = static_cast<double>(tick) / numTicks;
     setMaxPercent(percent);
   });
   connect(ui->minSpinBox, &QDoubleSpinBox::editingFinished, [=] {
@@ -214,40 +219,40 @@ QWidget* VSThresholdValues::createFilterWidget()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSThresholdValues::getMinPercent() const
+double VSThresholdValues::getMinPercent() const
 {
   double span = m_Range[1] - m_Range[0];
-  int minPercent = static_cast<int>((m_MinValue - m_Range[0]) / span * 100);
+  double minPercent = (m_MinValue - m_Range[0]) / span;
   return minPercent;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int VSThresholdValues::getMaxPercent() const
+double VSThresholdValues::getMaxPercent() const
 {
   double span = m_Range[1] - m_Range[0];
-  int maxPercent = static_cast<int>((m_MaxValue - m_Range[0]) / span * 100);
+  double maxPercent = (m_MaxValue - m_Range[0]) / span;
   return maxPercent;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSThresholdValues::setMinPercent(int percent)
+void VSThresholdValues::setMinPercent(double percent)
 {
   double span = m_Range[1] - m_Range[0];
-  double value = (percent / 100.0) * span + m_Range[0];
+  double value = percent * span + m_Range[0];
   setMinValue(value);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSThresholdValues::setMaxPercent(int percent)
+void VSThresholdValues::setMaxPercent(double percent)
 {
   double span = m_Range[1] - m_Range[0];
-  double value = (percent / 100.0) * span + m_Range[0];
+  double value = percent * span + m_Range[0];
   setMaxValue(value);
 }
 
@@ -313,8 +318,8 @@ void VSThresholdValues::setArrayName(QString name)
 // -----------------------------------------------------------------------------
 void VSThresholdValues::setRange(double min, double max)
 {
-  int minPercent = getMinPercent();
-  int maxPercent = getMaxPercent();
+  double minPercent = getMinPercent();
+  double maxPercent = getMaxPercent();
 
   if(m_MinValue < min)
   {

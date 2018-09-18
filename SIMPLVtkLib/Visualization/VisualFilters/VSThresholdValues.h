@@ -193,25 +193,25 @@ protected:
   * @brief Return the percent of the way the lower limit is through the entire range.
   * @return
   */
-  int getMinPercent() const;
+  double getMinPercent() const;
 
   /**
   * @brief Return the percent of the way the upper limit is through the entire range.
   * @return
   */
-  int getMaxPercent() const;
+  double getMaxPercent() const;
 
   /**
   * @brief Updates the minimum value based on the percent of the way the value is throughout the entire range.
   * @param percent
   */
-  void setMinPercent(int percent);
+  void setMinPercent(double percent);
 
   /**
   * @brief Updates the maximum value based on the percent of the way the value is throughout the entire range.
   * @param percent
   */
-  void setMaxPercent(int percent);
+  void setMaxPercent(double percent);
 
 private:
   QString m_ThresholdArrayName;
