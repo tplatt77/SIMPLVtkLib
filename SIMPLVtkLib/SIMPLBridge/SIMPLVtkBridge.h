@@ -81,6 +81,7 @@ public:
 
   using WrappedDataArrayPtr = std::shared_ptr<WrappedDataArray>;
   using WrappedDataArrayPtrCollection = std::vector<WrappedDataArrayPtr>;
+  using DataArrayImportSettings = std::map<QString, bool>;
 
   struct WrappedDataContainer
   {
@@ -90,6 +91,8 @@ public:
     QString m_Name;
     DataContainer::Pointer m_DataContainer = nullptr;
     double m_Origin[3] = {0.0, 0.0, 0.0};
+    DataArrayImportSettings m_ImportCellArrays;
+    DataArrayImportSettings m_ImportPointArrays;
   };
 
   using WrappedDataContainerPtr = std::shared_ptr<WrappedDataContainer>;
@@ -140,9 +143,10 @@ public:
    * @brief Wraps the DataArrays contained within SIMPLib's AttributeMatrix in vtkDataArrays for use in VTK
    * and returns a vector of structs containing information about those vtkDataArrays
    * @param am
+   * @param importList
    * @return
    */
-  static WrappedDataArrayPtrCollection WrapAttributeMatrixAsStructs(AttributeMatrix::Pointer am);
+  static WrappedDataArrayPtrCollection WrapAttributeMatrixAsStructs(AttributeMatrix::Pointer am, DataArrayImportSettings importList = DataArrayImportSettings());
 
   /**
    * @brief Wraps a DataArray from SIMPLib in a vtkDataArray and returns a struct containing the wrapped
@@ -153,6 +157,27 @@ public:
    * @return
    */
   static WrappedDataArrayPtr WrapIDataArrayAsStruct(IDataArray::Pointer da);
+
+  /**
+   * @brief Creates and returns DataArrayImportSettings for the given array names
+   * @param arrayNames
+   * @return
+   */
+  static DataArrayImportSettings CreateImportSettings(QStringList arrayNames);
+
+  /**
+   * @brief Returns a QStringList of all cell array names
+   * @param wrappedDc
+   * @return
+   */
+  static QStringList GetCellArrayNames(WrappedDataContainerPtr wrappedDc);
+
+  /**
+   * @brief Returns a QStringList of all point array names
+   * @param wrappedDc
+   * @return
+   */
+  static QStringList GetPointArrayNames(WrappedDataContainerPtr wrappedDc);
 
   /**
    * @brief Creates and returns a vtkDataSet from SIMPLib's EdgeGeom
@@ -294,8 +319,16 @@ protected:
    * @param am
    * @param wrappedCollection
    * @param tuplesReq
+   * @param importList
    */
-  static bool WrapAttrMatrixData(AttributeMatrix::Pointer am, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq);
+  static bool WrapAttrMatrixData(AttributeMatrix::Pointer am, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq, DataArrayImportSettings importList);
+
+  /**
+   * @brief Returns true if the given IDataArray can be wrapped. Returns false otherwise.
+   * @param array
+   * @return
+   */
+  static bool CanWrapDataArray(IDataArray::Pointer array);
 
 private:
   SIMPLVtkBridge(const SIMPLVtkBridge&); // Copy Constructor Not Implemented

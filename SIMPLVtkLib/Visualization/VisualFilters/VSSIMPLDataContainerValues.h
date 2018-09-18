@@ -38,6 +38,7 @@
 #include "VSAbstractFilterValues.h"
 
 class VSSIMPLDataContainerFilter;
+class QListWidgetItem;
 
 /**
  * @class VSSIMPLDataContainerValues VSSIMPLDataContainerValues.h
@@ -72,5 +73,55 @@ public:
    */
   bool hasChanges() const override;
 
-  // QWidget* createFilterWidget();
+  /**
+   * @brief Creates and returns a filter widget for the current values
+   * @return
+   */
+  QWidget* createFilterWidget();
+
+  /**
+   * @brief Returns the WrappedDataContainer shared_ptr
+   * @return
+   */
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() const;
+
+  /**
+   * @brief Sets the WrappedDataContainer shared_ptr to a new value
+   * @param wrappedDc
+   */
+  void setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc);
+
+  /**
+   * @brief Returns true if the current WrappedDataContainer has not had its import settings updated since its last import.
+   * Returns false if the WrappedDataContainer has not been imported or has had its values changed since the last import.
+   * @return
+   */
+  bool isFullyWrapped() const;
+
+  /**
+   * @brief Sets whether or not the DataContainer is marked as fully wrapped.
+   * @param wrapped
+   */
+  void setFullyWrapped(bool wrapped);
+
+  /**
+   * @brief Checks if the given AttributeMatrix::DataArray should be imported under the current settings
+   * @param matrixArrayName
+   * @return
+   */
+  bool allowsImport(QString matrixArrayName) const;
+
+  /**
+   * @brief Sets whether the given AttributeMatrix::DataArray should be imported under the current settings
+   * @param matrixArrayName
+   * @param allowImport
+   */
+  void setImportAllowed(QString matrixArrayName, bool allowImport);
+
+signals:
+  void importArraySettingChanged(QString matrixArrayName);
+
+private:
+  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
+  bool m_FullyWrapped = false;
 };

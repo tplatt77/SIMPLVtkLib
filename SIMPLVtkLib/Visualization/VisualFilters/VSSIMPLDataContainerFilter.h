@@ -120,7 +120,7 @@ public:
    * @brief Returns the WrappedDataContainerPtr used by the filter
    * @return
    */
-  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() const;
 
   /**
    * @brief Sets the WrappedDataContainerPtr used by the filter
@@ -193,11 +193,9 @@ protected:
   void createFilter() override;
 
 private:
-  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
   QFutureWatcher<void> m_WrappingWatcher;
   QSemaphore m_ApplyLock;
   bool m_WrappingTransform = false;
-  bool m_FullyWrapped = false;
   VSSIMPLDataContainerValues* m_DCValues = nullptr;
 };

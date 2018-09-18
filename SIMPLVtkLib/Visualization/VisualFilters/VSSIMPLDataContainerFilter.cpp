@@ -57,14 +57,14 @@
 // -----------------------------------------------------------------------------
 VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer, VSAbstractFilter* parent)
 : VSAbstractDataFilter()
-, m_WrappedDataContainer(wrappedDataContainer)
 , m_WrappingWatcher(this)
 , m_ApplyLock(1)
 {
+  m_DCValues = new VSSIMPLDataContainerValues(this);
+  m_DCValues->setWrappedDataContainer(wrappedDataContainer);
+
   createFilter();
   setParentFilter(parent);
-
-  m_DCValues = new VSSIMPLDataContainerValues(this);
 
   connect(this, SIGNAL(finishedWrapping()), this, SLOT(apply()));
 }
@@ -74,16 +74,16 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
 // -----------------------------------------------------------------------------
 VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
 {
-  if(m_WrappedDataContainer)
+  if(m_DCValues->getWrappedDataContainer())
   {
-    size_t count = m_WrappedDataContainer->m_CellData.size();
+    size_t count = m_DCValues->getWrappedDataContainer()->m_CellData.size();
     for(size_t i = 0; i < count; i++)
     {
-      m_WrappedDataContainer->m_CellData[i]->m_SIMPLArray = nullptr;
-      m_WrappedDataContainer->m_CellData[i]->m_VtkArray = nullptr;
+      m_DCValues->getWrappedDataContainer()->m_CellData[i]->m_SIMPLArray = nullptr;
+      m_DCValues->getWrappedDataContainer()->m_CellData[i]->m_VtkArray = nullptr;
     }
-    m_WrappedDataContainer->m_CellData.clear();
-    m_WrappedDataContainer = nullptr;
+    m_DCValues->getWrappedDataContainer()->m_CellData.clear();
+    m_DCValues->getWrappedDataContainer() = nullptr;
   }
 
   delete m_DCValues;
@@ -94,7 +94,7 @@ VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
 // -----------------------------------------------------------------------------
 double* VSSIMPLDataContainerFilter::getBounds() const
 {
-  return m_WrappedDataContainer->m_DataSet->GetBounds();
+  return m_DCValues->getWrappedDataContainer()->m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -117,12 +117,12 @@ vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput() const
 {
-  if(nullptr == m_WrappedDataContainer)
+  if(nullptr == m_DCValues->getWrappedDataContainer())
   {
     return nullptr;
   }
 
-  return m_WrappedDataContainer->m_DataSet;
+  return m_DCValues->getWrappedDataContainer()->m_DataSet;
 }
 
 // -----------------------------------------------------------------------------
@@ -214,10 +214,10 @@ void VSSIMPLDataContainerFilter::createFilter()
 {
   connect(&m_WrappingWatcher, SIGNAL(finished()), this, SLOT(reloadWrappingFinished()));
 
-  getTransform()->setLocalPosition(m_WrappedDataContainer->m_Origin);
+  getTransform()->setLocalPosition(m_DCValues->getWrappedDataContainer()->m_Origin);
   updateTransformFilter();
 
-  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
   dataSet->ComputeBounds();
 
   vtkCellData* cellData = dataSet->GetCellData();
@@ -242,7 +242,7 @@ void VSSIMPLDataContainerFilter::createFilter()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadData()
 {
-  QString dcName = m_WrappedDataContainer->m_Name;
+  QString dcName = m_DCValues->getWrappedDataContainer()->m_Name;
 
   VSAbstractFilter* parentFilter = getParentFilter();
   VSFileNameFilter* fileFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
@@ -266,7 +266,7 @@ void VSSIMPLDataContainerFilter::reloadData()
         DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
         if(dcProxy.dcType != static_cast<unsigned int>(IGeometry::Type::Unknown))
         {
-          QString dcName = m_WrappedDataContainer->m_Name;
+          QString dcName = m_DCValues->getWrappedDataContainer()->m_Name;
           DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
 
           AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
@@ -277,7 +277,7 @@ void VSSIMPLDataContainerFilter::reloadData()
           dcaProxy.dataContainers[dcProxy.name] = dcProxy;
 
           DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
-          DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+          DataContainer::Pointer dc = dca->getDataContainer(m_DCValues->getWrappedDataContainer()->m_Name);
 
           m_WrappingWatcher.setFuture(QtConcurrent::run(this, &VSSIMPLDataContainerFilter::reloadData, dc));
         }
@@ -309,7 +309,7 @@ void VSSIMPLDataContainerFilter::reloadData()
       return;
     }
 
-    DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+    DataContainer::Pointer dc = dca->getDataContainer(m_DCValues->getWrappedDataContainer()->m_Name);
     if(nullptr == dc)
     {
       QString ss = QObject::tr("Data Container '%1' could not be reloaded because it no longer exists in the underlying pipeline '%2'.").arg(dcName).arg(pipelineFilter->getPipelineName());
@@ -346,7 +346,7 @@ void VSSIMPLDataContainerFilter::reloadData()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadData(DataContainer::Pointer dc)
 {
-  m_WrappedDataContainer = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
+  m_DCValues->setWrappedDataContainer(SIMPLVtkBridge::WrapDataContainerAsStruct(dc));
 }
 
 // -----------------------------------------------------------------------------
@@ -354,7 +354,7 @@ void VSSIMPLDataContainerFilter::reloadData(DataContainer::Pointer dc)
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 {
-  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
   dataSet->ComputeBounds();
 
   vtkCellData* cellData = dataSet->GetCellData();
@@ -379,7 +379,7 @@ void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 // -----------------------------------------------------------------------------
 QString VSSIMPLDataContainerFilter::getFilterName() const
 {
-  return m_WrappedDataContainer->m_Name;
+  return m_DCValues->getWrappedDataContainer()->m_Name;
 }
 
 // -----------------------------------------------------------------------------
@@ -387,7 +387,7 @@ QString VSSIMPLDataContainerFilter::getFilterName() const
 // -----------------------------------------------------------------------------
 QString VSSIMPLDataContainerFilter::getToolTip() const
 {
-  return m_WrappedDataContainer->m_Name;
+  return m_DCValues->getWrappedDataContainer()->m_Name;
 }
 
 // -----------------------------------------------------------------------------
@@ -413,10 +413,12 @@ bool VSSIMPLDataContainerFilter::finishWrapping()
   // Do not lock the main thread trying to apply a filter that is already being applied.
   if(m_ApplyLock.tryAcquire())
   {
-    SIMPLVtkBridge::FinishWrappingDataContainerStruct(m_WrappedDataContainer);
-    m_FullyWrapped = true;
-
+    SIMPLVtkBridge::FinishWrappingDataContainerStruct(m_DCValues->getWrappedDataContainer());
+    m_DCValues->setFullyWrapped(true);
+    VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
+    m_TrivialProducer->SetOutput(dataSet);
     emit finishedWrapping();
+    emit arrayNamesChanged();
     return true;
   }
 
@@ -428,7 +430,7 @@ bool VSSIMPLDataContainerFilter::finishWrapping()
 // -----------------------------------------------------------------------------
 bool VSSIMPLDataContainerFilter::dataFullyLoaded()
 {
-  return m_FullyWrapped;
+  return m_DCValues->isFullyWrapped();
 }
 
 // -----------------------------------------------------------------------------
@@ -442,9 +444,9 @@ VSAbstractFilterValues* VSSIMPLDataContainerFilter::getValues()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
+SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer() const
 {
-  return m_WrappedDataContainer;
+  return m_DCValues->getWrappedDataContainer();
 }
 
 // -----------------------------------------------------------------------------
@@ -452,8 +454,7 @@ SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDa
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
 {
-  m_WrappedDataContainer = wrappedDc;
-  m_FullyWrapped = false;
+  m_DCValues->setWrappedDataContainer(wrappedDc);
 }
 
 // -----------------------------------------------------------------------------

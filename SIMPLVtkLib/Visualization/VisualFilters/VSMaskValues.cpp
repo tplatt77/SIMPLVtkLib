@@ -130,21 +130,43 @@ void VSMaskValues::setLastArrayName(QString lastArrayName)
 // -----------------------------------------------------------------------------
 QWidget* VSMaskValues::createFilterWidget()
 {
-  Ui::VSMaskFilterWidget ui;
+  Ui::VSMaskFilterWidget* ui = new Ui::VSMaskFilterWidget;
   QWidget* filterWidget = new QWidget();
   VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
 
-  ui.maskComboBox->addItems(getFilter()->getScalarNames());
-  ui.maskComboBox->setCurrentText(getLastArrayName());
+  ui->maskComboBox->addItems(getFilter()->getScalarNames());
+  ui->maskComboBox->setCurrentText(getLastArrayName());
 
-  connect(ui.maskComboBox, &QComboBox::currentTextChanged, [=](QString text) {
+  connect(ui->maskComboBox, &QComboBox::currentTextChanged, [=](QString text) {
     m_MaskArrayName = text;
+  });
+  connect(getFilter(), &VSAbstractFilter::arrayNamesChanged, this, [=] {
+    QStringList scalarNames = getFilter()->getScalarNames();
+    ui->maskComboBox->blockSignals(true);
+    ui->maskComboBox->clear();
+    ui->maskComboBox->addItems(scalarNames);
+    ui->maskComboBox->blockSignals(false);
+    if(scalarNames.contains(m_MaskArrayName))
+    {
+      ui->maskComboBox->setCurrentText(m_MaskArrayName);
+    }
+    else
+    {
+      if(scalarNames.size() > 0)
+      {
+        setMaskName(scalarNames.at(0));
+      }
+      else
+      {
+        setMaskName(QString::Null());
+      }
+    }
   });
 
   connect(this, &VSMaskValues::maskNameChanged, [=](QString maskName) {
-    ui.maskComboBox->blockSignals(true);
-    ui.maskComboBox->setCurrentText(maskName);
-    ui.maskComboBox->blockSignals(false);
+    ui->maskComboBox->blockSignals(true);
+    ui->maskComboBox->setCurrentText(maskName);
+    ui->maskComboBox->blockSignals(false);
   });
 
   return filterWidget;

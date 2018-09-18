@@ -171,6 +171,28 @@ QWidget* VSThresholdValues::createFilterWidget()
     ui->maxSpinBox->setValue(value);
     ui->maxSlider->blockSignals(false);
   });
+  connect(getFilter(), &VSAbstractFilter::arrayNamesChanged, this, [=] {
+    QStringList scalarNames = getFilter()->getScalarNames();
+    ui->scalarsComboBox->blockSignals(true);
+    ui->scalarsComboBox->clear();
+    ui->scalarsComboBox->addItems(scalarNames);
+    ui->scalarsComboBox->blockSignals(false);
+    if(scalarNames.contains(m_ThresholdArrayName))
+    {
+      ui->scalarsComboBox->setCurrentText(m_ThresholdArrayName);
+    }
+    else
+    {
+      if(scalarNames.size() > 0)
+      {
+        setArrayName(scalarNames.at(0));
+      }
+      else
+      {
+        setArrayName(QString::Null());
+      }
+    }
+  });
 
   connect(ui->scalarsComboBox, &QComboBox::currentTextChanged, this, &VSThresholdValues::setArrayName);
   connect(ui->minSlider, &QSlider::valueChanged, [=](int percent) {

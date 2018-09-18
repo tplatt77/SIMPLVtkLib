@@ -36,6 +36,8 @@
 
 #include "VSSIMPLDataContainerValues.h"
 
+#include <QtWidgets/QListWidget>
+
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
 // -----------------------------------------------------------------------------
@@ -44,7 +46,6 @@
 VSSIMPLDataContainerValues::VSSIMPLDataContainerValues(VSSIMPLDataContainerFilter* filter)
 : VSAbstractFilterValues(filter)
 {
-
 }
 
 // -----------------------------------------------------------------------------
@@ -83,4 +84,116 @@ bool VSSIMPLDataContainerValues::hasChanges() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//QWidget* VSSIMPLDataContainerValues::createFilterWidget();
+QWidget* VSSIMPLDataContainerValues::createFilterWidget()
+{
+  QListWidget* arrayListWidget = new QListWidget();
+  bool isPointData = getFilter()->isPointData();
+  // Get the correct import settings
+  SIMPLVtkBridge::DataArrayImportSettings importSettings;
+  if(isPointData)
+  {
+    importSettings = m_WrappedDataContainer->m_ImportPointArrays;
+  }
+  else
+  {
+    importSettings = m_WrappedDataContainer->m_ImportCellArrays;
+  }
+
+  // Populate the QListWidget
+  for(auto iter = importSettings.begin(); iter != importSettings.end(); iter++)
+  {
+    QListWidgetItem* item = new QListWidgetItem(arrayListWidget);
+    item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
+    item->setCheckState(iter->second ? Qt::Checked : Qt::Unchecked);
+    item->setText(iter->first);
+    arrayListWidget->addItem(item);
+  }
+
+  // Connections
+  connect(arrayListWidget, &QListWidget::itemChanged, [=](QListWidgetItem* itemChanged) {
+    QString arrayName = itemChanged->text();
+    bool checked = itemChanged->checkState() == Qt::Checked;
+    setImportAllowed(arrayName, checked);
+  });
+  connect(this, &VSSIMPLDataContainerValues::importArraySettingChanged, [=](QString matrixArrayName) {
+    QList<QListWidgetItem*> items = arrayListWidget->findItems(matrixArrayName, Qt::MatchFlag::MatchCaseSensitive);
+    if(items.size() == 1)
+    {
+      arrayListWidget->blockSignals(true);
+      items[0]->setCheckState(allowsImport(matrixArrayName) ? Qt::Checked : Qt::Unchecked);
+      arrayListWidget->blockSignals(false);
+    }
+  });
+
+  return arrayListWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerValues::getWrappedDataContainer() const
+{
+  return m_WrappedDataContainer;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerValues::setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
+{
+  m_WrappedDataContainer = wrappedDc;
+  m_FullyWrapped = false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSIMPLDataContainerValues::isFullyWrapped() const
+{
+  return m_FullyWrapped;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerValues::setFullyWrapped(bool wrapped)
+{
+  m_FullyWrapped = wrapped;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSSIMPLDataContainerValues::allowsImport(QString matrixArrayName) const
+{
+  bool isPointData = getFilter()->isPointData();
+  SIMPLVtkBridge::DataArrayImportSettings importSettings;
+  if(isPointData)
+  {
+    importSettings = m_WrappedDataContainer->m_ImportPointArrays;
+  }
+  else
+  {
+    importSettings = m_WrappedDataContainer->m_ImportCellArrays;
+  }
+
+  return importSettings.at(matrixArrayName);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSIMPLDataContainerValues::setImportAllowed(QString matrixArrayName, bool allowImport)
+{
+  bool isPointData = getFilter()->isPointData();
+  if(isPointData)
+  {
+    m_WrappedDataContainer->m_ImportPointArrays[matrixArrayName] = allowImport;
+  }
+  else
+  {
+    m_WrappedDataContainer->m_ImportCellArrays[matrixArrayName] = allowImport;
+  }
+
+  emit importArraySettingChanged(matrixArrayName);
+}

@@ -385,6 +385,10 @@ QStringList VSAbstractFilter::getArrayNames()
   QStringList arrayNames;
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(getDataSetFilter())
+  {
+    dataSet = getDataSetFilter()->getOutput();
+  }
   if(dataSet)
   {
     if(isPointData())
@@ -416,6 +420,10 @@ QStringList VSAbstractFilter::getScalarNames()
   QStringList arrayNames;
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(getDataSetFilter())
+  {
+    dataSet = getDataSetFilter()->getOutput();
+  }
   if(dataSet)
   {
     if(isPointData())

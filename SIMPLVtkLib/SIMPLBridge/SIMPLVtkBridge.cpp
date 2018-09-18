@@ -77,6 +77,12 @@
 #define AM_ALWAYS 3
 #define AM_APPEND AM_MULTIPLE
 
+namespace
+{
+  const AttributeMatrix::Types CellTypes = { AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face, AttributeMatrix::Type::Edge };
+  const AttributeMatrix::Types PointTypes = { AttributeMatrix::Type::Vertex };
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -251,10 +257,77 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapGeometryPtr(DataCont
     wrappedDcStruct->m_DataSet = dataSet;
     wrappedDcStruct->m_DataContainer = dc;
     wrappedDcStruct->m_Name = dc->getName();
+    wrappedDcStruct->m_ImportCellArrays = CreateImportSettings(GetCellArrayNames(wrappedDcStruct));
+    wrappedDcStruct->m_ImportPointArrays = CreateImportSettings(GetPointArrayNames(wrappedDcStruct));
 
     return wrappedDcStruct;
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::DataArrayImportSettings SIMPLVtkBridge::CreateImportSettings(QStringList arrayNames)
+{
+  DataArrayImportSettings importSettings;
+  for(QString arrayName : arrayNames)
+  {
+    importSettings[arrayName] = true;
+  }
+
+  return importSettings;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList SIMPLVtkBridge::GetCellArrayNames(WrappedDataContainerPtr wrappedDc)
+{
+  QStringList arrayNames;
+  for(AttributeMatrix::Pointer am : wrappedDc->m_DataContainer->getAttributeMatrices())
+  {
+    AttributeMatrix::Type amType = am->getType();
+    if(::CellTypes.contains(amType))
+    {
+      QStringList daNames = am->getAttributeArrayNames();
+      for(QString daName : daNames)
+      {
+        if(CanWrapDataArray(am->getAttributeArray(daName)))
+        {
+          arrayNames.push_back(am->getName() + "::" + daName);
+        }
+      }
+    }
+  }
+
+  return arrayNames;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QStringList SIMPLVtkBridge::GetPointArrayNames(WrappedDataContainerPtr wrappedDc)
+{
+  QStringList arrayNames;
+  for(AttributeMatrix::Pointer am : wrappedDc->m_DataContainer->getAttributeMatrices())
+  {
+    AttributeMatrix::Type amType = am->getType();
+    if(::PointTypes.contains(amType))
+    {
+      QStringList daNames = am->getAttributeArrayNames();
+      for(QString daName : daNames)
+      {
+        if(CanWrapDataArray(am->getAttributeArray(daName)))
+        {
+          arrayNames.push_back(am->getName() + "::" + daName);
+        }
+      }
+    }
+  }
+
+  return arrayNames;
+}
+
 
 // -----------------------------------------------------------------------------
 //
@@ -348,7 +421,7 @@ bool SIMPLVtkBridge::MergeWrappedArrays(WrappedDataArrayPtrCollection& oldWrappi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool SIMPLVtkBridge::WrapAttrMatrixData(AttributeMatrix::Pointer attrMat, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq)
+bool SIMPLVtkBridge::WrapAttrMatrixData(AttributeMatrix::Pointer attrMat, WrappedDataArrayPtrCollection& wrappedCollection, const int tuplesReq, DataArrayImportSettings importList)
 {
   if(nullptr == attrMat)
   {
@@ -372,7 +445,7 @@ bool SIMPLVtkBridge::WrapAttrMatrixData(AttributeMatrix::Pointer attrMat, Wrappe
 
   if(tuplesReq == numTuples)
   {
-    WrappedDataArrayPtrCollection newCollectionData = WrapAttributeMatrixAsStructs(attrMat);
+    WrappedDataArrayPtrCollection newCollectionData = WrapAttributeMatrixAsStructs(attrMat, importList);
 
     // Merge the new cell data into the existing data
     if(MergeWrappedArrays(wrappedCollection, newCollectionData))
@@ -415,18 +488,15 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
     // Wrap Cell / Point Data
     VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
     AttributeMatrix::Type amType = attrMat->getType();
-
-    AttributeMatrix::Types cellTypes = {AttributeMatrix::Type::Cell, AttributeMatrix::Type::Face, AttributeMatrix::Type::Edge};
-    AttributeMatrix::Types pointTypes = {AttributeMatrix::Type::Vertex};
-    if(cellTypes.contains(amType))
+    if(::CellTypes.contains(amType))
     {
       int numCells = dataSet->GetNumberOfCells();
-      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_CellData, numCells);
+      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_CellData, numCells, wrappedDcStruct->m_ImportCellArrays);
     }
-    else if(pointTypes.contains(amType))
+    else if(::PointTypes.contains(amType))
     {
       int numPoints = dataSet->GetNumberOfPoints();
-      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_PointData, numPoints);
+      WrapAttrMatrixData(attrMat, wrappedDcStruct->m_PointData, numPoints, wrappedDcStruct->m_ImportPointArrays);
     }
   }
 
@@ -437,53 +507,58 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
   vtkCellData* cellData = dataSet->GetCellData();
   for(WrappedDataArrayPtr wrappedCellData : wrappedDcStruct->m_CellData)
   {
-    cellData->AddArray(wrappedCellData->m_VtkArray);
+    QString matrixArrayName = wrappedCellData->m_AttributeMatrix->getName() + "::" + wrappedCellData->m_ArrayName;
+    if(wrappedDcStruct->m_ImportCellArrays.find(matrixArrayName) != wrappedDcStruct->m_ImportCellArrays.end() &&
+       wrappedDcStruct->m_ImportCellArrays[matrixArrayName] == true)
+    {
+      cellData->AddArray(wrappedCellData->m_VtkArray);
+    }
+    else
+    {
+      cellData->RemoveArray(qPrintable(wrappedCellData->m_ArrayName));
+    }
   }
+  // Remove unwanted arrays
+  for(auto iter = wrappedDcStruct->m_ImportCellArrays.begin(); iter != wrappedDcStruct->m_ImportCellArrays.end(); iter++)
+  {
+    if(iter->second == false)
+    {
+      QStringList path = iter->first.split("::");
+      QString amName = path[0];
+      QString daName = path[1];
+      cellData->RemoveArray(qPrintable(daName));
+      cellData->RemoveArray(qPrintable("[" + amName + "]" + daName));
+    }
+  }
+  cellData->Update();
   // Add PointData to the vtkDataSet
   vtkPointData* pointData = dataSet->GetPointData();
   for(WrappedDataArrayPtr wrappedPointData : wrappedDcStruct->m_PointData)
   {
-    pointData->AddArray(wrappedPointData->m_VtkArray);
-  }
-
-#if 0
-  // Create PointData from CellData
-  if(wrappedDcStruct->m_CellData.size() > 0)
-  {
-    VTK_NEW(vtkCellDataToPointData, cell2Point);
-    cell2Point->SetInputData(dataSet);
-    cell2Point->PassCellDataOn();
-    cell2Point->Update();
-
-    VTK_PTR(vtkDataSet) pointDataSet = nullptr;
-    switch(dataSet->GetDataObjectType())
+    QString matrixArrayName = wrappedPointData->m_AttributeMatrix->getName() + "::" + wrappedPointData->m_ArrayName;
+    if(wrappedDcStruct->m_ImportPointArrays.find(matrixArrayName) != wrappedDcStruct->m_ImportPointArrays.end() &&
+       wrappedDcStruct->m_ImportPointArrays[matrixArrayName] == true)
     {
-    case VTK_IMAGE_DATA:
-      pointDataSet = cell2Point->GetImageDataOutput();
-      break;
-    case VTK_STRUCTURED_GRID:
-      pointDataSet = cell2Point->GetUnstructuredGridOutput();
-      break;
-    case VTK_RECTILINEAR_GRID:
-      pointDataSet = cell2Point->GetRectilinearGridOutput();
-      break;
-    case VTK_STRUCTURED_POINTS:
-      pointDataSet = cell2Point->GetStructuredPointsOutput();
-      break;
-    case VTK_UNSTRUCTURED_GRID:
-      pointDataSet = cell2Point->GetUnstructuredGridOutput();
-      break;
-    case VTK_POLY_DATA:
-      pointDataSet = cell2Point->GetPolyDataOutput();
-      break;
-    default:
-      pointDataSet = cell2Point->GetOutput();
-      break;
+      pointData->AddArray(wrappedPointData->m_VtkArray);
     }
-
-    dataSet->DeepCopy(pointDataSet);
+    else
+    {
+      pointData->RemoveArray(qPrintable(wrappedPointData->m_ArrayName));
+    }
   }
-#endif
+  // Remove unwanted arrays
+  for(auto iter = wrappedDcStruct->m_ImportPointArrays.begin(); iter != wrappedDcStruct->m_ImportPointArrays.end(); iter++)
+  {
+    if(iter->second == false)
+    {
+      QStringList path = iter->first.split("::");
+      QString amName = path[0];
+      QString daName = path[1];
+      cellData->RemoveArray(qPrintable(daName));
+      cellData->RemoveArray(qPrintable("[" + amName + "]" + daName));
+    }
+  }
+  pointData->Update();
 
   // Set the active cell / point data scalars
   if(pointData->GetNumberOfArrays() > 0)
@@ -500,7 +575,7 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLVtkBridge::WrappedDataArrayPtrCollection SIMPLVtkBridge::WrapAttributeMatrixAsStructs(AttributeMatrix::Pointer attrMat)
+SIMPLVtkBridge::WrappedDataArrayPtrCollection SIMPLVtkBridge::WrapAttributeMatrixAsStructs(AttributeMatrix::Pointer attrMat, DataArrayImportSettings importList)
 {
   WrappedDataArrayPtrCollection wrappedDataArrays;
 
@@ -509,13 +584,19 @@ SIMPLVtkBridge::WrappedDataArrayPtrCollection SIMPLVtkBridge::WrapAttributeMatri
     return wrappedDataArrays;
   }
 
+  QString matrixName = attrMat->getName();
   QStringList arrayNames = attrMat->getAttributeArrayNames();
-
-  for(QStringList::Iterator arrayName = arrayNames.begin(); arrayName != arrayNames.end(); ++arrayName)
+  for(QString arrayName : arrayNames)
   {
-    IDataArray::Pointer array = attrMat->getAttributeArray((*arrayName));
-    if(!array)
+    IDataArray::Pointer array = attrMat->getAttributeArray(arrayName);
+    if(nullptr == array)
     {
+      continue;
+    }
+    QString matrixArrayName = matrixName + "::" + arrayName;
+    if(importList.find(matrixArrayName) != importList.end() && importList.at(matrixArrayName) == false)
+    {
+      // If the user specified that this array should not be imported, skip it
       continue;
     }
 
@@ -798,6 +879,57 @@ VTK_PTR(vtkDataArray) SIMPLVtkBridge::WrapIDataArray(IDataArray::Pointer array)
   else
   {
     return nullptr;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool SIMPLVtkBridge::CanWrapDataArray(IDataArray::Pointer array)
+{
+  if(std::dynamic_pointer_cast<UInt8ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<Int8ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<UInt16ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<Int16ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<UInt32ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<Int32ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<UInt64ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<Int64ArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<FloatArrayType>(array))
+  {
+    return true;
+  }
+  else if(std::dynamic_pointer_cast<DoubleArrayType>(array))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
 
