@@ -419,6 +419,7 @@ bool VSSIMPLDataContainerFilter::finishWrapping()
     m_TrivialProducer->SetOutput(dataSet);
     emit finishedWrapping();
     emit arrayNamesChanged();
+    emit updatedOutputPort(this);
     return true;
   }
 

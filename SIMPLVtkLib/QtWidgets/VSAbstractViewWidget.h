@@ -200,6 +200,7 @@ signals:
   void controllerChanged(VSController*);
   void currentFilterChanged(VSAbstractFilter*);
   void selectionChanged(QItemSelection);
+  void currentFilterUpdated();
 
 public slots:
   /**
@@ -447,6 +448,7 @@ protected:
   void selectFilterNextSibling(bool addSelection);
 
 private:
+  QMetaObject::Connection m_CurrentFilterConnection;
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
   VSFilterViewModel* m_FilterViewModel = nullptr;
   QItemSelectionModel* m_SelectionModel = nullptr;

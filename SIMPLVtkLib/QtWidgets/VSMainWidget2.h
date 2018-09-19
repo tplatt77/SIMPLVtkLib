@@ -144,9 +144,23 @@ protected slots:
    */
   void listenFiltersChanged(VSAbstractFilter::FilterListType filtersSelected);
 
+  /**
+   * @brief Handle cases where a filter is added to the visualization pipeline
+   * @param filter
+   * @param currentFilter
+   */
   void listenFilterAdded(VSAbstractFilter* filter, bool currentFilter);
 
+  /**
+   * @brief Handle cases where a filter is removed from the visualization pipeline
+   * @param filter
+   */
   void listenFilterRemoved(VSAbstractFilter* filter);
+
+  /**
+   * @brief Updates the enable states for Create Filter buttons based on the current selection
+   */
+  void updateFilterButtons();
 
   /**
    * @brief Sets the visualization settings to use for the bottom bar.  If multiple filters are used, none are connected

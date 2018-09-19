@@ -858,6 +858,9 @@ void VSAbstractViewWidget::selectFilters(VSAbstractFilter::FilterListType filter
 void VSAbstractViewWidget::listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous)
 {
   emit currentFilterChanged(getCurrentFilter());
+  m_CurrentFilterConnection = connect(getCurrentFilter(), &VSAbstractFilter::updatedOutputPort, [=] {
+    emit currentFilterUpdated();
+  });
 }
 
 // -----------------------------------------------------------------------------

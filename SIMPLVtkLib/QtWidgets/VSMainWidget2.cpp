@@ -116,6 +116,7 @@ void VSMainWidget2::connectSlots()
   connect(m_VisualizationFiltersUi->clearFiltersBtn, &QPushButton::clicked, this, &VSMainWidget2::clearFilters);
 
   connect(this, &VSMainWidget2::selectedFiltersChanged, this, &VSMainWidget2::listenFiltersChanged);
+  connect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
 }
 
 // -----------------------------------------------------------------------------
@@ -152,7 +153,9 @@ void VSMainWidget2::resetCamera()
 // -----------------------------------------------------------------------------
 void VSMainWidget2::setActiveView(VSAbstractViewWidget* viewWidget)
 {
+  disconnect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
   VSMainWidgetBase::setActiveView(viewWidget);
+  connect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
 
   if(getActiveViewWidget() != nullptr)
   {
@@ -234,7 +237,34 @@ void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filter
     getViewSettingsOverlayButton()->enable();
   }
 
+  updateFilterButtons();
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterAdded(VSAbstractFilter* filter, bool currentFilter)
+{
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterRemoved(VSAbstractFilter* filter)
+{
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::updateFilterButtons()
+{
+  VSAbstractFilter::FilterListType filtersSelected = getCurrentSelection();
+  
   // Clip Filter
   bool enableClip = VSClipFilter::CompatibleWithParents(filtersSelected);
   m_Ui->clipBtn->setEnabled(enableClip);
@@ -261,24 +291,6 @@ void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filter
   // Text
   bool enableText = VSTextFilter::CompatibleWithParents(filtersSelected);
   m_ActionAddText->setEnabled(enableText);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::listenFilterAdded(VSAbstractFilter* filter, bool currentFilter)
-{
-  updateOverlayButtons();
-  renderAll();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::listenFilterRemoved(VSAbstractFilter* filter)
-{
-  updateOverlayButtons();
-  renderAll();
 }
 
 // -----------------------------------------------------------------------------
