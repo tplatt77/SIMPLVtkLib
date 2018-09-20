@@ -77,9 +77,12 @@ void VSFilterSettingsWidget::applyFilter()
 
   getCurrentFilter()->getValues()->applyValues();
 
-  bool hasChanges = getCurrentFilter()->getValues()->hasChanges();
-  m_Ui->applyBtn->setEnabled(hasChanges);
-  m_Ui->resetBtn->setEnabled(hasChanges);
+  if(m_Filters.size() == 1)
+  {
+    bool hasChanges = getCurrentFilter()->getValues()->hasChanges();
+    m_Ui->applyBtn->setEnabled(hasChanges);
+    m_Ui->resetBtn->setEnabled(hasChanges);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -94,8 +97,11 @@ void VSFilterSettingsWidget::resetFilter()
     hasChanges &= filter->getValues()->hasChanges();
   }
 
-  m_Ui->applyBtn->setEnabled(hasChanges);
-  m_Ui->resetBtn->setEnabled(hasChanges);
+  if(m_Filters.size() == 1)
+  {
+    m_Ui->applyBtn->setEnabled(hasChanges);
+    m_Ui->resetBtn->setEnabled(hasChanges);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -115,11 +121,6 @@ void VSFilterSettingsWidget::deleteFilter()
 // -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterSettingsWidget::getCurrentFilter() const
 {
-  //if(m_CurrentFilter)
-  //{
-  //  return m_CurrentFilter;
-  //}
-
   if(m_Filters.size() > 0)
   {
     return m_Filters.front();
@@ -143,7 +144,6 @@ void VSFilterSettingsWidget::setFilters(VSAbstractFilter::FilterListType filters
   {
     m_FilterWidget->hide();
     m_Ui->filterWidgetLayout->removeWidget(m_FilterWidget);
-    //m_FilterWidget->deleteLater();
     m_FilterWidget = nullptr;
 
     disconnect(getCurrentFilter()->getValues(), &VSAbstractFilterValues::alertChangesWaiting, this, &VSFilterSettingsWidget::changesWaiting);
