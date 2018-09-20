@@ -179,7 +179,7 @@ VSPlaneWidget::~VSPlaneWidget()
 // -----------------------------------------------------------------------------
 double* VSPlaneWidget::getNormal() const
 {
-  return m_UsePlane->GetNormal();
+  return m_ViewPlane->GetNormal();
 }
 
 // -----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ double* VSPlaneWidget::getNormal() const
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::getNormal(double normals[3]) const
 {
-  m_UsePlane->GetNormal(normals);
+  m_ViewPlane->GetNormal(normals);
 }
 
 // -----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void VSPlaneWidget::setNormal(double x, double y, double z)
 // -----------------------------------------------------------------------------
 double* VSPlaneWidget::getOrigin() const
 {
-  return m_UsePlane->GetOrigin();
+  return m_ViewPlane->GetOrigin();
 }
 
 // -----------------------------------------------------------------------------
@@ -229,7 +229,7 @@ double* VSPlaneWidget::getOrigin() const
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::getOrigin(double origin[3]) const
 {
-  m_UsePlane->GetOrigin(origin);
+  m_ViewPlane->GetOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
