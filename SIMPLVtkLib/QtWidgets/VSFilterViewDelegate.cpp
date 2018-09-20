@@ -259,37 +259,47 @@ void VSFilterViewDelegate::updateEditorGeometry(QWidget* editor, const QStyleOpt
 // -----------------------------------------------------------------------------
 void VSFilterViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  QColor bgColor;
+  // Get Text / Background Color
   QColor textColor;
+  QColor backgroundColor;
   if(option.state & QStyle::State_Selected)
   {
-    bgColor = SVStyle::Instance()->getQTreeViewItemSelectedActive_background_color();
-    textColor = SVStyle::Instance()->getQTreeViewItemSelectedActive_color();
+    if(option.state & QStyle::State_Active)
+    {
+      textColor = SVStyle::Instance()->getQTreeViewItemSelectedActive_color();
+      backgroundColor = SVStyle::Instance()->getQTreeViewItemSelectedActive_background_color();
+    }
+    else
+    {
+      textColor = SVStyle::Instance()->getQTreeViewItemSelectedNotActive_color();
+      backgroundColor = SVStyle::Instance()->getQTreeViewItemSelectedNotActive_background_color();
+    }
   }
   else if((option.state & QStyle::State_MouseOver))
   {
-    bgColor = SVStyle::Instance()->getQTreeViewItemHover_background_color();
     textColor = SVStyle::Instance()->getQTreeViewItemHover_color();
+    backgroundColor = SVStyle::Instance()->getQTreeViewItemHover_background_color();
   }
   else
   {
-    bgColor = SVStyle::Instance()->getQTreeViewItem_background_color();
     textColor = SVStyle::Instance()->getQTreeViewItem_color();
+    backgroundColor = SVStyle::Instance()->getQTreeViewItem_background_color();
   }
 
-  painter->setPen(QPen());
-  painter->setBrush(QBrush());
-  painter->fillRect(option.rect, bgColor);
+  // Fill Background
+  painter->fillRect(option.rect, backgroundColor);
 
+  // Get Filter
   VSAbstractFilter* filter = getFilterFromIndex(index);
   bool hasVisibilityButton = filter->isCheckable();
   const VSFilterViewModel* filterViewModel = dynamic_cast<const VSFilterViewModel*>(index.model());
-
-  painter->setPen(textColor);
-  painter->setBrush(QBrush());
   QRect textRect = getTextRect(option, !hasVisibilityButton);
+
+  // Draw Text
+  painter->setPen(textColor);
   painter->drawText(textRect, filter->getFilterName());
 
+  // Draw Visibility Button
   if(hasVisibilityButton)
   {
     QRect buttonRect = getVisibilityRect(option, index);
