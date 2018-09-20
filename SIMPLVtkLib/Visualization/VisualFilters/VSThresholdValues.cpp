@@ -54,6 +54,9 @@ VSThresholdValues::VSThresholdValues(VSThresholdFilter* filter)
   {
     setRange(0.0, 1.0);
   }
+
+  setMinPercent(0.0);
+  setMaxPercent(1.0);
 }
 
 // -----------------------------------------------------------------------------
