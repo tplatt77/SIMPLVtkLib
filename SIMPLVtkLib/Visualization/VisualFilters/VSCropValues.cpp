@@ -59,6 +59,7 @@ VSCropValues::VSCropValues(VSCropFilter* filter)
 // -----------------------------------------------------------------------------
 VSCropValues::VSCropValues(const VSCropValues& values)
 : VSAbstractFilterValues(values.getFilter())
+, m_FreshFilter(values.m_FreshFilter)
 {
   // Volume of Interest
   for(int i = 0; i < 6; i++)
@@ -107,6 +108,8 @@ void VSCropValues::applyValues()
       filterType->applyValues(this);
     }
   }
+
+  m_FreshFilter = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -121,7 +124,15 @@ void VSCropValues::resetValues()
 // -----------------------------------------------------------------------------
 bool VSCropValues::hasChanges() const
 {
-  VSCropFilter* filter = dynamic_cast<VSCropFilter*>(getFilter());
+  if(m_FreshFilter)
+  {
+    return true;
+  }
+
+  if(getSelection().size() > 1)
+  {
+    return true;
+  }
 
   for(int i = 0; i < 3; i++)
   {

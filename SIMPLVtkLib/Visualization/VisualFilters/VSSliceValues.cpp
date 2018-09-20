@@ -56,6 +56,7 @@ VSSliceValues::VSSliceValues(VSSliceFilter* filter)
 VSSliceValues::VSSliceValues(const VSSliceValues& values)
 : VSAbstractFilterValues(values.getFilter())
 , m_PlaneWidget(new VSPlaneWidget(nullptr, values.getFilter()->getTransform(), values.getFilter()->getBounds(), nullptr))
+, m_FreshFilter(values.m_FreshFilter)
 {
   m_PlaneWidget->setNormal(values.getNormal());
   m_PlaneWidget->setOrigin(values.getOrigin());
@@ -83,6 +84,8 @@ void VSSliceValues::applyValues()
       m_PlaneWidget->drawPlaneOff();
     }
   }
+
+  m_FreshFilter = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -114,7 +117,16 @@ void VSSliceValues::resetValues()
 // -----------------------------------------------------------------------------
 bool VSSliceValues::hasChanges() const
 {
-  VSSliceFilter* filter = dynamic_cast<VSSliceFilter*>(getFilter());
+  if(m_FreshFilter)
+  {
+    return true;
+  }
+
+  if(getSelection().size() > 1)
+  {
+    return true;
+  }
+
   double* lastNormal = getLastNormal();
   double* lastOrigin = getLastOrigin();
 

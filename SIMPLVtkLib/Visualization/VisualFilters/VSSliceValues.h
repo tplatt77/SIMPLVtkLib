@@ -160,4 +160,5 @@ protected:
 
 private:
   VSPlaneWidget* m_PlaneWidget = nullptr;
+  bool m_FreshFilter = true;
 };

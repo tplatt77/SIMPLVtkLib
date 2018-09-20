@@ -273,6 +273,7 @@ private:
   VSClipFilter::ClipType m_LastClipType = VSClipFilter::ClipType::PLANE;
   bool m_LastPlaneInverted = false;
   bool m_LastBoxInverted = false;
+  bool m_FreshFilter = true;
 
   VTK_PTR(vtkTransform) m_LastBoxTransform;
 };

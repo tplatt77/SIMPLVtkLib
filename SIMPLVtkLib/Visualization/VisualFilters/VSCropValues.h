@@ -139,7 +139,7 @@ signals:
 private:
   int* m_Voi;
   int* m_SampleRate;
-
   int m_LastVoi[6];
   int m_LastSampleRate[3];
+  bool m_FreshFilter = true;
 };

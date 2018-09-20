@@ -60,8 +60,9 @@ VSThresholdValues::VSThresholdValues(VSThresholdFilter* filter)
 //
 // -----------------------------------------------------------------------------
 VSThresholdValues::VSThresholdValues(const VSThresholdValues& values)
-  : VSAbstractFilterValues(values.getFilter())
-  , m_Range(new double[2])
+: VSAbstractFilterValues(values.getFilter())
+, m_Range(new double[2])
+, m_FreshFilter(values.m_FreshFilter)
 {
   QStringList scalarNames = values.getFilter()->getScalarNames();
   setRange(values.getRange()[0], values.getRange()[1]);
@@ -95,6 +96,8 @@ void VSThresholdValues::applyValues()
       filterType->applyValues(this);
     }
   }
+
+  m_FreshFilter = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -112,7 +115,15 @@ void VSThresholdValues::resetValues()
 // -----------------------------------------------------------------------------
 bool VSThresholdValues::hasChanges() const
 {
-  VSThresholdFilter* filter = dynamic_cast<VSThresholdFilter*>(getFilter());
+  if(m_FreshFilter)
+  {
+    return true;
+  }
+
+  if(getSelection().size() > 1)
+  {
+    return true;
+  }
 
   if(getArrayName() != getLastArrayName())
   {

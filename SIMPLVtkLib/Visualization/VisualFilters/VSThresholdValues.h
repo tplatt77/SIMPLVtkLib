@@ -221,4 +221,5 @@ private:
   QString m_LastArrayName;
   double m_LastMinValue = 0.0;
   double m_LastMaxValue = 99.9;
+  bool m_FreshFilter = true;
 };

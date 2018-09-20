@@ -51,9 +51,10 @@ VSMaskValues::VSMaskValues(VSMaskFilter* filter)
 // -----------------------------------------------------------------------------
 VSMaskValues::VSMaskValues(const VSMaskValues& values)
 : VSAbstractFilterValues(values.getFilter())
+, m_LastArrayName(values.m_LastArrayName)
+, m_MaskArrayName(values.m_MaskArrayName)
+, m_FreshFilter(values.m_FreshFilter)
 {
-  m_LastArrayName = values.m_LastArrayName;
-  m_MaskArrayName = values.m_MaskArrayName;
 }
 
 // -----------------------------------------------------------------------------
@@ -71,6 +72,8 @@ void VSMaskValues::applyValues()
       filterType->applyValues(this);
     }
   }
+
+  m_FreshFilter = true;
 }
 
 // -----------------------------------------------------------------------------
@@ -86,7 +89,16 @@ void VSMaskValues::resetValues()
 // -----------------------------------------------------------------------------
 bool VSMaskValues::hasChanges() const
 {
-  VSMaskFilter* filter = dynamic_cast<VSMaskFilter*>(getFilter());
+  if(m_FreshFilter)
+  {
+    return true;
+  }
+
+  if(getSelection().size() > 1)
+  {
+    return true;
+  }
+
   return m_MaskArrayName != getLastArrayName();
 }
 

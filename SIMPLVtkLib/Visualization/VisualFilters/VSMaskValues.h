@@ -120,4 +120,5 @@ signals:
 private:
   QString m_MaskArrayName;
   QString m_LastArrayName;
+  bool m_FreshFilter = true;
 };

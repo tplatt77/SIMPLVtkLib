@@ -75,6 +75,7 @@ VSClipValues::VSClipValues(const VSClipValues& values)
 , m_LastBoxInverted(values.m_LastBoxInverted)
 , m_LastBoxTransform(values.m_LastBoxTransform)
 , m_LastPlaneInverted(values.m_LastPlaneInverted)
+, m_FreshFilter(values.m_FreshFilter)
 {
   m_PlaneWidget->setUsePlaneNormal(values.m_PlaneWidget->getUsePlaneNormal());
   m_PlaneWidget->setUsePlaneOrigin(values.m_PlaneWidget->getUsePlaneOrigin());
@@ -115,6 +116,8 @@ void VSClipValues::applyValues()
       }
     }
   }
+
+  m_FreshFilter = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -160,12 +163,16 @@ void VSClipValues::resetValues()
 // -----------------------------------------------------------------------------
 bool VSClipValues::hasChanges() const
 {
+  if(m_FreshFilter)
+  {
+    return true;
+  }
+
   if(getSelection().size() > 1)
   {
     return true;
   }
 
-  VSClipFilter* filter = dynamic_cast<VSClipFilter*>(getFilter());
   if(m_ClipType != getLastClipType())
   {
     return true;
@@ -190,6 +197,11 @@ bool VSClipValues::hasChanges() const
   }
   break;
   case VSClipFilter::ClipType::PLANE:
+    if(m_Inverted != getLastPlaneInverted())
+    {
+      return true;
+    }
+
     if(!getPlaneWidget()->equals(getLastPlaneOrigin(), getLastPlaneNormal()))
     {
       return true;
@@ -416,7 +428,7 @@ bool VSClipValues::getLastPlaneInverted() const
 // -----------------------------------------------------------------------------
 double* VSClipValues::getLastPlaneOrigin() const
 {
-  return m_PlaneWidget->getOrigin();
+  return m_PlaneWidget->getUsePlaneOrigin();
 }
 
 // -----------------------------------------------------------------------------
@@ -424,7 +436,7 @@ double* VSClipValues::getLastPlaneOrigin() const
 // -----------------------------------------------------------------------------
 double* VSClipValues::getLastPlaneNormal() const
 {
-  return m_PlaneWidget->getNormal();
+  return m_PlaneWidget->getUsePlaneNormal();
 }
 
 // -----------------------------------------------------------------------------
