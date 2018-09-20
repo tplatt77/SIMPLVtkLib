@@ -245,6 +245,10 @@ void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filter
 // -----------------------------------------------------------------------------
 void VSMainWidget2::listenFilterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
+  if(dynamic_cast<VSPipelineFilter*>(filter) || dynamic_cast<VSFileNameFilter*>(filter))
+  {
+    m_Ui->visualizationFiltersOverlayBtn->setChecked(true);
+  }
   updateOverlayButtons();
   renderAll();
 }
