@@ -64,7 +64,10 @@ public:
 protected:
   void setupGui();
 
-private:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&); // Copy Constructor Not Implemented
-  void operator=(const LoadHDF5FileDialog&);     // Operator '=' Not Implemented
+public:
+  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
+    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
+    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
+    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
+
 };
