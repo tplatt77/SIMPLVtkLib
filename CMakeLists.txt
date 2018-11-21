@@ -113,7 +113,7 @@ mark_as_advanced(SIMPLVtkLib_ENABLE_HDF5)
 # Find and Use the Qt5 Libraries
 include(${CMP_SOURCE_DIR}/cmpProject.cmake)
 include(${CMP_SOURCE_DIR}/ExtLib/Qt5Support.cmake)
-set(SIMPLVtkLib_Qt5_Components Core Widgets Network Gui Concurrent Svg Xml OpenGL PrintSupport )
+set(SIMPLVtkLib_Qt5_Components Core Widgets Network Gui Qml Concurrent Svg Xml OpenGL PrintSupport )
 CMP_AddQt5Support( "${SIMPLVtkLib_Qt5_Components}"
                     "${SIMPL_USE_QtWebEngine}"
                     "${SIMPLProj_BINARY_DIR}"
@@ -245,6 +245,7 @@ set(SIMPLVtkLib_LINK_LIBRARIES
   SVWidgetsLib
   Qt5::Gui
   Qt5::Widgets
+  Qt5::Qml
   ${SIMPLVtk_VtkComponents}
   ${SIMPLVtkLib_Extra_Link_Libraries}
 )
