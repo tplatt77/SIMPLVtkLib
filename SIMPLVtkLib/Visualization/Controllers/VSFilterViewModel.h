@@ -40,6 +40,9 @@
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
 
+#include <vtkActor.h>
+#include <vtkImageSlice.h>
+
 /**
  * @class VSFilterViewModel VSFilterViewModel.h SIMPLVtkLib/QtWidgets/VSFilterViewModel.h
  * @brief This class handles the visual filter model for the VSController alongside a
