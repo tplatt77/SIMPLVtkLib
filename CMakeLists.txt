@@ -154,7 +154,7 @@ include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/SourceList.cmake
   # -- Include the Dialogs sources
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Dialogs/SourceList.cmake)
 
-  # -- Include the Dialogs sources
+  # -- Include the Wizards sources
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/SourceList.cmake)
 
 #------------------------------------------------------------------------------
@@ -199,7 +199,10 @@ set(Project_SRCS
 
   ${${PROJECT_NAME}_Wizards_HDRS}
   ${${PROJECT_NAME}_Wizards_SRCS}
-  ${${PROJECT_NAME}_Wizards_Generated_UI_HDRS}
+
+  ${${PROJECT_NAME}_GenericMontage_HDRS}
+  ${${PROJECT_NAME}_GenericMontage_SRCS}
+  ${${PROJECT_NAME}_GenericMontage_Generated_UI_HDRS}
 
   ${${PROJECT_NAME}_Dialogs_Moc_HDRS}
   ${${PROJECT_NAME}_Dialogs_HDRS}
