@@ -1,18 +1,20 @@
-
 set(${PROJECT_NAME}_GenericMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageSettings.h
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericCollectionTypePage.h
+  ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMetadataPage.h
 )
 
 set(${PROJECT_NAME}_GenericMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageSettings.cpp
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericCollectionTypePage.cpp
+  ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMetadataPage.cpp
 )
 
 set(${PROJECT_NAME}_GenericMontage_UIS
   ${WIZARDS_SOURCE_DIR}/GenericMontage/UI_Files/GenericCollectionTypePage.ui
+  ${WIZARDS_SOURCE_DIR}/GenericMontage/UI_Files/GenericMetadataPage.ui
 )
 
 cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/Wizards" "${${PROJECT_NAME}_GenericMontage_HDRS}" "${${PROJECT_NAME}_GenericMontage_SRCS}" "0")
