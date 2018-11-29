@@ -1,11 +1,13 @@
 
 set(${PROJECT_NAME}_GenericMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageWizard.h
+  ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageSettings.h
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericCollectionTypePage.h
 )
 
 set(${PROJECT_NAME}_GenericMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageWizard.cpp
+  ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericMontageSettings.cpp
   ${WIZARDS_SOURCE_DIR}/GenericMontage/GenericCollectionTypePage.cpp
 )
 
