@@ -58,3 +58,15 @@ void GenericMetadataPage::setupGui()
 {
 
 }
+
+void GenericMetadataPage::registerFields()
+{
+	registerField("numOfRows", numOfRowsSB);
+	registerField("numOfCols", numOfColsSB);
+	registerField("tileOverlap", tileOverlapSB);
+	registerField("firstFileIndex", firstFileIdxSB);
+	registerField("tilesDirectory", tilesDirLE);
+	registerField("outputFileName", outputTextFileNameLE);
+	registerField("fusionMethod", comboBox);
+}
+

@@ -38,6 +38,7 @@
 
 #include <QtWidgets/QWizardPage>
 
+#include "SIMPLVtkLib/Wizards/GenericMontage/GenericMontageSettings.h"
 #include "ui_GenericCollectionTypePage.h"
 
 class GenericCollectionTypePage : public QWizardPage, private Ui::GenericCollectionTypePage
@@ -59,6 +60,11 @@ class GenericCollectionTypePage : public QWizardPage, private Ui::GenericCollect
      * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
     virtual void setupGui();
+
+	/**
+	 * @brief Register fields
+	 */
+	void registerFields();
 
   private:
 

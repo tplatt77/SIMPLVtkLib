@@ -34,6 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "GenericMontageSettings.h"
+#include <QtCore/qdebug.h>
 
  // -----------------------------------------------------------------------------
  //
@@ -471,6 +472,7 @@ GenericMontageSettings::MontageType GenericMontageSettings::getMontageType() con
 void GenericMontageSettings::setMontageType(GenericMontageSettings::MontageType montageType)
 {
 	m_montageType = montageType;
+	qInfo() << "Montage Type: " << m_montageType;
 }
 
 // -----------------------------------------------------------------------------

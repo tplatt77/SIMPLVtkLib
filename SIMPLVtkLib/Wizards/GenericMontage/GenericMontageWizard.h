@@ -35,9 +35,11 @@
 
 #pragma once
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
+#include "SIMPLVtkLib/Wizards/GenericMontage/GenericMontageSettings.h"
 
-class GenericMontageWizard : public AbstractMontageWizard
+class SIMPLVtkLib_EXPORT GenericMontageWizard : public AbstractMontageWizard
 {
   Q_OBJECT
 
@@ -55,8 +57,12 @@ class GenericMontageWizard : public AbstractMontageWizard
 
     ~GenericMontageWizard() override;
 
-  private:
+	void accept() override;
 
+	GenericMontageSettings* getMontageSettings();
+
+  private:
+	  GenericMontageSettings* m_montageSettings = nullptr;
   public:
     GenericMontageWizard(const GenericMontageWizard&) = delete; // Copy Constructor Not Implemented
     GenericMontageWizard(GenericMontageWizard&&) = delete;      // Move Constructor Not Implemented

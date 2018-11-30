@@ -60,6 +60,11 @@ class GenericMetadataPage : public QWizardPage, private Ui::GenericMetadataPage
      */
     virtual void setupGui();
 
+	/**
+	 * @brief Register fields
+	 */
+	void registerFields();
+
   private:
 
   public:

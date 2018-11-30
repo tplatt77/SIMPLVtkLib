@@ -44,6 +44,9 @@ GenericCollectionTypePage::GenericCollectionTypePage(QWidget* parent)
   setupUi(this);
 
   setupGui();
+  
+  // Register fields
+  registerFields();
 }
 
 // -----------------------------------------------------------------------------
@@ -57,4 +60,10 @@ GenericCollectionTypePage::~GenericCollectionTypePage() = default;
 void GenericCollectionTypePage::setupGui()
 {
 
+}
+
+void GenericCollectionTypePage::registerFields()
+{
+	registerField("montageType", collectionTypeCB);
+	registerField("montageOrder", orderCB);
 }
