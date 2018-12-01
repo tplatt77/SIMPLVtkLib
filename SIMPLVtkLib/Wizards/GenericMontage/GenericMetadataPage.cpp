@@ -44,6 +44,8 @@ GenericMetadataPage::GenericMetadataPage(QWidget* parent)
   setupUi(this);
 
   setupGui();
+
+  registerFields();
 }
 
 // -----------------------------------------------------------------------------

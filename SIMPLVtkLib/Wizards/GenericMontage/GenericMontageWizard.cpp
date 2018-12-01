@@ -97,6 +97,8 @@ void GenericMontageWizard::accept()
 		fusionMethod = 0;
 	}
 	m_montageSettings->setFusionMethod(static_cast<GenericMontageSettings::FusionMethod>(fusionMethod));
+
+	QDialog::accept();
 }
 
 // -----------------------------------------------------------------------------

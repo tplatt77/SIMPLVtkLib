@@ -472,7 +472,6 @@ GenericMontageSettings::MontageType GenericMontageSettings::getMontageType() con
 void GenericMontageSettings::setMontageType(GenericMontageSettings::MontageType montageType)
 {
 	m_montageType = montageType;
-	qInfo() << "Montage Type: " << m_montageType;
 }
 
 // -----------------------------------------------------------------------------
