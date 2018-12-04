@@ -275,6 +275,8 @@ target_include_directories(SIMPLVtkLib
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/Controllers
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VtkWidgets
+                              ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards
+                              ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/GenericMontage
                               ${SIMPLVtkLib_BINARY_PARENT_DIR})
 if(WIN32 AND BUILD_SHARED_LIBS)
     target_compile_definitions(SIMPLVtkLib PUBLIC "-DSIMPLVtkLib_BUILT_AS_DYNAMIC_LIB")

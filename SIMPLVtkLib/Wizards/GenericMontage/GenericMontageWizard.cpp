@@ -46,7 +46,7 @@ GenericMontageWizard::GenericMontageWizard(QWidget* parent)
 {
   m_montageSettings = new GenericMontageSettings();
   
-  setWindowTitle("ASCII Data Import Wizard");
+  setWindowTitle("Generic Montage Wizard");
 
   addPage(new GenericCollectionTypePage);
 

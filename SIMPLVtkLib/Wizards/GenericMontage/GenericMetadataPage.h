@@ -40,7 +40,7 @@
 
 #include "ui_GenericMetadataPage.h"
 
-class GenericMetadataPage : public QWizardPage, private Ui::GenericMetadataPage
+class GenericMetadataPage : public QWizardPage
 {
   Q_OBJECT
 
@@ -65,7 +65,21 @@ class GenericMetadataPage : public QWizardPage, private Ui::GenericMetadataPage
 	 */
 	void registerFields();
 
+    /**
+     * @brief isComplete
+     * @return
+     */
+    virtual bool isComplete() const override;
+
   private:
+    QSharedPointer<Ui::GenericMetadataPage> m_Ui;
+
+    QString m_OpenDialogLastDirectory;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
 
   public:
     GenericMetadataPage(const GenericMetadataPage&) = delete;  // Copy Constructor Not Implemented
