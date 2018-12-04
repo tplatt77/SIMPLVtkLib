@@ -35,13 +35,20 @@
 
 #include "GenericMetadataPage.h"
 
+#include <QtCore/QDir>
+
+#include <QtWidgets/QFileSystemModel>
+#include <QtWidgets/QCompleter>
+#include <QtWidgets/QFileDialog>
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 GenericMetadataPage::GenericMetadataPage(QWidget* parent)
 : QWizardPage(parent)
+, m_Ui(new Ui::GenericMetadataPage)
 {
-  setupUi(this);
+  m_Ui->setupUi(this);
 
   setupGui();
 }
@@ -56,5 +63,115 @@ GenericMetadataPage::~GenericMetadataPage() = default;
 // -----------------------------------------------------------------------------
 void GenericMetadataPage::setupGui()
 {
+//  m_Ui->gridLayout->addWidget(outputTextFileNameLE, 4, 1, 1, 3);
 
+  connectSignalsSlots();
+
+  m_Ui->numOfRowsSB->setMinimum(1);
+  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
+
+  m_Ui->numOfColsSB->setMinimum(1);
+  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
+
+  m_Ui->tileOverlapSB->setMinimum(0);
+  m_Ui->tileOverlapSB->setMaximum(100);
+
+  m_Ui->firstFileIdxSB->setMinimum(0);
+  m_Ui->firstFileIdxSB->setMaximum(std::numeric_limits<int>().max());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void GenericMetadataPage::connectSignalsSlots()
+{
+  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->firstFileIdxSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->tilesDirLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->outputTextFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->fusionMethodCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { emit completeChanged(); });
+
+  connect(m_Ui->tilesDirSelectBtn, &QPushButton::clicked, [=] {
+    QString filePath = QFileDialog::getExistingDirectory(this, "Select Tiles Directory", m_OpenDialogLastDirectory);
+    if(filePath.isEmpty())
+    {
+      return;
+    }
+    m_OpenDialogLastDirectory = filePath;
+    m_Ui->tilesDirLE->setText(filePath);
+  });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool GenericMetadataPage::isComplete() const
+{
+  bool result = true;
+
+  if (m_Ui->numOfRowsSB->isEnabled())
+  {
+    if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() ||  m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->numOfColsSB->isEnabled())
+  {
+    if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() ||  m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->tileOverlapSB->isEnabled())
+  {
+    if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() ||  m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->firstFileIdxSB->isEnabled())
+  {
+    if (m_Ui->firstFileIdxSB->value() < m_Ui->firstFileIdxSB->minimum() ||  m_Ui->firstFileIdxSB->value() > m_Ui->firstFileIdxSB->maximum())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->tilesDirLE->isEnabled())
+  {
+    if (m_Ui->tilesDirLE->text().isEmpty())
+    {
+      result = false;
+    }
+
+    QDir dir(m_Ui->tilesDirLE->text());
+    if (!dir.exists())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->outputTextFileNameLE->isEnabled())
+  {
+    if (m_Ui->outputTextFileNameLE->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->fusionMethodCB->isEnabled())
+  {
+    if (m_Ui->fusionMethodCB->currentIndex() < 0 || m_Ui->fusionMethodCB->currentIndex() > m_Ui->fusionMethodCB->maxCount() - 1)
+    {
+      result = false;
+    }
+  }
+
+  return result;
 }

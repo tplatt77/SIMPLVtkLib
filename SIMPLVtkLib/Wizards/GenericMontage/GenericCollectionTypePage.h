@@ -40,11 +40,20 @@
 
 #include "ui_GenericCollectionTypePage.h"
 
-class GenericCollectionTypePage : public QWizardPage, private Ui::GenericCollectionTypePage
+class GenericCollectionTypePage : public QWizardPage
 {
   Q_OBJECT
 
   public:
+    enum class CollectionType : unsigned int
+    {
+      RowByRow,
+      ColumnByColumn,
+      SnakeByRows,
+      SnakeByColumns,
+      FilenameDefinedPosition
+    };
+
     /**
     * @brief Constructor
     * @param parameter The FilterParameter object that this widget represents
@@ -60,7 +69,22 @@ class GenericCollectionTypePage : public QWizardPage, private Ui::GenericCollect
      */
     virtual void setupGui();
 
+    /**
+     * @brief isComplete
+     * @return
+     */
+    virtual bool isComplete() const override;
+
+  private slots:
+    void updateOrderChoices(CollectionType collectionType);
+
   private:
+    QSharedPointer<Ui::GenericCollectionTypePage> m_Ui;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
 
   public:
     GenericCollectionTypePage(const GenericCollectionTypePage&) = delete;  // Copy Constructor Not Implemented

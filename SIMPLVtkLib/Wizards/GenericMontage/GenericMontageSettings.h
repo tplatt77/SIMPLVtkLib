@@ -45,8 +45,8 @@
 class VSRootFilter;
 
 /**
- * @class MontageConfiguration MontageConfiguration.h SIMPLVtkLib/QtWidgets/MontageConfiguration.h
- * @brief This class handles the montage configuration for the montage wizard.
+ * @class GenericMontageSettings GenericMontageSettings.h SIMPLVtkLib/QtWidgets/GenericMontageSettings.h
+ * @brief This class handles the montage settings for the Generic Montage wizard.
  */
 class SIMPLVtkLib_EXPORT GenericMontageSettings : public QObject
 {
