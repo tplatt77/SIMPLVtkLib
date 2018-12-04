@@ -132,36 +132,51 @@ void TileListWidget::connectSignalsSlots()
   connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &TileListWidget::inputDir_textChanged);
   connect(m_Ui->inputDir, &QtSLineEdit::textChanged, this, &TileListWidget::inputDir_textChanged);
 
-  connect(m_Ui->filePrefix, &QtSLineEdit::textChanged, this, [=] {
+  connect(m_Ui->filePrefix, &QtSLineEdit::textChanged, this, [=] (const QString &filePrefix) {
     generateExampleInputFile();
+    emit filePrefixChanged(filePrefix);
   });
 
-  connect(m_Ui->fileSuffix, &QtSLineEdit::textChanged, this, [=] {
+  connect(m_Ui->fileSuffix, &QtSLineEdit::textChanged, this, [=] (const QString &fileSuffix) {
     generateExampleInputFile();
+    emit fileSuffixChanged(fileSuffix);
   });
 
-  connect(m_Ui->fileExt, &QtSLineEdit::textChanged, this, [=] {
+  connect(m_Ui->fileExt, &QtSLineEdit::textChanged, this, [=] (const QString &fileExtension) {
     generateExampleInputFile();
+    emit fileExtensionChanged(fileExtension);
   });
 
-  connect(m_Ui->totalDigits, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] {
+  connect(m_Ui->totalDigits, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
     generateExampleInputFile();
+    emit paddingDigitsChanged(value);
   });
 
-  connect(m_Ui->startIndex, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] {
+  connect(m_Ui->startIndex, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
     generateExampleInputFile();
+    emit startIndexChanged(value);
   });
 
-  connect(m_Ui->endIndex, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] {
+  connect(m_Ui->endIndex, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
     generateExampleInputFile();
+    emit endIndexChanged(value);
   });
 
-  connect(m_Ui->increment, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] {
+  connect(m_Ui->increment, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
     generateExampleInputFile();
+    emit incrementIndexChanged(value);
   });
 
-  connect(m_Ui->orderAscending, &QRadioButton::toggled, this, [=] {
+  connect(m_Ui->orderAscending, &QRadioButton::toggled, this, [=] (bool checked) {
     generateExampleInputFile();
+    if (checked)
+    {
+      emit fileOrderingChanged(0);
+    }
+    else
+    {
+      emit fileOrderingChanged(1);
+    }
   });
 }
 
@@ -259,7 +274,7 @@ void TileListWidget::checkIOFiles()
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
 
-  if(this->verifyPathExists(inputPath, m_Ui->inputDir))
+  if(QtSFileUtils::VerifyPathExists(inputPath, m_Ui->inputDir))
   {
     findMaxSliceAndPrefix();
   }
@@ -305,7 +320,7 @@ void TileListWidget::inputDir_textChanged(const QString& text)
 
   m_Ui->inputDir->setToolTip("Absolute File Path: " + inputPath);
 
-  if(verifyPathExists(inputPath, m_Ui->inputDir))
+  if(QtSFileUtils::VerifyPathExists(inputPath, m_Ui->inputDir))
   {
     m_ShowFileAction->setEnabled(true);
     findMaxSliceAndPrefix();
@@ -323,6 +338,8 @@ void TileListWidget::inputDir_textChanged(const QString& text)
     m_ShowFileAction->setEnabled(false);
     m_Ui->fileListView->clear();
   }
+
+  emit inputDirectoryChanged(text);
 }
 
 // -----------------------------------------------------------------------------
@@ -527,6 +544,35 @@ FileListInfo_t TileListWidget::getFileListInfo()
   data.StartIndex = m_Ui->startIndex->value();
 
   return data;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool TileListWidget::isComplete() const
+{
+  bool result = true;
+
+  if (m_Ui->fileListView->count() <= 0)
+  {
+    result = false;
+  }
+  else
+  {
+    int fileCount = m_Ui->fileListView->count();
+    for(int i = 0; i < fileCount; i++)
+    {
+      QListWidgetItem* item = m_Ui->fileListView->item(i);
+      QString filePath = item->text();
+      QFileInfo fi(filePath);
+      if(!fi.exists())
+      {
+        result = false;
+      }
+    }
+  }
+
+  return result;
 }
 
 // -----------------------------------------------------------------------------
