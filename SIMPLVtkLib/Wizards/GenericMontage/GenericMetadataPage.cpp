@@ -91,19 +91,19 @@ void GenericMetadataPage::connectSignalsSlots()
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->firstFileIdxSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->tilesDirLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->tileListWidget, &TileListWidget::inputDirectoryChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileOrderingChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::filePrefixChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileSuffixChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileExtensionChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::startIndexChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::endIndexChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::incrementIndexChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::paddingDigitsChanged, [=] { emit completeChanged(); });
+
   connect(m_Ui->outputTextFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->fusionMethodCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { emit completeChanged(); });
-
-  connect(m_Ui->tilesDirSelectBtn, &QPushButton::clicked, [=] {
-    QString filePath = QFileDialog::getExistingDirectory(this, "Select Tiles Directory", m_OpenDialogLastDirectory);
-    if(filePath.isEmpty())
-    {
-      return;
-    }
-    m_OpenDialogLastDirectory = filePath;
-    m_Ui->tilesDirLE->setText(filePath);
-  });
 }
 
 // -----------------------------------------------------------------------------
@@ -145,15 +145,9 @@ bool GenericMetadataPage::isComplete() const
     }
   }
 
-  if (m_Ui->tilesDirLE->isEnabled())
+  if (m_Ui->tileListWidget->isEnabled())
   {
-    if (m_Ui->tilesDirLE->text().isEmpty())
-    {
-      result = false;
-    }
-
-    QDir dir(m_Ui->tilesDirLE->text());
-    if (!dir.exists())
+    if (!m_Ui->tileListWidget->isComplete())
     {
       result = false;
     }

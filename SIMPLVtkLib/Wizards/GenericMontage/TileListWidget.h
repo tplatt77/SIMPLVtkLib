@@ -83,6 +83,12 @@ public:
   void setupGui();
 
   /**
+   * @brief isComplete
+   * @return
+   */
+  bool isComplete() const;
+
+  /**
    * @brief getFileListInfo
    * @return
    */
@@ -150,6 +156,61 @@ protected:
    * @brief setupMenuField
    */
   void setupMenuField();
+
+signals:
+  /**
+   * @brief inputDirectoryChanged
+   * @param dirPath
+   */
+  void inputDirectoryChanged(const QString &dirPath);
+
+  /**
+   * @brief fileOrderingChanged
+   * @param order The order of the files.  0 is ascending, 1 is descending
+   */
+  void fileOrderingChanged(int order);
+
+  /**
+   * @brief filePrefixChanged
+   * @param filePrefix
+   */
+  void filePrefixChanged(const QString &filePrefix);
+
+  /**
+   * @brief fileSuffixChanged
+   * @param fileSuffix
+   */
+  void fileSuffixChanged(const QString &fileSuffix);
+
+  /**
+   * @brief fileExtensionChanged
+   * @param fileExtension
+   */
+  void fileExtensionChanged(const QString &fileExtension);
+
+  /**
+   * @brief startIndexChanged
+   * @param startIndex
+   */
+  void startIndexChanged(size_t startIndex);
+
+  /**
+   * @brief endIndexChanged
+   * @param endIndex
+   */
+  void endIndexChanged(size_t endIndex);
+
+  /**
+   * @brief incrementIndexChanged
+   * @param incrementIndex
+   */
+  void incrementIndexChanged(size_t incrementIndex);
+
+  /**
+   * @brief paddingDigitsChanged
+   * @param paddingDigits
+   */
+  void paddingDigitsChanged(size_t paddingDigits);
 
 private:
   QSharedPointer<Ui::TileListWidget> m_Ui;
