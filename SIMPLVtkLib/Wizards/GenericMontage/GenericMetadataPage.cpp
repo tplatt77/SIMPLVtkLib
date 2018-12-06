@@ -66,8 +66,6 @@ GenericMetadataPage::~GenericMetadataPage() = default;
 // -----------------------------------------------------------------------------
 void GenericMetadataPage::setupGui()
 {
-//  m_Ui->gridLayout->addWidget(outputTextFileNameLE, 4, 1, 1, 3);
-
   connectSignalsSlots();
 
   m_Ui->numOfRowsSB->setMinimum(1);
@@ -78,9 +76,6 @@ void GenericMetadataPage::setupGui()
 
   m_Ui->tileOverlapSB->setMinimum(0);
   m_Ui->tileOverlapSB->setMaximum(100);
-
-  m_Ui->firstFileIdxSB->setMinimum(0);
-  m_Ui->firstFileIdxSB->setMaximum(std::numeric_limits<int>().max());
 }
 
 // -----------------------------------------------------------------------------
@@ -91,7 +86,6 @@ void GenericMetadataPage::connectSignalsSlots()
   connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->firstFileIdxSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 
   connect(m_Ui->tileListWidget, &TileListWidget::inputDirectoryChanged, [=] { emit completeChanged(); });
   connect(m_Ui->tileListWidget, &TileListWidget::fileOrderingChanged, [=] { emit completeChanged(); });
@@ -133,14 +127,6 @@ bool GenericMetadataPage::isComplete() const
   if (m_Ui->tileOverlapSB->isEnabled())
   {
     if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() ||  m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->firstFileIdxSB->isEnabled())
-  {
-    if (m_Ui->firstFileIdxSB->value() < m_Ui->firstFileIdxSB->minimum() ||  m_Ui->firstFileIdxSB->value() > m_Ui->firstFileIdxSB->maximum())
     {
       result = false;
     }
