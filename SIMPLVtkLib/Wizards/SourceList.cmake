@@ -12,3 +12,4 @@ cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/Wizards" "${${PROJECT_NAME}_Wizards_
 
   # -- Include the Generic Montage sources
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/GenericMontage/SourceList.cmake)
+include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportData/SourceList.cmake)

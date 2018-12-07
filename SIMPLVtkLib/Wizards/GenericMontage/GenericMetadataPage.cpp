@@ -174,12 +174,12 @@ bool GenericMetadataPage::isComplete() const
 
 void GenericMetadataPage::registerFields()
 {
-	registerField("numOfRows", numOfRowsSB);
-	registerField("numOfCols", numOfColsSB);
-	registerField("tileOverlap", tileOverlapSB);
-	registerField("firstFileIndex", firstFileIdxSB);
-	registerField("tilesDirectory", tilesDirLE);
-	registerField("outputFileName", outputTextFileNameLE);
-	registerField("fusionMethod", comboBox);
+	registerField("numOfRows", m_Ui->numOfRowsSB);
+	registerField("numOfCols", m_Ui->numOfColsSB);
+	registerField("tileOverlap", m_Ui->tileOverlapSB);
+	registerField("firstFileIndex", m_Ui->firstFileIdxSB);
+	//registerField("tilesDirectory", m_Ui->tilesDirLE);
+	registerField("outputFileName", m_Ui->outputTextFileNameLE);
+	//registerField("fusionMethod", m_Ui->comboBox);
 }
 

@@ -33,132 +33,87 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "GenericCollectionTypePage.h"
+#include "FileTypeSelectionPage.h"
+#include "ImportDataWizard.h"
+
+#include <QtCore/QDir>
+
+#include <QtWidgets/QFileSystemModel>
+#include <QtWidgets/QCompleter>
+#include <QtWidgets/QFileDialog>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericCollectionTypePage::GenericCollectionTypePage(QWidget* parent)
+FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
 : QWizardPage(parent)
-, m_Ui(new Ui::GenericCollectionTypePage)
+, m_Ui(new Ui::FileTypeSelectionPage)
 {
   m_Ui->setupUi(this);
 
   setupGui();
-  
-  // Register fields
+
   registerFields();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericCollectionTypePage::~GenericCollectionTypePage() = default;
+FileTypeSelectionPage::~FileTypeSelectionPage() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericCollectionTypePage::setupGui()
+void FileTypeSelectionPage::setupGui()
 {
-  connectSignalsSlots();
+	connectSignalsSlots();
 
-  updateOrderChoices(CollectionType::RowByRow);
+	// Set the default radio button selection
+	m_Ui->GenericFileType->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericCollectionTypePage::connectSignalsSlots()
+void FileTypeSelectionPage::connectSignalsSlots()
 {
-  connect(m_Ui->collectionTypeCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
-    updateOrderChoices(static_cast<CollectionType>(index));
-  });
-
-  connect(m_Ui->orderCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
-    emit completeChanged();
-  });
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericCollectionTypePage::updateOrderChoices(CollectionType collectionType)
-{
-  m_Ui->orderCB->setEnabled(true);
-  m_Ui->orderCB->clear();
-
-  switch (collectionType)
-  {
-    case CollectionType::RowByRow:
-    {
-      m_Ui->orderCB->addItem("Right & Down");
-      m_Ui->orderCB->addItem("Left & Down");
-      m_Ui->orderCB->addItem("Right & Up");
-      m_Ui->orderCB->addItem("Left & Up");
-      break;
-    }
-    case CollectionType::ColumnByColumn:
-    {
-      m_Ui->orderCB->addItem("Down & Right");
-      m_Ui->orderCB->addItem("Down & Left");
-      m_Ui->orderCB->addItem("Up & Right");
-      m_Ui->orderCB->addItem("Up & Left");
-      break;
-    }
-    case CollectionType::SnakeByRows:
-    {
-      m_Ui->orderCB->addItem("Right & Down");
-      m_Ui->orderCB->addItem("Left & Down");
-      m_Ui->orderCB->addItem("Right & Up");
-      m_Ui->orderCB->addItem("Left & Up");
-      break;
-    }
-    case CollectionType::SnakeByColumns:
-    {
-      m_Ui->orderCB->addItem("Down & Right");
-      m_Ui->orderCB->addItem("Down & Left");
-      m_Ui->orderCB->addItem("Up & Right");
-      m_Ui->orderCB->addItem("Up & Left");
-      break;
-    }
-    case CollectionType::FilenameDefinedPosition:
-    {
-      m_Ui->orderCB->setDisabled(true);
-      break;
-    }
-  }
-
-  emit completeChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool GenericCollectionTypePage::isComplete() const
+bool FileTypeSelectionPage::isComplete() const
 {
   bool result = true;
-
-  if (m_Ui->collectionTypeCB->isEnabled())
-  {
-    if (m_Ui->collectionTypeCB->currentIndex() < 0 ||  m_Ui->collectionTypeCB->currentIndex() > m_Ui->collectionTypeCB->maxCount() - 1)
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->orderCB->isEnabled())
-  {
-    if (m_Ui->orderCB->currentIndex() < 0 ||  m_Ui->orderCB->currentIndex() > m_Ui->orderCB->maxCount() - 1)
-    {
-      result = false;
-    }
-  }
-
   return result;
 }
 
-void GenericCollectionTypePage::registerFields()
+void FileTypeSelectionPage::registerFields()
 {
-	registerField("montageType", m_Ui->collectionTypeCB);
-	registerField("montageOrder", m_Ui->orderCB);
 }
+
+int FileTypeSelectionPage::nextId() const
+{
+	if (m_Ui->GenericFileType->isChecked())
+	{
+		return ImportDataWizard::WizardPages::GenericCollectionType;
+	}
+	else if (m_Ui->DREAM3DFile->isChecked())
+	{
+		return ImportDataWizard::WizardPages::DREAM3DFile;
+	}
+	else if (m_Ui->FijiConfigFile->isChecked())
+	{
+		return ImportDataWizard::WizardPages::FijiConfigFile;
+	}
+	else if (m_Ui->RobometConfigFile->isChecked()) 
+	{
+		return ImportDataWizard::WizardPages::RobometConfigFile;
+	}
+	else
+	{
+		return -1;
+	}
+
+}
+

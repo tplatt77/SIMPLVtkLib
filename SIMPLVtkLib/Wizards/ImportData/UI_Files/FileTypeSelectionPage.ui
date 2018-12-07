@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FileTypeSelectionPage</class>
+ <widget class="QWizardPage" name="FileTypeSelectionPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>472</width>
+    <height>502</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0">
+   <item row="3" column="0">
+    <widget class="QRadioButton" name="RobometConfigFile">
+     <property name="text">
+      <string>Robomet Configuration File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QRadioButton" name="FijiConfigFile">
+     <property name="text">
+      <string>FIJI Configuration File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QRadioButton" name="DREAM3DFile">
+     <property name="text">
+      <string>DREAM3D File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QRadioButton" name="GenericFileType">
+     <property name="text">
+      <string>Generic Montage</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

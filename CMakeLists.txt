@@ -204,6 +204,10 @@ set(Project_SRCS
   ${${PROJECT_NAME}_GenericMontage_SRCS}
   ${${PROJECT_NAME}_GenericMontage_Generated_UI_HDRS}
 
+  ${${PROJECT_NAME}_ImportData_HDRS}
+  ${${PROJECT_NAME}_ImportData_SRCS}
+  ${${PROJECT_NAME}_ImportData_Generated_UI_HDRS}
+
   ${${PROJECT_NAME}_Dialogs_Moc_HDRS}
   ${${PROJECT_NAME}_Dialogs_HDRS}
   ${${PROJECT_NAME}_Dialogs_SRCS}
@@ -277,6 +281,7 @@ target_include_directories(SIMPLVtkLib
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VtkWidgets
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/GenericMontage
+                              ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportData
                               ${SIMPLVtkLib_BINARY_PARENT_DIR})
 if(WIN32 AND BUILD_SHARED_LIBS)
     target_compile_definitions(SIMPLVtkLib PUBLIC "-DSIMPLVtkLib_BUILT_AS_DYNAMIC_LIB")

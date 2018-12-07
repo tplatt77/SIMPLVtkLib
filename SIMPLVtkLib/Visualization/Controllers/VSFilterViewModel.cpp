@@ -294,7 +294,7 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 
   // When multiplpe images are loaded, place side by side
   vtkImageSlice* actor = (vtkImageSlice*) viewSettings->getActor().GetPointer();
-  if (nullptr != actor) {
+  if (nullptr != actor && actor->GetZRange() == 0) {
 	  //qInfo() << "Image width: " << actor->GetXRange()[1];
 	  //qInfo() << "File name: " << filter->getParentFilter()->getText();
 
