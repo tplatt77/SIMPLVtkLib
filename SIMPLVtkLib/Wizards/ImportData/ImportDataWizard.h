@@ -37,25 +37,32 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/GenericMontage/GenericMontageSettings.h"
+#include "SIMPLVtkLib/Wizards/ImportData/GenericMontageSettings.h"
 #include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
 
 
 class SIMPLVtkLib_EXPORT ImportDataWizard : public AbstractMontageWizard
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     enum WizardPages
     {
-		FileTypeSelection, GenericCollectionType, GenericMetadata, FijiConfigFile,
-		DREAM3DFile, RobometConfigFile
+      FileTypeSelection,
+      GenericCollectionType,
+      GenericMetadata,
+      FijiConfigFile,
+      DREAM3DFile,
+      RobometConfigFile
     };
 
-	enum FileType
-	{
-		DREAM3D, GenericMontage, FIJI, Robomet
-	};
+    enum FileType
+    {
+      DREAM3D,
+      GenericMontage,
+      FIJI,
+      Robomet
+    };
 
     /**
      * @brief ImportDataWizard

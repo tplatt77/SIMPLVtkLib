@@ -33,40 +33,69 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
 #pragma once
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-#include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/GenericMontage/GenericMontageSettings.h"
+#include <QtWidgets/QWizardPage>
 
-class SIMPLVtkLib_EXPORT GenericMontageWizard : public AbstractMontageWizard
+#include "SIMPLVtkLib/Wizards/ImportData/GenericMontageSettings.h"
+#include "ui_GenericCollectionTypePage.h"
+
+class GenericCollectionTypePage : public QWizardPage
 {
   Q_OBJECT
 
   public:
-    enum WizardPages
+    enum class CollectionType : unsigned int
     {
-
+      RowByRow,
+      ColumnByColumn,
+      SnakeByRows,
+      SnakeByColumns,
+      FilenameDefinedPosition
     };
 
     /**
-     * @brief ImportASCIIDataWizard
-     * @param parent
+    * @brief Constructor
+    * @param parameter The FilterParameter object that this widget represents
+    * @param filter The instance of the filter that this parameter is a part of
+    * @param parent The parent QWidget for this Widget
+    */
+    GenericCollectionTypePage(QWidget* parent = nullptr);
+
+    ~GenericCollectionTypePage() override;
+
+    /**
+     * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
-    GenericMontageWizard(QWidget* parent = nullptr);
+    virtual void setupGui();
 
-    ~GenericMontageWizard() override;
+	/**
+	 * @brief Register fields
+	 */
+	void registerFields();
 
-	void accept() override;
+    /**
+     * @brief isComplete
+     * @return
+     */
+    virtual bool isComplete() const override;
 
-	GenericMontageSettings* getMontageSettings();
+  private slots:
+    void updateOrderChoices(CollectionType collectionType);
 
   private:
-	  GenericMontageSettings* m_montageSettings = nullptr;
+    QSharedPointer<Ui::GenericCollectionTypePage> m_Ui;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
+
   public:
-    GenericMontageWizard(const GenericMontageWizard&) = delete; // Copy Constructor Not Implemented
-    GenericMontageWizard(GenericMontageWizard&&) = delete;      // Move Constructor Not Implemented
-    GenericMontageWizard& operator=(const GenericMontageWizard&) = delete; // Copy Assignment Not Implemented
-    GenericMontageWizard& operator=(GenericMontageWizard&&) = delete;      // Move Assignment Not Implemented
+    GenericCollectionTypePage(const GenericCollectionTypePage&) = delete;  // Copy Constructor Not Implemented
+    GenericCollectionTypePage(GenericCollectionTypePage&&) = delete;       // Move Constructor Not Implemented
+    GenericCollectionTypePage& operator=(const GenericCollectionTypePage&) = delete; // Copy Assignment Not Implemented
+    GenericCollectionTypePage& operator=(GenericCollectionTypePage&&) = delete;      // Move Assignment Not Implemented
 };
 

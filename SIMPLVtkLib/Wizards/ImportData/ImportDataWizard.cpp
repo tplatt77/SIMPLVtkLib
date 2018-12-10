@@ -35,8 +35,8 @@
 
 #include "ImportDataWizard.h"
 
-#include "SIMPLVtkLib/Wizards/GenericMontage/GenericCollectionTypePage.h"
-#include "SIMPLVtkLib/Wizards/GenericMontage/GenericMetadataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportData/GenericCollectionTypePage.h"
+#include "SIMPLVtkLib/Wizards/ImportData/GenericMetadataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
 #include "SIMPLVtkLib/Wizards/ImportData/DREAM3DFilePage.h"
 #include "SIMPLVtkLib/Wizards/ImportData/FijiConfigFilePage.h"
