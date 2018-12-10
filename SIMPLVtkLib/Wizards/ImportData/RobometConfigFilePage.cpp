@@ -118,7 +118,10 @@ void RobometConfigFilePage::registerFields()
 // -----------------------------------------------------------------------------
 void RobometConfigFilePage::selectBtn_clicked()
 {
-	QString outputFile = QFileDialog::getOpenFileName(this, tr("Select a Robomet configuration file"), getInputDirectory());
+	QString filter = tr("Robomet Configuration Files (*.csv);;"
+		"All Files (*.*)");
+	QString outputFile = QFileDialog::getOpenFileName(this, tr("Select a Robomet configuration file"),
+		getInputDirectory(), filter);
 
 	if (!outputFile.isNull())
 	{

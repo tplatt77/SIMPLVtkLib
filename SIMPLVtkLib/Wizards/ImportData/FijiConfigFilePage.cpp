@@ -127,7 +127,10 @@ void FijiConfigFilePage::registerFields()
 // -----------------------------------------------------------------------------
 void FijiConfigFilePage::selectBtn_clicked()
 {
-	QString outputFile = QFileDialog::getOpenFileName(this, tr("Select the FIJI Configuration File"), getInputDirectory());
+	QString filter = tr("Fiji Configuration Files (*.txt);;"
+		"All Files (*.*)");
+	QString outputFile = QFileDialog::getOpenFileName(this, tr("Select the FIJI Configuration File"),
+		getInputDirectory(), filter);
 
 	if (!outputFile.isNull())
 	{

@@ -91,6 +91,27 @@ void ImportDataWizard::accept()
 		m_montageSettings->setOutputFileName(dream3dFilePath);
 		fileType = FileType::DREAM3D;
 	}
+	else if (currentId() == WizardPages::FijiConfigFile)
+	{
+		QString fijiConfigFilePath = field("FijiConfigFile").toString();
+		if (fijiConfigFilePath.isEmpty())
+		{
+			return;
+		}
+		m_montageSettings->setLayoutFile(fijiConfigFilePath);
+		fileType = FileType::FIJI;
+
+	}
+	else if (currentId() == WizardPages::RobometConfigFile)
+	{
+		QString robometConfigFilePath = field("RobometConfigFile").toString();
+		if (robometConfigFilePath.isEmpty())
+		{
+			return;
+		}
+		m_montageSettings->setLayoutFile(robometConfigFilePath);
+		fileType = FileType::Robomet;
+	}
 	QDialog::accept();
 }
 
