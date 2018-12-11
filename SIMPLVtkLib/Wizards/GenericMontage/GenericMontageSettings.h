@@ -40,6 +40,7 @@
 #include <QtCore/QDir>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLib/FilterParameters/FileListInfoFilterParameter.h"
 
 
 class VSRootFilter;
@@ -77,6 +78,7 @@ class SIMPLVtkLib_EXPORT GenericMontageSettings : public QObject
 		Q_PROPERTY(bool useVirtualInputImages READ isUsingVirtualInputImages WRITE setUsingVirtualInputImages)
 		Q_PROPERTY(bool confirmFiles READ isConfirmingFiles WRITE setConfirmingFiles)
 		Q_PROPERTY(bool ignoreCalibration READ isIgnoringCalibration WRITE setIgnoringCalibration)
+		Q_PROPERTY(FileListInfo_t fileListInfo READ getFileListInfo WRITE setFileListInfo)
 
 
 
@@ -299,6 +301,18 @@ public:
 	 * @param outputFileName
 	*/
 	void setOutputFileName(QString outputFileName);
+
+	/**
+	 * @brief Returns the input file list
+	 * @return
+	*/
+	FileListInfo_t getFileListInfo() const;
+
+	/**
+	 * @brief Sets the file info for the input
+	 * @param fileListInfo
+	*/
+	void setFileListInfo(FileListInfo_t fileListInfo);
 
 	/**
 	 * @brief Returns the regression threshold
@@ -546,6 +560,7 @@ private:
 	QString m_multiSeriesFile;
 	QString m_fileNames;
 	QString m_outputFileName;
+	FileListInfo_t m_fileListInfo;
 	double m_regressionThreshold = 0.30;
 	double m_maxDisplacementThreshold = 2.50;
 	double m_absoluteDisplacementThreshold = 3.50;

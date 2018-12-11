@@ -112,6 +112,42 @@ void ImportDataWizard::accept()
 		m_montageSettings->setLayoutFile(robometConfigFilePath);
 		fileType = FileType::Robomet;
 	}
+	else if (currentId() == WizardPages::GenericMetadata)
+	{
+		fileType = FileType::GenericMontage;
+		// Get type and order of collection method
+		GenericMontageSettings::MontageType montageType = static_cast<GenericMontageSettings::MontageType>(field("montageType").toInt());
+		if (montageType < 0) {
+			montageType = GenericMontageSettings::MontageType::GridRowByRow;
+		}
+		m_montageSettings->setMontageType(montageType);
+		GenericMontageSettings::MontageOrder montageOrder = static_cast<GenericMontageSettings::MontageOrder>(field("montageOrder").toInt());
+		if (montageOrder < 0) {
+			montageOrder = GenericMontageSettings::MontageOrder::RightAndDown;
+		}
+		m_montageSettings->setMontageOrder(montageOrder);
+
+		// Get the metadata
+		uint64_t numOfRows = field("numOfRows").toInt();
+		m_montageSettings->setGridSizeY(numOfRows);
+		uint64_t numOfCols = field("numOfCols").toInt();
+		m_montageSettings->setGridSizeX(numOfCols);
+		double tileOverlap = field("tileOverlap").toDouble();
+		m_montageSettings->setTileOverlap(tileOverlap);
+		uint64_t firstFileIndex = field("firstFileIndex").toInt();
+		m_montageSettings->setFirstFileIndex(firstFileIndex);
+		QString tilesDirectory = field("tilesDirectory").toString();
+		m_montageSettings->setImagesDirectory(tilesDirectory);
+		QString outputFileName = field("outputFileName").toString();
+		m_montageSettings->setOutputFileName(outputFileName);
+		int fusionMethod = field("fusionMethod").toInt();
+		if (fusionMethod < 0)
+		{
+			fusionMethod = 0;
+		}
+		m_montageSettings->setFusionMethod(static_cast<GenericMontageSettings::FusionMethod>(fusionMethod));
+
+	}
 	QDialog::accept();
 }
 

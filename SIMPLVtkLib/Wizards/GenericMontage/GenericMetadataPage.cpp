@@ -34,6 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "GenericMetadataPage.h"
+#include "ImportData/ImportDataWizard.h"
 
 #include <QtCore/QDir>
 
@@ -151,6 +152,11 @@ bool GenericMetadataPage::isComplete() const
     {
       result = false;
     }
+	else
+	{
+		ImportDataWizard* importDataWizard = (ImportDataWizard*) wizard();
+		importDataWizard->getMontageSettings()->setFileListInfo(m_Ui->tileListWidget->getFileListInfo());
+	}
   }
 
   if (m_Ui->outputTextFileNameLE->isEnabled())
@@ -170,6 +176,11 @@ bool GenericMetadataPage::isComplete() const
   }
 
   return result;
+}
+
+int GenericMetadataPage::nextId() const
+{
+	return -1;
 }
 
 void GenericMetadataPage::registerFields()

@@ -71,6 +71,12 @@ class GenericMetadataPage : public QWizardPage
      */
     virtual bool isComplete() const override;
 
+	/**
+	 * @brief nextId
+	 * @return
+	 */
+	int nextId() const;
+
   private:
     QSharedPointer<Ui::GenericMetadataPage> m_Ui;
 

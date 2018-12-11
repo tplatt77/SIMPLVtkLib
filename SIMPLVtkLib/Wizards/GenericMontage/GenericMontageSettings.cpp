@@ -237,6 +237,22 @@ void GenericMontageSettings::setOutputFileName(QString outputFileName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+FileListInfo_t GenericMontageSettings::getFileListInfo() const
+{
+	return m_fileListInfo;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void GenericMontageSettings::setFileListInfo(FileListInfo_t fileListInfo)
+{
+	m_fileListInfo = fileListInfo;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 double GenericMontageSettings::getRegressionThreshold() const
 {
 	return m_regressionThreshold;
