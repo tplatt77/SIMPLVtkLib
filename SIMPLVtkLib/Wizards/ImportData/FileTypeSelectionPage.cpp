@@ -69,7 +69,7 @@ void FileTypeSelectionPage::setupGui()
 	connectSignalsSlots();
 
 	// Set the default radio button selection
-	m_Ui->GenericFileType->setChecked(true);
+  m_Ui->imageFileListRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -88,32 +88,31 @@ bool FileTypeSelectionPage::isComplete() const
   return result;
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void FileTypeSelectionPage::registerFields()
 {
+  registerField("GenericInput", m_Ui->imageFileListRB);
+  registerField("FileInput", m_Ui->dataFileRB);
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int FileTypeSelectionPage::nextId() const
 {
-	if (m_Ui->GenericFileType->isChecked())
+  if (m_Ui->imageFileListRB->isChecked())
 	{
 		return ImportDataWizard::WizardPages::GenericCollectionType;
 	}
-	else if (m_Ui->DREAM3DFile->isChecked())
+  else if (m_Ui->dataFileRB->isChecked())
 	{
-		return ImportDataWizard::WizardPages::DREAM3DFile;
-	}
-	else if (m_Ui->FijiConfigFile->isChecked())
-	{
-		return ImportDataWizard::WizardPages::FijiConfigFile;
-	}
-	else if (m_Ui->RobometConfigFile->isChecked()) 
-	{
-		return ImportDataWizard::WizardPages::RobometConfigFile;
+    return ImportDataWizard::WizardPages::DataFile;
 	}
 	else
 	{
 		return -1;
 	}
-
 }
 

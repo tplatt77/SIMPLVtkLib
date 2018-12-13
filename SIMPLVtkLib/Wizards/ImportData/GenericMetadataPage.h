@@ -42,7 +42,7 @@
 
 class GenericMetadataPage : public QWizardPage
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     /**
@@ -55,15 +55,17 @@ class GenericMetadataPage : public QWizardPage
 
     ~GenericMetadataPage() override;
 
+    Q_PROPERTY(FileListInfo_t FileListInfo READ getFileListInfo WRITE setFileListInfo NOTIFY fileListInfoChanged)
+
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
     virtual void setupGui();
 
-	/**
-	 * @brief Register fields
-	 */
-	void registerFields();
+    /**
+     * @brief registerFields
+     */
+    void registerFields();
 
     /**
      * @brief isComplete
@@ -71,11 +73,20 @@ class GenericMetadataPage : public QWizardPage
      */
     virtual bool isComplete() const override;
 
-	/**
-	 * @brief nextId
-	 * @return
-	 */
-	int nextId() const;
+    /**
+     * @brief nextId
+     * @return
+     */
+    int nextId() const override;
+
+  protected:
+    SIMPL_INSTANCE_PROPERTY(FileListInfo_t, FileListInfo)
+
+  protected slots:
+    void tileListWidgetChanged();
+
+  signals:
+    void fileListInfoChanged(FileListInfo_t fileListInfo);
 
   private:
     QSharedPointer<Ui::GenericMetadataPage> m_Ui;

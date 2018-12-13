@@ -42,6 +42,8 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
+#include "ImportDataWizard.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -87,18 +89,29 @@ void GenericMetadataPage::connectSignalsSlots()
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 
-  connect(m_Ui->tileListWidget, &TileListWidget::inputDirectoryChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::fileOrderingChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::filePrefixChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::fileSuffixChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::fileExtensionChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::startIndexChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::endIndexChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::incrementIndexChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->tileListWidget, &TileListWidget::paddingDigitsChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::inputDirectoryChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileOrderingChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::filePrefixChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileSuffixChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::fileExtensionChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::startIndexChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::endIndexChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::incrementIndexChanged, [=] { tileListWidgetChanged(); });
+  connect(m_Ui->tileListWidget, &TileListWidget::paddingDigitsChanged, [=] { tileListWidgetChanged(); });
 
   connect(m_Ui->outputTextFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->fusionMethodCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { emit completeChanged(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void GenericMetadataPage::tileListWidgetChanged()
+{
+  emit completeChanged();
+
+  FileListInfo_t fileListInfo = m_Ui->tileListWidget->getFileListInfo();
+  emit fileListInfoChanged(fileListInfo);
 }
 
 // -----------------------------------------------------------------------------
@@ -138,11 +151,6 @@ bool GenericMetadataPage::isComplete() const
     {
       result = false;
     }
-	else
-	{
-		ImportDataWizard* importDataWizard = (ImportDataWizard*) wizard();
-		importDataWizard->getMontageSettings()->setFileListInfo(m_Ui->tileListWidget->getFileListInfo());
-	}
   }
 
   if (m_Ui->outputTextFileNameLE->isEnabled())
@@ -164,19 +172,25 @@ bool GenericMetadataPage::isComplete() const
   return result;
 }
 
-int GenericMetadataPage::nextId() const
-{
-	return -1;
-}
-
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void GenericMetadataPage::registerFields()
 {
 	registerField("numOfRows", m_Ui->numOfRowsSB);
 	registerField("numOfCols", m_Ui->numOfColsSB);
 	registerField("tileOverlap", m_Ui->tileOverlapSB);
-	registerField("firstFileIndex", m_Ui->firstFileIdxSB);
+  registerField("GenericFileListInfo", this, "FileListInfo", "fileListInfoChanged");
 	//registerField("tilesDirectory", m_Ui->tilesDirLE);
 	registerField("outputFileName", m_Ui->outputTextFileNameLE);
 	//registerField("fusionMethod", m_Ui->comboBox);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int GenericMetadataPage::nextId() const
+{
+  return ImportDataWizard::WizardPages::DataDisplayOptions;
 }
 

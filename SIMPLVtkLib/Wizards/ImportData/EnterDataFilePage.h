@@ -38,11 +38,15 @@
 
 #include <QtWidgets/QWizardPage>
 
-#include "ui_DREAM3DFilePage.h"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-class DREAM3DFilePage : public QWizardPage
+#include "ui_EnterDataFilePage.h"
+
+#include "ImportDataWizard.h"
+
+class EnterDataFilePage : public QWizardPage
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     /**
@@ -51,59 +55,76 @@ class DREAM3DFilePage : public QWizardPage
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    DREAM3DFilePage(QWidget* parent = nullptr);
+    EnterDataFilePage(QWidget* parent = nullptr);
 
-    ~DREAM3DFilePage() override;
+    ~EnterDataFilePage() override;
+
+    Q_PROPERTY(ImportDataWizard::InputType InputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
     virtual void setupGui();
 
-	/**
-	 * @brief Register fields
-	 */
-	void registerFields();
+    /**
+   * @brief Register fields
+   */
+    void registerFields();
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override; 
-	
-	/**
-	* @brief nextId
-	* @return
-	*/
-	int nextId() const override;
+    virtual bool isComplete() const override;
 
-protected slots:
+    /**
+  * @brief nextId
+  * @return
+  */
+    int nextId() const override;
 
-	// Slots to catch signals emitted by the various ui widgets
-	void selectBtn_clicked();
-	void dream3dFile_textChanged(const QString& text);
-protected:
-	void setInputDirectory(QString val);
-	QString getInputDirectory();
+    /**
+   * @brief validatePage
+   * @return
+   */
+    bool validatePage() override;
 
-	static void setOpenDialogLastFilePath(QString val)
-	{
-		m_OpenDialogLastDirectory = val;
-	}
-	static QString getOpenDialogLastFilePath()
-	{
-		return m_OpenDialogLastDirectory;
-	}
+  protected:
+    SIMPL_INSTANCE_PROPERTY(ImportDataWizard::InputType, InputType)
 
-signals:
-	/**
-	 * @brief dream3dFileChanged
-	 * @param dream3dFile
-	 */
-	void dream3dFileChanged(const QString &dream3dFile);
+  protected slots:
+
+    // Slots to catch signals emitted by the various ui widgets
+    void selectBtn_clicked();
+    void dataFile_textChanged(const QString& text);
+  protected:
+    void setInputDirectory(QString val);
+    QString getInputDirectory();
+
+    static void setOpenDialogLastFilePath(QString val)
+    {
+      m_OpenDialogLastDirectory = val;
+    }
+    static QString getOpenDialogLastFilePath()
+    {
+      return m_OpenDialogLastDirectory;
+    }
+
+  signals:
+    /**
+   * @brief dataFileChanged
+   * @param dataFile
+   */
+    void dataFileChanged(const QString &dataFile);
+
+    /**
+   * @brief inputTypeChanged
+   * @param inputType
+   */
+    void inputTypeChanged(ImportDataWizard::InputType inputType);
 
   private:
-    QSharedPointer<Ui::DREAM3DFilePage> m_Ui;
+    QSharedPointer<Ui::EnterDataFilePage> m_Ui;
 
     static QString m_OpenDialogLastDirectory;
 
@@ -113,9 +134,9 @@ signals:
     void connectSignalsSlots();
 
   public:
-    DREAM3DFilePage(const DREAM3DFilePage&) = delete;  // Copy Constructor Not Implemented
-    DREAM3DFilePage(DREAM3DFilePage&&) = delete;       // Move Constructor Not Implemented
-    DREAM3DFilePage& operator=(const DREAM3DFilePage&) = delete; // Copy Assignment Not Implemented
-    DREAM3DFilePage& operator=(DREAM3DFilePage&&) = delete;      // Move Assignment Not Implemented
+    EnterDataFilePage(const EnterDataFilePage&) = delete;  // Copy Constructor Not Implemented
+    EnterDataFilePage(EnterDataFilePage&&) = delete;       // Move Constructor Not Implemented
+    EnterDataFilePage& operator=(const EnterDataFilePage&) = delete; // Copy Assignment Not Implemented
+    EnterDataFilePage& operator=(EnterDataFilePage&&) = delete;      // Move Assignment Not Implemented
 };
 

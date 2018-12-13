@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FijiConfigFilePage</class>
- <widget class="QWizardPage" name="FijiConfigFilePage">
+ <class>EnterDataFilePage</class>
+ <widget class="QWizardPage" name="EnterDataFilePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,24 +14,21 @@
    <string>WizardPage</string>
   </property>
   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="FijiConfigFileLE"/>
-   </item>
-   <item row="2" column="2">
+   <item row="1" column="2">
     <widget class="QPushButton" name="selectButton">
      <property name="text">
       <string>Select</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Enter or select the FIJI configuration file to open.</string>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="dataFileLE">
+     <property name="placeholderText">
+      <string>Enter or select the data file to open</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="2" column="1" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

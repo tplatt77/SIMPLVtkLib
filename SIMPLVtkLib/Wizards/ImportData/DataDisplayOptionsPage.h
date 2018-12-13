@@ -38,11 +38,11 @@
 
 #include <QtWidgets/QWizardPage>
 
-#include "ui_RobometConfigFilePage.h"
+#include "ui_DataDisplayOptionsPage.h"
 
-class RobometConfigFilePage : public QWizardPage
+class DataDisplayOptionsPage : public QWizardPage
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     /**
@@ -51,61 +51,36 @@ class RobometConfigFilePage : public QWizardPage
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    RobometConfigFilePage(QWidget* parent = nullptr);
+    DataDisplayOptionsPage(QWidget* parent = nullptr);
 
-    ~RobometConfigFilePage() override;
+    ~DataDisplayOptionsPage() override;
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
     virtual void setupGui();
 
-	/**
-	 * @brief Register fields
-	 */
-	void registerFields();
+    /**
+     * @brief registerFields
+     */
+    void registerFields();
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override; 
-	
-	/**
-	* @brief nextId
-	* @return
-	*/
-	int nextId() const override;
+    virtual bool isComplete() const override;
 
-  protected slots:
-
-	// Slots to catch signals emitted by the various ui widgets
-	void selectBtn_clicked();
-	void robometConfigFile_textChanged(const QString& text);
-  protected:
-	void setInputDirectory(QString val);
-	QString getInputDirectory();
-
-	static void setOpenDialogLastFilePath(QString val)
-	{
-		m_OpenDialogLastDirectory = val;
-	}
-	static QString getOpenDialogLastFilePath()
-	{
-		return m_OpenDialogLastDirectory;
-	}
-
-  signals:
-	/**
-	 * @brief robometConfigFileChanged
-	 * @param robometConfigFile
-	 */
-	void robometConfigFileChanged(const QString &robometConfigFile);
+    /**
+     * @brief nextId
+     * @return
+     */
+    int nextId() const override;
 
   private:
-    QSharedPointer<Ui::RobometConfigFilePage> m_Ui;
+    QSharedPointer<Ui::DataDisplayOptionsPage> m_Ui;
 
-    static QString m_OpenDialogLastDirectory;
+    QString m_OpenDialogLastDirectory;
 
     /**
      * @brief connectSignalsSlots
@@ -113,9 +88,9 @@ class RobometConfigFilePage : public QWizardPage
     void connectSignalsSlots();
 
   public:
-    RobometConfigFilePage(const RobometConfigFilePage&) = delete;  // Copy Constructor Not Implemented
-    RobometConfigFilePage(RobometConfigFilePage&&) = delete;       // Move Constructor Not Implemented
-    RobometConfigFilePage& operator=(const RobometConfigFilePage&) = delete; // Copy Assignment Not Implemented
-    RobometConfigFilePage& operator=(RobometConfigFilePage&&) = delete;      // Move Assignment Not Implemented
+    DataDisplayOptionsPage(const DataDisplayOptionsPage&) = delete;  // Copy Constructor Not Implemented
+    DataDisplayOptionsPage(DataDisplayOptionsPage&&) = delete;       // Move Constructor Not Implemented
+    DataDisplayOptionsPage& operator=(const DataDisplayOptionsPage&) = delete; // Copy Assignment Not Implemented
+    DataDisplayOptionsPage& operator=(DataDisplayOptionsPage&&) = delete;      // Move Assignment Not Implemented
 };
 

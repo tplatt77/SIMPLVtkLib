@@ -33,7 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "RobometConfigFilePage.h"
+#include "DataDisplayOptionsPage.h"
 #include "ImportDataWizard.h"
 
 #include <QtCore/QDir>
@@ -42,20 +42,12 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
-#include "SIMPLib/Utilities/SIMPLDataPathValidator.h"
-#include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
-#include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
-#include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
-
-// Initialize private static member variable
-QString RobometConfigFilePage::m_OpenDialogLastDirectory = "";
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RobometConfigFilePage::RobometConfigFilePage(QWidget* parent)
-: QWizardPage(parent)
-, m_Ui(new Ui::RobometConfigFilePage)
+DataDisplayOptionsPage::DataDisplayOptionsPage(QWidget* parent)
+  : QWizardPage(parent)
+  , m_Ui(new Ui::DataDisplayOptionsPage)
 {
   m_Ui->setupUi(this);
 
@@ -67,111 +59,49 @@ RobometConfigFilePage::RobometConfigFilePage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RobometConfigFilePage::~RobometConfigFilePage() = default;
+DataDisplayOptionsPage::~DataDisplayOptionsPage() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometConfigFilePage::setupGui()
+void DataDisplayOptionsPage::setupGui()
 {
-	connectSignalsSlots();
+  connectSignalsSlots();
+
+  // Set the default radio button selection
+  m_Ui->displayMontageRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometConfigFilePage::connectSignalsSlots()
+void DataDisplayOptionsPage::connectSignalsSlots()
 {
-	connect(m_Ui->RobometConfigFileLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-
-	connect(m_Ui->selectButton, &QPushButton::clicked, this, &RobometConfigFilePage::selectBtn_clicked);
-
-	QtSFileCompleter* com = new QtSFileCompleter(this, true);
-	m_Ui->RobometConfigFileLE->setCompleter(com);
-	connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &RobometConfigFilePage::robometConfigFile_textChanged);
-	connect(m_Ui->RobometConfigFileLE, &QLineEdit::textChanged, this, &RobometConfigFilePage::robometConfigFile_textChanged);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool RobometConfigFilePage::isComplete() const
+bool DataDisplayOptionsPage::isComplete() const
 {
   bool result = true;
-
-  if (m_Ui->RobometConfigFileLE->isEnabled())
-  {
-	  if (m_Ui->RobometConfigFileLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
   return result;
 }
 
-void RobometConfigFilePage::registerFields()
-{
-	registerField("RobometConfigFile", m_Ui->RobometConfigFileLE);
-}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometConfigFilePage::selectBtn_clicked()
+void DataDisplayOptionsPage::registerFields()
 {
-	QString filter = tr("Robomet Configuration Files (*.csv);;"
-		"All Files (*.*)");
-	QString outputFile = QFileDialog::getOpenFileName(this, tr("Select a Robomet configuration file"),
-		getInputDirectory(), filter);
-
-	if (!outputFile.isNull())
-	{
-		m_Ui->RobometConfigFileLE->blockSignals(true);
-		m_Ui->RobometConfigFileLE->setText(QDir::toNativeSeparators(outputFile));
-		robometConfigFile_textChanged(m_Ui->RobometConfigFileLE->text());
-		setOpenDialogLastFilePath(outputFile);
-		m_Ui->RobometConfigFileLE->blockSignals(false);
-	}
+  registerField("DisplayMontage", m_Ui->displayMontageRB);
+  registerField("DisplaySideBySide", m_Ui->sideBySideRB);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometConfigFilePage::robometConfigFile_textChanged(const QString& text)
+int DataDisplayOptionsPage::nextId() const
 {
-	Q_UNUSED(text)
-
-		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-	QString inputPath = validator->convertToAbsolutePath(text);
-
-	if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->RobometConfigFileLE))
-	{
-	}
-	emit completeChanged();
-	emit robometConfigFileChanged(text);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void RobometConfigFilePage::setInputDirectory(QString val)
-{
-	m_Ui->RobometConfigFileLE->setText(val);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString RobometConfigFilePage::getInputDirectory()
-{
-	if (m_Ui->RobometConfigFileLE->text().isEmpty())
-	{
-		return QDir::homePath();
-	}
-	return m_Ui->RobometConfigFileLE->text();
-}
-
-int RobometConfigFilePage::nextId() const
-{
-	return QWizardPage::nextId();
+  return -1;
 }
 

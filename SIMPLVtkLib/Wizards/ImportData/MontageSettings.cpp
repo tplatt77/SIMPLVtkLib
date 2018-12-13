@@ -33,27 +33,27 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "GenericMontageSettings.h"
+#include "MontageSettings.h"
 #include <QtCore/qdebug.h>
 
  // -----------------------------------------------------------------------------
  //
  // -----------------------------------------------------------------------------
-GenericMontageSettings::GenericMontageSettings()
+MontageSettings::MontageSettings()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::GenericMontageSettings(const GenericMontageSettings& model)
+MontageSettings::MontageSettings(const MontageSettings& model)
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QObject* GenericMontageSettings::parentObject() const
+QObject* MontageSettings::parentObject() const
 {
 	return QObject::parent();
 }
@@ -61,7 +61,7 @@ QObject* GenericMontageSettings::parentObject() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-uint64_t GenericMontageSettings::getGridSizeX() const
+uint64_t MontageSettings::getGridSizeX() const
 {
 	return m_gridSizeX;
 }
@@ -69,7 +69,7 @@ uint64_t GenericMontageSettings::getGridSizeX() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setGridSizeX(uint64_t gridSizeX)
+void MontageSettings::setGridSizeX(uint64_t gridSizeX)
 {
 	m_gridSizeX = gridSizeX;
 }
@@ -77,7 +77,7 @@ void GenericMontageSettings::setGridSizeX(uint64_t gridSizeX)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-uint64_t GenericMontageSettings::getGridSizeY() const
+uint64_t MontageSettings::getGridSizeY() const
 {
 	return m_gridSizeY;
 }
@@ -85,7 +85,7 @@ uint64_t GenericMontageSettings::getGridSizeY() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setGridSizeY(uint64_t gridSizeY)
+void MontageSettings::setGridSizeY(uint64_t gridSizeY)
 {
 	m_gridSizeY = gridSizeY;
 }
@@ -93,7 +93,7 @@ void GenericMontageSettings::setGridSizeY(uint64_t gridSizeY)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double GenericMontageSettings::getTileOverlap() const
+double MontageSettings::getTileOverlap() const
 {
 	return m_tileOverlap;
 }
@@ -101,7 +101,7 @@ double GenericMontageSettings::getTileOverlap() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setTileOverlap(double tileOverlap)
+void MontageSettings::setTileOverlap(double tileOverlap)
 {
 	m_tileOverlap = tileOverlap;
 }
@@ -109,7 +109,7 @@ void GenericMontageSettings::setTileOverlap(double tileOverlap)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double GenericMontageSettings::getIncreaseOverlap() const
+double MontageSettings::getIncreaseOverlap() const
 {
 	return m_increaseOverlap;
 }
@@ -117,7 +117,7 @@ double GenericMontageSettings::getIncreaseOverlap() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setIncreaseOverlap(double increaseOverlap)
+void MontageSettings::setIncreaseOverlap(double increaseOverlap)
 {
 	m_increaseOverlap = increaseOverlap;
 }
@@ -125,7 +125,7 @@ void GenericMontageSettings::setIncreaseOverlap(double increaseOverlap)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-uint64_t GenericMontageSettings::getFirstFileIndex() const
+uint64_t MontageSettings::getFirstFileIndex() const
 {
 	return m_firstFileIndex;
 }
@@ -133,7 +133,7 @@ uint64_t GenericMontageSettings::getFirstFileIndex() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setFirstFileIndex(uint64_t firstFileIndex)
+void MontageSettings::setFirstFileIndex(uint64_t firstFileIndex)
 {
 	m_firstFileIndex = firstFileIndex;
 }
@@ -141,7 +141,7 @@ void GenericMontageSettings::setFirstFileIndex(uint64_t firstFileIndex)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-uint64_t GenericMontageSettings::getFrameRangeToCompare() const
+uint64_t MontageSettings::getFrameRangeToCompare() const
 {
 	return m_frameRangeToCompare;
 }
@@ -149,7 +149,7 @@ uint64_t GenericMontageSettings::getFrameRangeToCompare() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setFrameRangeToCompare(uint64_t frameRangeToCompare)
+void MontageSettings::setFrameRangeToCompare(uint64_t frameRangeToCompare)
 {
 	m_frameRangeToCompare = frameRangeToCompare;
 }
@@ -157,7 +157,7 @@ void GenericMontageSettings::setFrameRangeToCompare(uint64_t frameRangeToCompare
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QDir GenericMontageSettings::getImagesDirectory() const
+QDir MontageSettings::getImagesDirectory() const
 {
 	return m_imagesDirectory;
 }
@@ -165,7 +165,7 @@ QDir GenericMontageSettings::getImagesDirectory() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setImagesDirectory(QDir imagesDirectory)
+void MontageSettings::setImagesDirectory(QDir imagesDirectory)
 {
 	m_imagesDirectory = imagesDirectory;
 }
@@ -173,7 +173,7 @@ void GenericMontageSettings::setImagesDirectory(QDir imagesDirectory)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString GenericMontageSettings::getFileNames() const
+QString MontageSettings::getFileNames() const
 {
 	return m_fileNames;
 }
@@ -181,7 +181,7 @@ QString GenericMontageSettings::getFileNames() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setFileNames(QString fileNames)
+void MontageSettings::setFileNames(QString fileNames)
 {
 	m_fileNames = fileNames;
 }
@@ -189,7 +189,7 @@ void GenericMontageSettings::setFileNames(QString fileNames)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString GenericMontageSettings::getLayoutFile() const
+QString MontageSettings::getLayoutFile() const
 {
 	return m_layoutFile;
 }
@@ -197,7 +197,7 @@ QString GenericMontageSettings::getLayoutFile() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setLayoutFile(QString layoutFile)
+void MontageSettings::setLayoutFile(QString layoutFile)
 {
 	m_layoutFile = layoutFile;
 }
@@ -205,7 +205,7 @@ void GenericMontageSettings::setLayoutFile(QString layoutFile)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString GenericMontageSettings::getMultiSeriesFile() const
+QString MontageSettings::getMultiSeriesFile() const
 {
 	return m_multiSeriesFile;
 }
@@ -213,7 +213,7 @@ QString GenericMontageSettings::getMultiSeriesFile() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setMultiSeriesFile(QString multiSeriesFile)
+void MontageSettings::setMultiSeriesFile(QString multiSeriesFile)
 {
 	m_multiSeriesFile = multiSeriesFile;
 }
@@ -221,7 +221,7 @@ void GenericMontageSettings::setMultiSeriesFile(QString multiSeriesFile)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString GenericMontageSettings::getOutputFileName() const
+QString MontageSettings::getOutputFileName() const
 {
 	return m_outputFileName;
 }
@@ -229,7 +229,7 @@ QString GenericMontageSettings::getOutputFileName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setOutputFileName(QString outputFileName)
+void MontageSettings::setOutputFileName(QString outputFileName)
 {
 	m_outputFileName = outputFileName;
 }
@@ -237,23 +237,23 @@ void GenericMontageSettings::setOutputFileName(QString outputFileName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FileListInfo_t GenericMontageSettings::getFileListInfo() const
+FileListInfo_t MontageSettings::getFileListInfo() const
 {
-	return m_fileListInfo;
+  return m_fileListInfo;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setFileListInfo(FileListInfo_t fileListInfo)
+void MontageSettings::setFileListInfo(FileListInfo_t fileListInfo)
 {
-	m_fileListInfo = fileListInfo;
+  m_fileListInfo = fileListInfo;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double GenericMontageSettings::getRegressionThreshold() const
+double MontageSettings::getRegressionThreshold() const
 {
 	return m_regressionThreshold;
 }
@@ -261,7 +261,7 @@ double GenericMontageSettings::getRegressionThreshold() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setRegressionThreshold(double regressionThreshold)
+void MontageSettings::setRegressionThreshold(double regressionThreshold)
 {
 	m_regressionThreshold = regressionThreshold;
 }
@@ -269,7 +269,7 @@ void GenericMontageSettings::setRegressionThreshold(double regressionThreshold)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double GenericMontageSettings::getMaxDisplacementThreshold() const
+double MontageSettings::getMaxDisplacementThreshold() const
 {
 	return m_maxDisplacementThreshold;
 }
@@ -277,7 +277,7 @@ double GenericMontageSettings::getMaxDisplacementThreshold() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setMaxDisplacementThreshold(double maxDisplacementThreshold)
+void MontageSettings::setMaxDisplacementThreshold(double maxDisplacementThreshold)
 {
 	m_maxDisplacementThreshold = maxDisplacementThreshold;
 }
@@ -285,7 +285,7 @@ void GenericMontageSettings::setMaxDisplacementThreshold(double maxDisplacementT
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double GenericMontageSettings::getAbsoluteDisplacementThreshold() const
+double MontageSettings::getAbsoluteDisplacementThreshold() const
 {
 	return m_absoluteDisplacementThreshold;
 }
@@ -293,7 +293,7 @@ double GenericMontageSettings::getAbsoluteDisplacementThreshold() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setAbsoluteDisplacementThreshold(double absoluteDisplacementThreshold)
+void MontageSettings::setAbsoluteDisplacementThreshold(double absoluteDisplacementThreshold)
 {
 	m_absoluteDisplacementThreshold = absoluteDisplacementThreshold;
 }
@@ -301,7 +301,7 @@ void GenericMontageSettings::setAbsoluteDisplacementThreshold(double absoluteDis
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isAddingTilesAsROI() const
+bool MontageSettings::isAddingTilesAsROI() const
 {
 	return m_addTilesAsROI;
 }
@@ -309,7 +309,7 @@ bool GenericMontageSettings::isAddingTilesAsROI() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void  GenericMontageSettings::setAddingTilesAsROI(bool addTilesAsROI)
+void  MontageSettings::setAddingTilesAsROI(bool addTilesAsROI)
 {
 	m_addTilesAsROI = addTilesAsROI;
 }
@@ -317,7 +317,7 @@ void  GenericMontageSettings::setAddingTilesAsROI(bool addTilesAsROI)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isComputingOverlap() const
+bool MontageSettings::isComputingOverlap() const
 {
 	return m_computeOverlap;
 }
@@ -325,7 +325,7 @@ bool GenericMontageSettings::isComputingOverlap() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void  GenericMontageSettings::setComputingOverlap(bool computeOverlap)
+void  MontageSettings::setComputingOverlap(bool computeOverlap)
 {
 	m_computeOverlap = computeOverlap;
 }
@@ -333,7 +333,7 @@ void  GenericMontageSettings::setComputingOverlap(bool computeOverlap)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isInvertingXCoords() const
+bool MontageSettings::isInvertingXCoords() const
 {
 	return m_invertXCoords;
 }
@@ -341,7 +341,7 @@ bool GenericMontageSettings::isInvertingXCoords() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setInvertingXCoords(bool invertXCoords)
+void MontageSettings::setInvertingXCoords(bool invertXCoords)
 {
 	m_invertXCoords = invertXCoords;
 }
@@ -349,7 +349,7 @@ void GenericMontageSettings::setInvertingXCoords(bool invertXCoords)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isInvertingYCoords() const
+bool MontageSettings::isInvertingYCoords() const
 {
 	return m_invertYCoords;
 }
@@ -357,7 +357,7 @@ bool GenericMontageSettings::isInvertingYCoords() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setInvertingYCoords(bool invertYCoords)
+void MontageSettings::setInvertingYCoords(bool invertYCoords)
 {
 	m_invertYCoords = invertYCoords;
 }
@@ -365,7 +365,7 @@ void GenericMontageSettings::setInvertingYCoords(bool invertYCoords)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isIgnoringZStatePos() const
+bool MontageSettings::isIgnoringZStatePos() const
 {
 	return m_ignoreZStatePos;
 }
@@ -373,7 +373,7 @@ bool GenericMontageSettings::isIgnoringZStatePos() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setIgnoringZStatePos(bool ignoreZStatePos)
+void MontageSettings::setIgnoringZStatePos(bool ignoreZStatePos)
 {
 	m_ignoreZStatePos = ignoreZStatePos;
 }
@@ -381,7 +381,7 @@ void GenericMontageSettings::setIgnoringZStatePos(bool ignoreZStatePos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isSubpixelAccuracy() const
+bool MontageSettings::isSubpixelAccuracy() const
 {
 	return m_subpixelAccuracy;
 }
@@ -389,7 +389,7 @@ bool GenericMontageSettings::isSubpixelAccuracy() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setSubpixelAccuracy(bool subpixelAccuracy)
+void MontageSettings::setSubpixelAccuracy(bool subpixelAccuracy)
 {
 	m_subpixelAccuracy = subpixelAccuracy;
 }
@@ -397,7 +397,7 @@ void GenericMontageSettings::setSubpixelAccuracy(bool subpixelAccuracy)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isDownsamplingTiles() const
+bool MontageSettings::isDownsamplingTiles() const
 {
 	return m_downsampleTiles;
 }
@@ -405,7 +405,7 @@ bool GenericMontageSettings::isDownsamplingTiles() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setDownsamplingTiles(bool downsampleTiles)
+void MontageSettings::setDownsamplingTiles(bool downsampleTiles)
 {
 	m_downsampleTiles = downsampleTiles;
 }
@@ -413,7 +413,7 @@ void GenericMontageSettings::setDownsamplingTiles(bool downsampleTiles)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isDisplayingFusion() const
+bool MontageSettings::isDisplayingFusion() const
 {
 	return m_displayFusion;
 }
@@ -421,7 +421,7 @@ bool GenericMontageSettings::isDisplayingFusion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setDisplayingFusion(bool displayFusion)
+void MontageSettings::setDisplayingFusion(bool displayFusion)
 {
 	m_displayFusion = displayFusion;
 }
@@ -429,7 +429,7 @@ void GenericMontageSettings::setDisplayingFusion(bool displayFusion)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isUsingVirtualInputImages() const
+bool MontageSettings::isUsingVirtualInputImages() const
 {
 	return m_useVirtualInputImages;
 }
@@ -437,7 +437,7 @@ bool GenericMontageSettings::isUsingVirtualInputImages() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setUsingVirtualInputImages(bool useVirtualInputImages)
+void MontageSettings::setUsingVirtualInputImages(bool useVirtualInputImages)
 {
 	m_useVirtualInputImages = useVirtualInputImages;
 }
@@ -445,7 +445,7 @@ void GenericMontageSettings::setUsingVirtualInputImages(bool useVirtualInputImag
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isConfirmingFiles() const
+bool MontageSettings::isConfirmingFiles() const
 {
 	return m_confirmFiles;
 }
@@ -453,7 +453,7 @@ bool GenericMontageSettings::isConfirmingFiles() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setConfirmingFiles(bool confirmFiles)
+void MontageSettings::setConfirmingFiles(bool confirmFiles)
 {
 	m_confirmFiles = confirmFiles;
 }
@@ -461,7 +461,7 @@ void GenericMontageSettings::setConfirmingFiles(bool confirmFiles)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMontageSettings::isIgnoringCalibration() const
+bool MontageSettings::isIgnoringCalibration() const
 {
 	return m_ignoreCalibration;
 }
@@ -469,7 +469,7 @@ bool GenericMontageSettings::isIgnoringCalibration() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setIgnoringCalibration(bool ignoreCalibration)
+void MontageSettings::setIgnoringCalibration(bool ignoreCalibration)
 {
 	m_ignoreCalibration = ignoreCalibration;
 }
@@ -477,7 +477,7 @@ void GenericMontageSettings::setIgnoringCalibration(bool ignoreCalibration)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::MontageType GenericMontageSettings::getMontageType() const
+MontageSettings::MontageType MontageSettings::getMontageType() const
 {
 	return m_montageType;
 }
@@ -485,7 +485,7 @@ GenericMontageSettings::MontageType GenericMontageSettings::getMontageType() con
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setMontageType(GenericMontageSettings::MontageType montageType)
+void MontageSettings::setMontageType(MontageSettings::MontageType montageType)
 {
 	m_montageType = montageType;
 }
@@ -493,7 +493,7 @@ void GenericMontageSettings::setMontageType(GenericMontageSettings::MontageType 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::MontageOrder GenericMontageSettings::getMontageOrder() const
+MontageSettings::MontageOrder MontageSettings::getMontageOrder() const
 {
 	return m_montageOrder;
 }
@@ -501,7 +501,7 @@ GenericMontageSettings::MontageOrder GenericMontageSettings::getMontageOrder() c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setMontageOrder(GenericMontageSettings::MontageOrder montageOrder)
+void MontageSettings::setMontageOrder(MontageSettings::MontageOrder montageOrder)
 {
 	m_montageOrder = montageOrder;
 }
@@ -509,7 +509,7 @@ void GenericMontageSettings::setMontageOrder(GenericMontageSettings::MontageOrde
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::FusionMethod GenericMontageSettings::getFusionMethod() const
+MontageSettings::FusionMethod MontageSettings::getFusionMethod() const
 {
 	return m_fusionMethod;
 }
@@ -517,7 +517,7 @@ GenericMontageSettings::FusionMethod GenericMontageSettings::getFusionMethod() c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setFusionMethod(GenericMontageSettings::FusionMethod fusionMethod)
+void MontageSettings::setFusionMethod(MontageSettings::FusionMethod fusionMethod)
 {
 	m_fusionMethod = fusionMethod;
 }
@@ -525,7 +525,7 @@ void GenericMontageSettings::setFusionMethod(GenericMontageSettings::FusionMetho
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::ComputationParameter GenericMontageSettings::getComputationParameters() const
+MontageSettings::ComputationParameter MontageSettings::getComputationParameters() const
 {
 	return m_computationParameters;
 }
@@ -533,7 +533,7 @@ GenericMontageSettings::ComputationParameter GenericMontageSettings::getComputat
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setComputationParameters(GenericMontageSettings::ComputationParameter computationParameters)
+void MontageSettings::setComputationParameters(MontageSettings::ComputationParameter computationParameters)
 {
 	m_computationParameters = computationParameters;
 }
@@ -541,7 +541,7 @@ void GenericMontageSettings::setComputationParameters(GenericMontageSettings::Co
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMontageSettings::ImageOutput GenericMontageSettings::getImageOutputMethod() const
+MontageSettings::ImageOutput MontageSettings::getImageOutputMethod() const
 {
 	return m_imageOutputMethod;
 }
@@ -549,7 +549,7 @@ GenericMontageSettings::ImageOutput GenericMontageSettings::getImageOutputMethod
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMontageSettings::setImageOutputMethod(GenericMontageSettings::ImageOutput imageOutputMethod)
+void MontageSettings::setImageOutputMethod(MontageSettings::ImageOutput imageOutputMethod)
 {
 	m_imageOutputMethod = imageOutputMethod;
 }

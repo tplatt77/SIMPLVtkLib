@@ -37,7 +37,7 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/ImportData/GenericMontageSettings.h"
+#include "SIMPLVtkLib/Wizards/ImportData/MontageSettings.h"
 #include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
 
 
@@ -51,16 +51,20 @@ class SIMPLVtkLib_EXPORT ImportDataWizard : public AbstractMontageWizard
       FileTypeSelection,
       GenericCollectionType,
       GenericMetadata,
-      FijiConfigFile,
-      DREAM3DFile,
-      RobometConfigFile
+      DataFile,
+      DataDisplayOptions,
+      LoadHDF5Data
     };
 
-    enum FileType
+    enum InputType
     {
+      Unknown,
       DREAM3D,
+      VTK,
+      STL,
+      Image,
       GenericMontage,
-      FIJI,
+      Fiji,
       Robomet
     };
 
@@ -72,19 +76,13 @@ class SIMPLVtkLib_EXPORT ImportDataWizard : public AbstractMontageWizard
 
     ~ImportDataWizard() override;
 
-	void accept() override;
-
-	GenericMontageSettings* getMontageSettings();
-
-	ImportDataWizard::FileType getFileType() const;
-
   private:
-	  GenericMontageSettings* m_montageSettings = nullptr;
-	  FileType fileType = FileType::DREAM3D;
+    MontageSettings* m_MontageSettings = nullptr;
   public:
     ImportDataWizard(const ImportDataWizard&) = delete; // Copy Constructor Not Implemented
     ImportDataWizard(ImportDataWizard&&) = delete;      // Move Constructor Not Implemented
     ImportDataWizard& operator=(const ImportDataWizard&) = delete; // Copy Assignment Not Implemented
     ImportDataWizard& operator=(ImportDataWizard&&) = delete;      // Move Assignment Not Implemented
 };
+Q_DECLARE_METATYPE(ImportDataWizard::InputType)
 

@@ -46,10 +46,10 @@
 class VSRootFilter;
 
 /**
- * @class GenericMontageSettings GenericMontageSettings.h SIMPLVtkLib/QtWidgets/GenericMontageSettings.h
+ * @class MontageSettings MontageSettings.h SIMPLVtkLib/QtWidgets/MontageSettings.h
  * @brief This class handles the montage settings for the Generic Montage wizard.
  */
-class SIMPLVtkLib_EXPORT GenericMontageSettings : public QObject
+class SIMPLVtkLib_EXPORT MontageSettings : public QObject
 {
 	Q_OBJECT
 
@@ -149,18 +149,18 @@ public:
 	 * @brief Constructor
 	 * @param parent
 	 */
-	GenericMontageSettings();
+  MontageSettings();
 
 	/**
 	 * @brief Copy constructor
 	 * @param model
 	 */
-	GenericMontageSettings(const GenericMontageSettings& model);
+  MontageSettings(const MontageSettings& model);
 
 	/**
 	 * @brief Deconstructor
 	 */
-	virtual ~GenericMontageSettings() = default;
+  virtual ~MontageSettings() = default;
 
 	/**
 	 * @brief Returns the QObject parent since the parent() method is overloaded
@@ -492,7 +492,7 @@ public:
 	 * @brief Sets the montage type
 	 * @param montageType
 	*/
-	void setMontageType(GenericMontageSettings::MontageType montageType);
+  void setMontageType(MontageSettings::MontageType montageType);
 
 	/**
 	 * @brief Returns the montage order
@@ -504,7 +504,7 @@ public:
 	 * @brief Sets the montage order
 	 * @param montageOrder
 	*/
-	void setMontageOrder(GenericMontageSettings::MontageOrder montageOrder);
+  void setMontageOrder(MontageSettings::MontageOrder montageOrder);
 
 	/**
 	 * @brief Returns the fusion method
@@ -516,7 +516,7 @@ public:
 	 * @brief Sets the fusion method
 	 * @param fusionMethod
 	*/
-	void setFusionMethod(GenericMontageSettings::FusionMethod fusionMethod);
+  void setFusionMethod(MontageSettings::FusionMethod fusionMethod);
 
 	/**
 	 * @brief Returns the computation parameters
@@ -528,7 +528,7 @@ public:
 	 * @brief Sets the computation parameters
 	 * @param computationParameters
 	*/
-	void setComputationParameters(GenericMontageSettings::ComputationParameter computationParameters);
+  void setComputationParameters(MontageSettings::ComputationParameter computationParameters);
 
 	/**
 	 * @brief Returns the image output method
@@ -540,7 +540,7 @@ public:
 	 * @brief Sets the image output method
 	 * @param montageType
 	*/
-	void setImageOutputMethod(GenericMontageSettings::ImageOutput imageOutputMethod);
+  void setImageOutputMethod(MontageSettings::ImageOutput imageOutputMethod);
 
 signals:
 
@@ -583,4 +583,4 @@ private:
 	ImageOutput m_imageOutputMethod = FuseAndDisplay;
 };
 
-Q_DECLARE_METATYPE(GenericMontageSettings)
+Q_DECLARE_METATYPE(MontageSettings)

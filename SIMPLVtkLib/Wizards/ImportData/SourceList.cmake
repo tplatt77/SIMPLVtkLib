@@ -1,34 +1,34 @@
 set(${PROJECT_NAME}_ImportData_HDRS
-  ${WIZARDS_SOURCE_DIR}/ImportData/DREAM3DFilePage.h
-  ${WIZARDS_SOURCE_DIR}/ImportData/FijiConfigFilePage.h
+  ${WIZARDS_SOURCE_DIR}/ImportData/DataDisplayOptionsPage.h
   ${WIZARDS_SOURCE_DIR}/ImportData/FileTypeSelectionPage.h
   ${WIZARDS_SOURCE_DIR}/ImportData/GenericCollectionTypePage.h
   ${WIZARDS_SOURCE_DIR}/ImportData/GenericMetadataPage.h
-  ${WIZARDS_SOURCE_DIR}/ImportData/GenericMontageSettings.h
   ${WIZARDS_SOURCE_DIR}/ImportData/ImportDataWizard.h
-  ${WIZARDS_SOURCE_DIR}/ImportData/RobometConfigFilePage.h
+  ${WIZARDS_SOURCE_DIR}/ImportData/LoadHDF5DataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportData/MontageSettings.h
+  ${WIZARDS_SOURCE_DIR}/ImportData/EnterDataFilePage.h
   ${WIZARDS_SOURCE_DIR}/ImportData/TileListWidget.h
 )
 
 set(${PROJECT_NAME}_ImportData_SRCS
-  ${WIZARDS_SOURCE_DIR}/ImportData/DREAM3DFilePage.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportData/FijiConfigFilePage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportData/DataDisplayOptionsPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/FileTypeSelectionPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/GenericCollectionTypePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/GenericMetadataPage.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportData/GenericMontageSettings.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/ImportDataWizard.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportData/RobometConfigFilePage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportData/LoadHDF5DataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportData/MontageSettings.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportData/EnterDataFilePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/TileListWidget.cpp
 )
 
 set(${PROJECT_NAME}_ImportData_UIS
-  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/DREAM3DFilePage.ui
-  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/FijiConfigFilePage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/DataDisplayOptionsPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/FileTypeSelectionPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/GenericCollectionTypePage.ui
   ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/GenericMetadataPage.ui
-  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/RobometConfigFilePage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/LoadHDF5DataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/EnterDataFilePage.ui
   ${WIZARDS_SOURCE_DIR}/ImportData/UI_Files/TileListWidget.ui
   
 )

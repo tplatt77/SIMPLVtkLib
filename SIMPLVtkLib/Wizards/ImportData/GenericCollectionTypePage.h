@@ -38,7 +38,6 @@
 
 #include <QtWidgets/QWizardPage>
 
-#include "SIMPLVtkLib/Wizards/ImportData/GenericMontageSettings.h"
 #include "ui_GenericCollectionTypePage.h"
 
 class GenericCollectionTypePage : public QWizardPage

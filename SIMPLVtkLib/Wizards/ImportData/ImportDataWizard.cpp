@@ -35,12 +35,14 @@
 
 #include "ImportDataWizard.h"
 
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+
 #include "SIMPLVtkLib/Wizards/ImportData/GenericCollectionTypePage.h"
 #include "SIMPLVtkLib/Wizards/ImportData/GenericMetadataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/DREAM3DFilePage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/FijiConfigFilePage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/RobometConfigFilePage.h"
+#include "SIMPLVtkLib/Wizards/ImportData/EnterDataFilePage.h"
+#include "SIMPLVtkLib/Wizards/ImportData/DataDisplayOptionsPage.h"
+#include "SIMPLVtkLib/Wizards/ImportData/LoadHDF5DataPage.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -48,7 +50,7 @@
 ImportDataWizard::ImportDataWizard(QWidget* parent)
 : AbstractMontageWizard(parent)
 {
-  m_montageSettings = new GenericMontageSettings();
+  m_MontageSettings = new MontageSettings();
   
   setWindowTitle("Import Data Wizard");
 
@@ -58,105 +60,13 @@ ImportDataWizard::ImportDataWizard(QWidget* parent)
 
   setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
 
-  setPage(WizardPages::DREAM3DFile, new DREAM3DFilePage);
+  setPage(WizardPages::DataFile, new EnterDataFilePage);
 
-  setPage(WizardPages::FijiConfigFile, new FijiConfigFilePage);
+  setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
 
-  setPage(WizardPages::RobometConfigFile, new RobometConfigFilePage);
+  setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
 
   setStartId(WizardPages::FileTypeSelection);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-GenericMontageSettings* ImportDataWizard::getMontageSettings()
-{
-	return m_montageSettings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportDataWizard::accept()
-{
-	// For DREAM3D File, perform ordinary open procedure
-	if (currentId() == WizardPages::DREAM3DFile)
-	{
-		QString dream3dFilePath = field("DREAM3DFile").toString();
-		if (dream3dFilePath.isEmpty())
-		{
-			return;
-		}
-		m_montageSettings->setOutputFileName(dream3dFilePath);
-		fileType = FileType::DREAM3D;
-	}
-	else if (currentId() == WizardPages::FijiConfigFile)
-	{
-		QString fijiConfigFilePath = field("FijiConfigFile").toString();
-		if (fijiConfigFilePath.isEmpty())
-		{
-			return;
-		}
-		m_montageSettings->setLayoutFile(fijiConfigFilePath);
-		fileType = FileType::FIJI;
-
-	}
-	else if (currentId() == WizardPages::RobometConfigFile)
-	{
-		QString robometConfigFilePath = field("RobometConfigFile").toString();
-		if (robometConfigFilePath.isEmpty())
-		{
-			return;
-		}
-		m_montageSettings->setLayoutFile(robometConfigFilePath);
-		fileType = FileType::Robomet;
-	}
-	else if (currentId() == WizardPages::GenericMetadata)
-	{
-		fileType = FileType::GenericMontage;
-		// Get type and order of collection method
-		GenericMontageSettings::MontageType montageType = static_cast<GenericMontageSettings::MontageType>(field("montageType").toInt());
-		if (montageType < 0) {
-			montageType = GenericMontageSettings::MontageType::GridRowByRow;
-		}
-		m_montageSettings->setMontageType(montageType);
-		GenericMontageSettings::MontageOrder montageOrder = static_cast<GenericMontageSettings::MontageOrder>(field("montageOrder").toInt());
-		if (montageOrder < 0) {
-			montageOrder = GenericMontageSettings::MontageOrder::RightAndDown;
-		}
-		m_montageSettings->setMontageOrder(montageOrder);
-
-		// Get the metadata
-		uint64_t numOfRows = field("numOfRows").toInt();
-		m_montageSettings->setGridSizeY(numOfRows);
-		uint64_t numOfCols = field("numOfCols").toInt();
-		m_montageSettings->setGridSizeX(numOfCols);
-		double tileOverlap = field("tileOverlap").toDouble();
-		m_montageSettings->setTileOverlap(tileOverlap);
-		uint64_t firstFileIndex = field("firstFileIndex").toInt();
-		m_montageSettings->setFirstFileIndex(firstFileIndex);
-		QString tilesDirectory = field("tilesDirectory").toString();
-		m_montageSettings->setImagesDirectory(tilesDirectory);
-		QString outputFileName = field("outputFileName").toString();
-		m_montageSettings->setOutputFileName(outputFileName);
-		int fusionMethod = field("fusionMethod").toInt();
-		if (fusionMethod < 0)
-		{
-			fusionMethod = 0;
-		}
-		m_montageSettings->setFusionMethod(static_cast<GenericMontageSettings::FusionMethod>(fusionMethod));
-
-	}
-	QDialog::accept();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-ImportDataWizard::FileType ImportDataWizard::getFileType() const
-{
-	return fileType;
 }
 
 // -----------------------------------------------------------------------------
