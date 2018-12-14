@@ -7,6 +7,7 @@ set(${PROJECT_NAME}_ImportData_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportData/LoadHDF5DataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportData/MontageSettings.h
   ${WIZARDS_SOURCE_DIR}/ImportData/EnterDataFilePage.h
+  ${WIZARDS_SOURCE_DIR}/ImportData/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportData/TileListWidget.h
 )
 
@@ -19,6 +20,7 @@ set(${PROJECT_NAME}_ImportData_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportData/LoadHDF5DataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/MontageSettings.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/EnterDataFilePage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportData/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportData/TileListWidget.cpp
 )
 

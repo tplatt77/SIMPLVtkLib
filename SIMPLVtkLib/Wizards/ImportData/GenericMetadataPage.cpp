@@ -111,6 +111,7 @@ void GenericMetadataPage::tileListWidgetChanged()
   emit completeChanged();
 
   FileListInfo_t fileListInfo = m_Ui->tileListWidget->getFileListInfo();
+  setFileListInfo(fileListInfo);
   emit fileListInfoChanged(fileListInfo);
 }
 
