@@ -48,6 +48,7 @@
 FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
 : QWizardPage(parent)
 , m_Ui(new Ui::FileTypeSelectionPage)
+, m_InputType(ImportDataWizard::InputType::Unknown)
 {
   m_Ui->setupUi(this);
 
@@ -95,6 +96,21 @@ void FileTypeSelectionPage::registerFields()
 {
   registerField("GenericInput", m_Ui->imageFileListRB);
   registerField("FileInput", m_Ui->dataFileRB);
+  registerField("InputType", this, "InputType", "inputTypeChanged");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool FileTypeSelectionPage::validatePage()
+{
+  if (m_Ui->imageFileListRB->isChecked())
+  {
+    m_InputType = ImportDataWizard::InputType::GenericMontage;
+    emit inputTypeChanged(m_InputType);
+  }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------

@@ -58,7 +58,6 @@ QString EnterDataFilePage::m_OpenDialogLastDirectory = "";
 EnterDataFilePage::EnterDataFilePage(QWidget* parent)
 : QWizardPage(parent)
 , m_Ui(new Ui::EnterDataFilePage)
-, m_InputType(ImportDataWizard::InputType::Unknown)
 {
   m_Ui->setupUi(this);
 
@@ -74,7 +73,7 @@ EnterDataFilePage::~EnterDataFilePage() = default;
 
 // -----------------------------------------------------------------------------
 //
-// -----------------------------------------------------------------------------j19
+// -----------------------------------------------------------------------------
 void EnterDataFilePage::setupGui()
 {
 	connectSignalsSlots();
@@ -116,7 +115,6 @@ bool EnterDataFilePage::isComplete() const
 void EnterDataFilePage::registerFields()
 {
   registerField("DataFilePath", m_Ui->dataFileLE);
-  registerField("InputType", this, "InputType", "inputTypeChanged");
 }
 
 // -----------------------------------------------------------------------------
@@ -201,53 +199,43 @@ int EnterDataFilePage::nextId() const
 // -----------------------------------------------------------------------------
 bool EnterDataFilePage::validatePage()
 {
-  bool fileInput = field("FileInput").toBool();
-  if (fileInput)
+  QString dataFilePath = field("DataFilePath").toString();
+  if (!dataFilePath.isEmpty())
   {
-    QString dataFilePath = field("DataFilePath").toString();
-    if (!dataFilePath.isEmpty())
-    {
-      QFileInfo fi(dataFilePath);
-      QString ext = fi.completeSuffix();
-      QMimeDatabase db;
-      QMimeType mimeType = db.mimeTypeForFile(dataFilePath, QMimeDatabase::MatchContent);
+    QFileInfo fi(dataFilePath);
+    QString ext = fi.completeSuffix();
+    QMimeDatabase db;
+    QMimeType mimeType = db.mimeTypeForFile(dataFilePath, QMimeDatabase::MatchContent);
 
-      if (ext == "dream3d")
-      {
-        m_InputType = ImportDataWizard::InputType::DREAM3D;
-      }
-      else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
-      {
-        m_InputType = ImportDataWizard::InputType::VTK;
-      }
-      else if (ext == "stl")
-      {
-        m_InputType = ImportDataWizard::InputType::STL;
-      }
-      else if (mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
-      {
-        m_InputType = ImportDataWizard::InputType::Image;
-      }
-      else if (ext == "txt")
-      {
-        m_InputType = ImportDataWizard::InputType::Fiji;
-      }
-      else if (ext == "csv")
-      {
-        m_InputType = ImportDataWizard::InputType::Robomet;
-      }
-      else
-      {
-        m_InputType = ImportDataWizard::InputType::Unknown;
-      }
+    if (ext == "dream3d")
+    {
+      setField("InputType", ImportDataWizard::InputType::DREAM3D);
+    }
+    else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
+    {
+      setField("InputType", ImportDataWizard::InputType::VTK);
+    }
+    else if (ext == "stl")
+    {
+      setField("InputType", ImportDataWizard::InputType::STL);
+    }
+    else if (mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
+    {
+      setField("InputType", ImportDataWizard::InputType::Image);
+    }
+    else if (ext == "txt")
+    {
+      setField("InputType", ImportDataWizard::InputType::Fiji);
+    }
+    else if (ext == "csv")
+    {
+      setField("InputType", ImportDataWizard::InputType::Robomet);
+    }
+    else
+    {
+      setField("InputType", ImportDataWizard::InputType::Unknown);
     }
   }
-  else
-  {
-    m_InputType = ImportDataWizard::InputType::GenericMontage;
-  }
-
-  emit inputTypeChanged(m_InputType);
 
   return true;
 }

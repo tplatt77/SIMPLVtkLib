@@ -45,6 +45,7 @@
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 #include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileTreeModel.h"
+#include "SIMPLVtkLib/Wizards/ImportData/DataDisplayOptionsPage.h"
 
 #include "ImportDataWizard.h"
 
@@ -94,15 +95,38 @@ void LoadHDF5DataPage::setupGui()
 void LoadHDF5DataPage::initializePage()
 {
   m_Ui->errLabel->hide();
-  m_Ui->loadingLabel->hide();
-
-  m_Ui->loadingLabel->show();
-  m_LoadingMovie->start();
 
   QString filePath = field("DataFilePath").toString();
+  QFileInfo fi(filePath);
+  QDateTime modified = fi.lastModified();
 
-  QFuture<DataContainerArrayProxy> future = QtConcurrent::run(this, &LoadHDF5DataPage::readDCAProxy, filePath);
-  m_ProxyInitWatcher.setFuture(future);
+  // Only load the proxy if the file path is different or the file has been modified since the last time it was loaded
+  if (filePath != m_ProxyFilePath || modified > m_ProxyLastModified)
+  {
+    QAbstractItemModel* model = m_Ui->treeView->model();
+    model->removeRows(0, model->rowCount());
+    m_Proxy = DataContainerArrayProxy();
+
+    m_Ui->loadingLabel->show();
+    m_LoadingMovie->start();
+
+    m_ProxyFilePath = filePath;
+    m_ProxyLastModified = modified;
+
+    m_LoadingProxy = true;
+    emit completeChanged();
+
+    QFuture<DataContainerArrayProxy> future = QtConcurrent::run(this, &LoadHDF5DataPage::readDCAProxy, filePath);
+    m_ProxyInitWatcher.setFuture(future);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void LoadHDF5DataPage::cleanupPage()
+{
+  // Do not clean up the page.  We want the proxy to stay around until the file changes.
 }
 
 // -----------------------------------------------------------------------------
@@ -117,6 +141,9 @@ void LoadHDF5DataPage::proxyInitFinished()
 
   m_Ui->loadingLabel->hide();
   m_LoadingMovie->stop();
+
+  m_LoadingProxy = false;
+  emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -222,13 +249,16 @@ void LoadHDF5DataPage::modelDataChanged(const QModelIndex &topLeft, const QModel
   }
 
   bool allChecked = true;
+  size_t checkCount = 0;
   Qt::CheckState checkState = Qt::Unchecked;
-  for(int i = 0; i < model->rowCount(); i++)
+  size_t rowCount = model->rowCount();
+  for(int i = 0; i < rowCount; i++)
   {
     QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
     if(model->getCheckState(dcIndex) == Qt::Checked)
     {
       checkState = Qt::PartiallyChecked;
+      checkCount++;
     }
     else
     {
@@ -246,8 +276,10 @@ void LoadHDF5DataPage::modelDataChanged(const QModelIndex &topLeft, const QModel
   m_Ui->selectAllCB->blockSignals(false);
 
   m_Proxy = model->getModelProxy();
-  emit proxyChanged(m_Proxy);
 
+  setFinalPage(checkCount <= 1);
+
+  emit proxyChanged(m_Proxy);
   emit completeChanged();
 }
 
@@ -286,10 +318,13 @@ bool LoadHDF5DataPage::isComplete() const
   {
     return false;
   }
-  else
+
+  if (m_LoadingProxy)
   {
-    return true;
+    return false;
   }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -311,16 +346,26 @@ void LoadHDF5DataPage::setProxy(DataContainerArrayProxy proxy)
     model->populateTreeWithProxy(proxy);
     m_Ui->selectAllCB->setChecked(true);
 
-    QModelIndexList indexes = model->match(model->index(0, 0), Qt::DisplayRole, "*", -1, Qt::MatchWildcard | Qt::MatchRecursive);
-    for(int i = 0; i < indexes.size(); i++)
+    size_t checkCount = 0;
+    size_t rowCount = model->rowCount();
+    for(int i = 0; i < rowCount; i++)
     {
-      QModelIndex index = indexes[i];
-      m_Ui->treeView->expand(index);
-    }
-  }
+      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
+//      m_Ui->treeView->expand(dcIndex);
 
-  m_Proxy = proxy;
-  emit proxyChanged(proxy);
+      if(model->getCheckState(dcIndex) == Qt::Checked)
+      {
+        checkCount++;
+      }
+    }
+
+    m_Proxy = proxy;
+
+    setFinalPage(checkCount <= 1);
+
+    emit proxyChanged(proxy);
+    emit completeChanged();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -336,12 +381,26 @@ DataContainerArrayProxy LoadHDF5DataPage::getProxy()
 // -----------------------------------------------------------------------------
 int LoadHDF5DataPage::nextId() const
 {
-  if (m_Proxy.dataContainers.size() > 1)
+  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
+  if(model != nullptr)
   {
-    return ImportDataWizard::WizardPages::DataDisplayOptions;
+    size_t checkCount = 0;
+    size_t rowCount = model->rowCount();
+    for(int i = 0; i < rowCount; i++)
+    {
+      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
+
+      if(model->getCheckState(dcIndex) == Qt::Checked)
+      {
+        checkCount++;
+      }
+    }
+
+    if (checkCount > 1)
+    {
+      return ImportDataWizard::WizardPages::DataDisplayOptions;
+    }
   }
-  else
-  {
-    return -1;
-  }
+
+  return -1;
 }

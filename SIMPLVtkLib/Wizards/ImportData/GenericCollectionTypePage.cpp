@@ -157,6 +157,9 @@ bool GenericCollectionTypePage::isComplete() const
   return result;
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void GenericCollectionTypePage::registerFields()
 {
 	registerField("montageType", m_Ui->collectionTypeCB);

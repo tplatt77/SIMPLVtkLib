@@ -38,7 +38,6 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 #include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
 #include "SIMPLVtkLib/Wizards/ImportData/MontageSettings.h"
-#include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
 
 
 class SIMPLVtkLib_EXPORT ImportDataWizard : public AbstractMontageWizard

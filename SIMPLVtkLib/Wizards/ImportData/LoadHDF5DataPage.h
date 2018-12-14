@@ -36,6 +36,7 @@
 #pragma once
 
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QDateTime>
 
 #include <QtWidgets/QWizardPage>
 
@@ -81,7 +82,12 @@ public:
    * @brief isComplete
    * @return
    */
-  virtual bool isComplete() const override;
+  bool isComplete() const override;
+
+  /**
+   * @brief cleanupPage
+   */
+  void cleanupPage() override;
 
   /**
    * @brief nextId
@@ -114,9 +120,12 @@ signals:
 private:
   QSharedPointer<Ui::LoadHDF5DataPage> m_Ui;
 
+  bool m_LoadingProxy = false;
   QMovie* m_LoadingMovie = nullptr;
 
   DataContainerArrayProxy m_Proxy;
+  QString m_ProxyFilePath;
+  QDateTime m_ProxyLastModified;
 
   QFutureWatcher<DataContainerArrayProxy> m_ProxyInitWatcher;
 

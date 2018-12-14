@@ -42,8 +42,6 @@
 
 #include "ui_EnterDataFilePage.h"
 
-#include "ImportDataWizard.h"
-
 class EnterDataFilePage : public QWizardPage
 {
     Q_OBJECT
@@ -58,8 +56,6 @@ class EnterDataFilePage : public QWizardPage
     EnterDataFilePage(QWidget* parent = nullptr);
 
     ~EnterDataFilePage() override;
-
-    Q_PROPERTY(ImportDataWizard::InputType InputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -89,9 +85,6 @@ class EnterDataFilePage : public QWizardPage
    */
     bool validatePage() override;
 
-  protected:
-    SIMPL_INSTANCE_PROPERTY(ImportDataWizard::InputType, InputType)
-
   protected slots:
 
     // Slots to catch signals emitted by the various ui widgets
@@ -116,12 +109,6 @@ class EnterDataFilePage : public QWizardPage
    * @param dataFile
    */
     void dataFileChanged(const QString &dataFile);
-
-    /**
-   * @brief inputTypeChanged
-   * @param inputType
-   */
-    void inputTypeChanged(ImportDataWizard::InputType inputType);
 
   private:
     QSharedPointer<Ui::EnterDataFilePage> m_Ui;

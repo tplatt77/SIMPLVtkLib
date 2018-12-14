@@ -38,11 +38,15 @@
 
 #include <QtWidgets/QWizardPage>
 
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+
 #include "ui_FileTypeSelectionPage.h"
+
+#include "ImportDataWizard.h"
 
 class FileTypeSelectionPage : public QWizardPage
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     /**
@@ -55,27 +59,45 @@ class FileTypeSelectionPage : public QWizardPage
 
     ~FileTypeSelectionPage() override;
 
+    Q_PROPERTY(ImportDataWizard::InputType InputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
+
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
     virtual void setupGui();
 
-	/**
-	 * @brief Register fields
-	 */
-	void registerFields();
+    /**
+     * @brief registerFields
+     */
+    void registerFields();
 
     /**
      * @brief isComplete
      * @return
      */
-    virtual bool isComplete() const override; 
-	
-	/**
-	* @brief nextId
-	* @return
-	*/
-	int nextId() const override;
+    virtual bool isComplete() const override;
+
+    /**
+     * @brief nextId
+     * @return
+     */
+    int nextId() const override;
+
+    /**
+     * @brief validatePage
+     * @return
+     */
+    bool validatePage() override;
+
+  protected:
+    SIMPL_INSTANCE_PROPERTY(ImportDataWizard::InputType, InputType)
+
+  signals:
+      /**
+     * @brief inputTypeChanged
+     * @param inputType
+     */
+      void inputTypeChanged(ImportDataWizard::InputType inputType);
 
   private:
     QSharedPointer<Ui::FileTypeSelectionPage> m_Ui;
