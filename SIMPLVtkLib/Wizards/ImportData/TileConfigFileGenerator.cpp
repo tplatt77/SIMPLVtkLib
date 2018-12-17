@@ -62,13 +62,15 @@ TileConfigFileGenerator::TileConfigFileGenerator()
  //
  // -----------------------------------------------------------------------------
 TileConfigFileGenerator::TileConfigFileGenerator(FileListInfo_t fileListInfo, MontageSettings::MontageType montageType,
-	MontageSettings::MontageOrder montageOrder, int gridSizeX, int gridSizeY, QString outputFilename)
+	MontageSettings::MontageOrder montageOrder, int gridSizeX, int gridSizeY, double tileOverlap,
+	QString outputFilename)
 {
 	m_fileListInfo = fileListInfo;
 	m_montageType = montageType;
 	m_montageOrder = montageOrder;
 	m_gridSizeX = gridSizeX;
 	m_gridSizeY = gridSizeY;
+	m_tileOverlap = tileOverlap;
 	m_outputFilename = outputFilename;
 }
 
@@ -125,8 +127,8 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			if (!image_dimensions_determined)
 			{
 				QImage image(imageFName);
-				image_width = image.width();
-				image_height = image.height();
+				image_width = image.width() * (100.0 - m_tileOverlap);
+				image_height = image.height() * (100.0 - m_tileOverlap);
 			}
 		}
 	}

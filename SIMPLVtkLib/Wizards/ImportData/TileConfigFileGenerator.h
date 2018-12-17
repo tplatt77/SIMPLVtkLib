@@ -68,7 +68,7 @@ public:
 	 * @param parent
 	 */
 	TileConfigFileGenerator(FileListInfo_t fileListInfo, MontageSettings::MontageType montageType,
-		MontageSettings::MontageOrder montageOrder, int gridSizeX, int gridSizeY, QString outputFilename);
+		MontageSettings::MontageOrder montageOrder, int gridSizeX, int gridSizeY, double tileOverlap, QString outputFilename);
 
 	/**
 	 * @brief Copy constructor
@@ -96,6 +96,7 @@ public:
 private:
 	int m_gridSizeX;
 	int m_gridSizeY;
+	double m_tileOverlap;
 	FileListInfo_t m_fileListInfo;
 	MontageSettings::MontageType m_montageType;
 	MontageSettings::MontageOrder m_montageOrder;
