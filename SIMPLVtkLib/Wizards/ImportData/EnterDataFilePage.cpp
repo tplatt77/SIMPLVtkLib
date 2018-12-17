@@ -122,10 +122,22 @@ void EnterDataFilePage::registerFields()
 // -----------------------------------------------------------------------------
 void EnterDataFilePage::selectBtn_clicked()
 {
-  QString filter = tr("DREAM3D File (*.dream3d);;Fiji Configuration File (*.csv);;"
-                      "Robomet Configuration File (*.csv);;VTK File (*.vtk *.vti *.vtp *.vtr *.vts *.vtu);;"
-                      "STL File (*.stl);;Image File (*.png *.tiff *.jpeg *.bmp);;All Files (*.*)");
-  QString outputFile = QFileDialog::getOpenFileName(this, tr("Select a data file"),
+  bool usingConfigFile = field("UsingConfigFile").toBool();
+
+  QString filter;
+  QString title;
+  if (usingConfigFile)
+  {
+    filter = tr("Fiji Configuration File (*.csv);;Robomet Configuration File (*.csv);;All Files (*.*)");
+    title = "Select a configuration file";
+  }
+  else
+  {
+    filter = tr("DREAM3D File (*.dream3d);;All Files (*.*)");
+    title = "Select a DREAM3D file";
+  }
+
+  QString outputFile = QFileDialog::getOpenFileName(this, title,
 		getInputDirectory(), filter);
 
 	if (!outputFile.isNull())
@@ -151,6 +163,35 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
 	{
 	}
+
+  if (!inputPath.isEmpty())
+  {
+    QFileInfo fi(inputPath);
+    QString ext = fi.completeSuffix();
+    QMimeDatabase db;
+    QMimeType mimeType = db.mimeTypeForFile(inputPath, QMimeDatabase::MatchContent);
+
+    if (ext == "dream3d")
+    {
+      setField("InputType", ImportDataWizard::InputType::DREAM3D);
+      setFinalPage(false);
+    }
+    else if (ext == "txt")
+    {
+      setField("InputType", ImportDataWizard::InputType::Fiji);
+      setFinalPage(false);
+    }
+    else if (ext == "csv")
+    {
+      setField("InputType", ImportDataWizard::InputType::Robomet);
+      setFinalPage(false);
+    }
+    else
+    {
+      setField("InputType", ImportDataWizard::InputType::Unknown);
+      setFinalPage(false);
+    }
+  }
 
 	emit completeChanged();
   emit dataFileChanged(text);
@@ -181,16 +222,18 @@ QString EnterDataFilePage::getInputDirectory()
 // -----------------------------------------------------------------------------
 int EnterDataFilePage::nextId() const
 {
-  QFileInfo fi(m_Ui->dataFileLE->text());
-  QString ext = fi.completeSuffix();
-
-  if (ext == "dream3d")
+  ImportDataWizard::InputType inputType = field("InputType").value<ImportDataWizard::InputType>();
+  if(inputType == ImportDataWizard::InputType::DREAM3D)
   {
     return ImportDataWizard::WizardPages::LoadHDF5Data;
   }
-  else
+  else if(inputType == ImportDataWizard::InputType::Fiji || inputType == ImportDataWizard::InputType::Robomet)
   {
     return ImportDataWizard::WizardPages::DataDisplayOptions;
+  }
+  else
+  {
+    return -1;
   }
 }
 
@@ -199,44 +242,6 @@ int EnterDataFilePage::nextId() const
 // -----------------------------------------------------------------------------
 bool EnterDataFilePage::validatePage()
 {
-  QString dataFilePath = field("DataFilePath").toString();
-  if (!dataFilePath.isEmpty())
-  {
-    QFileInfo fi(dataFilePath);
-    QString ext = fi.completeSuffix();
-    QMimeDatabase db;
-    QMimeType mimeType = db.mimeTypeForFile(dataFilePath, QMimeDatabase::MatchContent);
-
-    if (ext == "dream3d")
-    {
-      setField("InputType", ImportDataWizard::InputType::DREAM3D);
-    }
-    else if (ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
-    {
-      setField("InputType", ImportDataWizard::InputType::VTK);
-    }
-    else if (ext == "stl")
-    {
-      setField("InputType", ImportDataWizard::InputType::STL);
-    }
-    else if (mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
-    {
-      setField("InputType", ImportDataWizard::InputType::Image);
-    }
-    else if (ext == "txt")
-    {
-      setField("InputType", ImportDataWizard::InputType::Fiji);
-    }
-    else if (ext == "csv")
-    {
-      setField("InputType", ImportDataWizard::InputType::Robomet);
-    }
-    else
-    {
-      setField("InputType", ImportDataWizard::InputType::Unknown);
-    }
-  }
-
   return true;
 }
 

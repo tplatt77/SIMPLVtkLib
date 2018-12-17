@@ -42,14 +42,21 @@
    <item>
     <widget class="QRadioButton" name="imageFileListRB">
      <property name="text">
-      <string>Image File List</string>
+      <string>List of Image Files</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="dataFileRB">
+    <widget class="QRadioButton" name="configFileRB">
      <property name="text">
-      <string>Data File (FIJI, Robomet, DREAM3D, VTK, STL, Image File)</string>
+      <string>Config File (FIJI, Robomet)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="dream3dFileRB">
+     <property name="text">
+      <string>DREAM3D File</string>
      </property>
     </widget>
    </item>

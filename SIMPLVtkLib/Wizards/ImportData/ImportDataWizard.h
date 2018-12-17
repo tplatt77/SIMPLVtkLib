@@ -59,9 +59,6 @@ class SIMPLVtkLib_EXPORT ImportDataWizard : public AbstractMontageWizard
     {
       Unknown,
       DREAM3D,
-      VTK,
-      STL,
-      Image,
       GenericMontage,
       Fiji,
       Robomet

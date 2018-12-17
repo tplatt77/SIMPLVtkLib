@@ -220,7 +220,6 @@ private:
   static QString m_OpenDialogLastFilePath;
 
   QAction* m_ShowFileAction = nullptr;
-  QString m_CurrentlyValidPath = "";
   QString m_CurrentText = "";
   bool m_DidCausePreflight = false;
 
@@ -228,6 +227,12 @@ private:
    * @brief connectSignalsSlots
    */
   void connectSignalsSlots();
+
+  /**
+   * @brief showFileInFileSystem
+   * @param filePath
+   */
+  void showFileInFileSystem(const QString &filePath);
 
 public:
   TileListWidget(const TileListWidget&) = delete; // Copy Constructor Not Implemented

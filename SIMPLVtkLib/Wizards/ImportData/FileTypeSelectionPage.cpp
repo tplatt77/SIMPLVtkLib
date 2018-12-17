@@ -47,8 +47,8 @@
 // -----------------------------------------------------------------------------
 FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
 : QWizardPage(parent)
-, m_Ui(new Ui::FileTypeSelectionPage)
 , m_InputType(ImportDataWizard::InputType::Unknown)
+, m_Ui(new Ui::FileTypeSelectionPage)
 {
   m_Ui->setupUi(this);
 
@@ -94,8 +94,9 @@ bool FileTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 void FileTypeSelectionPage::registerFields()
 {
-  registerField("GenericInput", m_Ui->imageFileListRB);
-  registerField("FileInput", m_Ui->dataFileRB);
+  registerField("UsingImageFileList", m_Ui->imageFileListRB);
+  registerField("UsingConfigFile", m_Ui->configFileRB);
+  registerField("UsingDREAM3DFile", m_Ui->dream3dFileRB);
   registerField("InputType", this, "InputType", "inputTypeChanged");
 }
 
@@ -122,7 +123,7 @@ int FileTypeSelectionPage::nextId() const
 	{
 		return ImportDataWizard::WizardPages::GenericCollectionType;
 	}
-  else if (m_Ui->dataFileRB->isChecked())
+  else if (m_Ui->configFileRB->isChecked() || m_Ui->dream3dFileRB->isChecked())
 	{
     return ImportDataWizard::WizardPages::DataFile;
 	}

@@ -14,6 +14,9 @@
    <string>WizardPage</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
    <item>
     <widget class="QLabel" name="label">
      <property name="font">

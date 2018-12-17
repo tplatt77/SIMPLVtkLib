@@ -227,7 +227,9 @@ void TileListWidget::setupMenuField()
     m_ShowFileAction->setText("Show in File System");
 #endif
     lineEditMenu->addAction(m_ShowFileAction);
-    connect(m_ShowFileAction, SIGNAL(triggered()), this, SLOT(showFileInFileSystem()));
+    connect(m_ShowFileAction, &QAction::triggered, [=] {
+      showFileInFileSystem(m_Ui->inputDir->text());
+    });
   }
 
   if(!inputPath.isEmpty() && fi.exists())
@@ -238,6 +240,25 @@ void TileListWidget::setupMenuField()
   {
     m_ShowFileAction->setDisabled(true);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void TileListWidget::showFileInFileSystem(const QString &filePath)
+{
+  QFileInfo fi(filePath);
+  QString path;
+  if (fi.isFile())
+  {
+    path = fi.absoluteFilePath();
+  }
+  else
+  {
+    path = fi.absolutePath();
+  }
+
+  QtSFileUtils::ShowPathInGui(this, fi.absoluteFilePath());
 }
 
 // -----------------------------------------------------------------------------
