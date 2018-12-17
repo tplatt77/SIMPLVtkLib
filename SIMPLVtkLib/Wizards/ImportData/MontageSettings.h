@@ -584,3 +584,5 @@ private:
 };
 
 Q_DECLARE_METATYPE(MontageSettings)
+Q_DECLARE_METATYPE(MontageSettings::MontageOrder)
+Q_DECLARE_METATYPE(MontageSettings::MontageType)

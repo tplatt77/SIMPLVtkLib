@@ -44,6 +44,7 @@
 #include "SIMPLib/Utilities/FilePathGenerator.h"
 
 #include <QtCore/qdebug.h>
+#include <qimage.h>
 
 
  // -----------------------------------------------------------------------------
@@ -111,6 +112,9 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 		return;
 	}
 	size_t availableFileCount = 0;
+	float image_width = 100.0;
+	float image_height = 100.0;
+	bool image_dimensions_determined = false;
 	for (QVector<QString>::iterator filepath = fileList.begin(); filepath != fileList.end(); ++filepath)
 	{
 		QString imageFName = *filepath;
@@ -118,6 +122,12 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 		if (fi.exists())
 		{
 			availableFileCount++;
+			if (!image_dimensions_determined)
+			{
+				QImage image(imageFName);
+				image_width = image.width();
+				image_height = image.height();
+			}
 		}
 	}
 
@@ -125,7 +135,11 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 	std::ofstream outputFile;
 	std::stringstream ss;
 	ss << m_fileListInfo.InputPath.toStdString();
+#ifdef _WIN32
 	ss << "\\"; // WINDOWS ONLY
+#else
+	ss << "/";
+#endif
 	ss << m_outputFilename.toStdString();
     std::string outputFilePath = ss.str();
 	outputFile.open(outputFilePath, std::ios_base::out);
@@ -138,20 +152,19 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 	if (m_montageType == MontageSettings::MontageType::GridRowByRow ||
 		m_montageType == MontageSettings::MontageType::GridSnakeByRows)
 	{
+		// Boolean flags for whether the montage is a snake type pattern
+		// and whether it is right and/or down in order
 		bool isSnake = (m_montageType == MontageSettings::MontageType::GridSnakeByRows);
 		bool isRight = (m_montageOrder == MontageSettings::MontageOrder::RightAndDown ||
 			m_montageOrder == MontageSettings::MontageOrder::RightAndUp);
 		bool isDown = (m_montageOrder == MontageSettings::MontageOrder::RightAndDown ||
 			m_montageOrder == MontageSettings::MontageOrder::LeftAndDown);
 
-		// TODO: REMOVE HARDCODED WIDTH AND HEIGHT!!!!
-		float width = 760.0;
-		float height = 760.0;
-
 		// Row 1 'start' points
-		int i = isDown ? 0 : m_gridSizeY - 1; // Y
-		int j = isRight ? 0 : m_gridSizeX - 1; // X
+		int i = isDown ? m_fileListInfo.StartIndex : m_gridSizeY - 1; // Y
+		int j = isRight ? m_fileListInfo.StartIndex : m_gridSizeX - 1; // X
 
+		// Increment values
 		int delta_i = 1;
 		int delta_j = 1;
 
@@ -162,26 +175,93 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			// Handle switch for every other row (Snake pattern)
 			if (isSnake && y % 2 == 1)
 			{
-				isRight ? j = m_gridSizeX - 1: j = 0;
+				isRight ? j = m_gridSizeX - 1: j = m_fileListInfo.StartIndex;
 				isRight ? delta_j = -1 : delta_j = 1;
 			}
 			else if (isSnake)
 			{
-				isRight ? j = 0 :j = m_gridSizeX - 1;
+				isRight ? j = m_fileListInfo.StartIndex :j = m_gridSizeX - 1;
 				isRight ? delta_j = 1 : delta_j = -1;
+			}
+			else
+			{
+				j = m_fileListInfo.StartIndex;
 			}
 
 			for (int x = 0; x < m_gridSizeX; x++)
 			{
 				outputFile << m_fileListInfo.FilePrefix.toStdString();
-				outputFile << i << j << m_fileListInfo.FileSuffix.toStdString();
+				if (m_fileListInfo.PaddingDigits > 1)
+				{
+					outputFile << i;
+				}
+				outputFile << j;
+				outputFile << m_fileListInfo.FileSuffix.toStdString();
 				outputFile << "." << m_fileListInfo.FileExtension.toStdString();
 				outputFile << "; ; (";
-				outputFile << float(x * width);
+				outputFile << float(x * image_width);
 				outputFile << ", ";
-				outputFile << float(y * height);
+				outputFile << float(y * image_height);
 				outputFile << ")\n";
 				j += delta_j;
+			}
+		}
+	}
+	else if (m_montageType == MontageSettings::MontageType::GridColByCol ||
+		m_montageType == MontageSettings::MontageType::GridSnakeByCols)
+	{
+		// Boolean flags for whether the montage is a snake type pattern
+		// and whether it is right and/or down in order
+		bool isSnake = (m_montageType == MontageSettings::MontageType::GridSnakeByCols);
+		bool isRight = (m_montageOrder == MontageSettings::MontageOrder::DownAndRight ||
+			m_montageOrder == MontageSettings::MontageOrder::UpAndRight);
+		bool isDown = (m_montageOrder == MontageSettings::MontageOrder::DownAndRight ||
+			m_montageOrder == MontageSettings::MontageOrder::DownAndLeft);
+
+		// Row 1 'start' points
+		int i = isDown ? m_fileListInfo.StartIndex : m_gridSizeY - 1; // Y
+		int j = isRight ? m_fileListInfo.StartIndex : m_gridSizeX - 1; // X
+
+		// Increment values
+		int delta_i = 1;
+		int delta_j = 1;
+
+		for (int x = 0; x < m_gridSizeX; x++)
+		{
+			isRight ? j = x : j = m_gridSizeX - x;
+
+			// Handle switch for every other col (Snake pattern)
+			if (isSnake && x % 2 == 1)
+			{
+				isDown ? i = m_gridSizeY - 1 : i = m_fileListInfo.StartIndex;
+				isDown ? delta_i = -1 : delta_i = 1;
+			}
+			else if (isSnake)
+			{
+				isDown ? i = m_fileListInfo.StartIndex : i = m_gridSizeY - 1;
+				isDown ? delta_i = 1 : delta_i = -1;
+			}
+			else
+			{
+				i = m_fileListInfo.StartIndex;
+			}
+
+			for (int y = 0; y < m_gridSizeY; y++)
+			{
+				outputFile << m_fileListInfo.FilePrefix.toStdString();
+				outputFile << i;
+				if (m_fileListInfo.PaddingDigits > 1)
+				{
+					outputFile << j;
+				}
+				outputFile << m_fileListInfo.FileSuffix.toStdString();
+				outputFile << "." << m_fileListInfo.FileExtension.toStdString();
+				outputFile << "; ; (";
+				outputFile << float(x * image_width);
+				outputFile << ", ";
+				outputFile << float(y * image_height);
+				outputFile << ")\n";
+				i += delta_i;
 			}
 		}
 	}
