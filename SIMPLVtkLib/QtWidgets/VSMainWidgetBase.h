@@ -204,13 +204,6 @@ public:
    */
   void importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
-  /**
-   * @brief openDREAM3DFile
-   * @param filePath
-   * @param instance
-   */
-  bool openDREAM3DFile(const QString& filePath);
-
 public slots:
   /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,
@@ -281,6 +274,12 @@ public slots:
    * @param filters
    */
   void selectFilters(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief launchHDF5SelectionDialog
+   * @param proxy
+   */
+  void launchHDF5SelectionDialog(const QString& filePath);
 
 signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
@@ -429,12 +428,6 @@ protected slots:
    * @param filter
    */
   void filterRemoved(VSAbstractFilter* filter);
-
-  /**
-   * @brief launchSIMPLSelectionDialog
-   * @param proxy
-   */
-  void launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString& filePath);
 
   /**
    * @brief generateError

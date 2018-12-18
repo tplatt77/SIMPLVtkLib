@@ -76,17 +76,9 @@ LoadHDF5DataPage::~LoadHDF5DataPage()
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::setupGui()
 {
-  DREAM3DFileTreeModel* model = new DREAM3DFileTreeModel();
-  connect(model, &DREAM3DFileTreeModel::dataChanged, this, &LoadHDF5DataPage::modelDataChanged);
+  m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
 
-  connect(m_Ui->selectAllCB, &QCheckBox::stateChanged, this, &LoadHDF5DataPage::selectAllStateChanged);
-
-  m_Ui->treeView->setModel(model);
-
-  m_LoadingMovie = new QMovie(":/gifs/loading.gif");
-  m_Ui->loadingLabel->setMovie(m_LoadingMovie);
-
-  connect(&m_ProxyInitWatcher, SIGNAL(finished()), this, SLOT(proxyInitFinished()));
+  connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &LoadHDF5DataPage::proxyChanged);
 }
 
 // -----------------------------------------------------------------------------
@@ -94,31 +86,9 @@ void LoadHDF5DataPage::setupGui()
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::initializePage()
 {
-  m_Ui->errLabel->hide();
-
   QString filePath = field("DataFilePath").toString();
-  QFileInfo fi(filePath);
-  QDateTime modified = fi.lastModified();
 
-  // Only load the proxy if the file path is different or the file has been modified since the last time it was loaded
-  if (filePath != m_ProxyFilePath || modified > m_ProxyLastModified)
-  {
-    QAbstractItemModel* model = m_Ui->treeView->model();
-    model->removeRows(0, model->rowCount());
-    m_Proxy = DataContainerArrayProxy();
-
-    m_Ui->loadingLabel->show();
-    m_LoadingMovie->start();
-
-    m_ProxyFilePath = filePath;
-    m_ProxyLastModified = modified;
-
-    m_LoadingProxy = true;
-    emit completeChanged();
-
-    QFuture<DataContainerArrayProxy> future = QtConcurrent::run(this, &LoadHDF5DataPage::readDCAProxy, filePath);
-    m_ProxyInitWatcher.setFuture(future);
-  }
+  m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
 
 // -----------------------------------------------------------------------------
@@ -132,154 +102,20 @@ void LoadHDF5DataPage::cleanupPage()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void LoadHDF5DataPage::proxyInitFinished()
+void LoadHDF5DataPage::proxyChanged(DataContainerArrayProxy proxy)
 {
-  QFuture<DataContainerArrayProxy> future = m_ProxyInitWatcher.future();
-  DataContainerArrayProxy proxy = future.result();
-
-  setProxy(proxy);
-
-  m_Ui->loadingLabel->hide();
-  m_LoadingMovie->stop();
-
-  m_LoadingProxy = false;
-  emit completeChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-DataContainerArrayProxy LoadHDF5DataPage::readDCAProxy(const QString& filePath)
-{
-  QFileInfo fi(filePath);
-
-  SIMPLH5DataReader reader;
-  connect(&reader, &SIMPLH5DataReader::errorGenerated, [=] (const QString &title, const QString &msg, const int &code) {
-    m_Ui->errLabel->setText(tr("%1").arg(msg));
-    m_Ui->errLabel->show();
-  });
-
-  bool success = reader.openFile(filePath);
-  if(!success)
-  {
-    return DataContainerArrayProxy();
-  }
-
-  int err = 0;
-  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
-  DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
-  if(proxy.dataContainers.isEmpty())
-  {
-    return DataContainerArrayProxy();
-  }
-
-  QStringList dcNames = proxy.dataContainers.keys();
-  for(int i = 0; i < dcNames.size(); i++)
-  {
-    QString dcName = dcNames[i];
-    DataContainerProxy dcProxy = proxy.dataContainers[dcName];
-
-    // We want only data containers with geometries displayed
-    if(dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
-    {
-      proxy.dataContainers.remove(dcName);
-    }
-    else
-    {
-      QStringList amNames = dcProxy.attributeMatricies.keys();
-      for(int j = 0; j < amNames.size(); j++)
-      {
-        QString amName = amNames[j];
-        AttributeMatrixProxy amProxy = dcProxy.attributeMatricies[amName];
-
-        // We want only cell attribute matrices displayed
-        if(amProxy.amType != AttributeMatrix::Type::Cell)
-        {
-          dcProxy.attributeMatricies.remove(amName);
-          proxy.dataContainers[dcName] = dcProxy;
-        }
-      }
-    }
-  }
-
-  if(proxy.dataContainers.size() <= 0)
-  {
-    m_Ui->errLabel->setText("Failed to load DREAM3D file '%1' because the file does not contain any data containers with a supported geometry.");
-    m_Ui->errLabel->show();
-    return DataContainerArrayProxy();
-  }
-
-  return proxy;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void LoadHDF5DataPage::selectAllStateChanged(int state)
-{
-  DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if (model == nullptr)
-  {
-    return;
-  }
-
-  Qt::CheckState checkState = static_cast<Qt::CheckState>(state);
-  if(checkState == Qt::PartiallyChecked)
-  {
-    m_Ui->selectAllCB->setCheckState(Qt::Checked);
-    return;
-  }
-
-  for(int i = 0; i < model->rowCount(); i++)
-  {
-    QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-    model->setData(dcIndex, checkState, Qt::CheckStateRole);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void LoadHDF5DataPage::modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
-{
-  DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if (model == nullptr)
-  {
-    return;
-  }
-
-  bool allChecked = true;
   size_t checkCount = 0;
-  Qt::CheckState checkState = Qt::Unchecked;
-  size_t rowCount = model->rowCount();
-  for(int i = 0; i < rowCount; i++)
+  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
   {
-    QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-    if(model->getCheckState(dcIndex) == Qt::Checked)
+    DataContainerProxy dcProxy = iter.value();
+    if(dcProxy.flag == Qt::Checked)
     {
-      checkState = Qt::PartiallyChecked;
       checkCount++;
     }
-    else
-    {
-      allChecked = false;
-    }
   }
-
-  if(allChecked == true)
-  {
-    checkState = Qt::Checked;
-  }
-
-  m_Ui->selectAllCB->blockSignals(true);
-  m_Ui->selectAllCB->setCheckState(checkState);
-  m_Ui->selectAllCB->blockSignals(false);
-
-  m_Proxy = model->getModelProxy();
 
   setFinalPage(checkCount <= 1);
 
-  emit proxyChanged(m_Proxy);
   emit completeChanged();
 }
 
@@ -288,18 +124,14 @@ void LoadHDF5DataPage::modelDataChanged(const QModelIndex &topLeft, const QModel
 // -----------------------------------------------------------------------------
 bool LoadHDF5DataPage::isComplete() const
 {
-  DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if (model == nullptr)
-  {
-    return false;
-  }
+  DataContainerArrayProxy proxy = getProxy();
 
   bool allChecked = true;
   Qt::CheckState checkState = Qt::Unchecked;
-  for(int i = 0; i < model->rowCount(); i++)
+  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
   {
-    QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-    if(model->getCheckState(dcIndex) == Qt::Checked)
+    DataContainerProxy dcProxy = iter.value();
+    if(dcProxy.flag == Qt::Checked)
     {
       checkState = Qt::PartiallyChecked;
     }
@@ -332,7 +164,7 @@ bool LoadHDF5DataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::registerFields()
 {
-  registerField("DREAM3DProxy", this, "Proxy", "proxyChanged");
+  registerField("DREAM3DProxy", m_Ui->loadHDF5DataWidget, "Proxy", "proxyChanged");
 }
 
 // -----------------------------------------------------------------------------
@@ -340,40 +172,15 @@ void LoadHDF5DataPage::registerFields()
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::setProxy(DataContainerArrayProxy proxy)
 {
-  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if(model != nullptr)
-  {
-    model->populateTreeWithProxy(proxy);
-    m_Ui->selectAllCB->setChecked(true);
-
-    size_t checkCount = 0;
-    size_t rowCount = model->rowCount();
-    for(int i = 0; i < rowCount; i++)
-    {
-      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-//      m_Ui->treeView->expand(dcIndex);
-
-      if(model->getCheckState(dcIndex) == Qt::Checked)
-      {
-        checkCount++;
-      }
-    }
-
-    m_Proxy = proxy;
-
-    setFinalPage(checkCount <= 1);
-
-    emit proxyChanged(proxy);
-    emit completeChanged();
-  }
+  m_Ui->loadHDF5DataWidget->setProxy(proxy);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataContainerArrayProxy LoadHDF5DataPage::getProxy()
+DataContainerArrayProxy LoadHDF5DataPage::getProxy() const
 {
-  return m_Proxy;
+  return m_Ui->loadHDF5DataWidget->getProxy();
 }
 
 // -----------------------------------------------------------------------------
@@ -381,25 +188,21 @@ DataContainerArrayProxy LoadHDF5DataPage::getProxy()
 // -----------------------------------------------------------------------------
 int LoadHDF5DataPage::nextId() const
 {
-  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if(model != nullptr)
+  DataContainerArrayProxy proxy = getProxy();
+
+  size_t checkCount = 0;
+  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
   {
-    size_t checkCount = 0;
-    size_t rowCount = model->rowCount();
-    for(int i = 0; i < rowCount; i++)
+    DataContainerProxy dcProxy = iter.value();
+    if(dcProxy.flag == Qt::Checked)
     {
-      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-
-      if(model->getCheckState(dcIndex) == Qt::Checked)
-      {
-        checkCount++;
-      }
+      checkCount++;
     }
+  }
 
-    if (checkCount > 1)
-    {
-      return ImportDataWizard::WizardPages::DataDisplayOptions;
-    }
+  if (checkCount > 1)
+  {
+    return ImportDataWizard::WizardPages::DataDisplayOptions;
   }
 
   return -1;

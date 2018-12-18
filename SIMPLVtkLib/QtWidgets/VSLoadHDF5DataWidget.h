@@ -35,42 +35,97 @@
 
 #pragma once
 
-#include <QtWidgets/QDialog>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QDateTime>
 
-#include "ui_LoadHDF5FileDialog.h"
+#include <QtWidgets/QWidget>
+
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+
+#include "ui_VSLoadHDF5DataWidget.h"
 
 class DataContainerArrayProxy;
 
-class LoadHDF5FileDialog : public QDialog
+class VSLoadHDF5DataWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  LoadHDF5FileDialog(QWidget* parent = 0);
-  ~LoadHDF5FileDialog();
+  VSLoadHDF5DataWidget(QWidget* parent = 0);
+  ~VSLoadHDF5DataWidget();
+
+  Q_PROPERTY(DataContainerArrayProxy Proxy READ getProxy WRITE setProxy NOTIFY proxyChanged)
 
   /**
    * @brief getLoadProxy
    * @return
    */
-  DataContainerArrayProxy getDataStructureProxy();
+  DataContainerArrayProxy getProxy();
 
   /**
-   * @brief setHDF5FilePath
-   * @param filePath
+   * @brief setProxy
+   * @param proxy
    */
-  void setHDF5FilePath(const QString &filePath);
+  void setProxy(DataContainerArrayProxy proxy);
+
+  /**
+   * @brief initialize
+   */
+  void initialize(const QString &filePath);
+
+  /**
+   * @brief setNavigationButtonsVisibility
+   * @param visible
+   */
+  void setNavigationButtonsVisibility(bool visible);
+
+protected slots:
+  /**
+   * @brief modelDataChanged
+   */
+  void modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+
+  /**
+   * @brief selectAllStateChanged
+   */
+  void selectAllStateChanged(int state);
+
+  /**
+   * @brief proxyInitFinished
+   */
+  void proxyInitFinished();
 
 protected:
   void setupGui();
 
+signals:
+  void proxyChanged(DataContainerArrayProxy proxy);
+  void loadBtnClicked();
+  void cancelBtnClicked();
+
 private:
-  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
+  QSharedPointer<Ui::VSLoadHDF5DataWidget> m_Ui;
+
+  bool m_LoadingProxy = false;
+  QMovie* m_LoadingMovie = nullptr;
+
+  DataContainerArrayProxy m_Proxy;
+  QString m_ProxyFilePath;
+  QDateTime m_ProxyLastModified;
+
+  QFutureWatcher<DataContainerArrayProxy> m_ProxyInitWatcher;
+
+  /**
+   * @brief openDREAM3DFile
+   * @param filePath
+   * @param instance
+   */
+  DataContainerArrayProxy readDCAProxy(const QString& filePath);
 
 public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
+  VSLoadHDF5DataWidget(const VSLoadHDF5DataWidget&) = delete;    // Copy Constructor Not Implemented
+    VSLoadHDF5DataWidget(VSLoadHDF5DataWidget&&) = delete; // Move Constructor Not Implemented
+    VSLoadHDF5DataWidget& operator=(const VSLoadHDF5DataWidget&) = delete; // Copy Assignment Not Implemented
+    VSLoadHDF5DataWidget& operator=(VSLoadHDF5DataWidget&&) = delete; // Move Assignment Not Implemented
 
 };

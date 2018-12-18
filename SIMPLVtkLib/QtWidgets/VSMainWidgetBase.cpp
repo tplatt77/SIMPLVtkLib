@@ -448,77 +448,10 @@ void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMainWidgetBase::openDREAM3DFile(const QString& filePath)
-{
-  QFileInfo fi(filePath);
-
-  SIMPLH5DataReader reader;
-  connect(&reader, SIGNAL(errorGenerated(const QString&, const QString&, const int&)), this, SLOT(generateError(const QString&, const QString&, const int&)));
-
-  bool success = reader.openFile(filePath);
-  if(!success)
-  {
-    return false;
-  }
-
-  int err = 0;
-  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
-  DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
-  if(proxy.dataContainers.isEmpty())
-  {
-    return false;
-  }
-
-  QStringList dcNames = proxy.dataContainers.keys();
-  for(int i = 0; i < dcNames.size(); i++)
-  {
-    QString dcName = dcNames[i];
-    DataContainerProxy dcProxy = proxy.dataContainers[dcName];
-
-    // We want only data containers with geometries displayed
-    if(dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
-    {
-      proxy.dataContainers.remove(dcName);
-    }
-    else
-    {
-      QStringList amNames = dcProxy.attributeMatricies.keys();
-      for(int j = 0; j < amNames.size(); j++)
-      {
-        QString amName = amNames[j];
-        AttributeMatrixProxy amProxy = dcProxy.attributeMatricies[amName];
-
-        // We want only cell attribute matrices displayed
-        if(amProxy.amType != AttributeMatrix::Type::Cell)
-        {
-          dcProxy.attributeMatricies.remove(amName);
-          proxy.dataContainers[dcName] = dcProxy;
-        }
-      }
-    }
-  }
-
-  if(proxy.dataContainers.size() <= 0)
-  {
-    QMessageBox::critical(this, "Invalid Data",
-                          tr("IMF Viewer failed to open file '%1' because the file does not "
-                             "contain any data containers with a supported geometry.")
-                          .arg(fi.fileName()),
-                          QMessageBox::StandardButton::Ok);
-    return false;
-  }
-
-  launchSIMPLSelectionDialog(proxy, filePath);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString& filePath)
+void VSMainWidgetBase::launchHDF5SelectionDialog(const QString& filePath)
 {
   QSharedPointer<LoadHDF5FileDialog> dialog = QSharedPointer<LoadHDF5FileDialog>(new LoadHDF5FileDialog());
-  dialog->setProxy(proxy);
+  dialog->setHDF5FilePath(filePath);
   int ret = dialog->exec();
 
   if(ret == QDialog::Accepted)

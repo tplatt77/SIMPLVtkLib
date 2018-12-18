@@ -44,8 +44,9 @@
 // -----------------------------------------------------------------------------
 LoadHDF5FileDialog::LoadHDF5FileDialog(QWidget* parent)
 : QDialog(parent)
+, m_Ui(new Ui::LoadHDF5FileDialog)
 {
-  setupUi(this);
+  m_Ui->setupUi(this);
 
   setupGui();
 }
@@ -62,77 +63,18 @@ LoadHDF5FileDialog::~LoadHDF5FileDialog()
 // -----------------------------------------------------------------------------
 void LoadHDF5FileDialog::setupGui()
 {
-  DREAM3DFileTreeModel* model = new DREAM3DFileTreeModel();
-  connect(model, &DREAM3DFileTreeModel::dataChanged, [=] {
-    bool allChecked = true;
-    Qt::CheckState checkState = Qt::Unchecked;
-    for(int i = 0; i < model->rowCount(); i++)
-    {
-      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-      if(model->getCheckState(dcIndex) == Qt::Checked)
-      {
-        checkState = Qt::PartiallyChecked;
-      }
-      else
-      {
-        allChecked = false;
-      }
-    }
+  m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(true);
 
-    if(allChecked == true)
-    {
-      checkState = Qt::Checked;
-    }
-
-    selectAllCB->blockSignals(true);
-    selectAllCB->setCheckState(checkState);
-    selectAllCB->blockSignals(false);
-
-    checkState == Qt::Unchecked ? loadBtn->setEnabled(false) : loadBtn->setEnabled(true);
-  });
-
-  connect(selectAllCB, &QCheckBox::stateChanged, [=](int state) {
-    Qt::CheckState checkState = static_cast<Qt::CheckState>(state);
-    if(checkState == Qt::PartiallyChecked)
-    {
-      selectAllCB->setCheckState(Qt::Checked);
-      return;
-    }
-
-    for(int i = 0; i < model->rowCount(); i++)
-    {
-      QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-      model->setData(dcIndex, checkState, Qt::CheckStateRole);
-    }
-  });
-
-  treeView->setModel(model);
-
-  connect(loadBtn, &QPushButton::clicked, [=] { accept(); });
-
-  connect(cancelBtn, &QPushButton::clicked, [=] { reject(); });
-
-  loadBtn->setDisabled(true);
+  connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::loadBtnClicked, this, &LoadHDF5FileDialog::accept);
+  connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::cancelBtnClicked, this, &LoadHDF5FileDialog::reject);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void LoadHDF5FileDialog::setProxy(DataContainerArrayProxy proxy)
+void LoadHDF5FileDialog::setHDF5FilePath(const QString &filePath)
 {
-  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(treeView->model());
-  if(model != nullptr)
-  {
-    model->populateTreeWithProxy(proxy);
-    selectAllCB->setChecked(true);
-
-    QModelIndexList indexes = model->match(model->index(0, 0), Qt::DisplayRole, "*", -1, Qt::MatchWildcard | Qt::MatchRecursive);
-    for(int i = 0; i < indexes.size(); i++)
-    {
-      QModelIndex index = indexes[i];
-      treeView->expand(index);
-    }
-  }
+  m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
 
 // -----------------------------------------------------------------------------
@@ -140,11 +82,5 @@ void LoadHDF5FileDialog::setProxy(DataContainerArrayProxy proxy)
 // -----------------------------------------------------------------------------
 DataContainerArrayProxy LoadHDF5FileDialog::getDataStructureProxy()
 {
-  DREAM3DFileTreeModel* model = static_cast<DREAM3DFileTreeModel*>(treeView->model());
-  if(model == nullptr)
-  {
-    return DataContainerArrayProxy();
-  }
-
-  return model->getModelProxy();
+  return m_Ui->loadHDF5DataWidget->getProxy();
 }

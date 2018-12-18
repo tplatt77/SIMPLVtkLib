@@ -54,13 +54,11 @@ public:
   LoadHDF5DataPage(QWidget* parent = 0);
   ~LoadHDF5DataPage();
 
-  Q_PROPERTY(DataContainerArrayProxy Proxy READ getProxy WRITE setProxy NOTIFY proxyChanged)
-
   /**
    * @brief getLoadProxy
    * @return
    */
-  DataContainerArrayProxy getProxy();
+  DataContainerArrayProxy getProxy() const;
 
   /**
    * @brief setProxy
@@ -99,23 +97,10 @@ protected slots:
   /**
    * @brief modelDataChanged
    */
-  void modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
-
-  /**
-   * @brief selectAllStateChanged
-   */
-  void selectAllStateChanged(int state);
-
-  /**
-   * @brief proxyInitFinished
-   */
-  void proxyInitFinished();
+  void proxyChanged(DataContainerArrayProxy proxy);
 
 protected:
   void setupGui();
-
-signals:
-  void proxyChanged(DataContainerArrayProxy proxy);
 
 private:
   QSharedPointer<Ui::LoadHDF5DataPage> m_Ui;
@@ -128,13 +113,6 @@ private:
   QDateTime m_ProxyLastModified;
 
   QFutureWatcher<DataContainerArrayProxy> m_ProxyInitWatcher;
-
-  /**
-   * @brief openDREAM3DFile
-   * @param filePath
-   * @param instance
-   */
-  DataContainerArrayProxy readDCAProxy(const QString& filePath);
 
 public:
   LoadHDF5DataPage(const LoadHDF5DataPage&) = delete;    // Copy Constructor Not Implemented
