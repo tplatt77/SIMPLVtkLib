@@ -34,7 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "GenericMetadataPage.h"
-#include "ImportData/ImportDataWizard.h"
+#include "ImportMontage/ImportMontageWizard.h"
 
 #include <QtCore/QDir>
 
@@ -42,7 +42,7 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
-#include "ImportDataWizard.h"
+#include "ImportMontageWizard.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -192,6 +192,6 @@ void GenericMetadataPage::registerFields()
 // -----------------------------------------------------------------------------
 int GenericMetadataPage::nextId() const
 {
-  return ImportDataWizard::WizardPages::DataDisplayOptions;
+  return ImportMontageWizard::WizardPages::DataDisplayOptions;
 }
 

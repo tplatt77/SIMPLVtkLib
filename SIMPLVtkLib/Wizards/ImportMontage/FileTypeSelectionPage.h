@@ -42,7 +42,7 @@
 
 #include "ui_FileTypeSelectionPage.h"
 
-#include "ImportDataWizard.h"
+#include "ImportMontageWizard.h"
 
 class FileTypeSelectionPage : public QWizardPage
 {
@@ -59,7 +59,7 @@ class FileTypeSelectionPage : public QWizardPage
 
     ~FileTypeSelectionPage() override;
 
-    Q_PROPERTY(ImportDataWizard::InputType InputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
+    Q_PROPERTY(ImportMontageWizard::InputType InputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -90,14 +90,14 @@ class FileTypeSelectionPage : public QWizardPage
     bool validatePage() override;
 
   protected:
-    SIMPL_INSTANCE_PROPERTY(ImportDataWizard::InputType, InputType)
+    SIMPL_INSTANCE_PROPERTY(ImportMontageWizard::InputType, InputType)
 
   signals:
       /**
      * @brief inputTypeChanged
      * @param inputType
      */
-      void inputTypeChanged(ImportDataWizard::InputType inputType);
+      void inputTypeChanged(ImportMontageWizard::InputType inputType);
 
   private:
     QSharedPointer<Ui::FileTypeSelectionPage> m_Ui;

@@ -33,43 +33,52 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "ImportDataWizard.h"
+#pragma once
 
-#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/MontageSettings.h"
 
-#include "SIMPLVtkLib/Wizards/ImportData/GenericCollectionTypePage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/GenericMetadataPage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/FileTypeSelectionPage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/EnterDataFilePage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/DataDisplayOptionsPage.h"
-#include "SIMPLVtkLib/Wizards/ImportData/LoadHDF5DataPage.h"
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-ImportDataWizard::ImportDataWizard(QWidget* parent)
-: AbstractMontageWizard(parent)
+class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
 {
-  m_MontageSettings = new MontageSettings();
-  
-  setWindowTitle("Import Data Wizard");
+    Q_OBJECT
 
-  setPage(WizardPages::FileTypeSelection, new FileTypeSelectionPage);
+  public:
+    enum WizardPages
+    {
+      FileTypeSelection,
+      GenericCollectionType,
+      GenericMetadata,
+      DataFile,
+      DataDisplayOptions,
+      LoadHDF5Data
+    };
 
-  setPage(WizardPages::GenericCollectionType, new GenericCollectionTypePage);
+    enum InputType
+    {
+      Unknown,
+      DREAM3D,
+      GenericMontage,
+      Fiji,
+      Robomet
+    };
 
-  setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
+    /**
+     * @brief ImportMontageWizard
+     * @param parent
+     */
+    ImportMontageWizard(QWidget* parent = nullptr);
 
-  setPage(WizardPages::DataFile, new EnterDataFilePage);
+    ~ImportMontageWizard() override;
 
-  setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
+  private:
+    MontageSettings* m_MontageSettings = nullptr;
+  public:
+    ImportMontageWizard(const ImportMontageWizard&) = delete; // Copy Constructor Not Implemented
+    ImportMontageWizard(ImportMontageWizard&&) = delete;      // Move Constructor Not Implemented
+    ImportMontageWizard& operator=(const ImportMontageWizard&) = delete; // Copy Assignment Not Implemented
+    ImportMontageWizard& operator=(ImportMontageWizard&&) = delete;      // Move Assignment Not Implemented
+};
+Q_DECLARE_METATYPE(ImportMontageWizard::InputType)
 
-  setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
-
-  setStartId(WizardPages::FileTypeSelection);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-ImportDataWizard::~ImportDataWizard() = default;

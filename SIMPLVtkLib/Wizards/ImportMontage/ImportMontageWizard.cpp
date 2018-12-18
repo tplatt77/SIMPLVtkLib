@@ -33,75 +33,43 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "DataDisplayOptionsPage.h"
-#include "ImportDataWizard.h"
+#include "ImportMontageWizard.h"
 
-#include <QtCore/QDir>
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
-#include <QtWidgets/QFileSystemModel>
-#include <QtWidgets/QCompleter>
-#include <QtWidgets/QFileDialog>
+#include "SIMPLVtkLib/Wizards/ImportMontage/GenericCollectionTypePage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/GenericMetadataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/FileTypeSelectionPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterDataFilePage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/LoadHDF5DataPage.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataDisplayOptionsPage::DataDisplayOptionsPage(QWidget* parent)
-  : QWizardPage(parent)
-  , m_Ui(new Ui::DataDisplayOptionsPage)
+ImportMontageWizard::ImportMontageWizard(QWidget* parent)
+: AbstractMontageWizard(parent)
 {
-  m_Ui->setupUi(this);
+  m_MontageSettings = new MontageSettings();
+  
+  setWindowTitle("Import Montage Wizard");
 
-  setupGui();
+  setPage(WizardPages::FileTypeSelection, new FileTypeSelectionPage);
 
-  registerFields();
+  setPage(WizardPages::GenericCollectionType, new GenericCollectionTypePage);
+
+  setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
+
+  setPage(WizardPages::DataFile, new EnterDataFilePage);
+
+  setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
+
+  setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
+
+  setStartId(WizardPages::FileTypeSelection);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataDisplayOptionsPage::~DataDisplayOptionsPage() = default;
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::setupGui()
-{
-  connectSignalsSlots();
-
-  // Set the default radio button selection
-  m_Ui->displayMontageRB->setChecked(true);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::connectSignalsSlots()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool DataDisplayOptionsPage::isComplete() const
-{
-  bool result = true;
-  return result;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::registerFields()
-{
-  registerField("DisplayMontage", m_Ui->displayMontageRB);
-  registerField("DisplaySideBySide", m_Ui->sideBySideRB);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int DataDisplayOptionsPage::nextId() const
-{
-  return -1;
-}
-
+ImportMontageWizard::~ImportMontageWizard() = default;

@@ -33,8 +33,8 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "FileTypeSelectionPage.h"
-#include "ImportDataWizard.h"
+#include "DataDisplayOptionsPage.h"
+#include "ImportMontageWizard.h"
 
 #include <QtCore/QDir>
 
@@ -45,10 +45,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
-: QWizardPage(parent)
-, m_InputType(ImportDataWizard::InputType::Unknown)
-, m_Ui(new Ui::FileTypeSelectionPage)
+DataDisplayOptionsPage::DataDisplayOptionsPage(QWidget* parent)
+  : QWizardPage(parent)
+  , m_Ui(new Ui::DataDisplayOptionsPage)
 {
   m_Ui->setupUi(this);
 
@@ -60,30 +59,30 @@ FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FileTypeSelectionPage::~FileTypeSelectionPage() = default;
+DataDisplayOptionsPage::~DataDisplayOptionsPage() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void FileTypeSelectionPage::setupGui()
+void DataDisplayOptionsPage::setupGui()
 {
-	connectSignalsSlots();
+  connectSignalsSlots();
 
-	// Set the default radio button selection
-  m_Ui->imageFileListRB->setChecked(true);
+  // Set the default radio button selection
+  m_Ui->displayMontageRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void FileTypeSelectionPage::connectSignalsSlots()
+void DataDisplayOptionsPage::connectSignalsSlots()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool FileTypeSelectionPage::isComplete() const
+bool DataDisplayOptionsPage::isComplete() const
 {
   bool result = true;
   return result;
@@ -92,44 +91,17 @@ bool FileTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void FileTypeSelectionPage::registerFields()
+void DataDisplayOptionsPage::registerFields()
 {
-  registerField("UsingImageFileList", m_Ui->imageFileListRB);
-  registerField("UsingConfigFile", m_Ui->configFileRB);
-  registerField("UsingDREAM3DFile", m_Ui->dream3dFileRB);
-  registerField("InputType", this, "InputType", "inputTypeChanged");
+  registerField("DisplayMontage", m_Ui->displayMontageRB);
+  registerField("DisplaySideBySide", m_Ui->sideBySideRB);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool FileTypeSelectionPage::validatePage()
+int DataDisplayOptionsPage::nextId() const
 {
-  if (m_Ui->imageFileListRB->isChecked())
-  {
-    m_InputType = ImportDataWizard::InputType::GenericMontage;
-    emit inputTypeChanged(m_InputType);
-  }
-
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int FileTypeSelectionPage::nextId() const
-{
-  if (m_Ui->imageFileListRB->isChecked())
-	{
-		return ImportDataWizard::WizardPages::GenericCollectionType;
-	}
-  else if (m_Ui->configFileRB->isChecked() || m_Ui->dream3dFileRB->isChecked())
-	{
-    return ImportDataWizard::WizardPages::DataFile;
-	}
-	else
-	{
-		return -1;
-	}
+  return -1;
 }
 

@@ -47,7 +47,7 @@
 #include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
 
-#include "ImportDataWizard.h"
+#include "ImportMontageWizard.h"
 
 // Initialize private static member variable
 QString EnterDataFilePage::m_OpenDialogLastDirectory = "";
@@ -173,22 +173,22 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 
     if (ext == "dream3d")
     {
-      setField("InputType", ImportDataWizard::InputType::DREAM3D);
+      setField("InputType", ImportMontageWizard::InputType::DREAM3D);
       setFinalPage(false);
     }
     else if (ext == "txt")
     {
-      setField("InputType", ImportDataWizard::InputType::Fiji);
+      setField("InputType", ImportMontageWizard::InputType::Fiji);
       setFinalPage(false);
     }
     else if (ext == "csv")
     {
-      setField("InputType", ImportDataWizard::InputType::Robomet);
+      setField("InputType", ImportMontageWizard::InputType::Robomet);
       setFinalPage(false);
     }
     else
     {
-      setField("InputType", ImportDataWizard::InputType::Unknown);
+      setField("InputType", ImportMontageWizard::InputType::Unknown);
       setFinalPage(false);
     }
   }
@@ -222,14 +222,14 @@ QString EnterDataFilePage::getInputDirectory()
 // -----------------------------------------------------------------------------
 int EnterDataFilePage::nextId() const
 {
-  ImportDataWizard::InputType inputType = field("InputType").value<ImportDataWizard::InputType>();
-  if(inputType == ImportDataWizard::InputType::DREAM3D)
+  ImportMontageWizard::InputType inputType = field("InputType").value<ImportMontageWizard::InputType>();
+  if(inputType == ImportMontageWizard::InputType::DREAM3D)
   {
-    return ImportDataWizard::WizardPages::LoadHDF5Data;
+    return ImportMontageWizard::WizardPages::LoadHDF5Data;
   }
-  else if(inputType == ImportDataWizard::InputType::Fiji || inputType == ImportDataWizard::InputType::Robomet)
+  else if(inputType == ImportMontageWizard::InputType::Fiji || inputType == ImportMontageWizard::InputType::Robomet)
   {
-    return ImportDataWizard::WizardPages::DataDisplayOptions;
+    return ImportMontageWizard::WizardPages::DataDisplayOptions;
   }
   else
   {

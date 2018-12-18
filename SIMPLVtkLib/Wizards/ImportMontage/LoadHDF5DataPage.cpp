@@ -45,9 +45,9 @@
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 #include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileTreeModel.h"
-#include "SIMPLVtkLib/Wizards/ImportData/DataDisplayOptionsPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
 
-#include "ImportDataWizard.h"
+#include "ImportMontageWizard.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -202,7 +202,7 @@ int LoadHDF5DataPage::nextId() const
 
   if (checkCount > 1)
   {
-    return ImportDataWizard::WizardPages::DataDisplayOptions;
+    return ImportMontageWizard::WizardPages::DataDisplayOptions;
   }
 
   return -1;

@@ -11,4 +11,4 @@ set(${PROJECT_NAME}_Wizards_SRCS
 cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/Wizards" "${${PROJECT_NAME}_Wizards_HDRS}" "${${PROJECT_NAME}_Wizards_SRCS}" "0")
 
   # -- Include the Generic Montage sources
-include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportData/SourceList.cmake)
+include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportMontage/SourceList.cmake)
