@@ -127,8 +127,8 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			if (!image_dimensions_determined)
 			{
 				QImage image(imageFName);
-				image_width = image.width() * (100.0 - m_tileOverlap);
-				image_height = image.height() * (100.0 - m_tileOverlap);
+				image_width = image.width() * ((100.0 - m_tileOverlap) / 100.0);
+				image_height = image.height() * ((100.0 - m_tileOverlap) / 100.0);
 			}
 		}
 	}

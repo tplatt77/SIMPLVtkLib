@@ -77,6 +77,8 @@ void GenericCollectionTypePage::connectSignalsSlots()
   connect(m_Ui->orderCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
     emit completeChanged();
   });
+
+  connect(m_Ui->dream3dFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -154,6 +156,14 @@ bool GenericCollectionTypePage::isComplete() const
     }
   }
 
+  if (m_Ui->dream3dFileNameLE->isEnabled())
+  {
+	  if (m_Ui->dream3dFileNameLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
   return result;
 }
 
@@ -164,4 +174,5 @@ void GenericCollectionTypePage::registerFields()
 {
 	registerField("montageType", m_Ui->collectionTypeCB);
 	registerField("montageOrder", m_Ui->orderCB);
+	registerField("dream3dFileName", m_Ui->dream3dFileNameLE);
 }
