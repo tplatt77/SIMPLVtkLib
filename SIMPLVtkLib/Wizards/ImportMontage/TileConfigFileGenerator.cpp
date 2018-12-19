@@ -35,6 +35,7 @@
 
 
 #include <stdlib.h>
+#include <math.h>
 
 #include <fstream>
 #include <iostream>
@@ -133,6 +134,28 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 		}
 	}
 
+	// Set up the padding to handle case of preceding 0s
+	qint32 paddingDigits = m_fileListInfo.PaddingDigits;
+	QString padding_i = "";
+	QString padding_j = "";
+	qint32 total_digits = qint32(ceil(log10(m_gridSizeX - m_fileListInfo.StartIndex - 1)))
+		+ qint32(ceil(log10(m_gridSizeY - m_fileListInfo.StartIndex - 1)));
+	if (total_digits < paddingDigits)
+	{
+		qint32 diff_digits = paddingDigits - total_digits;
+		for (int i = 0; i < diff_digits; i++)
+		{
+			if (i % 2 == 0)
+			{
+				padding_i.append("0");
+			}
+			else
+			{
+				padding_j.append("0");
+			}
+		}
+	}
+
 	// Set up the output file
 	std::ofstream outputFile;
 	std::stringstream ss;
@@ -195,8 +218,10 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 				outputFile << m_fileListInfo.FilePrefix.toStdString();
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
+					outputFile << padding_i.toStdString();
 					outputFile << i;
 				}
+				outputFile << padding_j.toStdString();
 				outputFile << j;
 				outputFile << m_fileListInfo.FileSuffix.toStdString();
 				outputFile << "." << m_fileListInfo.FileExtension.toStdString();
@@ -251,9 +276,11 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			for (int y = 0; y < m_gridSizeY; y++)
 			{
 				outputFile << m_fileListInfo.FilePrefix.toStdString();
+				outputFile << padding_i.toStdString();
 				outputFile << i;
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
+					outputFile << padding_j.toStdString();
 					outputFile << j;
 				}
 				outputFile << m_fileListInfo.FileSuffix.toStdString();
