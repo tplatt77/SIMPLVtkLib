@@ -486,6 +486,15 @@ bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataCon
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  m_Controller->importPipelineOutput(pipeline, dca);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importVTKData(const QString &filePath)
 {
   QFileInfo fi(filePath);

@@ -177,6 +177,14 @@ public:
   bool importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca);
 
   /**
+   * @brief importPipelineOutput
+   * @param pipeline
+   * @param dca
+   * @return
+   */
+  bool importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
+  /**
    * @brief importVTKData
    * @param filePath
    * @return
