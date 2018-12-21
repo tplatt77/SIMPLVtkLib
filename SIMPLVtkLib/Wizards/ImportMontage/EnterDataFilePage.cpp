@@ -128,7 +128,7 @@ void EnterDataFilePage::selectBtn_clicked()
   QString title;
   if (usingConfigFile)
   {
-    filter = tr("Fiji Configuration File (*.csv);;Robomet Configuration File (*.csv);;All Files (*.*)");
+    filter = tr("Fiji Configuration File (*.csv *.txt);;Robomet Configuration File (*.csv);;All Files (*.*)");
     title = "Select a configuration file";
   }
   else

@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
@@ -19,6 +20,7 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp
