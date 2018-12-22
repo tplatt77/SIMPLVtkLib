@@ -205,7 +205,7 @@ DataContainerArrayProxy VSLoadHDF5DataWidget::readDCAProxy(const QString& filePa
 
   if(proxy.dataContainers.size() <= 0)
   {
-    m_Ui->errLabel->setText("Failed to load DREAM3D file '%1' because the file does not contain any data containers with a supported geometry.");
+    m_Ui->errLabel->setText(tr("Failed to load DREAM3D file '%1' because the file does not contain any data containers with a supported geometry.").arg(filePath));
     m_Ui->errLabel->show();
     return DataContainerArrayProxy();
   }
