@@ -52,6 +52,9 @@
 
 #include "SIMPLVtkLib/Wizards/ImportMontage/TileConfigFileGenerator.h"
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
 	AbstractFilter::Pointer itkMontageFilter)
 {
@@ -59,17 +62,59 @@ MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
 	m_pipeline = pipeline;
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
+	AbstractFilter::Pointer importConfigFileFilter,
+	AbstractFilter::Pointer itkMontageFilter)
+{
+	m_importConfigFileFilter = importConfigFileFilter;
+	m_itkMontageFilter = itkMontageFilter;
+	m_pipeline = pipeline;
+	m_configFile = true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 MontageWorker::~MontageWorker()
 {
 
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void MontageWorker::process()
 {
 	if (m_itkMontageFilter == nullptr)
 	{
 		return;
 	}
+	if (m_configFile)
+	{
+		if (m_importConfigFileFilter == nullptr)
+		{
+			return;
+		}
+		m_pipeline->pushBack(m_importConfigFileFilter);
+		m_importConfigFileFilter->preflight();
+		DataContainerArray::Pointer dca = m_importConfigFileFilter->getDataContainerArray();
+		QStringList dcNames = dca->getDataContainerNames();
+		QVariant var;
+		bool propWasSet = false;
+
+		// Set the list of image data containers
+		var.setValue(dcNames);
+		propWasSet = m_itkMontageFilter->setProperty("ImageDataContainers", var);
+		if (!propWasSet)
+		{
+			qDebug() << "Property was not set for ImageDataContainers";
+			return;
+		}
+	}
+
 	m_pipeline->pushBack(m_itkMontageFilter);
 	m_pipeline->execute();
 
