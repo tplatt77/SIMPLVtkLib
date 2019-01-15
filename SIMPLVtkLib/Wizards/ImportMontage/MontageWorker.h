@@ -42,8 +42,11 @@ class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
 public:
-	MontageWorker(FilterPipeline::Pointer pipeline, AbstractFilter::Pointer itkMontageFilter);
-	MontageWorker(FilterPipeline::Pointer pipeline,
+	MontageWorker(DataContainerArray::Pointer dca,
+		FilterPipeline::Pointer pipeline,
+		AbstractFilter::Pointer itkMontageFilter);
+	MontageWorker(DataContainerArray::Pointer dca, 
+		FilterPipeline::Pointer pipeline,
 		AbstractFilter::Pointer importConfigFileFilter,
 		AbstractFilter::Pointer itkMontageFilter);
 	~MontageWorker();
@@ -55,6 +58,7 @@ signals:
 public slots:
 	void process();
 private:
+	DataContainerArray::Pointer m_dataContainerArray;
 	AbstractFilter::Pointer m_importConfigFileFilter;
 	AbstractFilter::Pointer m_itkMontageFilter;
 	FilterPipeline::Pointer m_pipeline;

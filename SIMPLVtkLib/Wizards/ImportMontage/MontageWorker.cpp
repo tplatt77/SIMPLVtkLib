@@ -55,20 +55,33 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
+MontageWorker::MontageWorker(DataContainerArray::Pointer dca,
+	FilterPipeline::Pointer pipeline,
 	AbstractFilter::Pointer itkMontageFilter)
 {
+	m_dataContainerArray = DataContainerArray::New();
+	for (DataContainer::Pointer dc : dca->getDataContainers())
+	{
+		m_dataContainerArray->addDataContainer(dc);
+	}
 	m_itkMontageFilter = itkMontageFilter;
 	m_pipeline = pipeline;
+	m_configFile = false;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
+MontageWorker::MontageWorker(DataContainerArray::Pointer dca,
+	FilterPipeline::Pointer pipeline,
 	AbstractFilter::Pointer importConfigFileFilter,
 	AbstractFilter::Pointer itkMontageFilter)
 {
+	m_dataContainerArray = DataContainerArray::New();
+	for (DataContainer::Pointer dc : dca->getDataContainers())
+	{
+		m_dataContainerArray->addDataContainer(dc);
+	}
 	m_importConfigFileFilter = importConfigFileFilter;
 	m_itkMontageFilter = itkMontageFilter;
 	m_pipeline = pipeline;
@@ -114,7 +127,13 @@ void MontageWorker::process()
 			return;
 		}
 	}
-
+	DataContainerArray::Pointer dca = m_itkMontageFilter->getDataContainerArray();
+	m_dataContainerArray = DataContainerArray::New();
+	for (DataContainer::Pointer dc : dca->getDataContainers())
+	{
+		m_dataContainerArray->addDataContainer(dc);
+	}
+	m_itkMontageFilter->setDataContainerArray(m_dataContainerArray);
 	m_pipeline->pushBack(m_itkMontageFilter);
 	m_pipeline->execute();
 

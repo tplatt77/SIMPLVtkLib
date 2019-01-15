@@ -178,8 +178,8 @@ bool GenericMetadataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void GenericMetadataPage::registerFields()
 {
-	registerField("numOfRows", m_Ui->numOfRowsSB);
-	registerField("numOfCols", m_Ui->numOfColsSB);
+	registerField("numOfRowsGeneric", m_Ui->numOfRowsSB);
+	registerField("numOfColsGeneric", m_Ui->numOfColsSB);
 	registerField("tileOverlap", m_Ui->tileOverlapSB);
   registerField("GenericFileListInfo", this, "FileListInfo", "fileListInfoChanged");
 	//registerField("tilesDirectory", m_Ui->tilesDirLE);

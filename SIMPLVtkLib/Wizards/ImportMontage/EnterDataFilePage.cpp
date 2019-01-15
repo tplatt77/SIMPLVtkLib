@@ -77,6 +77,20 @@ EnterDataFilePage::~EnterDataFilePage() = default;
 void EnterDataFilePage::setupGui()
 {
 	connectSignalsSlots();
+
+	m_Ui->numOfRowsSB->setMinimum(1);
+	m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
+
+	m_Ui->numOfColsSB->setMinimum(1);
+	m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
+
+	// Disable both group boxes by default and only enable when needed
+	m_Ui->configFileMetadata->setVisible(false);
+	m_Ui->configFileMetadata->setDisabled(true);
+	m_Ui->roboMetMetadata->setVisible(false);
+	m_Ui->roboMetMetadata->setDisabled(true);
+	m_Ui->dream3dMetadata->setVisible(false);
+	m_Ui->dream3dMetadata->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -90,6 +104,11 @@ void EnterDataFilePage::connectSignalsSlots()
   m_Ui->dataFileLE->setCompleter(com);
   connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterDataFilePage::dataFile_textChanged);
   connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &EnterDataFilePage::dataFile_textChanged);
+
+  connect(m_Ui->sliceNumberLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -106,6 +125,47 @@ bool EnterDataFilePage::isComplete() const
 		  result = false;
 	  }
   }
+
+  if (m_Ui->numOfRowsSB->isEnabled())
+  {
+	  if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
+
+  if (m_Ui->numOfColsSB->isEnabled())
+  {
+	  if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
+
+  if (m_Ui->sliceNumberLE->isEnabled())
+  {
+	  if (m_Ui->sliceNumberLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+   
+  if (m_Ui->imageFilePrefixLE->isEnabled())
+  {
+	  if (m_Ui->imageFilePrefixLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
+  if (m_Ui->imageFileExtensionLE->isEnabled())
+  {
+	  if (m_Ui->imageFileExtensionLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
   return result;
 }
 
@@ -115,6 +175,22 @@ bool EnterDataFilePage::isComplete() const
 void EnterDataFilePage::registerFields()
 {
   registerField("DataFilePath", m_Ui->dataFileLE);
+
+  // Fiji / RoboMet
+  registerField("numOfRows", m_Ui->numOfRowsSB);
+  registerField("numOfCols", m_Ui->numOfColsSB);
+
+  // RoboMet
+  registerField("sliceNumber", m_Ui->sliceNumberLE);
+  registerField("imageFilePrefix", m_Ui->imageFilePrefixLE);
+  registerField("imageFileSuffix", m_Ui->imageFileSuffixLE);
+  registerField("imageFileExtension", m_Ui->imageFileExtensionLE);
+
+  // DREAM3D
+  registerField("performMontageDream3dFile", m_Ui->performMontageCB);
+  registerField("imageDataContainerPrefix", m_Ui->imageDataContainerPrefixLE);
+  registerField("cellAttrMatrixName", m_Ui->cellAttrMatrixNameLE);
+  registerField("imageArrayName", m_Ui->imageArrayNameLE);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,6 +236,14 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
 	QString inputPath = validator->convertToAbsolutePath(text);
 
+	// Disable group boxes by default and only enable when needed
+	m_Ui->configFileMetadata->setVisible(false);
+	m_Ui->configFileMetadata->setDisabled(true);
+	m_Ui->roboMetMetadata->setVisible(false);
+	m_Ui->roboMetMetadata->setDisabled(true);
+	m_Ui->dream3dMetadata->setVisible(false);
+	m_Ui->dream3dMetadata->setDisabled(true);
+
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
 	{
 	}
@@ -175,16 +259,26 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
     {
       setField("InputType", ImportMontageWizard::InputType::DREAM3D);
       setFinalPage(false);
+	  m_Ui->configFileMetadata->setVisible(true);
+	  m_Ui->configFileMetadata->setDisabled(false);
+	  m_Ui->dream3dMetadata->setVisible(true);
+	  m_Ui->dream3dMetadata->setDisabled(false);
     }
     else if (ext == "txt")
     {
       setField("InputType", ImportMontageWizard::InputType::Fiji);
       setFinalPage(false);
+	  m_Ui->configFileMetadata->setVisible(true);
+	  m_Ui->configFileMetadata->setDisabled(false);
     }
     else if (ext == "csv")
     {
       setField("InputType", ImportMontageWizard::InputType::Robomet);
       setFinalPage(false);
+	  m_Ui->configFileMetadata->setVisible(true);
+	  m_Ui->configFileMetadata->setDisabled(false);
+	  m_Ui->roboMetMetadata->setVisible(true);
+	  m_Ui->roboMetMetadata->setDisabled(false);
     }
     else
     {

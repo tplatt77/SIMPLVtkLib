@@ -156,14 +156,6 @@ bool GenericCollectionTypePage::isComplete() const
     }
   }
 
-  if (m_Ui->dream3dFileNameLE->isEnabled())
-  {
-	  if (m_Ui->dream3dFileNameLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
   return result;
 }
 
