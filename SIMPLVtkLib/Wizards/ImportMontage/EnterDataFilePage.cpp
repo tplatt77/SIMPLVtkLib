@@ -84,6 +84,9 @@ void EnterDataFilePage::setupGui()
 	m_Ui->numOfColsSB->setMinimum(1);
 	m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
 
+	m_Ui->tileOverlapSB->setMinimum(0);
+	m_Ui->tileOverlapSB->setMaximum(100);
+
 	// Disable both group boxes by default and only enable when needed
 	m_Ui->configFileMetadata->setVisible(false);
 	m_Ui->configFileMetadata->setDisabled(true);
@@ -109,6 +112,8 @@ void EnterDataFilePage::connectSignalsSlots()
   connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -137,6 +142,14 @@ bool EnterDataFilePage::isComplete() const
   if (m_Ui->numOfColsSB->isEnabled())
   {
 	  if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
+
+  if (m_Ui->tileOverlapSB->isEnabled())
+  {
+	  if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
 	  {
 		  result = false;
 	  }
@@ -191,6 +204,7 @@ void EnterDataFilePage::registerFields()
   registerField("imageDataContainerPrefix", m_Ui->imageDataContainerPrefixLE);
   registerField("cellAttrMatrixName", m_Ui->cellAttrMatrixNameLE);
   registerField("imageArrayName", m_Ui->imageArrayNameLE);
+  registerField("tileOverlapDream3dFile", m_Ui->tileOverlapSB);
 }
 
 // -----------------------------------------------------------------------------

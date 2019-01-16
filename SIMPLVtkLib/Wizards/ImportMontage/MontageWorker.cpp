@@ -55,37 +55,36 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(DataContainerArray::Pointer dca,
-	FilterPipeline::Pointer pipeline,
+MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
 	AbstractFilter::Pointer itkMontageFilter)
 {
-	m_dataContainerArray = DataContainerArray::New();
-	for (DataContainer::Pointer dc : dca->getDataContainers())
-	{
-		m_dataContainerArray->addDataContainer(dc);
-	}
 	m_itkMontageFilter = itkMontageFilter;
 	m_pipeline = pipeline;
 	m_configFile = false;
+	m_readDream3dFile = false;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(DataContainerArray::Pointer dca,
-	FilterPipeline::Pointer pipeline,
-	AbstractFilter::Pointer importConfigFileFilter,
-	AbstractFilter::Pointer itkMontageFilter)
+MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
+	AbstractFilter::Pointer inputFilter,
+	AbstractFilter::Pointer itkMontageFilter,
+	bool readDream3dFile)
 {
-	m_dataContainerArray = DataContainerArray::New();
-	for (DataContainer::Pointer dc : dca->getDataContainers())
+
+	if (readDream3dFile)
 	{
-		m_dataContainerArray->addDataContainer(dc);
+		m_dream3dFileReader = inputFilter;
 	}
-	m_importConfigFileFilter = importConfigFileFilter;
+	else
+	{
+		m_importConfigFileFilter = inputFilter;
+	}
 	m_itkMontageFilter = itkMontageFilter;
 	m_pipeline = pipeline;
-	m_configFile = true;
+	m_configFile = !readDream3dFile;
+	m_readDream3dFile = readDream3dFile;
 }
 
 // -----------------------------------------------------------------------------
@@ -127,13 +126,17 @@ void MontageWorker::process()
 			return;
 		}
 	}
-	DataContainerArray::Pointer dca = m_itkMontageFilter->getDataContainerArray();
-	m_dataContainerArray = DataContainerArray::New();
-	for (DataContainer::Pointer dc : dca->getDataContainers())
+
+	if (m_readDream3dFile)
 	{
-		m_dataContainerArray->addDataContainer(dc);
+		if (m_dream3dFileReader == nullptr)
+		{
+			return;
+		}
+
+		m_pipeline->pushBack(m_dream3dFileReader);
 	}
-	m_itkMontageFilter->setDataContainerArray(m_dataContainerArray);
+
 	m_pipeline->pushBack(m_itkMontageFilter);
 	m_pipeline->execute();
 

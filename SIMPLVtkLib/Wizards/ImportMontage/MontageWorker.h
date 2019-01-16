@@ -42,13 +42,12 @@ class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
 public:
-	MontageWorker(DataContainerArray::Pointer dca,
-		FilterPipeline::Pointer pipeline,
+	MontageWorker(FilterPipeline::Pointer pipeline,
 		AbstractFilter::Pointer itkMontageFilter);
-	MontageWorker(DataContainerArray::Pointer dca, 
-		FilterPipeline::Pointer pipeline,
-		AbstractFilter::Pointer importConfigFileFilter,
-		AbstractFilter::Pointer itkMontageFilter);
+	MontageWorker(FilterPipeline::Pointer pipeline,
+		AbstractFilter::Pointer inputFilter,
+		AbstractFilter::Pointer itkMontageFilter,
+		bool readDream3dFile);
 	~MontageWorker();
 signals:
 	void finished();
@@ -58,9 +57,10 @@ signals:
 public slots:
 	void process();
 private:
-	DataContainerArray::Pointer m_dataContainerArray;
 	AbstractFilter::Pointer m_importConfigFileFilter;
 	AbstractFilter::Pointer m_itkMontageFilter;
+	AbstractFilter::Pointer m_dream3dFileReader;
 	FilterPipeline::Pointer m_pipeline;
 	bool m_configFile;
+	bool m_readDream3dFile;
 };

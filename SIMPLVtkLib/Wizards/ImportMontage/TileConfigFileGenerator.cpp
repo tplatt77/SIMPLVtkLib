@@ -170,7 +170,7 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 	outputFile.open(outputFilePath, std::ios_base::out);
 
 	outputFile << "# Define the number of dimensions we are working on\n";
-	outputFile << "2\n\n";
+	outputFile << "dim = 2\n\n";
 	outputFile << "# Define the image coordinates\n";
 
 	// Snake / Down and right
