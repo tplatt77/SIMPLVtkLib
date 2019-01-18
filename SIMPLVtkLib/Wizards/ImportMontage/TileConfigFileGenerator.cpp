@@ -200,17 +200,17 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			// Handle switch for every other row (Snake pattern)
 			if (isSnake && y % 2 == 1)
 			{
-				isRight ? j = m_gridSizeX - 1: j = m_fileListInfo.StartIndex;
+				isRight ? j = m_gridSizeX * y + m_gridSizeX - 1: j = m_gridSizeX * y;
 				isRight ? delta_j = -1 : delta_j = 1;
 			}
 			else if (isSnake)
 			{
-				isRight ? j = m_fileListInfo.StartIndex :j = m_gridSizeX - 1;
+				isRight ? j = m_gridSizeX * y :j = m_gridSizeX * y + m_gridSizeX - 1;
 				isRight ? delta_j = 1 : delta_j = -1;
 			}
 			else
 			{
-				j = m_fileListInfo.StartIndex;
+				j = m_gridSizeX * y;
 			}
 
 			for (int x = 0; x < m_gridSizeX; x++)
@@ -219,7 +219,10 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
 					outputFile << padding_i.toStdString();
-					outputFile << i;
+					if (log10f(j) < 1)
+					{
+						outputFile << "0";
+					}
 				}
 				outputFile << padding_j.toStdString();
 				outputFile << j;
@@ -260,29 +263,32 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			// Handle switch for every other col (Snake pattern)
 			if (isSnake && x % 2 == 1)
 			{
-				isDown ? i = m_gridSizeY - 1 : i = m_fileListInfo.StartIndex;
+				isDown ? i = m_gridSizeY * x + m_gridSizeY - 1 : i = m_gridSizeY * x;
 				isDown ? delta_i = -1 : delta_i = 1;
 			}
 			else if (isSnake)
 			{
-				isDown ? i = m_fileListInfo.StartIndex : i = m_gridSizeY - 1;
+				isDown ? i = m_gridSizeY * x : i = m_gridSizeY * x + m_gridSizeY - 1;
 				isDown ? delta_i = 1 : delta_i = -1;
 			}
 			else
 			{
-				i = m_fileListInfo.StartIndex;
+				i = m_gridSizeY * x;
 			}
 
 			for (int y = 0; y < m_gridSizeY; y++)
 			{
 				outputFile << m_fileListInfo.FilePrefix.toStdString();
 				outputFile << padding_i.toStdString();
-				outputFile << i;
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
 					outputFile << padding_j.toStdString();
-					outputFile << j;
+					if (log10f(i) < 1)
+					{
+						outputFile << "0";
+					}
 				}
+				outputFile << i;
 				outputFile << m_fileListInfo.FileSuffix.toStdString();
 				outputFile << "." << m_fileListInfo.FileExtension.toStdString();
 				outputFile << "; ; (";
