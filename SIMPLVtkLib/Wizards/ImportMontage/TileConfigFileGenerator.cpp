@@ -213,6 +213,8 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 				j = m_gridSizeX * y;
 			}
 
+			j += m_fileListInfo.StartIndex;
+
 			for (int x = 0; x < m_gridSizeX; x++)
 			{
 				outputFile << m_fileListInfo.FilePrefix.toStdString();
@@ -275,6 +277,8 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 			{
 				i = m_gridSizeY * x;
 			}
+
+			i += m_fileListInfo.StartIndex;
 
 			for (int y = 0; y < m_gridSizeY; y++)
 			{
