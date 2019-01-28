@@ -229,6 +229,7 @@ set(SIMPLVtk_VtkComponents
 		vtkFiltersGeometry
     vtkFiltersModeling
     vtkFiltersSources
+	vtkFiltersTexture
     vtkGUISupportQt
     vtkRenderingCore
     vtkRenderingFreeType

@@ -51,6 +51,9 @@
 #include <vtkPointData.h>
 #include <vtkProperty.h>
 #include <vtkTextProperty.h>
+#include <vtkTexture.h>
+#include <vtkImageData.h>
+#include <vtkPlaneSource.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
@@ -756,6 +759,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     emit requiresRender();
 
     updateScalarBarVisibility();
+	updateTexture();
     return;
   }
 
@@ -828,6 +832,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
     m_LookupTable->setRange(range);
     m_ScalarBarActor->SetTitle(qPrintable(componentName));
+	updateTexture();
   }
   else if(index < numComponents)
   {
@@ -900,6 +905,7 @@ void VSFilterViewSettings::updateColorMode()
 
   mapper->Update();
   updateScalarBarVisibility();
+  updateTexture();
 }
 
 // -----------------------------------------------------------------------------
@@ -1244,6 +1250,7 @@ void VSFilterViewSettings::setupImageActors()
 void VSFilterViewSettings::setupDataSetActors()
 {
   VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+  VTK_PTR(vtkPlaneSource) plane = VTK_PTR(vtkPlaneSource)::New();
 
   vtkDataSetMapper* mapper;
   vtkActor* actor;
@@ -1284,15 +1291,16 @@ void VSFilterViewSettings::setupDataSetActors()
   m_DataSetFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
   m_OutlineFilter->SetInputConnection(m_Filter->getOutputPort());
 
+  updateTexture();
+
   if(getRepresentation() == Representation::Outline)
   {
     mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
   }
   else
   {
-    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
+	  mapper->SetInputConnection(plane->GetOutputPort());
   }
-
   actor->SetMapper(mapper);
 
   // Check if there are any arrays to use
@@ -1335,6 +1343,7 @@ void VSFilterViewSettings::setupDataSetActors()
 
   m_Mapper = mapper;
   m_Actor = actor;
+  m_Plane = plane;
 
   m_ActorType = ActorType::DataSet;
   updateTransform();
@@ -1399,6 +1408,21 @@ void VSFilterViewSettings::updateTransform()
     m_Actor->SetPosition(transform->getPosition());
     m_Actor->SetOrientation(transform->getRotation());
     m_Actor->SetScale(transform->getScale());
+  }
+  else if(ActorType::DataSet == m_ActorType)
+  {
+	  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+	  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+	  double bounds[6];
+	  imageData->GetBounds(bounds);
+	  int extent[6];
+	  imageData->GetExtent(extent);
+
+	  // Add half the image width to the xMin and half the image height to the yMin
+	  // This "matches" the origin of the Outline representation
+	  m_Actor->SetPosition(bounds[0] + 0.5 * extent[1], bounds[2] + 0.5 * extent[3], bounds[4] + 0.5 * extent[5]);
+	  m_Actor->SetOrientation(0.0, 0.0, 0.0);
+	  m_Actor->SetScale(extent[1], extent[3], extent[5]);
   }
   else
   {
@@ -1643,7 +1667,8 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
   }
   else
   {
-    getDataSetMapper()->SetInputConnection(m_DataSetFilter->GetOutputPort());
+    getDataSetMapper()->SetInputConnection(m_Plane->GetOutputPort());
+	updateTexture();
 
     if(type == Representation::SurfaceWithEdges)
     {
@@ -2542,4 +2567,34 @@ double VSFilterViewSettings::GetAlpha(VSFilterViewSettings::Collection collectio
   }
 
   return 1.0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::updateTexture()
+{
+	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+	VTK_PTR(vtkTexture) texture = VTK_PTR(vtkTexture)::New();
+
+	texture->InterpolateOn();
+	texture->SetInputData(imageData);
+	texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+
+	m_Texture = texture;
+	vtkActor* actor = getDataSetActor();
+	if(nullptr != actor)
+	{
+		if(!getActiveArrayName().isEmpty())
+		{
+			actor->SetTexture(m_Texture);
+		}
+		else
+		{
+			actor->GetProperty()->RemoveAllTextures();
+		}
+	}
+	
 }

@@ -51,6 +51,8 @@
 #include <vtkOutlineFilter.h>
 #include <vtkScalarBarActor.h>
 #include <vtkScalarBarWidget.h>
+#include <vtkTexture.h>
+#include <vtkPlaneSource.h>
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
@@ -926,6 +928,11 @@ protected:
    */
   void updateScalarBarVisibility();
 
+  /**
+   * @brief Update the texture
+   */
+  void updateTexture();
+
 private:
   VSAbstractFilter* m_Filter = nullptr;
   ActorType m_ActorType = ActorType::Invalid;
@@ -937,7 +944,9 @@ private:
   Representation m_Representation = Representation::Default;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
+  VTK_PTR(vtkTexture) m_Texture = nullptr;
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
+  VTK_PTR(vtkPlaneSource) m_Plane = nullptr;
   VSLookupTableController* m_LookupTable = nullptr;
   ScalarBarSetting m_ScalarBarSetting = ScalarBarSetting::OnSelection;
   double m_Alpha = 1.0;
