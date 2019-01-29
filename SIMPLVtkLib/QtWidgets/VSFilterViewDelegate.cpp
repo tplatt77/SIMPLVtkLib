@@ -274,16 +274,34 @@ void VSFilterViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
       textColor = SVStyle::Instance()->getQTreeViewItemSelectedNotActive_color();
       backgroundColor = SVStyle::Instance()->getQTreeViewItemSelectedNotActive_background_color();
     }
+
+	// If background and text color are invalid, switch to light blue background for selected
+	if(!backgroundColor.isValid() && !textColor.isValid())
+	{
+		backgroundColor.setRgb(135, 206, 250);
+	}
   }
   else if((option.state & QStyle::State_MouseOver))
   {
     textColor = SVStyle::Instance()->getQTreeViewItemHover_color();
     backgroundColor = SVStyle::Instance()->getQTreeViewItemHover_background_color();
+
+	// If background and text color are invalid, switch to light blue background for mouseover
+	if(!backgroundColor.isValid() && !textColor.isValid())
+	{
+		backgroundColor.setRgb(135, 206, 250);
+	}
   }
   else
   {
     textColor = SVStyle::Instance()->getQTreeViewItem_color();
     backgroundColor = SVStyle::Instance()->getQTreeViewItem_background_color();
+
+	// If background and text color are invalid, switch to white background
+	if(!backgroundColor.isValid() && !textColor.isValid())
+	{
+		backgroundColor.setRgb(255, 255, 255);
+	}
   }
 
   // Fill Background
