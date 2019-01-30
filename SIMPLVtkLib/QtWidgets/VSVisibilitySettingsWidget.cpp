@@ -63,6 +63,7 @@ void VSVisibilitySettingsWidget::setupGui()
   connect(m_Ui->representationCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(representationComboChanged(int)));
   connect(m_Ui->activeArrayCombo, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(arrayNameComboChanged(const QString&)));
   connect(m_Ui->activeComponentCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(arrayComponentComboChanged(int)));
+  connect(m_Ui->subsampleSB, SIGNAL(valueChanged(int)), this, SLOT(subsampleValueChanged(int)));
 
   connect(m_Ui->colorBtn, &VSColorButton::changedColor, this, &VSVisibilitySettingsWidget::colorButtonChanged);
 
@@ -531,6 +532,13 @@ void VSVisibilitySettingsWidget::listenSolidColor()
   }
 
   m_Ui->colorBtn->setColor(color, false);
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisibilitySettingsWidget::subsampleValueChanged(int value)
+{
+	VSFilterViewSettings::SetSubsampling(m_ViewSettings, value);
 }
 
 // -----------------------------------------------------------------------------

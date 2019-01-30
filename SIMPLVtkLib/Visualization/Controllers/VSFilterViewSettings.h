@@ -572,6 +572,13 @@ public:
   static void SetActiveComponentIndex(VSFilterViewSettings::Collection collection, int index);
 
   /**
+   * @brief Sets the subsampling for items in the collection
+   * @param collection
+   * @param index
+   */
+  static void SetSubsampling(VSFilterViewSettings::Collection collection, int value);
+
+  /**
    * @brief Returns the number of components for the given arrayName in the collection.
    * @param collection
    * @param arrayName
@@ -929,6 +936,11 @@ protected:
   void updateScalarBarVisibility();
 
   /**
+   * @brief Update the subsampling for the texture image
+   */
+  void setSubsampling(int value);
+
+  /**
    * @brief Update the texture
    */
   void updateTexture();
@@ -940,6 +952,7 @@ private:
   bool m_ShowFilter = true;
   QString m_ActiveArrayName;
   int m_ActiveComponent = -1;
+  int m_Subsampling = 1;
   ColorMapping m_MapColors = ColorMapping::NonColors;
   Representation m_Representation = Representation::Default;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;

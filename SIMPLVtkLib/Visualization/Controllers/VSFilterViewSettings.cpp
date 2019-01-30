@@ -54,6 +54,7 @@
 #include <vtkTexture.h>
 #include <vtkImageData.h>
 #include <vtkPlaneSource.h>
+#include <vtkExtractVOI.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
@@ -2294,6 +2295,27 @@ void VSFilterViewSettings::SetActiveComponentIndex(VSFilterViewSettings::Collect
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterViewSettings::SetSubsampling(VSFilterViewSettings::Collection collection, int value)
+{
+	for(VSFilterViewSettings* settings : collection)
+	{
+		settings->setSubsampling(value);
+	}
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setSubsampling(int value)
+{
+	m_Subsampling = value;
+	updateTexture();
+	emit requiresRender();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int VSFilterViewSettings::GetNumberOfComponents(VSFilterViewSettings::Collection collection, QString arrayName)
 {
   if(false == CheckComponentNamesCompatible(collection, arrayName))
@@ -2582,6 +2604,18 @@ void VSFilterViewSettings::updateTexture()
 	texture->InterpolateOn();
 	texture->SetInputData(imageData);
 	texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+
+	if(m_Subsampling > 1)
+	{
+		VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
+		int* inputDims = imageData->GetDimensions();
+		subsample->SetInputData(imageData);
+		subsample->SetSampleRate(m_Subsampling, m_Subsampling, m_Subsampling);
+		subsample->Update();
+
+		vtkImageData* extracted = subsample->GetOutput();
+		texture->SetInputData(extracted);
+	}
 
 	m_Texture = texture;
 	vtkActor* actor = getDataSetActor();
