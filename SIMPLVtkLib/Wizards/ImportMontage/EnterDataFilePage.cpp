@@ -47,6 +47,8 @@
 #include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
 
+#include "ImportMontage/ImportMontageConstants.h"
+
 #include "ImportMontageWizard.h"
 
 // Initialize private static member variable
@@ -187,24 +189,24 @@ bool EnterDataFilePage::isComplete() const
 // -----------------------------------------------------------------------------
 void EnterDataFilePage::registerFields()
 {
-  registerField("DataFilePath", m_Ui->dataFileLE);
+  registerField(ImportMontage::FieldNames::DataFilePath, m_Ui->dataFileLE);
 
   // Fiji / RoboMet
-  registerField("numOfRows", m_Ui->numOfRowsSB);
-  registerField("numOfCols", m_Ui->numOfColsSB);
+  registerField(ImportMontage::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
+  registerField(ImportMontage::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
 
   // RoboMet
-  registerField("sliceNumber", m_Ui->sliceNumberLE);
-  registerField("imageFilePrefix", m_Ui->imageFilePrefixLE);
-  registerField("imageFileSuffix", m_Ui->imageFileSuffixLE);
-  registerField("imageFileExtension", m_Ui->imageFileExtensionLE);
+  registerField(ImportMontage::FieldNames::SliceNumber, m_Ui->sliceNumberLE);
+  registerField(ImportMontage::FieldNames::ImageFilePrefix, m_Ui->imageFilePrefixLE);
+  registerField(ImportMontage::FieldNames::ImageFileSuffix, m_Ui->imageFileSuffixLE);
+  registerField(ImportMontage::FieldNames::ImageFileExtension, m_Ui->imageFileExtensionLE);
 
   // DREAM3D
-  registerField("performMontageDream3dFile", m_Ui->performMontageCB);
-  registerField("imageDataContainerPrefix", m_Ui->imageDataContainerPrefixLE);
-  registerField("cellAttrMatrixName", m_Ui->cellAttrMatrixNameLE);
-  registerField("imageArrayName", m_Ui->imageArrayNameLE);
-  registerField("tileOverlapDream3dFile", m_Ui->tileOverlapSB);
+  registerField(ImportMontage::FieldNames::PerformMontageDream3dFile, m_Ui->performMontageCB);
+  registerField(ImportMontage::FieldNames::ImageDataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
+  registerField(ImportMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
+  registerField(ImportMontage::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
+  registerField(ImportMontage::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
 }
 
 // -----------------------------------------------------------------------------
@@ -212,7 +214,7 @@ void EnterDataFilePage::registerFields()
 // -----------------------------------------------------------------------------
 void EnterDataFilePage::selectBtn_clicked()
 {
-  bool usingConfigFile = field("UsingConfigFile").toBool();
+  bool usingConfigFile = field(ImportMontage::FieldNames::UsingConfigFile).toBool();
 
   QString filter;
   QString title;
@@ -330,7 +332,7 @@ QString EnterDataFilePage::getInputDirectory()
 // -----------------------------------------------------------------------------
 int EnterDataFilePage::nextId() const
 {
-  ImportMontageWizard::InputType inputType = field("InputType").value<ImportMontageWizard::InputType>();
+  ImportMontageWizard::InputType inputType = field(ImportMontage::FieldNames::InputType).value<ImportMontageWizard::InputType>();
   if(inputType == ImportMontageWizard::InputType::DREAM3D)
   {
     return ImportMontageWizard::WizardPages::LoadHDF5Data;

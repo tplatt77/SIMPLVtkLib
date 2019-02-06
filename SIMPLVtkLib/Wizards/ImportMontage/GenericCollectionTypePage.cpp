@@ -35,6 +35,8 @@
 
 #include "GenericCollectionTypePage.h"
 
+#include "ImportMontage/ImportMontageConstants.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -164,7 +166,7 @@ bool GenericCollectionTypePage::isComplete() const
 // -----------------------------------------------------------------------------
 void GenericCollectionTypePage::registerFields()
 {
-	registerField("montageType", m_Ui->collectionTypeCB);
-	registerField("montageOrder", m_Ui->orderCB);
-	registerField("dream3dFileName", m_Ui->dream3dFileNameLE);
+  registerField(ImportMontage::FieldNames::MontageType, m_Ui->collectionTypeCB);
+  registerField(ImportMontage::FieldNames::MontageOrder, m_Ui->orderCB);
+  registerField(ImportMontage::FieldNames::DREAM3DFileName, m_Ui->dream3dFileNameLE);
 }

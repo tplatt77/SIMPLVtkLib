@@ -42,6 +42,7 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
+#include "ImportMontage/ImportMontageConstants.h"
 #include "ImportMontageWizard.h"
 
 // -----------------------------------------------------------------------------
@@ -178,13 +179,11 @@ bool GenericMetadataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void GenericMetadataPage::registerFields()
 {
-	registerField("numOfRowsGeneric", m_Ui->numOfRowsSB);
-	registerField("numOfColsGeneric", m_Ui->numOfColsSB);
-	registerField("tileOverlap", m_Ui->tileOverlapSB);
-  registerField("GenericFileListInfo", this, "FileListInfo", "fileListInfoChanged");
-	//registerField("tilesDirectory", m_Ui->tilesDirLE);
-	registerField("outputFileName", m_Ui->outputTextFileNameLE);
-	//registerField("fusionMethod", m_Ui->comboBox);
+  registerField(ImportMontage::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
+  registerField(ImportMontage::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
+  registerField(ImportMontage::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::FieldNames::GenericFileListInfo, this, "FileListInfo", "fileListInfoChanged");
+  registerField(ImportMontage::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
 }
 
 // -----------------------------------------------------------------------------

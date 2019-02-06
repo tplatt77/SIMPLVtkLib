@@ -47,6 +47,7 @@
 #include "SIMPLVtkLib/Dialogs/Utilities/DREAM3DFileTreeModel.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
 
+#include "ImportMontage/ImportMontageConstants.h"
 #include "ImportMontageWizard.h"
 
 // -----------------------------------------------------------------------------
@@ -86,7 +87,7 @@ void LoadHDF5DataPage::setupGui()
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::initializePage()
 {
-  QString filePath = field("DataFilePath").toString();
+  QString filePath = field(ImportMontage::FieldNames::DataFilePath).toString();
 
   m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
@@ -164,7 +165,7 @@ bool LoadHDF5DataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::registerFields()
 {
-  registerField("DREAM3DProxy", m_Ui->loadHDF5DataWidget, "Proxy", "proxyChanged");
+  registerField(ImportMontage::FieldNames::DREAM3DProxy, m_Ui->loadHDF5DataWidget, "Proxy", "proxyChanged");
 }
 
 // -----------------------------------------------------------------------------

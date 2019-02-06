@@ -42,6 +42,8 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
+#include "ImportMontage/ImportMontageConstants.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -94,10 +96,10 @@ bool FileTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 void FileTypeSelectionPage::registerFields()
 {
-  registerField("UsingImageFileList", m_Ui->imageFileListRB);
-  registerField("UsingConfigFile", m_Ui->configFileRB);
-  registerField("UsingDREAM3DFile", m_Ui->dream3dFileRB);
-  registerField("InputType", this, "InputType", "inputTypeChanged");
+  registerField(ImportMontage::FieldNames::UsingImageFileList, m_Ui->imageFileListRB);
+  registerField(ImportMontage::FieldNames::UsingConfigFile, m_Ui->configFileRB);
+  registerField(ImportMontage::FieldNames::UsingDREAM3DFile, m_Ui->dream3dFileRB);
+  registerField(ImportMontage::FieldNames::InputType, this, "InputType", "inputTypeChanged");
 }
 
 // -----------------------------------------------------------------------------

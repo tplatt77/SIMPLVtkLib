@@ -3,6 +3,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericCollectionTypePage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericMetadataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageConstants.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.h

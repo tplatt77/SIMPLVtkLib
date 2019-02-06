@@ -33,77 +33,46 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "DataDisplayOptionsPage.h"
-#include "ImportMontageWizard.h"
+#pragma once
 
-#include <QtCore/QDir>
+#if defined(_MSC_VER)
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+#endif
 
-#include <QtWidgets/QFileSystemModel>
-#include <QtWidgets/QCompleter>
-#include <QtWidgets/QFileDialog>
+#include <QtCore/QString>
 
-#include "ImportMontage/ImportMontageConstants.h"
+#include "SIMPLib/SIMPLib.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataDisplayOptionsPage::DataDisplayOptionsPage(QWidget* parent)
-  : QWizardPage(parent)
-  , m_Ui(new Ui::DataDisplayOptionsPage)
+namespace ImportMontage
 {
-  m_Ui->setupUi(this);
-
-  setupGui();
-
-  registerFields();
+  namespace FieldNames
+  {
+    const QString DisplayMontage("DisplayMontage");
+    const QString DisplaySideBySide("DisplaySideBySide");
+    const QString DataFilePath("DataFilePath");
+    const QString NumberOfRows("numOfRows");
+    const QString NumberOfColumns("numOfCols");
+    const QString SliceNumber("sliceNumber");
+    const QString ImageFilePrefix("imageFilePrefix");
+    const QString ImageFileSuffix("imageFileSuffix");
+    const QString ImageFileExtension("imageFileExtension");
+    const QString PerformMontageDream3dFile("performMontageDream3dFile");
+    const QString ImageDataContainerPrefix("imageDataContainerPrefix");
+    const QString CellAttributeMatrixName("cellAttrMatrixName");
+    const QString ImageArrayName("imageArrayName");
+    const QString UsingImageFileList("UsingImageFileList");
+    const QString UsingConfigFile("UsingConfigFile");
+    const QString UsingDREAM3DFile("UsingDREAM3DFile");
+    const QString InputType("InputType");
+    const QString MontageType("montageType");
+    const QString MontageOrder("montageOrder");
+    const QString DREAM3DFileName("dream3dFileName");
+    const QString TileOverlap("tileOverlap");
+    const QString GenericFileListInfo("GenericFileListInfo");
+    const QString OutputFileName("outputFileName");
+    const QString DREAM3DProxy("DREAM3DProxy");
+  }
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-DataDisplayOptionsPage::~DataDisplayOptionsPage() = default;
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::setupGui()
-{
-  connectSignalsSlots();
-
-  // Set the default radio button selection
-  m_Ui->displayMontageRB->setChecked(true);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::connectSignalsSlots()
-{
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool DataDisplayOptionsPage::isComplete() const
-{
-  bool result = true;
-  return result;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DataDisplayOptionsPage::registerFields()
-{
-  registerField(ImportMontage::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
-  registerField(ImportMontage::FieldNames::DisplaySideBySide, m_Ui->sideBySideRB);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int DataDisplayOptionsPage::nextId() const
-{
-  return -1;
-}
-
