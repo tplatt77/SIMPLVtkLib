@@ -36,6 +36,9 @@
 #include "VSFilterViewModel.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+
+#include <vtkImageData.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -749,4 +752,43 @@ QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelInd
   }
 
   return localModelIndices;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewModel::determineSubsampling(VSAbstractFilter* filter) const
+{
+
+	qint32 availableMemory = VSFilterViewSettings::getAvailableMemory();
+	int imageCount = m_FilterModel->getImageCount();
+	bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+
+	// Only works if this is a VSSIMPLDataContainerFilter
+	if(isSIMPL)
+	{
+		int subsamplingRate = 1;
+		VSSIMPLDataContainerFilter* simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+		qint32 imageSize = simplDataContainerFilter->getOutput()->GetActualMemorySize();
+		qint32 imageMemoryUsage = imageSize * imageCount;
+
+		while(imageMemoryUsage > availableMemory && subsamplingRate < 100)
+		{
+			subsamplingRate++;
+			imageSize /= subsamplingRate;
+
+			imageMemoryUsage = imageSize * imageCount;
+		}
+
+		if(subsamplingRate > 1)
+		{
+			VSFilterViewSettings::Collection filterViewSettingsCollection;
+			int i = 0;
+			for(auto iter = m_FilterViewSettings.begin(); iter != m_FilterViewSettings.end(); iter++, i++)
+			{
+				filterViewSettingsCollection.push_back(iter->second);
+			}
+			VSFilterViewSettings::SetSubsampling(filterViewSettingsCollection, subsamplingRate);
+		}
+	}
 }

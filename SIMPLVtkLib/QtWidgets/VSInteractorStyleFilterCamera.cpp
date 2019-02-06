@@ -108,6 +108,28 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::OnMouseWheelForward()
+{
+	determineSubsampling();
+
+	vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+	updateLinkedRenderWindows();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::OnMouseWheelBackward()
+{
+	determineSubsampling();
+
+	vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
+	updateLinkedRenderWindows();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSInteractorStyleFilterCamera::updateLinkedRenderWindows()
 {
   if(nullptr == m_ViewWidget)
@@ -618,4 +640,49 @@ void VSInteractorStyleFilterCamera::cancelScaling()
   {
     filter->getTransform()->scale(1.0 / m_ScaleAmt);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::determineSubsampling()
+{
+	// Check the memory available vs memory required for current subsampling rate
+	std::map<VSAbstractFilter*, VSFilterViewSettings*> allFilterViewSettings = m_ViewWidget->getAllFilterViewSettings();
+	qint32 availableMemory = VSFilterViewSettings::getAvailableMemory();
+	int imageCount = allFilterViewSettings.size();
+	bool isSIMPL = false;
+	VSSIMPLDataContainerFilter* simplDataContainerFilter;
+	VSFilterViewSettings::Collection filterViewSettingsCollection;
+	int i = 0;
+	for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++, i++)
+	{
+		filterViewSettingsCollection.push_back(iter->second);
+		if(!isSIMPL)
+		{
+			simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+			isSIMPL = simplDataContainerFilter;
+		}
+	}
+
+	// Only works if this is a VSSIMPLDataContainerFilter
+	if(isSIMPL)
+	{
+		int subsamplingRate = 1;
+		unsigned long imageSize = simplDataContainerFilter->getOutput()->GetActualMemorySize();
+		unsigned long imageMemoryUsage = imageSize * imageCount;
+
+		while(imageMemoryUsage > 0.75 * availableMemory && subsamplingRate < 100)
+		{
+			subsamplingRate++;
+			imageSize /= subsamplingRate;
+
+			imageMemoryUsage = imageSize * imageCount;
+		}
+
+		if(subsamplingRate > 1)
+		{
+			VSFilterViewSettings::SetSubsampling(filterViewSettingsCollection, subsamplingRate);
+		}
+	}
 }

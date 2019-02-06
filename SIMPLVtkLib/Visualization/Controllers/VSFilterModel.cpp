@@ -495,3 +495,22 @@ QFont VSFilterModel::getFilterFont(const QModelIndex& index) const
 
   return QFont();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterModel::getImageCount() const
+{
+	return m_imageCount;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterModel::setImageCount(int imageCount) 
+{
+	m_imageCount = imageCount;
+}
+
+
+

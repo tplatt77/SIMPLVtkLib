@@ -59,6 +59,10 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 double* VSFilterViewSettings::NULL_COLOR = new double[3]{0.0, 0.0, 0.0};
 QIcon* VSFilterViewSettings::s_SolidColorIcon = nullptr;
 QIcon* VSFilterViewSettings::s_CellDataIcon = nullptr;
@@ -2600,6 +2604,9 @@ void VSFilterViewSettings::updateTexture()
 	texture->SetInputData(imageData);
 	texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
 
+	// Check available memory
+	qint32 availableMemory = getAvailableMemory();
+
 	if(m_Subsampling > 1)
 	{
 		VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
@@ -2626,4 +2633,46 @@ void VSFilterViewSettings::updateTexture()
 		}
 	}
 	
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+qint32 VSFilterViewSettings::getAvailableMemory()
+{
+
+	QString system_info;
+	qint32 availableMemory;
+#ifdef _WIN32
+	MEMORYSTATUSEX memory_status;
+	ZeroMemory(&memory_status, sizeof(MEMORYSTATUSEX));
+	memory_status.dwLength = sizeof(MEMORYSTATUSEX);
+	if(GlobalMemoryStatusEx(&memory_status))
+	{
+		system_info.append(QString("Available RAM (Physical): %1 KB").arg(memory_status.ullAvailPhys / 1024));
+		availableMemory = memory_status.ullAvailPhys / 1024;
+	}
+	else
+	{
+		system_info.append("Unknown RAM");
+		availableMemory = -1;
+	}
+#elif __linux__
+	QProcess p;
+	p.start("awk", QStringList() << "/MemTotal/ { print $2 }"
+		<< "/proc/meminfo");
+	p.waitForFinished();
+	QString memory = p.readAllStandardOutput();
+	system_info.append(QString("; RAM: %1 MB").arg(memory.toLong() / 1024));
+	p.close();
+#elif __APPLE__
+	QProcess p;
+	p.start("sysctl", QStringList() << "kern.version"
+		<< "hw.physmem");
+	p.waitForFinished();
+	QString system_info = p.readAllStandardOutput();
+	p.close();
+#endif
+
+	return availableMemory;
 }

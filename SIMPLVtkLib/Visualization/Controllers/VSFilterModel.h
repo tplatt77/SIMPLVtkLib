@@ -233,6 +233,18 @@ public:
    * @return
    */
   Q_INVOKABLE QFont getFilterFont(const QModelIndex& index) const;
+  
+  /**
+   * @brief Returns the image count for the model
+   * @return
+   */
+  int getImageCount() const;
+
+  /**
+   * @brief Sets the image count for the model
+   * @param imageCount
+   */
+  void setImageCount(int imageCount);
 
 signals:
   void filterAdded(VSAbstractFilter* filter, bool currentFilter = false);
@@ -272,6 +284,7 @@ private slots:
 private:
   QSemaphore m_ModelLock;
   VSRootFilter* m_RootFilter = nullptr;
+  int m_imageCount;
 };
 
 Q_DECLARE_METATYPE(VSFilterModel)

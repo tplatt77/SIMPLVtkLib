@@ -655,6 +655,12 @@ public:
    */
   static double GetAlpha(VSFilterViewSettings::Collection collection);
 
+  /**
+   * @brief Returns the available physical memory on the system.
+   * @return
+   */
+  static qint32 VSFilterViewSettings::getAvailableMemory();
+
 public slots:
   /**
    * @brief Displays the vtkActor for this view

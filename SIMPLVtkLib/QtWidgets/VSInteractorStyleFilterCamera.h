@@ -81,6 +81,16 @@ public:
    * @brief Performs any necessary actions when the mouse is double clicked
    */
   void OnDoubleClick();
+  
+  /**
+   * @brief Performs any necessary actions when the mouse wheel is scrolled backward
+   */
+  void OnMouseWheelForward() override;
+
+  /**
+   * @brief Performs any necessary actions when the mouse wheel is scrolled backward
+   */
+  void OnMouseWheelBackward() override;
 
   /**
    * @brief Sets the VSAbstractViewWidget for selecting filters from
@@ -250,6 +260,11 @@ protected:
    * @brief Updates any linked vtkRenderWindows for the current view widget
    */
   void updateLinkedRenderWindows();
+
+  /**
+   * @brief Determine the amount of subsampling to perform, if any
+   */
+  void determineSubsampling();
 
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;

@@ -281,6 +281,12 @@ public:
    * @return
    */
   std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
+  
+  /**
+   * @brief Determine the subsampling rate for the images
+   * @param filter
+   */
+  void determineSubsampling(VSAbstractFilter* filter) const;
 
 signals:
   void viewSettingsCreated(VSFilterViewSettings*) const;

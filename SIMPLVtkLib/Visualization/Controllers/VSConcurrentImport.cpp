@@ -171,8 +171,13 @@ void VSConcurrentImport::partialWrappingThreadFinished()
   if(m_ThreadsRemaining <= 0)
   {
     m_ThreadCountLock.release();
+	
+	/* Get the size of the data containers and pass to filter model so it has the number of images */
+	int imageCount = m_WrappedDataContainers.size();
+	m_Controller->getFilterModel()->setImageCount(imageCount);
 
     VSAbstractFilter::FilterListType childFilters = m_DataParentFilter->getChildren();
+
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
       VSSIMPLDataContainerFilter* filter = nullptr;
