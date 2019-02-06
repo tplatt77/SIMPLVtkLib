@@ -879,8 +879,11 @@ double* VSAbstractFilter::getTransformBounds()
   trans->SetInputConnection(getOutputPort());
   trans->SetTransform(getTransform()->getGlobalTransform());
   trans->Update();
+  double* transformBounds = trans->GetOutput()->GetBounds();
 
-  return trans->GetOutput()->GetBounds();
+  trans->Delete();
+
+  return transformBounds;
 }
 
 // -----------------------------------------------------------------------------

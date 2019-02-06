@@ -1289,7 +1289,7 @@ void VSFilterViewSettings::setupDataSetActors()
     actor = vtkActor::SafeDownCast(m_Actor);
   }
 
-  m_DataSetFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
+  //m_DataSetFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
   m_OutlineFilter->SetInputConnection(m_Filter->getOutputPort());
 
   updateTexture();
@@ -1380,14 +1380,9 @@ void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
     return;
   }
 
-  if(m_DataSetFilter)
+  if(!m_DataSetFilter)
   {
-    m_DataSetFilter->SetInputConnection(filter->getTransformedOutputPort());
-    m_DataSetFilter->Update();
-  }
-  else
-  {
-    m_Mapper->SetInputConnection(filter->getOutputPort());
+	m_Mapper->SetInputConnection(filter->getOutputPort());
     m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
   }
   emit requiresRender();
