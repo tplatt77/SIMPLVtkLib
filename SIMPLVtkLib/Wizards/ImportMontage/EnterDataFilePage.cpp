@@ -202,11 +202,10 @@ void EnterDataFilePage::registerFields()
   registerField(ImportMontage::FieldNames::ImageFileExtension, m_Ui->imageFileExtensionLE);
 
   // DREAM3D
-  registerField(ImportMontage::FieldNames::PerformMontageDream3dFile, m_Ui->performMontageCB);
   registerField(ImportMontage::FieldNames::ImageDataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
   registerField(ImportMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
-  registerField(ImportMontage::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::FieldNames::DREAM3DTileOverlap, m_Ui->tileOverlapSB);
 }
 
 // -----------------------------------------------------------------------------

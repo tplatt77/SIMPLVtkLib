@@ -179,9 +179,9 @@ bool GenericMetadataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void GenericMetadataPage::registerFields()
 {
-  registerField(ImportMontage::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
-  registerField(ImportMontage::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
-  registerField(ImportMontage::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::FieldNames::GenericNumberOfRows, m_Ui->numOfRowsSB);
+  registerField(ImportMontage::FieldNames::GenericNumberOfColumns, m_Ui->numOfColsSB);
+  registerField(ImportMontage::FieldNames::GenericTileOverlap, m_Ui->tileOverlapSB);
   registerField(ImportMontage::FieldNames::GenericFileListInfo, this, "FileListInfo", "fileListInfoChanged");
   registerField(ImportMontage::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
 }

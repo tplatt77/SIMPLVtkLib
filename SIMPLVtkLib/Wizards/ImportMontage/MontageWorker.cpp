@@ -32,59 +32,15 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 #include "MontageWorker.h"
 
-#include <QtConcurrent>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QMimeDatabase>
-
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-
-#include <SIMPLib/Utilities/SIMPLH5DataReader.h>
-
-#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
-#include "SIMPLib/Filtering/FilterFactory.hpp"
-#include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
-
-#include "SIMPLVtkLib/Wizards/ImportMontage/TileConfigFileGenerator.h"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
-	AbstractFilter::Pointer itkMontageFilter)
+MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline)
 {
-	m_itkMontageFilter = itkMontageFilter;
-	m_pipeline = pipeline;
-	m_configFile = false;
-	m_readDream3dFile = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline,
-	AbstractFilter::Pointer inputFilter,
-	AbstractFilter::Pointer itkMontageFilter,
-	bool readDream3dFile)
-{
-
-	if (readDream3dFile)
-	{
-		m_dream3dFileReader = inputFilter;
-	}
-	else
-	{
-		m_importConfigFileFilter = inputFilter;
-	}
-	m_itkMontageFilter = itkMontageFilter;
-	m_pipeline = pipeline;
-	m_configFile = !readDream3dFile;
-	m_readDream3dFile = readDream3dFile;
+  m_pipeline = pipeline;
 }
 
 // -----------------------------------------------------------------------------
@@ -100,44 +56,6 @@ MontageWorker::~MontageWorker()
 // -----------------------------------------------------------------------------
 void MontageWorker::process()
 {
-	if (m_itkMontageFilter == nullptr)
-	{
-		return;
-	}
-	if (m_configFile)
-	{
-		if (m_importConfigFileFilter == nullptr)
-		{
-			return;
-		}
-		m_pipeline->pushBack(m_importConfigFileFilter);
-		m_importConfigFileFilter->preflight();
-		DataContainerArray::Pointer dca = m_importConfigFileFilter->getDataContainerArray();
-		QStringList dcNames = dca->getDataContainerNames();
-		QVariant var;
-		bool propWasSet = false;
-
-		// Set the list of image data containers
-		var.setValue(dcNames);
-		propWasSet = m_itkMontageFilter->setProperty("ImageDataContainers", var);
-		if (!propWasSet)
-		{
-			qDebug() << "Property was not set for ImageDataContainers";
-			return;
-		}
-	}
-
-	if (m_readDream3dFile)
-	{
-		if (m_dream3dFileReader == nullptr)
-		{
-			return;
-		}
-
-		m_pipeline->pushBack(m_dream3dFileReader);
-	}
-
-	m_pipeline->pushBack(m_itkMontageFilter);
 	m_pipeline->execute();
 
 	int err = m_pipeline->getErrorCondition();

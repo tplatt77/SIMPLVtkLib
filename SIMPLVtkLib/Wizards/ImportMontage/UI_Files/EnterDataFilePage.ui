@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>502</height>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,57 +142,50 @@
       <string>DREAM3D File</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="performMontageCB">
-        <property name="text">
-         <string>Perform Montage</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="imageDataContainerPrefixLE"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Image Data Container Prefix</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
        <widget class="QLineEdit" name="cellAttrMatrixNameLE"/>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="imageArrayNameLE"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Cell Attribute Matrix Name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Image Array Name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Tile Overlap</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
        <widget class="QSpinBox" name="tileOverlapSB">
         <property name="maximum">
          <number>100</number>
         </property>
         <property name="value">
          <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="imageArrayNameLE"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Tile Overlap</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Image Data Container Prefix</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="imageDataContainerPrefixLE"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Cell Attribute Matrix Name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Image Array Name</string>
         </property>
        </widget>
       </item>

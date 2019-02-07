@@ -55,11 +55,12 @@ namespace ImportMontage
     const QString DataFilePath("DataFilePath");
     const QString NumberOfRows("numOfRows");
     const QString NumberOfColumns("numOfCols");
+    const QString GenericNumberOfRows("genericNumOfRows");
+    const QString GenericNumberOfColumns("genericNumOfCols");
     const QString SliceNumber("sliceNumber");
     const QString ImageFilePrefix("imageFilePrefix");
     const QString ImageFileSuffix("imageFileSuffix");
     const QString ImageFileExtension("imageFileExtension");
-    const QString PerformMontageDream3dFile("performMontageDream3dFile");
     const QString ImageDataContainerPrefix("imageDataContainerPrefix");
     const QString CellAttributeMatrixName("cellAttrMatrixName");
     const QString ImageArrayName("imageArrayName");
@@ -70,7 +71,8 @@ namespace ImportMontage
     const QString MontageType("montageType");
     const QString MontageOrder("montageOrder");
     const QString DREAM3DFileName("dream3dFileName");
-    const QString TileOverlap("tileOverlap");
+    const QString GenericTileOverlap("genericTileOverlap");
+    const QString DREAM3DTileOverlap("dream3dTileOverlap");
     const QString GenericFileListInfo("GenericFileListInfo");
     const QString OutputFileName("outputFileName");
     const QString DREAM3DProxy("DREAM3DProxy");

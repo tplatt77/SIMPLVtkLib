@@ -34,7 +34,9 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
+
 #include <qthread.h>
+
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -42,13 +44,9 @@ class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
 public:
-	MontageWorker(FilterPipeline::Pointer pipeline,
-		AbstractFilter::Pointer itkMontageFilter);
-	MontageWorker(FilterPipeline::Pointer pipeline,
-		AbstractFilter::Pointer inputFilter,
-		AbstractFilter::Pointer itkMontageFilter,
-		bool readDream3dFile);
+  MontageWorker(FilterPipeline::Pointer pipeline);
 	~MontageWorker();
+
 signals:
 	void finished();
 	void error(QString err);
@@ -56,11 +54,7 @@ signals:
 	
 public slots:
 	void process();
+
 private:
-	AbstractFilter::Pointer m_importConfigFileFilter;
-	AbstractFilter::Pointer m_itkMontageFilter;
-	AbstractFilter::Pointer m_dream3dFileReader;
 	FilterPipeline::Pointer m_pipeline;
-	bool m_configFile;
-	bool m_readDream3dFile;
 };
