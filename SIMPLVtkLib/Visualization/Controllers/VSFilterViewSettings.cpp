@@ -2309,7 +2309,6 @@ void VSFilterViewSettings::setSubsampling(int value)
 {
 	m_Subsampling = value;
 	updateTexture();
-	emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------

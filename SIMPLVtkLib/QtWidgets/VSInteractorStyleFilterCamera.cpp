@@ -648,16 +648,10 @@ void VSInteractorStyleFilterCamera::cancelScaling()
 void VSInteractorStyleFilterCamera::determineSubsampling()
 {
 	VTK_PTR(vtkCamera) camera = m_ViewWidget->getVisualizationWidget()->getRenderer()->GetActiveCamera();
-	double clippingRange[2];
-	double cameraFocalPoint[3];
 	double cameraPosition[3];
-	double viewDirectionVector[3];
 	if(camera)
 	{
-		camera->GetClippingRange(clippingRange);
 		camera->GetPosition(cameraPosition);
-		camera->GetFocalPoint(cameraFocalPoint);
-		vtkMath::Subtract(cameraFocalPoint, cameraPosition, viewDirectionVector);
 	}
 
 	// Check the memory available vs memory required for current subsampling rate
