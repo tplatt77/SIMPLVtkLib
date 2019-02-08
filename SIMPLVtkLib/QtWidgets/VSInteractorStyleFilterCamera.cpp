@@ -668,22 +668,6 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
 	double distanceToPlane;
 	for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
 	{
-		double position[3];
-		double bounds[6];
-		VTK_PTR(vtkProp3D) actor = iter->second->getActor();
-		if(actor)
-		{
-			actor->GetPosition(position);
-		}
-		VTK_PTR(vtkPlane) plane = VTK_PTR(vtkPlane)::New();
-		if(plane)
-		{
-			plane->SetOrigin(position);
-			
-			// Check distance to plane from camera
-			distanceToPlane = plane->DistanceToPlane(cameraPosition);
-		}
-
 		filterViewSettingsCollection.push_back(iter->second);
 		if(!isSIMPL)
 		{
@@ -691,7 +675,21 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
 			isSIMPL = simplDataContainerFilter;
 			if(isSIMPL)
 			{
-				break;
+				double position[3];
+				double bounds[6];
+				VTK_PTR(vtkProp3D) actor = iter->second->getActor();
+				if(actor)
+				{
+					actor->GetPosition(position);
+				}
+				VTK_PTR(vtkPlane) plane = VTK_PTR(vtkPlane)::New();
+				if(plane)
+				{
+					plane->SetOrigin(position);
+
+					// Check distance to plane from camera
+					distanceToPlane = plane->DistanceToPlane(cameraPosition);
+				}
 			}
 		}
 	}
