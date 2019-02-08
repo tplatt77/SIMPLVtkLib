@@ -1145,10 +1145,10 @@ void VSFilterViewSettings::setupActors(bool outline)
 
   setupCubeAxesActor();
 
-  if(outline)
-  {
-    setRepresentation(Representation::Outline);
-  }
+  //if(outline)
+  //{
+  //  setRepresentation(Representation::Outline);
+  //}
   emit requiresRender();
 }
 
@@ -1341,6 +1341,7 @@ void VSFilterViewSettings::setupDataSetActors()
   {
     emit swappingActors(m_Actor.Get(), actor);
   }
+
 
   m_Mapper = mapper;
   m_Actor = actor;
@@ -2294,7 +2295,10 @@ void VSFilterViewSettings::SetSubsampling(VSFilterViewSettings::Collection colle
 {
 	for(VSFilterViewSettings* settings : collection)
 	{
-		settings->setSubsampling(value);
+		if(settings->isVisible())
+		{
+			settings->setSubsampling(value);
+		}
 	}
 }
 

@@ -41,6 +41,7 @@
 #include <vtkPropPicker.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkMath.h>
 
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
@@ -64,6 +65,7 @@ void VSInteractorStyleFilterCamera::OnRightButtonDown()
   vtkInteractorStyleTrackballCamera::OnRightButtonDown();
   updateLinkedRenderWindows();
 
+  determineSubsampling();
   // Cancel the current action
   cancelAction();
 }
@@ -103,6 +105,26 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
     vtkInteractorStyleTrackballCamera::OnMouseMove();
     updateLinkedRenderWindows();
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::OnMouseWheelForward()
+{
+	determineSubsampling();
+	vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+	updateLinkedRenderWindows();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::OnMouseWheelBackward()
+{
+	determineSubsampling();
+	vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
+	updateLinkedRenderWindows();
 }
 
 // -----------------------------------------------------------------------------
@@ -618,4 +640,79 @@ void VSInteractorStyleFilterCamera::cancelScaling()
   {
     filter->getTransform()->scale(1.0 / m_ScaleAmt);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::determineSubsampling()
+{
+	VTK_PTR(vtkCamera) camera = m_ViewWidget->getVisualizationWidget()->getRenderer()->GetActiveCamera();
+	double clippingRange[2];
+	double cameraFocalPoint[3];
+	double cameraPosition[3];
+	double viewDirectionVector[3];
+	if(camera)
+	{
+		camera->GetClippingRange(clippingRange);
+		camera->GetPosition(cameraPosition);
+		camera->GetFocalPoint(cameraFocalPoint);
+		vtkMath::Subtract(cameraFocalPoint, cameraPosition, viewDirectionVector);
+	}
+
+	// Check the memory available vs memory required for current subsampling rate
+	std::map<VSAbstractFilter*, VSFilterViewSettings*> allFilterViewSettings = m_ViewWidget->getAllFilterViewSettings();
+	bool isSIMPL = false;
+	VSSIMPLDataContainerFilter* simplDataContainerFilter;
+	VSFilterViewSettings::Collection filterViewSettingsCollection;
+	double distanceToPlane;
+	for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
+	{
+		double position[3];
+		double bounds[6];
+		VTK_PTR(vtkProp3D) actor = iter->second->getActor();
+		if(actor)
+		{
+			actor->GetPosition(position);
+		}
+		VTK_PTR(vtkPlane) plane = VTK_PTR(vtkPlane)::New();
+		if(plane)
+		{
+			plane->SetOrigin(position);
+			
+			// Check distance to plane from camera
+			distanceToPlane = plane->DistanceToPlane(cameraPosition);
+		}
+
+		filterViewSettingsCollection.push_back(iter->second);
+		if(!isSIMPL)
+		{
+			simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+			isSIMPL = simplDataContainerFilter;
+			if(isSIMPL)
+			{
+				break;
+			}
+		}
+	}
+
+	// Only works if this is a VSSIMPLDataContainerFilter
+	if(isSIMPL)
+	{
+		int subsamplingRate = 1;
+
+		if(distanceToPlane > 10.0)
+		{
+			subsamplingRate = (distanceToPlane) / 1000;
+			if(subsamplingRate > 100)
+			{
+				subsamplingRate = 100;
+			}
+		}
+
+		if(subsamplingRate > 1)
+		{
+			VSFilterViewSettings::SetSubsampling(filterViewSettingsCollection, subsamplingRate);
+		}
+	}
 }
