@@ -62,7 +62,7 @@
  * @date Jan 30, 2011
  * @version 1.0
  */
-class SVWidgetsLib_EXPORT TileListWidget : public QWidget
+class __declspec(dllexport) TileListWidget : public QWidget
 {
   Q_OBJECT
 
