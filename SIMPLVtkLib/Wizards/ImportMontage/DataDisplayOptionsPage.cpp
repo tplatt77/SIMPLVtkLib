@@ -97,6 +97,7 @@ void DataDisplayOptionsPage::registerFields()
 {
   registerField(ImportMontage::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
   registerField(ImportMontage::FieldNames::DisplaySideBySide, m_Ui->sideBySideRB);
+  registerField(ImportMontage::FieldNames::DisplayOutlineOnly, m_Ui->outlineOnlyRB);
 }
 
 // -----------------------------------------------------------------------------

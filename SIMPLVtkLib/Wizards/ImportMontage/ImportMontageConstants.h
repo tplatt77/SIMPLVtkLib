@@ -52,6 +52,7 @@ namespace ImportMontage
   {
     const QString DisplayMontage("DisplayMontage");
     const QString DisplaySideBySide("DisplaySideBySide");
+    const QString DisplayOutlineOnly("DisplayOutlineOnly");
     const QString DataFilePath("DataFilePath");
     const QString NumberOfRows("numOfRows");
     const QString NumberOfColumns("numOfCols");

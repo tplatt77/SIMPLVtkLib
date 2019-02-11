@@ -282,6 +282,12 @@ public:
    */
   std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
 
+  /**
+   * @brief Set the representation for visualization output
+   * @param Representation
+   */
+  void setRepresentation(VSFilterViewSettings::Representation representation);
+
 signals:
   void viewSettingsCreated(VSFilterViewSettings*) const;
   void viewSettingsRemoved(VSFilterViewSettings*);
@@ -338,6 +344,7 @@ protected:
 private:
   VSFilterModel* m_FilterModel = nullptr;
   mutable VSFilterViewSettings::Map m_FilterViewSettings;
+  VSFilterViewSettings::Representation m_Representation = VSFilterViewSettings::Representation::Invalid;
 };
 
 Q_DECLARE_METATYPE(VSFilterViewModel)

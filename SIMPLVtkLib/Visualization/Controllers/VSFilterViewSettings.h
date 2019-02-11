@@ -145,7 +145,7 @@ public:
    * @brief Constructor
    * @param filter
    */
-  VSFilterViewSettings(VSAbstractFilter* filter);
+  VSFilterViewSettings(VSAbstractFilter* filter, Representation representation = Representation::Default);
 
   /**
    * @brief Copy constructor

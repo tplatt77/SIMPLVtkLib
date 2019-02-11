@@ -290,7 +290,17 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
   static int numImages = 0;
   static int imageIndex = 0;
 
-  VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
+  VSFilterViewSettings* viewSettings;
+  if(m_Representation == VSFilterViewSettings::Representation::Invalid)
+  {
+	  viewSettings = new VSFilterViewSettings(filter);
+  }
+  else
+  {
+	  viewSettings = new VSFilterViewSettings(filter, m_Representation);
+  }
+
+  QStringList arrayNames = filter->getArrayNames();
 
   // When multiplpe images are loaded, place side by side
   vtkImageSlice* actor = (vtkImageSlice*) viewSettings->getActor().GetPointer();
@@ -749,4 +759,12 @@ QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelInd
   }
 
   return localModelIndices;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewModel::setRepresentation(VSFilterViewSettings::Representation representation)
+{
+	m_Representation = representation;
 }

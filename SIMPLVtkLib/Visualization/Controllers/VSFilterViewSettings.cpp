@@ -80,7 +80,7 @@ VSFilterViewSettings::VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
+VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation)
 : QObject(nullptr)
 , m_ShowFilter(true)
 {
@@ -90,10 +90,7 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter)
   setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
-  if(false == isSIMPL)
-  {
-    setRepresentation(Representation::Default);
-  }
+  setRepresentation(representation);
 }
 
 // -----------------------------------------------------------------------------
