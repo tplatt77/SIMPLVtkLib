@@ -670,7 +670,6 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
 			if(isSIMPL)
 			{
 				double position[3];
-				double bounds[6];
 				VTK_PTR(vtkProp3D) actor = iter->second->getActor();
 				if(actor)
 				{

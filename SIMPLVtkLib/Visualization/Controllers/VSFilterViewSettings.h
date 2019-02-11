@@ -763,6 +763,12 @@ public slots:
    */
   void updateTransform();
 
+  /**
+   * @brief Handles updated input to show textured quads
+   * @param filter
+   */
+  void inputUpdated(VSAbstractFilter* filter);
+
 signals:
   void visibilityChanged(const bool&);
   void gridVisibilityChanged(const bool&);

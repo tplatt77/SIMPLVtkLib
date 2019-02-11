@@ -300,7 +300,6 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 	  viewSettings = new VSFilterViewSettings(filter, m_Representation);
   }
 
-  QStringList arrayNames = filter->getArrayNames();
 
   // When multiplpe images are loaded, place side by side
   vtkImageSlice* actor = (vtkImageSlice*) viewSettings->getActor().GetPointer();

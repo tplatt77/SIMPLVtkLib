@@ -91,6 +91,11 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representat
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
   setRepresentation(representation);
+  if(isSIMPL && (representation == Representation::Surface ||
+	 representation == Representation::SurfaceWithEdges))
+  {
+	  connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(inputUpdated(VSAbstractFilter*)));
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -2626,4 +2631,20 @@ void VSFilterViewSettings::updateTexture()
 		}
 	}
 	
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::inputUpdated(VSAbstractFilter* filter)
+{
+	if(filter->getOutput() != nullptr)
+	{
+		VTK_PTR(vtkCellData) cellData = filter->getOutput()->GetCellData();
+		if(cellData)
+		{
+			setActiveArrayName(cellData->GetArrayName(0));
+		}
+	}
+	updateTexture();
 }
