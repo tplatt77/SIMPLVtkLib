@@ -2311,6 +2311,7 @@ void VSFilterViewSettings::setSubsampling(int value)
 {
 	m_Subsampling = value;
 	updateTexture();
+	emit subsamplingChanged(value);
 }
 
 // -----------------------------------------------------------------------------
@@ -2589,6 +2590,31 @@ double VSFilterViewSettings::GetAlpha(VSFilterViewSettings::Collection collectio
   }
 
   return 1.0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double VSFilterViewSettings::GetSubsampling(VSFilterViewSettings::Collection collection)
+{
+	// Returns the first valid setting's subsampling value
+	for(VSFilterViewSettings* settings : collection)
+	{
+		if(settings->isValid())
+		{
+			return settings->getSubsampling();
+		}
+	}
+
+	return 1.0;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int VSFilterViewSettings::getSubsampling() const
+{
+	return m_Subsampling;
 }
 
 // -----------------------------------------------------------------------------

@@ -437,6 +437,12 @@ public:
    * @return
    */
   QAction* getToggleScalarBarAction();
+  
+  /**
+   * @brief Returns the subsampling rate.
+   * @return
+   */
+  int getSubsampling() const;
 
   /**
    * @brief Returns the QIcon used for solid colors
@@ -655,6 +661,13 @@ public:
    */
   static double GetAlpha(VSFilterViewSettings::Collection collection);
 
+  /**
+   * @brief Returns the subsampling to display in the user interface for the collection.
+   * @return
+   */
+  static double GetSubsampling(VSFilterViewSettings::Collection collection);
+
+
 public slots:
   /**
    * @brief Displays the vtkActor for this view
@@ -782,6 +795,7 @@ signals:
   void arrayNamesChanged();
   void scalarNamesChanged();
   void componentNamesChanged();
+  void subsamplingChanged(const int&);
 
   void representationChanged(const Representation&);
   void mapColorsChanged(const ColorMapping&);
