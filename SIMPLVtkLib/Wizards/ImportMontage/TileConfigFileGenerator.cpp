@@ -221,7 +221,11 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
 					outputFile << padding_i.toStdString();
-					if (log10f(j) < 1)
+					if ((floor(log10f(j)) + 1) < m_fileListInfo.PaddingDigits)
+					{
+						outputFile << "0";
+					}
+					if(log10f(j) < 1)
 					{
 						outputFile << "0";
 					}
@@ -287,6 +291,10 @@ void TileConfigFileGenerator::buildTileConfigFile() const
 				if (m_fileListInfo.PaddingDigits > 1)
 				{
 					outputFile << padding_j.toStdString();
+					if((floor(log10f(i)) + 1) < m_fileListInfo.PaddingDigits)
+					{
+						outputFile << "0";
+					}
 					if (log10f(i) < 1)
 					{
 						outputFile << "0";
