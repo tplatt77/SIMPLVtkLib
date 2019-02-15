@@ -96,6 +96,8 @@ void EnterDataFilePage::setupGui()
 	m_Ui->roboMetMetadata->setDisabled(true);
 	m_Ui->dream3dMetadata->setVisible(false);
 	m_Ui->dream3dMetadata->setDisabled(true);
+	m_Ui->zeissMetadata->setVisible(false);
+	m_Ui->zeissMetadata->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -114,6 +116,11 @@ void EnterDataFilePage::connectSignalsSlots()
   connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->zeissDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->zeissCellAttrMatrixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->zeissImageDataArrayLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->zeissMetadataAttrxMatrixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 }
@@ -181,6 +188,38 @@ bool EnterDataFilePage::isComplete() const
 	  }
   }
 
+  if(m_Ui->zeissDataContainerPrefixLE->isEnabled())
+  {
+	  if(m_Ui->zeissDataContainerPrefixLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
+  if(m_Ui->zeissCellAttrMatrixLE->isEnabled())
+  {
+	  if(m_Ui->zeissCellAttrMatrixLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
+  if(m_Ui->zeissImageDataArrayLE->isEnabled())
+  {
+	  if(m_Ui->zeissImageDataArrayLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
+  if(m_Ui->zeissMetadataAttrxMatrixLE->isEnabled())
+  {
+	  if(m_Ui->zeissMetadataAttrxMatrixLE->text().isEmpty())
+	  {
+		  result = false;
+	  }
+  }
+
   return result;
 }
 
@@ -206,6 +245,14 @@ void EnterDataFilePage::registerFields()
   registerField(ImportMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
   registerField(ImportMontage::FieldNames::DREAM3DTileOverlap, m_Ui->tileOverlapSB);
+
+  // Zeiss
+  registerField(ImportMontage::FieldNames::ZeissDataContainerPrefix, m_Ui->zeissDataContainerPrefixLE);
+  registerField(ImportMontage::FieldNames::ZeissCellAttributeMatrixName, m_Ui->zeissCellAttrMatrixLE);
+  registerField(ImportMontage::FieldNames::ZeissImageDataArrayName, m_Ui->zeissImageDataArrayLE);
+  registerField(ImportMontage::FieldNames::ZeissMetadataAttrMatrixName, m_Ui->zeissMetadataAttrxMatrixLE);
+  registerField(ImportMontage::FieldNames::ZeissImportAllMetadata, m_Ui->importMetadataCB);
+  registerField(ImportMontage::FieldNames::ZeissConvertToGrayscale, m_Ui->convertGrayscaleCB);
 }
 
 // -----------------------------------------------------------------------------
@@ -219,7 +266,8 @@ void EnterDataFilePage::selectBtn_clicked()
   QString title;
   if (usingConfigFile)
   {
-    filter = tr("Fiji Configuration File (*.csv *.txt);;Robomet Configuration File (*.csv);;All Files (*.*)");
+    filter = tr("Fiji Configuration File (*.csv *.txt);;Robomet Configuration File (*.csv);; \
+		Zeiss Configuration File(*.xml);;All Files (*.*)");
     title = "Select a configuration file";
   }
   else
@@ -258,6 +306,8 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 	m_Ui->roboMetMetadata->setDisabled(true);
 	m_Ui->dream3dMetadata->setVisible(false);
 	m_Ui->dream3dMetadata->setDisabled(true);
+	m_Ui->zeissMetadata->setVisible(false);
+	m_Ui->zeissMetadata->setDisabled(true);
 
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
 	{
@@ -295,6 +345,15 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 	  m_Ui->roboMetMetadata->setVisible(true);
 	  m_Ui->roboMetMetadata->setDisabled(false);
     }
+	else if(ext == "xml")
+	{
+		setField("InputType", ImportMontageWizard::InputType::Zeiss);
+		setFinalPage(false);
+		m_Ui->configFileMetadata->setVisible(true);
+		m_Ui->configFileMetadata->setDisabled(false);
+		m_Ui->zeissMetadata->setVisible(true);
+		m_Ui->zeissMetadata->setDisabled(false);
+	}
     else
     {
       setField("InputType", ImportMontageWizard::InputType::Unknown);
@@ -336,7 +395,8 @@ int EnterDataFilePage::nextId() const
   {
     return ImportMontageWizard::WizardPages::LoadHDF5Data;
   }
-  else if(inputType == ImportMontageWizard::InputType::Fiji || inputType == ImportMontageWizard::InputType::Robomet)
+  else if(inputType == ImportMontageWizard::InputType::Fiji || inputType == ImportMontageWizard::InputType::Robomet ||
+	  inputType == ImportMontageWizard::InputType::Zeiss)
   {
     return ImportMontageWizard::WizardPages::DataDisplayOptions;
   }
@@ -353,4 +413,3 @@ bool EnterDataFilePage::validatePage()
 {
   return true;
 }
-

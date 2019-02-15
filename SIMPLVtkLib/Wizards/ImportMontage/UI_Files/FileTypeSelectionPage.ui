@@ -49,7 +49,7 @@
    <item>
     <widget class="QRadioButton" name="configFileRB">
      <property name="text">
-      <string>Config File (FIJI, Robomet)</string>
+      <string>Config File (FIJI, Robomet, Zeiss)</string>
      </property>
     </widget>
    </item>

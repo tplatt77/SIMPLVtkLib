@@ -61,7 +61,8 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
       DREAM3D,
       GenericMontage,
       Fiji,
-      Robomet
+      Robomet,
+	  Zeiss
     };
 
     /**
