@@ -36,6 +36,8 @@
 #include "VSFilterViewModel.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+#include "vtkActor.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -291,15 +293,41 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
   static int imageIndex = 0;
 
   VSFilterViewSettings* viewSettings;
-  if(m_Representation == VSFilterViewSettings::Representation::Invalid)
+  if(m_DisplayType == ImportMontageWizard::DisplayType::NotSpecified)
   {
 	  viewSettings = new VSFilterViewSettings(filter);
   }
   else
   {
-	  viewSettings = new VSFilterViewSettings(filter, m_Representation);
+	  VSFilterViewSettings::Representation representation = VSFilterViewSettings::Representation::Outline;
+	  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide ||
+		  m_DisplayType == ImportMontageWizard::DisplayType::Montage)
+	  {
+		  representation = VSFilterViewSettings::Representation::Surface;
+	  }
+	  viewSettings = new VSFilterViewSettings(filter, representation);
   }
 
+  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
+  {
+	  // Move images to respective row, col pair
+	  VTK_PTR(vtkProp3D) actor = viewSettings->getActor().GetPointer();
+	  if(nullptr != actor)
+	  {
+		  QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(filter)
+			  ->getWrappedDataContainer()->m_DataContainer->getName();
+		  int indexOfUnderscore = dataContainerName.lastIndexOf("_");
+		  QString rowCol = dataContainerName.right(dataContainerName.size() - indexOfUnderscore - 1);
+		  rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
+		  QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
+		  int row = rowCol_Split[0].toInt();
+		  int col = rowCol_Split[1].toInt();
+
+		  double imageWidth = actor->GetScale()[0];
+		  double imageHeight = actor->GetScale()[1];
+		  actor->SetPosition((1.01f * imageWidth) * col, (1.01f * imageHeight) * row , 0.0f);
+	  }
+  }
 
   // When multiplpe images are loaded, place side by side
   vtkImageSlice* actor = (vtkImageSlice*) viewSettings->getActor().GetPointer();
@@ -315,8 +343,8 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 	  int yPos = filenameBeforeFileExt.at(preFileExtLength - 2).toLatin1() - 48;
 	 //qInfo() << "X,Y: {" << x_pos << ", " << y_pos << "}";
 
-	  double imageWidth = actor->GetXRange()[1];
-	  double imageHeight = actor->GetYRange()[1];
+	  double imageWidth = actor->GetScale()[0];
+	  double imageHeight = actor->GetScale()[1];
 
 	  actor->SetPosition((1.01f * imageWidth) * xPos, (-1.01f * imageHeight) * yPos, 0.0f);
 	  numImages++;
@@ -763,7 +791,7 @@ QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelInd
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewModel::setRepresentation(VSFilterViewSettings::Representation representation)
+void VSFilterViewModel::setDisplayType(ImportMontageWizard::DisplayType displayType)
 {
-	m_Representation = representation;
+	m_DisplayType = displayType;
 }

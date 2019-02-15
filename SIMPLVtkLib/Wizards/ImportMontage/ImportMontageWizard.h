@@ -65,6 +65,14 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
 	  Zeiss
     };
 
+	enum DisplayType
+	{
+		NotSpecified,
+		Montage,
+		SideBySide,
+		Outline
+	};
+
     /**
      * @brief ImportMontageWizard
      * @param parent
