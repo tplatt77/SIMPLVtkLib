@@ -169,41 +169,43 @@ DataContainerArrayProxy VSLoadHDF5DataWidget::readDCAProxy(const QString& filePa
   int err = 0;
   SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
-  if(proxy.dataContainers.isEmpty())
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  if(dataContainers.isEmpty())
   {
     return DataContainerArrayProxy();
   }
 
-  QStringList dcNames = proxy.dataContainers.keys();
+  QStringList dcNames = dataContainers.keys();
   for(int i = 0; i < dcNames.size(); i++)
   {
     QString dcName = dcNames[i];
-    DataContainerProxy dcProxy = proxy.dataContainers[dcName];
+    DataContainerProxy dcProxy = dataContainers[dcName];
 
     // We want only data containers with geometries displayed
-    if(dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
+    if(dcProxy.getDCType() == static_cast<unsigned int>(DataContainer::Type::Unknown))
     {
-      proxy.dataContainers.remove(dcName);
+      dataContainers.remove(dcName);
     }
     else
     {
-      QStringList amNames = dcProxy.attributeMatricies.keys();
+	  QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+      QStringList amNames = attributeMatricies.keys();
       for(int j = 0; j < amNames.size(); j++)
       {
         QString amName = amNames[j];
-        AttributeMatrixProxy amProxy = dcProxy.attributeMatricies[amName];
+        AttributeMatrixProxy amProxy = attributeMatricies[amName];
 
         // We want only cell attribute matrices displayed
-        if(amProxy.amType != AttributeMatrix::Type::Cell)
+        if(amProxy.getAMType() != AttributeMatrix::Type::Cell)
         {
-          dcProxy.attributeMatricies.remove(amName);
-          proxy.dataContainers[dcName] = dcProxy;
+          attributeMatricies.remove(amName);
+          dataContainers[dcName] = dcProxy;
         }
       }
     }
   }
 
-  if(proxy.dataContainers.size() <= 0)
+  if(dataContainers.size() <= 0)
   {
     m_Ui->errLabel->setText(tr("Failed to load DREAM3D file '%1' because the file does not contain any data containers with a supported geometry.").arg(filePath));
     m_Ui->errLabel->show();

@@ -858,15 +858,15 @@ void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
       for(size_t i = 0; i < filters.size(); i++)
       {
         VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
-
-        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(validFilter->getFilterName());
+		QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
+        DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
 
         AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
         DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
         DataArrayProxy::CompDimsVector compDimsVector;
 
         dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
-        dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+        dataContainers[dcProxy.getName()] = dcProxy;
       }
 
       DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);

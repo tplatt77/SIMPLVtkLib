@@ -139,34 +139,36 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString& fi
   {
     int err = 0;
     DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(nullptr, err);
-    for(QMap<QString, DataContainerProxy>::iterator dcIter = proxy.dataContainers.begin(); dcIter != proxy.dataContainers.end(); dcIter++)
+	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+    for(QMap<QString, DataContainerProxy>::iterator dcIter = dataContainers.begin(); dcIter != dataContainers.end(); dcIter++)
     {
       if(dcIter.key() == dcName)
       {
         DataContainerProxy dcProxy = dcIter.value();
-        dcProxy.flag = Qt::Checked;
+		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+        dcProxy.setFlag(Qt::Checked);
 
-        for(QMap<QString, AttributeMatrixProxy>::iterator amIter = dcProxy.attributeMatricies.begin(); amIter != dcProxy.attributeMatricies.end(); amIter++)
+        for(QMap<QString, AttributeMatrixProxy>::iterator amIter = attributeMatricies.begin(); amIter != attributeMatricies.end(); amIter++)
         {
           AttributeMatrixProxy amProxy = amIter.value();
 
-          if(amProxy.amType == AttributeMatrix::Type::Cell)
+          if(amProxy.getAMType() == AttributeMatrix::Type::Cell)
           {
-            amProxy.flag = Qt::Checked;
+            amProxy.setFlag(Qt::Checked);
           }
-
-          for(QMap<QString, DataArrayProxy>::iterator daIter = amProxy.dataArrays.begin(); daIter != amProxy.dataArrays.end(); daIter++)
+		  QMap<QString, DataArrayProxy> dataArrays = amProxy.getDataArrays();
+          for(QMap<QString, DataArrayProxy>::iterator daIter = dataArrays.begin(); daIter != dataArrays.end(); daIter++)
           {
             DataArrayProxy daProxy = daIter.value();
-            daProxy.flag = Qt::Checked;
+            daProxy.setFlag(Qt::Checked);
 
-            amProxy.dataArrays[daProxy.name] = daProxy;
+            dataArrays[daProxy.getName()] = daProxy;
           }
 
-          dcProxy.attributeMatricies[amProxy.name] = amProxy;
+          attributeMatricies[amProxy.getName()] = amProxy;
         }
 
-        proxy.dataContainers[dcProxy.name] = dcProxy;
+        dataContainers[dcProxy.getName()] = dcProxy;
 
         DataContainerArray::Pointer dca = reader.readSIMPLDataUsingProxy(proxy, false);
         DataContainerShPtr dc = dca->getDataContainer(dcName);
@@ -260,21 +262,22 @@ void VSSIMPLDataContainerFilter::reloadData()
     {
       int err = 0;
       DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
-      QStringList dcNames = dcaProxy.dataContainers.keys();
+	  QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
+      QStringList dcNames = dataContainers.keys();
       if(dcNames.contains(dcName))
       {
-        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
-        if(dcProxy.dcType != static_cast<unsigned int>(IGeometry::Type::Unknown))
+        DataContainerProxy dcProxy = dataContainers.value(dcName);
+        if(dcProxy.getDCType() != static_cast<unsigned int>(IGeometry::Type::Unknown))
         {
           QString dcName = m_DCValues->getWrappedDataContainer()->m_Name;
-          DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
+          DataContainerProxy dcProxy = dataContainers.value(dcName);
 
           AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
           DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
           DataArrayProxy::CompDimsVector compDimsVector;
 
           dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
-          dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+          dataContainers[dcProxy.getName()] = dcProxy;
 
           DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
           DataContainer::Pointer dc = dca->getDataContainer(m_DCValues->getWrappedDataContainer()->m_Name);

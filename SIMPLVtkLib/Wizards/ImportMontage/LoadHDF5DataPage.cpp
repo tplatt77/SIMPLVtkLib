@@ -106,10 +106,11 @@ void LoadHDF5DataPage::cleanupPage()
 void LoadHDF5DataPage::proxyChanged(DataContainerArrayProxy proxy)
 {
   size_t checkCount = 0;
-  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
   {
     DataContainerProxy dcProxy = iter.value();
-    if(dcProxy.flag == Qt::Checked)
+    if(dcProxy.getFlag() == Qt::Checked)
     {
       checkCount++;
     }
@@ -129,10 +130,11 @@ bool LoadHDF5DataPage::isComplete() const
 
   bool allChecked = true;
   Qt::CheckState checkState = Qt::Unchecked;
-  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
   {
     DataContainerProxy dcProxy = iter.value();
-    if(dcProxy.flag == Qt::Checked)
+    if(dcProxy.getFlag() == Qt::Checked)
     {
       checkState = Qt::PartiallyChecked;
     }
@@ -192,10 +194,11 @@ int LoadHDF5DataPage::nextId() const
   DataContainerArrayProxy proxy = getProxy();
 
   size_t checkCount = 0;
-  for(QMap<QString, DataContainerProxy>::iterator iter = proxy.dataContainers.begin(); iter != proxy.dataContainers.end(); iter++)
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
   {
     DataContainerProxy dcProxy = iter.value();
-    if(dcProxy.flag == Qt::Checked)
+    if(dcProxy.getFlag() == Qt::Checked)
     {
       checkCount++;
     }
