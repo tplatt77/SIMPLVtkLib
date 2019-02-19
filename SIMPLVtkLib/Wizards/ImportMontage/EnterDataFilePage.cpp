@@ -96,8 +96,6 @@ void EnterDataFilePage::setupGui()
 	m_Ui->roboMetMetadata->setDisabled(true);
 	m_Ui->dream3dMetadata->setVisible(false);
 	m_Ui->dream3dMetadata->setDisabled(true);
-	m_Ui->zeissMetadata->setVisible(false);
-	m_Ui->zeissMetadata->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -116,11 +114,6 @@ void EnterDataFilePage::connectSignalsSlots()
   connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-
-  connect(m_Ui->zeissDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->zeissCellAttrMatrixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->zeissImageDataArrayLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->zeissMetadataAttrxMatrixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 }
@@ -188,38 +181,6 @@ bool EnterDataFilePage::isComplete() const
 	  }
   }
 
-  if(m_Ui->zeissDataContainerPrefixLE->isEnabled())
-  {
-	  if(m_Ui->zeissDataContainerPrefixLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
-  if(m_Ui->zeissCellAttrMatrixLE->isEnabled())
-  {
-	  if(m_Ui->zeissCellAttrMatrixLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
-  if(m_Ui->zeissImageDataArrayLE->isEnabled())
-  {
-	  if(m_Ui->zeissImageDataArrayLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
-  if(m_Ui->zeissMetadataAttrxMatrixLE->isEnabled())
-  {
-	  if(m_Ui->zeissMetadataAttrxMatrixLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
   return result;
 }
 
@@ -245,14 +206,6 @@ void EnterDataFilePage::registerFields()
   registerField(ImportMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
   registerField(ImportMontage::FieldNames::DREAM3DTileOverlap, m_Ui->tileOverlapSB);
-
-  // Zeiss
-  registerField(ImportMontage::FieldNames::ZeissDataContainerPrefix, m_Ui->zeissDataContainerPrefixLE);
-  registerField(ImportMontage::FieldNames::ZeissCellAttributeMatrixName, m_Ui->zeissCellAttrMatrixLE);
-  registerField(ImportMontage::FieldNames::ZeissImageDataArrayName, m_Ui->zeissImageDataArrayLE);
-  registerField(ImportMontage::FieldNames::ZeissMetadataAttrMatrixName, m_Ui->zeissMetadataAttrxMatrixLE);
-  registerField(ImportMontage::FieldNames::ZeissImportAllMetadata, m_Ui->importMetadataCB);
-  registerField(ImportMontage::FieldNames::ZeissConvertToGrayscale, m_Ui->convertGrayscaleCB);
 }
 
 // -----------------------------------------------------------------------------
@@ -306,8 +259,6 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 	m_Ui->roboMetMetadata->setDisabled(true);
 	m_Ui->dream3dMetadata->setVisible(false);
 	m_Ui->dream3dMetadata->setDisabled(true);
-	m_Ui->zeissMetadata->setVisible(false);
-	m_Ui->zeissMetadata->setDisabled(true);
 
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
 	{
@@ -351,8 +302,6 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 		setFinalPage(false);
 		m_Ui->configFileMetadata->setVisible(true);
 		m_Ui->configFileMetadata->setDisabled(false);
-		m_Ui->zeissMetadata->setVisible(true);
-		m_Ui->zeissMetadata->setDisabled(false);
 	}
     else
     {

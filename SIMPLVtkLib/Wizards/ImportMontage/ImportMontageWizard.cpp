@@ -43,6 +43,7 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterDataFilePage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/LoadHDF5DataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ZeissImportPage.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -61,6 +62,8 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
   setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
 
   setPage(WizardPages::DataFile, new EnterDataFilePage);
+
+  setPage(WizardPages::ZeissImport, new ZeissImportPage);
 
   setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
 

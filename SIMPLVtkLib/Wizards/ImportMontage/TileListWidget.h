@@ -45,6 +45,8 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/FileListInfoFilterParameter.h"
 
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
+
 #include "SVWidgetsLib/QtSupport/QtSPluginFrame.h"
 
 #include "SVWidgetsLib/FilterParameterWidgets/FilterParameterWidget.h"
@@ -62,7 +64,7 @@
  * @date Jan 30, 2011
  * @version 1.0
  */
-class SVWidgetsLib_EXPORT TileListWidget : public QWidget
+class SIMPLVtkLib_EXPORT TileListWidget : public QWidget
 {
   Q_OBJECT
 

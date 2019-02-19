@@ -17,42 +17,35 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetDefaultConstraint</enum>
    </property>
-   <item row="2" column="1">
-    <widget class="QGroupBox" name="configFileMetadata">
-     <property name="title">
-      <string>Fiji / RoboMet / Zeiss</string>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="selectButton">
+     <property name="text">
+      <string>Select</string>
      </property>
-     <layout class="QGridLayout" name="configFileMetadataLayout">
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="numOfRowsSB">
-        <property name="value">
-         <number>1</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="numOfColsSB">
-        <property name="value">
-         <number>1</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Number of Columns</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Number of Rows</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="dataFileLE">
+     <property name="placeholderText">
+      <string>Enter or select the data file to open</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Preferred</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>30</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item row="3" column="1" colspan="2">
     <widget class="QGroupBox" name="roboMetMetadata">
@@ -162,107 +155,37 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="selectButton">
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Preferred</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>30</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="dataFileLE">
-     <property name="placeholderText">
-      <string>Enter or select the data file to open</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QGroupBox" name="zeissMetadata">
+   <item row="2" column="1">
+    <widget class="QGroupBox" name="configFileMetadata">
      <property name="title">
-      <string>Zeiss</string>
+      <string>Fiji / RoboMet / Zeiss</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="zeissDataContainerPrefixLE"/>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Data Container Prefix</string>
+     <layout class="QGridLayout" name="configFileMetadataLayout">
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="numOfRowsSB">
+        <property name="value">
+         <number>1</number>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Cell Attribute Matrix Name</string>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="numOfColsSB">
+        <property name="value">
+         <number>1</number>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_13">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Image Data Array Name</string>
+         <string>Number of Columns</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="label_14">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Meta Data Attribute Matrix Name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="label_15">
-        <property name="text">
-         <string>Import All Metadata</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QLabel" name="label_16">
-        <property name="text">
-         <string>Convert to Grayscale</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="zeissCellAttrMatrixLE"/>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLineEdit" name="zeissImageDataArrayLE"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLineEdit" name="zeissMetadataAttrxMatrixLE"/>
-      </item>
-      <item row="5" column="3">
-       <widget class="QCheckBox" name="importMetadataCB">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QCheckBox" name="convertGrayscaleCB">
-        <property name="text">
-         <string/>
+         <string>Number of Rows</string>
         </property>
        </widget>
       </item>

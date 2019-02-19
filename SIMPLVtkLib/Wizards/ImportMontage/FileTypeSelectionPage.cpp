@@ -129,6 +129,10 @@ int FileTypeSelectionPage::nextId() const
 	{
     return ImportMontageWizard::WizardPages::DataFile;
 	}
+  else if(m_Ui->zeissFileRB->isChecked())
+  {
+	  return ImportMontageWizard::WizardPages::ZeissImport;
+  }
 	else
 	{
 		return -1;

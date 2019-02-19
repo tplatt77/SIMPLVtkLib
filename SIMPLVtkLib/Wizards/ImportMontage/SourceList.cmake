@@ -11,6 +11,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissImportPage.h
 )
 
 set(${PROJECT_NAME}_ImportMontage_SRCS
@@ -25,6 +26,7 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissImportPage.cpp
 )
 
 set(${PROJECT_NAME}_ImportMontage_UIS
@@ -35,6 +37,7 @@ set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/LoadHDF5DataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterDataFilePage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/TileListWidget.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/ZeissImportPage.ui
   
 )
 

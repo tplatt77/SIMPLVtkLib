@@ -49,7 +49,14 @@
    <item>
     <widget class="QRadioButton" name="configFileRB">
      <property name="text">
-      <string>Config File (FIJI, Robomet, Zeiss)</string>
+      <string>Config File (FIJI, Robomet)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="zeissFileRB">
+     <property name="text">
+      <string>Zeiss Axio Vision File</string>
      </property>
     </widget>
    </item>

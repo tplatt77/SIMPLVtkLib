@@ -52,7 +52,8 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
       GenericMetadata,
       DataFile,
       DataDisplayOptions,
-      LoadHDF5Data
+      LoadHDF5Data,
+	  ZeissImport
     };
 
     enum InputType
