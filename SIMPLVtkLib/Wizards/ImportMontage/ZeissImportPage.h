@@ -90,6 +90,10 @@ class ZeissImportPage : public QWizardPage
     // Slots to catch signals emitted by the various ui widgets
     void selectBtn_clicked();
     void dataFile_textChanged(const QString& text);
+
+    void manualDCAElementNames_stateChanged(int state);
+
+    void montageName_textChanged(const QString& text);
   protected:
     void setInputDirectory(QString val);
     QString getInputDirectory();

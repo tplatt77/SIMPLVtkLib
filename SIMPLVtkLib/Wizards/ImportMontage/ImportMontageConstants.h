@@ -78,13 +78,10 @@ namespace ImportMontage
     const QString OutputFileName("outputFileName");
     const QString DREAM3DProxy("DREAM3DProxy");
 	const QString ZeissDataFilePath("ZeissDataFilePath");
-	const QString ZeissNumberOfRows("ZeissNumOfRows");
-	const QString ZeissNumberOfColumns("ZeissNumOfCols");
 	const QString ZeissDataContainerPrefix("ZeissDataContainerPrefix");
 	const QString ZeissCellAttributeMatrixName("ZeissCellAttributeMatrixName");
 	const QString ZeissImageDataArrayName("ZeissImageDataArrayName");
 	const QString ZeissMetadataAttrMatrixName("ZeissMetadataAttrMatrixName");
-	const QString ZeissImportAllMetadata("ZeissImportAllMetadata");
 	const QString ZeissConvertToGrayscale("ZeissConvertToGrayscale");
 	const QString ZeissChangeOrigin("ZeissChangeOrigin");
 	const QString ZeissChangeSpacing("ZeissChangeSpacing");

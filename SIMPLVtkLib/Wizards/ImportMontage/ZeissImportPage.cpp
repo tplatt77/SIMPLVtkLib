@@ -46,6 +46,7 @@
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
 #include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
+#include "SVWidgetsLib/QtSupport/QtSDisclosableGroupBox.h"
 
 #include "ImportMontage/ImportMontageConstants.h"
 
@@ -78,18 +79,15 @@ ZeissImportPage::~ZeissImportPage() = default;
 // -----------------------------------------------------------------------------
 void ZeissImportPage::setupGui()
 {
-	connectSignalsSlots();
+  connectSignalsSlots();
 
-	m_Ui->zeissNumOfRowsSB->setMinimum(1);
-	m_Ui->zeissNumOfRowsSB->setMaximum(std::numeric_limits<int>().max());
+  QtSDisclosableGroupBox* advancedGB = new QtSDisclosableGroupBox(this);
+  advancedGB->setTitle("Advanced");
+  QLayout* advancedGridLayout = m_Ui->advancedGridLayout;
+  advancedGridLayout->setParent(nullptr);
+  advancedGB->setContentLayout(advancedGridLayout);
 
-	m_Ui->zeissNumOfColsSB->setMinimum(1);
-	m_Ui->zeissNumOfColsSB->setMaximum(std::numeric_limits<int>().max());
-
-	// Disable all group boxes by default and only enable when needed
-	m_Ui->colorWeighting->setDisabled(true);
-	m_Ui->newOrigin->setDisabled(true);
-	m_Ui->newSpacing->setDisabled(true);
+  m_Ui->gridLayout->addWidget(advancedGB, 10, 1, 1, 5);
 }
 
 // -----------------------------------------------------------------------------
@@ -104,6 +102,8 @@ void ZeissImportPage::connectSignalsSlots()
   connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &ZeissImportPage::dataFile_textChanged);
   connect(m_Ui->zeissDataFileLE, &QLineEdit::textChanged, this, &ZeissImportPage::dataFile_textChanged);
 
+  connect(m_Ui->zeissMontageNameLE, &QLineEdit::textChanged, this, &ZeissImportPage::montageName_textChanged);
+
   connect(m_Ui->zeissDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->zeissCellAttrMatrixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->zeissImageDataArrayLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
@@ -112,13 +112,24 @@ void ZeissImportPage::connectSignalsSlots()
   // Connect the checkboxes for grayscale, origin, and spacing to respective line edit group boxes
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, [=] {
 	  bool isChecked = m_Ui->convertGrayscaleCB->isChecked();
-	  m_Ui->colorWeighting->setDisabled(!isChecked); });
+    m_Ui->colorWeightingR->setEnabled(isChecked);
+    m_Ui->colorWeightingG->setEnabled(isChecked);
+    m_Ui->colorWeightingB->setEnabled(isChecked);
+  });
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
 	  bool isChecked = m_Ui->changeOriginCB->isChecked();
-	  m_Ui->newOrigin->setDisabled(!isChecked); });
+    m_Ui->originX->setEnabled(isChecked);
+    m_Ui->originY->setEnabled(isChecked);
+    m_Ui->originZ->setEnabled(isChecked);
+  });
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
 	  bool isChecked = m_Ui->changeSpacingCB->isChecked();
-	  m_Ui->newSpacing->setDisabled(!isChecked); });
+    m_Ui->spacingX->setEnabled(isChecked);
+    m_Ui->spacingY->setEnabled(isChecked);
+    m_Ui->spacingZ->setEnabled(isChecked);
+  });
+
+  connect(m_Ui->manualDCAElementNamesCB, &QCheckBox::stateChanged, this, &ZeissImportPage::manualDCAElementNames_stateChanged);
 }
 
 // -----------------------------------------------------------------------------
@@ -128,25 +139,14 @@ bool ZeissImportPage::isComplete() const
 {
   bool result = true;
 
+  if (m_Ui->zeissMontageNameLE->text().isEmpty())
+  {
+    result = false;
+  }
+
   if (m_Ui->zeissDataFileLE->isEnabled())
   {
     if (m_Ui->zeissDataFileLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
-  if (m_Ui->zeissNumOfRowsSB->isEnabled())
-  {
-	  if (m_Ui->zeissNumOfRowsSB->value() < m_Ui->zeissNumOfRowsSB->minimum() || m_Ui->zeissNumOfRowsSB->value() > m_Ui->zeissNumOfRowsSB->maximum())
-	  {
-		  result = false;
-	  }
-  }
-
-  if (m_Ui->zeissNumOfColsSB->isEnabled())
-  {
-	  if (m_Ui->zeissNumOfColsSB->value() < m_Ui->zeissNumOfColsSB->minimum() || m_Ui->zeissNumOfColsSB->value() > m_Ui->zeissNumOfColsSB->maximum())
 	  {
 		  result = false;
 	  }
@@ -194,14 +194,10 @@ void ZeissImportPage::registerFields()
 {
   registerField(ImportMontage::FieldNames::ZeissDataFilePath, m_Ui->zeissDataFileLE);
 
-  registerField(ImportMontage::FieldNames::ZeissNumberOfRows, m_Ui->zeissNumOfRowsSB);
-  registerField(ImportMontage::FieldNames::ZeissNumberOfColumns, m_Ui->zeissNumOfColsSB);
-
   registerField(ImportMontage::FieldNames::ZeissDataContainerPrefix, m_Ui->zeissDataContainerPrefixLE);
   registerField(ImportMontage::FieldNames::ZeissCellAttributeMatrixName, m_Ui->zeissCellAttrMatrixLE);
   registerField(ImportMontage::FieldNames::ZeissImageDataArrayName, m_Ui->zeissImageDataArrayLE);
   registerField(ImportMontage::FieldNames::ZeissMetadataAttrMatrixName, m_Ui->zeissMetadataAttrxMatrixLE);
-  registerField(ImportMontage::FieldNames::ZeissImportAllMetadata, m_Ui->importMetadataCB);
   registerField(ImportMontage::FieldNames::ZeissConvertToGrayscale, m_Ui->convertGrayscaleCB);
   registerField(ImportMontage::FieldNames::ZeissChangeOrigin, m_Ui->changeOriginCB);
   registerField(ImportMontage::FieldNames::ZeissChangeSpacing, m_Ui->changeSpacingCB);
@@ -243,6 +239,34 @@ void ZeissImportPage::selectBtn_clicked()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void ZeissImportPage::manualDCAElementNames_stateChanged(int state)
+{
+  bool isChecked = m_Ui->manualDCAElementNamesCB->isChecked();
+  m_Ui->zeissDataContainerPrefixLE->setEnabled(isChecked);
+  m_Ui->zeissCellAttrMatrixLE->setEnabled(isChecked);
+  m_Ui->zeissImageDataArrayLE->setEnabled(isChecked);
+  m_Ui->zeissMetadataAttrxMatrixLE->setEnabled(isChecked);
+
+  montageName_textChanged(m_Ui->zeissMontageNameLE->text());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ZeissImportPage::montageName_textChanged(const QString &text)
+{
+  if (!m_Ui->manualDCAElementNamesCB->isChecked())
+  {
+    m_Ui->zeissDataContainerPrefixLE->setText(tr("%1_").arg(text));
+    m_Ui->zeissCellAttrMatrixLE->setText(tr("%1_AttributeMatrix").arg(text));
+    m_Ui->zeissImageDataArrayLE->setText(tr("%1_ImageData").arg(text));
+    m_Ui->zeissMetadataAttrxMatrixLE->setText(tr("%1_MetadataAttributeMatrix").arg(text));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void ZeissImportPage::dataFile_textChanged(const QString& text)
 {
 	Q_UNUSED(text)
@@ -250,10 +274,10 @@ void ZeissImportPage::dataFile_textChanged(const QString& text)
 		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
 	QString inputPath = validator->convertToAbsolutePath(text);
 
-	// Disable optional group boxes by default and only enable when needed
-	m_Ui->colorWeighting->setDisabled(true);
-	m_Ui->newOrigin->setDisabled(true);
-	m_Ui->newSpacing->setDisabled(true);
+//	// Disable optional group boxes by default and only enable when needed
+//	m_Ui->colorWeighting->setDisabled(true);
+//	m_Ui->newOrigin->setDisabled(true);
+//	m_Ui->newSpacing->setDisabled(true);
 
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->zeissDataFileLE))
 	{
