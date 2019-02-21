@@ -88,6 +88,8 @@ void ZeissImportPage::setupGui()
   advancedGB->setContentLayout(advancedGridLayout);
 
   m_Ui->gridLayout->addWidget(advancedGB, 10, 1, 1, 5);
+
+  m_Ui->zeissMontageNameLE->setText("UntitledMontage");
 }
 
 // -----------------------------------------------------------------------------
@@ -258,9 +260,9 @@ void ZeissImportPage::montageName_textChanged(const QString &text)
   if (!m_Ui->manualDCAElementNamesCB->isChecked())
   {
     m_Ui->zeissDataContainerPrefixLE->setText(tr("%1_").arg(text));
-    m_Ui->zeissCellAttrMatrixLE->setText(tr("%1_AttributeMatrix").arg(text));
-    m_Ui->zeissImageDataArrayLE->setText(tr("%1_ImageData").arg(text));
-    m_Ui->zeissMetadataAttrxMatrixLE->setText(tr("%1_MetadataAttributeMatrix").arg(text));
+    m_Ui->zeissCellAttrMatrixLE->setText(tr("Cell Attribute Matrix"));
+    m_Ui->zeissImageDataArrayLE->setText(tr("Image Data"));
+    m_Ui->zeissMetadataAttrxMatrixLE->setText(tr("Metadata Attribute Matrix"));
   }
 }
 
