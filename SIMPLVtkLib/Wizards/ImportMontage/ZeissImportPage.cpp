@@ -46,7 +46,7 @@
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
 #include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
-#include "SVWidgetsLib/QtSupport/QtSDisclosableGroupBox.h"
+#include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
 
 #include "ImportMontage/ImportMontageConstants.h"
 
@@ -81,7 +81,7 @@ void ZeissImportPage::setupGui()
 {
   connectSignalsSlots();
 
-  QtSDisclosableGroupBox* advancedGB = new QtSDisclosableGroupBox(this);
+  QtSDisclosableWidget* advancedGB = new QtSDisclosableWidget(this);
   advancedGB->setTitle("Advanced");
   QLayout* advancedGridLayout = m_Ui->advancedGridLayout;
   advancedGridLayout->setParent(nullptr);
