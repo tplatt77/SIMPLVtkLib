@@ -37,7 +37,6 @@
 
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
-#include "SIMPLVtkLib/Wizards/ImportMontage/GenericCollectionTypePage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/GenericMetadataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/FileTypeSelectionPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterDataFilePage.h"
@@ -56,8 +55,6 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
   setWindowTitle("Import Montage Wizard");
 
   setPage(WizardPages::FileTypeSelection, new FileTypeSelectionPage);
-
-  setPage(WizardPages::GenericCollectionType, new GenericCollectionTypePage);
 
   setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
 

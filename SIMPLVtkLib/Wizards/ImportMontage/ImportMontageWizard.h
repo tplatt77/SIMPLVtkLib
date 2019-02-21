@@ -48,12 +48,11 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
     enum WizardPages
     {
       FileTypeSelection,
-      GenericCollectionType,
       GenericMetadata,
       DataFile,
       DataDisplayOptions,
       LoadHDF5Data,
-	  ZeissImport
+      ZeissImport
     };
 
     enum InputType

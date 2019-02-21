@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>689</width>
+    <width>600</width>
     <height>581</height>
    </rect>
   </property>
@@ -36,62 +36,49 @@
     <number>6</number>
    </property>
    <item row="0" column="1">
-    <widget class="QSpinBox" name="numOfRowsSB">
-     <property name="value">
-      <number>6</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QSpinBox" name="numOfColsSB">
-     <property name="value">
-      <number>5</number>
-     </property>
+    <widget class="QComboBox" name="collectionTypeCB">
+     <item>
+      <property name="text">
+       <string>Row-by-Row</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Column-by-Column</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Snake by Rows</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Snake by Columns</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Filename Defined Position</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Number of Rows</string>
+      <string>Collection Type</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Tile Overlap (%)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Output Text File Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="3">
-    <widget class="QLineEdit" name="outputTextFileNameLE">
-     <property name="text">
-      <string>TileConfiguration.txt</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>Fusion Method</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Number of Columns</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="3">
+   <item row="6" column="1" colspan="3">
     <widget class="QComboBox" name="fusionMethodCB">
      <item>
       <property name="text">
@@ -130,20 +117,82 @@
      </item>
     </widget>
    </item>
-   <item row="0" column="3">
-    <widget class="QSpinBox" name="tileOverlapSB">
-     <property name="maximum">
-      <number>100</number>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Output Text File Name</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
+   <item row="5" column="1" colspan="3">
+    <widget class="QLineEdit" name="outputTextFileNameLE">
+     <property name="text">
+      <string>TileConfiguration.txt</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4">
     <widget class="TileListWidget" name="tileListWidget" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
        <height>0</height>
       </size>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="orderCB"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Order</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QSpinBox" name="numOfRowsSB">
+     <property name="value">
+      <number>6</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QSpinBox" name="numOfColsSB">
+     <property name="value">
+      <number>5</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Number of Rows</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Number of Columns</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Tile Overlap (%)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="tileOverlapSB">
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>15</number>
      </property>
     </widget>
    </item>

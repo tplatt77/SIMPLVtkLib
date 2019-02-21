@@ -1,7 +1,6 @@
 set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericCollectionTypePage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericMetadataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageConstants.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.h
@@ -17,7 +16,6 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
 set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericCollectionTypePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericMetadataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.cpp
@@ -32,7 +30,6 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
 set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/DataDisplayOptionsPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/FileTypeSelectionPage.ui
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/GenericCollectionTypePage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/GenericMetadataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/LoadHDF5DataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterDataFilePage.ui

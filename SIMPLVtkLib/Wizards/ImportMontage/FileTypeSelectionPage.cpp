@@ -123,7 +123,7 @@ int FileTypeSelectionPage::nextId() const
 {
   if (m_Ui->imageFileListRB->isChecked())
 	{
-		return ImportMontageWizard::WizardPages::GenericCollectionType;
+    return ImportMontageWizard::WizardPages::GenericMetadata;
 	}
   else if (m_Ui->configFileRB->isChecked() || m_Ui->dream3dFileRB->isChecked())
 	{

@@ -71,6 +71,8 @@ void GenericMetadataPage::setupGui()
 {
   connectSignalsSlots();
 
+  updateOrderChoices(CollectionType::RowByRow);
+
   m_Ui->numOfRowsSB->setMinimum(1);
   m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
 
@@ -102,6 +104,14 @@ void GenericMetadataPage::connectSignalsSlots()
 
   connect(m_Ui->outputTextFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->fusionMethodCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { emit completeChanged(); });
+
+  connect(m_Ui->collectionTypeCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
+    updateOrderChoices(static_cast<CollectionType>(index));
+  });
+
+  connect(m_Ui->orderCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
+    emit completeChanged();
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -171,7 +181,75 @@ bool GenericMetadataPage::isComplete() const
     }
   }
 
+  if (m_Ui->collectionTypeCB->isEnabled())
+  {
+    if (m_Ui->collectionTypeCB->currentIndex() < 0 ||  m_Ui->collectionTypeCB->currentIndex() > m_Ui->collectionTypeCB->maxCount() - 1)
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->orderCB->isEnabled())
+  {
+    if (m_Ui->orderCB->currentIndex() < 0 ||  m_Ui->orderCB->currentIndex() > m_Ui->orderCB->maxCount() - 1)
+    {
+      result = false;
+    }
+  }
+
   return result;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void GenericMetadataPage::updateOrderChoices(CollectionType collectionType)
+{
+  m_Ui->orderCB->setEnabled(true);
+  m_Ui->orderCB->clear();
+
+  switch (collectionType)
+  {
+    case CollectionType::RowByRow:
+    {
+      m_Ui->orderCB->addItem("Right & Down");
+      m_Ui->orderCB->addItem("Left & Down");
+      m_Ui->orderCB->addItem("Right & Up");
+      m_Ui->orderCB->addItem("Left & Up");
+      break;
+    }
+    case CollectionType::ColumnByColumn:
+    {
+      m_Ui->orderCB->addItem("Down & Right");
+      m_Ui->orderCB->addItem("Down & Left");
+      m_Ui->orderCB->addItem("Up & Right");
+      m_Ui->orderCB->addItem("Up & Left");
+      break;
+    }
+    case CollectionType::SnakeByRows:
+    {
+      m_Ui->orderCB->addItem("Right & Down");
+      m_Ui->orderCB->addItem("Left & Down");
+      m_Ui->orderCB->addItem("Right & Up");
+      m_Ui->orderCB->addItem("Left & Up");
+      break;
+    }
+    case CollectionType::SnakeByColumns:
+    {
+      m_Ui->orderCB->addItem("Down & Right");
+      m_Ui->orderCB->addItem("Down & Left");
+      m_Ui->orderCB->addItem("Up & Right");
+      m_Ui->orderCB->addItem("Up & Left");
+      break;
+    }
+    case CollectionType::FilenameDefinedPosition:
+    {
+      m_Ui->orderCB->setDisabled(true);
+      break;
+    }
+  }
+
+  emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -184,6 +262,8 @@ void GenericMetadataPage::registerFields()
   registerField(ImportMontage::FieldNames::GenericTileOverlap, m_Ui->tileOverlapSB);
   registerField(ImportMontage::FieldNames::GenericFileListInfo, this, "FileListInfo", "fileListInfoChanged");
   registerField(ImportMontage::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
+  registerField(ImportMontage::FieldNames::MontageType, m_Ui->collectionTypeCB);
+  registerField(ImportMontage::FieldNames::MontageOrder, m_Ui->orderCB);
 }
 
 // -----------------------------------------------------------------------------

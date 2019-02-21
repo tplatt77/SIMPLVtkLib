@@ -45,6 +45,15 @@ class GenericMetadataPage : public QWizardPage
     Q_OBJECT
 
   public:
+    enum class CollectionType : unsigned int
+    {
+      RowByRow,
+      ColumnByColumn,
+      SnakeByRows,
+      SnakeByColumns,
+      FilenameDefinedPosition
+    };
+
     /**
     * @brief Constructor
     * @param parameter The FilterParameter object that this widget represents
@@ -87,6 +96,9 @@ class GenericMetadataPage : public QWizardPage
 
   signals:
     void fileListInfoChanged(FileListInfo_t fileListInfo);
+
+  private slots:
+    void updateOrderChoices(CollectionType collectionType);
 
   private:
     QSharedPointer<Ui::GenericMetadataPage> m_Ui;
