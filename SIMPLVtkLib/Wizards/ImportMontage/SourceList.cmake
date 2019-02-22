@@ -1,40 +1,49 @@
 set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDREAM3DDataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterRobometDataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericMetadataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterGenericDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageConstants.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissImportPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.h
 )
 
 set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDREAM3DDataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterRobometDataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/GenericMetadataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterGenericDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/LoadHDF5DataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDataFilePage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissImportPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.cpp
 )
 
 set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/DataDisplayOptionsPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterDREAM3DDataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterFijiDataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterRobometDataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterZeissDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/FileTypeSelectionPage.ui
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/GenericMetadataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterGenericDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/LoadHDF5DataPage.ui
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterDataFilePage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/TileListWidget.ui
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/ZeissImportPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterZeissDataPage.ui
   
 )
 

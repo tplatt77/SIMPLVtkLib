@@ -40,9 +40,9 @@
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-#include "ui_EnterDataFilePage.h"
+#include "ui_EnterDREAM3DDataPage.h"
 
-class EnterDataFilePage : public QWizardPage
+class EnterDREAM3DDataPage : public QWizardPage
 {
     Q_OBJECT
 
@@ -53,9 +53,9 @@ class EnterDataFilePage : public QWizardPage
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    EnterDataFilePage(QWidget* parent = nullptr);
+    EnterDREAM3DDataPage(QWidget* parent = nullptr);
 
-    ~EnterDataFilePage() override;
+    ~EnterDREAM3DDataPage() override;
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -85,6 +85,11 @@ class EnterDataFilePage : public QWizardPage
    */
     bool validatePage() override;
 
+    /**
+     * @brief cleanupPage
+     */
+    void cleanupPage() override;
+
   protected slots:
 
     // Slots to catch signals emitted by the various ui widgets
@@ -111,7 +116,7 @@ class EnterDataFilePage : public QWizardPage
     void dataFileChanged(const QString &dataFile);
 
   private:
-    QSharedPointer<Ui::EnterDataFilePage> m_Ui;
+    QSharedPointer<Ui::EnterDREAM3DDataPage> m_Ui;
 
     static QString m_OpenDialogLastDirectory;
 
@@ -121,9 +126,9 @@ class EnterDataFilePage : public QWizardPage
     void connectSignalsSlots();
 
   public:
-    EnterDataFilePage(const EnterDataFilePage&) = delete;  // Copy Constructor Not Implemented
-    EnterDataFilePage(EnterDataFilePage&&) = delete;       // Move Constructor Not Implemented
-    EnterDataFilePage& operator=(const EnterDataFilePage&) = delete; // Copy Assignment Not Implemented
-    EnterDataFilePage& operator=(EnterDataFilePage&&) = delete;      // Move Assignment Not Implemented
+    EnterDREAM3DDataPage(const EnterDREAM3DDataPage&) = delete;  // Copy Constructor Not Implemented
+    EnterDREAM3DDataPage(EnterDREAM3DDataPage&&) = delete;       // Move Constructor Not Implemented
+    EnterDREAM3DDataPage& operator=(const EnterDREAM3DDataPage&) = delete; // Copy Assignment Not Implemented
+    EnterDREAM3DDataPage& operator=(EnterDREAM3DDataPage&&) = delete;      // Move Assignment Not Implemented
 };
 

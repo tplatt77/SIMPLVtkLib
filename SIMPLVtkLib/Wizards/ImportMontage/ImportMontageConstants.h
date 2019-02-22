@@ -48,51 +48,105 @@
 // -----------------------------------------------------------------------------
 namespace ImportMontage
 {
+  namespace Zeiss
+  {
+    namespace FieldNames
+    {
+      const QString MontageName("zeissMontageName");
+      const QString DataFilePath("zeissDataFilePath");
+      const QString DataContainerPrefix("zeissDataContainerPrefix");
+      const QString CellAttributeMatrixName("zeissCellAttributeMatrixName");
+      const QString ImageDataArrayName("zeissImageDataArrayName");
+      const QString MetadataAttrMatrixName("zeissMetadataAttrMatrixName");
+      const QString ChangeTileOverlap("zeissChangeTileOverlap");
+      const QString TileOverlap("zeissTileOverlap");
+      const QString ConvertToGrayscale("zeissConvertToGrayscale");
+      const QString ChangeOrigin("zeissChangeOrigin");
+      const QString ChangeSpacing("zeissChangeSpacing");
+      const QString ColorWeightingR("zeissColorWeightingR");
+      const QString ColorWeightingG("zeissColorWeightingG");
+      const QString ColorWeightingB("zeissColorWeightingB");
+      const QString OriginX("zeissOriginX");
+      const QString OriginY("zeissOriginY");
+      const QString OriginZ("zeissOriginZ");
+      const QString SpacingX("zeissSpacingX");
+      const QString SpacingY("zeissSpacingY");
+      const QString SpacingZ("zeissSpacingZ");
+    }
+  }
+
+  namespace Fiji
+  {
+    namespace FieldNames
+    {
+      const QString MontageName("fijiMontageName");
+      const QString DataFilePath("fijiDataFilePath");
+      const QString NumberOfRows("fijiGenericNumOfRows");
+      const QString NumberOfColumns("fijiGenericNumOfCols");
+      const QString ChangeTileOverlap("fijiChangeTileOverlap");
+      const QString TileOverlap("fijiTileOverlap");
+      const QString CellAttributeMatrixName("fijiCellAttributeMatrixName");
+      const QString DataContainerPrefix("fijiDataContainerPrefix");
+      const QString ImageArrayName("fijiImageArrayName");
+    }
+  }
+
+  namespace Robomet
+  {
+    namespace FieldNames
+    {
+      const QString MontageName("rbmMontageName");
+      const QString DataFilePath("rbmDataFilePath");
+      const QString NumberOfRows("rbmNumOfRows");
+      const QString NumberOfColumns("rbmNumOfCols");
+      const QString ChangeTileOverlap("rbmChangeTileOverlap");
+      const QString TileOverlap("rbmTileOverlap");
+      const QString SliceNumber("rbmSliceNumber");
+      const QString ImageFilePrefix("rbmImageFilePrefix");
+      const QString ImageFileSuffix("rbmImageFileSuffix");
+      const QString ImageFileExtension("rbmImageFileExtension");
+      const QString CellAttributeMatrixName("rbmCellAttributeMatrixName");
+      const QString DataContainerPrefix("rbmDataContainerPrefix");
+      const QString ImageArrayName("rbmImageArrayName");
+    }
+  }
+
+  namespace DREAM3D
+  {
+    namespace FieldNames
+    {
+      const QString MontageName("d3dMontageName");
+      const QString DataFilePath("d3dDataFilePath");
+      const QString CellAttributeMatrixName("d3dCellAttributeMatrixName");
+      const QString NumberOfRows("d3dNumOfRows");
+      const QString NumberOfColumns("d3dNumOfCols");
+      const QString DataContainerPrefix("d3dDataContainerPrefix");
+      const QString ImageArrayName("d3dImageArrayName");
+      const QString TileOverlap("d3dTileOverlap");
+      const QString Proxy("d3dProxy");
+    }
+  }
+
+  namespace Generic
+  {
+    namespace FieldNames
+    {
+      const QString MontageName("genericMontageName");
+      const QString NumberOfRows("genericNumOfRows");
+      const QString NumberOfColumns("genericNumOfCols");
+      const QString TileOverlap("genericTileOverlap");
+      const QString FileListInfo("genericFileListInfo");
+      const QString OutputFileName("genericOutputFileName");
+      const QString MontageType("genericMontageType");
+      const QString MontageOrder("genericMontageOrder");
+    }
+  }
+
   namespace FieldNames
   {
     const QString DisplayMontage("DisplayMontage");
     const QString DisplaySideBySide("DisplaySideBySide");
     const QString DisplayOutlineOnly("DisplayOutlineOnly");
-    const QString DataFilePath("DataFilePath");
-    const QString NumberOfRows("numOfRows");
-    const QString NumberOfColumns("numOfCols");
-    const QString GenericNumberOfRows("genericNumOfRows");
-    const QString GenericNumberOfColumns("genericNumOfCols");
-    const QString SliceNumber("sliceNumber");
-    const QString ImageFilePrefix("imageFilePrefix");
-    const QString ImageFileSuffix("imageFileSuffix");
-    const QString ImageFileExtension("imageFileExtension");
-    const QString ImageDataContainerPrefix("imageDataContainerPrefix");
-    const QString CellAttributeMatrixName("cellAttrMatrixName");
-    const QString ImageArrayName("imageArrayName");
-    const QString UsingImageFileList("UsingImageFileList");
-    const QString UsingConfigFile("UsingConfigFile");
-    const QString UsingDREAM3DFile("UsingDREAM3DFile");
     const QString InputType("InputType");
-    const QString MontageType("montageType");
-    const QString MontageOrder("montageOrder");
-    const QString DREAM3DFileName("dream3dFileName");
-    const QString GenericTileOverlap("genericTileOverlap");
-    const QString DREAM3DTileOverlap("dream3dTileOverlap");
-    const QString GenericFileListInfo("GenericFileListInfo");
-    const QString OutputFileName("outputFileName");
-    const QString DREAM3DProxy("DREAM3DProxy");
-	const QString ZeissDataFilePath("ZeissDataFilePath");
-	const QString ZeissDataContainerPrefix("ZeissDataContainerPrefix");
-	const QString ZeissCellAttributeMatrixName("ZeissCellAttributeMatrixName");
-	const QString ZeissImageDataArrayName("ZeissImageDataArrayName");
-	const QString ZeissMetadataAttrMatrixName("ZeissMetadataAttrMatrixName");
-	const QString ZeissConvertToGrayscale("ZeissConvertToGrayscale");
-	const QString ZeissChangeOrigin("ZeissChangeOrigin");
-	const QString ZeissChangeSpacing("ZeissChangeSpacing");
-	const QString ZeissColorWeightingR("ZeissColorWeightingR");
-	const QString ZeissColorWeightingG("ZeissColorWeightingG");
-	const QString ZeissColorWeightingB("ZeissColorWeightingB");
-	const QString ZeissOriginX("ZeissOriginX");
-	const QString ZeissOriginY("ZeissOriginY");
-	const QString ZeissOriginZ("ZeissOriginZ");
-	const QString ZeissSpacingX("ZeissSpacingX");
-	const QString ZeissSpacingY("ZeissSpacingY");
-	const QString ZeissSpacingZ("ZeissSpacingZ");
   }
 }

@@ -49,20 +49,21 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
     {
       FileTypeSelection,
       GenericMetadata,
-      DataFile,
+      EnterDREAM3DFile,
+      EnterRobometFile,
+      EnterFijiFile,
+      EnterZeissFile,
       DataDisplayOptions,
-      LoadHDF5Data,
-      ZeissImport
+      LoadHDF5Data
     };
 
     enum InputType
     {
-      Unknown,
       DREAM3D,
-      GenericMontage,
+      Generic,
       Fiji,
       Robomet,
-	  Zeiss
+      Zeiss
     };
 
 	enum DisplayType

@@ -38,33 +38,24 @@
 
 #include <QtWidgets/QWizardPage>
 
-#include "ui_GenericMetadataPage.h"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-class GenericMetadataPage : public QWizardPage
+#include "ui_EnterRobometDataPage.h"
+
+class EnterRobometDataPage : public QWizardPage
 {
     Q_OBJECT
 
   public:
-    enum class CollectionType : unsigned int
-    {
-      RowByRow,
-      ColumnByColumn,
-      SnakeByRows,
-      SnakeByColumns,
-      FilenameDefinedPosition
-    };
-
     /**
     * @brief Constructor
     * @param parameter The FilterParameter object that this widget represents
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    GenericMetadataPage(QWidget* parent = nullptr);
+    EnterRobometDataPage(QWidget* parent = nullptr);
 
-    ~GenericMetadataPage() override;
-
-    Q_PROPERTY(FileListInfo_t FileListInfo READ getFileListInfo WRITE setFileListInfo NOTIFY fileListInfoChanged)
+    ~EnterRobometDataPage() override;
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -72,8 +63,8 @@ class GenericMetadataPage : public QWizardPage
     virtual void setupGui();
 
     /**
-     * @brief registerFields
-     */
+   * @brief Register fields
+   */
     void registerFields();
 
     /**
@@ -83,27 +74,54 @@ class GenericMetadataPage : public QWizardPage
     virtual bool isComplete() const override;
 
     /**
-     * @brief nextId
-     * @return
-     */
+  * @brief nextId
+  * @return
+  */
     int nextId() const override;
 
-  protected:
-    SIMPL_INSTANCE_PROPERTY(FileListInfo_t, FileListInfo)
+    /**
+   * @brief validatePage
+   * @return
+   */
+    bool validatePage() override;
+
+    /**
+     * @brief cleanupPage
+     */
+    void cleanupPage() override;
 
   protected slots:
-    void tileListWidgetChanged();
+
+    // Slots to catch signals emitted by the various ui widgets
+    void selectBtn_clicked();
+    void dataFile_textChanged(const QString& text);
+    void changeTileOverlap_stateChanged(int state);
+    void manualDCAElementNames_stateChanged(int state);
+    void montageName_textChanged(const QString &text);
+  protected:
+    void setInputDirectory(QString val);
+    QString getInputDirectory();
+
+    static void setOpenDialogLastFilePath(QString val)
+    {
+      m_OpenDialogLastDirectory = val;
+    }
+    static QString getOpenDialogLastFilePath()
+    {
+      return m_OpenDialogLastDirectory;
+    }
 
   signals:
-    void fileListInfoChanged(FileListInfo_t fileListInfo);
-
-  private slots:
-    void updateOrderChoices(CollectionType collectionType);
+    /**
+   * @brief dataFileChanged
+   * @param dataFile
+   */
+    void dataFileChanged(const QString &dataFile);
 
   private:
-    QSharedPointer<Ui::GenericMetadataPage> m_Ui;
+    QSharedPointer<Ui::EnterRobometDataPage> m_Ui;
 
-    QString m_OpenDialogLastDirectory;
+    static QString m_OpenDialogLastDirectory;
 
     /**
      * @brief connectSignalsSlots
@@ -111,9 +129,9 @@ class GenericMetadataPage : public QWizardPage
     void connectSignalsSlots();
 
   public:
-    GenericMetadataPage(const GenericMetadataPage&) = delete;  // Copy Constructor Not Implemented
-    GenericMetadataPage(GenericMetadataPage&&) = delete;       // Move Constructor Not Implemented
-    GenericMetadataPage& operator=(const GenericMetadataPage&) = delete; // Copy Assignment Not Implemented
-    GenericMetadataPage& operator=(GenericMetadataPage&&) = delete;      // Move Assignment Not Implemented
+    EnterRobometDataPage(const EnterRobometDataPage&) = delete;  // Copy Constructor Not Implemented
+    EnterRobometDataPage(EnterRobometDataPage&&) = delete;       // Move Constructor Not Implemented
+    EnterRobometDataPage& operator=(const EnterRobometDataPage&) = delete; // Copy Assignment Not Implemented
+    EnterRobometDataPage& operator=(EnterRobometDataPage&&) = delete;      // Move Assignment Not Implemented
 };
 

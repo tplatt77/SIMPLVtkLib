@@ -40,11 +40,9 @@
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-#include "ui_FileTypeSelectionPage.h"
+#include "ui_EnterFijiDataPage.h"
 
-#include "ImportMontageWizard.h"
-
-class FileTypeSelectionPage : public QWizardPage
+class EnterFijiDataPage : public QWizardPage
 {
     Q_OBJECT
 
@@ -55,12 +53,9 @@ class FileTypeSelectionPage : public QWizardPage
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    FileTypeSelectionPage(QWidget* parent = nullptr);
+    EnterFijiDataPage(QWidget* parent = nullptr);
 
-    ~FileTypeSelectionPage() override;
-
-    SIMPL_INSTANCE_PROPERTY(ImportMontageWizard::InputType, InputType)
-    Q_PROPERTY(ImportMontageWizard::InputType InputType READ getInputType WRITE setInputType)
+    ~EnterFijiDataPage() override;
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -68,8 +63,8 @@ class FileTypeSelectionPage : public QWizardPage
     virtual void setupGui();
 
     /**
-     * @brief registerFields
-     */
+   * @brief Register fields
+   */
     void registerFields();
 
     /**
@@ -79,15 +74,54 @@ class FileTypeSelectionPage : public QWizardPage
     virtual bool isComplete() const override;
 
     /**
-     * @brief nextId
-     * @return
-     */
+  * @brief nextId
+  * @return
+  */
     int nextId() const override;
 
-  private:
-    QSharedPointer<Ui::FileTypeSelectionPage> m_Ui;
+    /**
+   * @brief validatePage
+   * @return
+   */
+    bool validatePage() override;
 
-    QString m_OpenDialogLastDirectory;
+    /**
+     * @brief cleanupPage
+     */
+    void cleanupPage() override;
+
+  protected slots:
+
+    // Slots to catch signals emitted by the various ui widgets
+    void selectBtn_clicked();
+    void dataFile_textChanged(const QString& text);
+    void changeTileOverlap_stateChanged(int state);
+    void manualDCAElementNames_stateChanged(int state);
+    void montageName_textChanged(const QString &text);
+  protected:
+    void setInputDirectory(QString val);
+    QString getInputDirectory();
+
+    static void setOpenDialogLastFilePath(QString val)
+    {
+      m_OpenDialogLastDirectory = val;
+    }
+    static QString getOpenDialogLastFilePath()
+    {
+      return m_OpenDialogLastDirectory;
+    }
+
+  signals:
+    /**
+   * @brief dataFileChanged
+   * @param dataFile
+   */
+    void dataFileChanged(const QString &dataFile);
+
+  private:
+    QSharedPointer<Ui::EnterFijiDataPage> m_Ui;
+
+    static QString m_OpenDialogLastDirectory;
 
     /**
      * @brief connectSignalsSlots
@@ -95,9 +129,9 @@ class FileTypeSelectionPage : public QWizardPage
     void connectSignalsSlots();
 
   public:
-    FileTypeSelectionPage(const FileTypeSelectionPage&) = delete;  // Copy Constructor Not Implemented
-    FileTypeSelectionPage(FileTypeSelectionPage&&) = delete;       // Move Constructor Not Implemented
-    FileTypeSelectionPage& operator=(const FileTypeSelectionPage&) = delete; // Copy Assignment Not Implemented
-    FileTypeSelectionPage& operator=(FileTypeSelectionPage&&) = delete;      // Move Assignment Not Implemented
+    EnterFijiDataPage(const EnterFijiDataPage&) = delete;  // Copy Constructor Not Implemented
+    EnterFijiDataPage(EnterFijiDataPage&&) = delete;       // Move Constructor Not Implemented
+    EnterFijiDataPage& operator=(const EnterFijiDataPage&) = delete; // Copy Assignment Not Implemented
+    EnterFijiDataPage& operator=(EnterFijiDataPage&&) = delete;      // Move Assignment Not Implemented
 };
 

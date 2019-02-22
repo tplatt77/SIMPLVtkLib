@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>502</height>
+    <width>453</width>
+    <height>511</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,9 +47,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="configFileRB">
+    <widget class="QRadioButton" name="robometFileRB">
      <property name="text">
-      <string>Config File (FIJI, Robomet)</string>
+      <string>Robomet Config File</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="fijiFileRB">
+     <property name="text">
+      <string>Fiji Config File</string>
      </property>
     </widget>
    </item>
@@ -85,6 +92,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>imageFileListRB</tabstop>
+  <tabstop>robometFileRB</tabstop>
+  <tabstop>fijiFileRB</tabstop>
+  <tabstop>zeissFileRB</tabstop>
+  <tabstop>dream3dFileRB</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

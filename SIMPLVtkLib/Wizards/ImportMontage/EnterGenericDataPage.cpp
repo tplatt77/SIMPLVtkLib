@@ -33,7 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "GenericMetadataPage.h"
+#include "EnterGenericDataPage.h"
 #include "ImportMontage/ImportMontageWizard.h"
 
 #include <QtCore/QDir>
@@ -48,9 +48,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMetadataPage::GenericMetadataPage(QWidget* parent)
+EnterGenericDataPage::EnterGenericDataPage(QWidget* parent)
 : QWizardPage(parent)
-, m_Ui(new Ui::GenericMetadataPage)
+, m_Ui(new Ui::EnterGenericDataPage)
 {
   m_Ui->setupUi(this);
 
@@ -62,12 +62,12 @@ GenericMetadataPage::GenericMetadataPage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericMetadataPage::~GenericMetadataPage() = default;
+EnterGenericDataPage::~EnterGenericDataPage() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMetadataPage::setupGui()
+void EnterGenericDataPage::setupGui()
 {
   connectSignalsSlots();
 
@@ -86,11 +86,13 @@ void GenericMetadataPage::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMetadataPage::connectSignalsSlots()
+void EnterGenericDataPage::connectSignalsSlots()
 {
   connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+
+  connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileListWidget, &TileListWidget::inputDirectoryChanged, [=] { tileListWidgetChanged(); });
   connect(m_Ui->tileListWidget, &TileListWidget::fileOrderingChanged, [=] { tileListWidgetChanged(); });
@@ -103,7 +105,6 @@ void GenericMetadataPage::connectSignalsSlots()
   connect(m_Ui->tileListWidget, &TileListWidget::paddingDigitsChanged, [=] { tileListWidgetChanged(); });
 
   connect(m_Ui->outputTextFileNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->fusionMethodCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] { emit completeChanged(); });
 
   connect(m_Ui->collectionTypeCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
     updateOrderChoices(static_cast<CollectionType>(index));
@@ -117,21 +118,28 @@ void GenericMetadataPage::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMetadataPage::tileListWidgetChanged()
+void EnterGenericDataPage::tileListWidgetChanged()
 {
   emit completeChanged();
 
   FileListInfo_t fileListInfo = m_Ui->tileListWidget->getFileListInfo();
   setFileListInfo(fileListInfo);
-  emit fileListInfoChanged(fileListInfo);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool GenericMetadataPage::isComplete() const
+bool EnterGenericDataPage::isComplete() const
 {
   bool result = true;
+
+  if (m_Ui->montageNameLE->isEnabled())
+  {
+    if (m_Ui->montageNameLE->text().isEmpty())
+    {
+      result = false;
+    }
+  }
 
   if (m_Ui->numOfRowsSB->isEnabled())
   {
@@ -173,14 +181,6 @@ bool GenericMetadataPage::isComplete() const
     }
   }
 
-  if (m_Ui->fusionMethodCB->isEnabled())
-  {
-    if (m_Ui->fusionMethodCB->currentIndex() < 0 || m_Ui->fusionMethodCB->currentIndex() > m_Ui->fusionMethodCB->maxCount() - 1)
-    {
-      result = false;
-    }
-  }
-
   if (m_Ui->collectionTypeCB->isEnabled())
   {
     if (m_Ui->collectionTypeCB->currentIndex() < 0 ||  m_Ui->collectionTypeCB->currentIndex() > m_Ui->collectionTypeCB->maxCount() - 1)
@@ -203,7 +203,22 @@ bool GenericMetadataPage::isComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMetadataPage::updateOrderChoices(CollectionType collectionType)
+void EnterGenericDataPage::registerFields()
+{
+  registerField(ImportMontage::Generic::FieldNames::MontageName, m_Ui->montageNameLE);
+  registerField(ImportMontage::Generic::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
+  registerField(ImportMontage::Generic::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
+  registerField(ImportMontage::Generic::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::Generic::FieldNames::FileListInfo, this);
+  registerField(ImportMontage::Generic::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
+  registerField(ImportMontage::Generic::FieldNames::MontageType, m_Ui->collectionTypeCB);
+  registerField(ImportMontage::Generic::FieldNames::MontageOrder, m_Ui->orderCB);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterGenericDataPage::updateOrderChoices(CollectionType collectionType)
 {
   m_Ui->orderCB->setEnabled(true);
   m_Ui->orderCB->clear();
@@ -255,22 +270,16 @@ void GenericMetadataPage::updateOrderChoices(CollectionType collectionType)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GenericMetadataPage::registerFields()
+int EnterGenericDataPage::nextId() const
 {
-  registerField(ImportMontage::FieldNames::GenericNumberOfRows, m_Ui->numOfRowsSB);
-  registerField(ImportMontage::FieldNames::GenericNumberOfColumns, m_Ui->numOfColsSB);
-  registerField(ImportMontage::FieldNames::GenericTileOverlap, m_Ui->tileOverlapSB);
-  registerField(ImportMontage::FieldNames::GenericFileListInfo, this, "FileListInfo", "fileListInfoChanged");
-  registerField(ImportMontage::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
-  registerField(ImportMontage::FieldNames::MontageType, m_Ui->collectionTypeCB);
-  registerField(ImportMontage::FieldNames::MontageOrder, m_Ui->orderCB);
+  return ImportMontageWizard::WizardPages::DataDisplayOptions;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int GenericMetadataPage::nextId() const
+void EnterGenericDataPage::cleanupPage()
 {
-  return ImportMontageWizard::WizardPages::DataDisplayOptions;
+  // Do not return the page to its original values if the user clicks back.
 }
 

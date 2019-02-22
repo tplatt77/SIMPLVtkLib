@@ -87,7 +87,7 @@ void LoadHDF5DataPage::setupGui()
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::initializePage()
 {
-  QString filePath = field(ImportMontage::FieldNames::DataFilePath).toString();
+  QString filePath = field(ImportMontage::DREAM3D::FieldNames::DataFilePath).toString();
 
   m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
@@ -167,7 +167,7 @@ bool LoadHDF5DataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::registerFields()
 {
-  registerField(ImportMontage::FieldNames::DREAM3DProxy, m_Ui->loadHDF5DataWidget, "Proxy", "proxyChanged");
+  registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget);
 }
 
 // -----------------------------------------------------------------------------

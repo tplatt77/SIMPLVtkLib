@@ -38,24 +38,33 @@
 
 #include <QtWidgets/QWizardPage>
 
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "ui_EnterGenericDataPage.h"
 
-#include "ui_ZeissImportPage.h"
-
-class ZeissImportPage : public QWizardPage
+class EnterGenericDataPage : public QWizardPage
 {
     Q_OBJECT
 
   public:
+    enum class CollectionType : unsigned int
+    {
+      RowByRow,
+      ColumnByColumn,
+      SnakeByRows,
+      SnakeByColumns,
+      FilenameDefinedPosition
+    };
+
     /**
     * @brief Constructor
     * @param parameter The FilterParameter object that this widget represents
     * @param filter The instance of the filter that this parameter is a part of
     * @param parent The parent QWidget for this Widget
     */
-    ZeissImportPage(QWidget* parent = nullptr);
+    EnterGenericDataPage(QWidget* parent = nullptr);
 
-    ~ZeissImportPage() override;
+    ~EnterGenericDataPage() override;
+
+    Q_PROPERTY(FileListInfo_t FileListInfo READ getFileListInfo WRITE setFileListInfo)
 
     /**
      * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -63,8 +72,8 @@ class ZeissImportPage : public QWizardPage
     virtual void setupGui();
 
     /**
-   * @brief Register fields
-   */
+     * @brief registerFields
+     */
     void registerFields();
 
     /**
@@ -74,50 +83,29 @@ class ZeissImportPage : public QWizardPage
     virtual bool isComplete() const override;
 
     /**
-  * @brief nextId
-  * @return
-  */
+     * @brief nextId
+     * @return
+     */
     int nextId() const override;
 
     /**
-   * @brief validatePage
-   * @return
-   */
-    bool validatePage() override;
+     * @brief cleanupPage
+     */
+    void cleanupPage() override;
+
+  protected:
+    SIMPL_INSTANCE_PROPERTY(FileListInfo_t, FileListInfo)
 
   protected slots:
+    void tileListWidgetChanged();
 
-    // Slots to catch signals emitted by the various ui widgets
-    void selectBtn_clicked();
-    void dataFile_textChanged(const QString& text);
-
-    void manualDCAElementNames_stateChanged(int state);
-
-    void montageName_textChanged(const QString& text);
-  protected:
-    void setInputDirectory(QString val);
-    QString getInputDirectory();
-
-    static void setOpenDialogLastFilePath(QString val)
-    {
-      m_OpenDialogLastDirectory = val;
-    }
-    static QString getOpenDialogLastFilePath()
-    {
-      return m_OpenDialogLastDirectory;
-    }
-
-  signals:
-    /**
-   * @brief dataFileChanged
-   * @param dataFile
-   */
-    void dataFileChanged(const QString &dataFile);
+  private slots:
+    void updateOrderChoices(CollectionType collectionType);
 
   private:
-    QSharedPointer<Ui::ZeissImportPage> m_Ui;
+    QSharedPointer<Ui::EnterGenericDataPage> m_Ui;
 
-    static QString m_OpenDialogLastDirectory;
+    QString m_OpenDialogLastDirectory;
 
     /**
      * @brief connectSignalsSlots
@@ -125,9 +113,9 @@ class ZeissImportPage : public QWizardPage
     void connectSignalsSlots();
 
   public:
-    ZeissImportPage(const ZeissImportPage&) = delete;  // Copy Constructor Not Implemented
-    ZeissImportPage(ZeissImportPage&&) = delete;       // Move Constructor Not Implemented
-    ZeissImportPage& operator=(const ZeissImportPage&) = delete; // Copy Assignment Not Implemented
-    ZeissImportPage& operator=(ZeissImportPage&&) = delete;      // Move Assignment Not Implemented
+    EnterGenericDataPage(const EnterGenericDataPage&) = delete;  // Copy Constructor Not Implemented
+    EnterGenericDataPage(EnterGenericDataPage&&) = delete;       // Move Constructor Not Implemented
+    EnterGenericDataPage& operator=(const EnterGenericDataPage&) = delete; // Copy Assignment Not Implemented
+    EnterGenericDataPage& operator=(EnterGenericDataPage&&) = delete;      // Move Assignment Not Implemented
 };
 

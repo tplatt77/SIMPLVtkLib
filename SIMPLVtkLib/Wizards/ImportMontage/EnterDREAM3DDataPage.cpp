@@ -33,7 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "EnterDataFilePage.h"
+#include "EnterDREAM3DDataPage.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QMimeDatabase>
@@ -46,20 +46,21 @@
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
 #include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
+#include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
 
 #include "ImportMontage/ImportMontageConstants.h"
 
 #include "ImportMontageWizard.h"
 
 // Initialize private static member variable
-QString EnterDataFilePage::m_OpenDialogLastDirectory = "";
+QString EnterDREAM3DDataPage::m_OpenDialogLastDirectory = "";
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EnterDataFilePage::EnterDataFilePage(QWidget* parent)
+EnterDREAM3DDataPage::EnterDREAM3DDataPage(QWidget* parent)
 : QWizardPage(parent)
-, m_Ui(new Ui::EnterDataFilePage)
+, m_Ui(new Ui::EnterDREAM3DDataPage)
 {
   m_Ui->setupUi(this);
 
@@ -71,12 +72,12 @@ EnterDataFilePage::EnterDataFilePage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EnterDataFilePage::~EnterDataFilePage() = default;
+EnterDREAM3DDataPage::~EnterDREAM3DDataPage() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::setupGui()
+void EnterDREAM3DDataPage::setupGui()
 {
 	connectSignalsSlots();
 
@@ -88,97 +89,106 @@ void EnterDataFilePage::setupGui()
 
 	m_Ui->tileOverlapSB->setMinimum(0);
 	m_Ui->tileOverlapSB->setMaximum(100);
-
-	// Disable both group boxes by default and only enable when needed
-	m_Ui->configFileMetadata->setVisible(false);
-	m_Ui->configFileMetadata->setDisabled(true);
-	m_Ui->roboMetMetadata->setVisible(false);
-	m_Ui->roboMetMetadata->setDisabled(true);
-	m_Ui->dream3dMetadata->setVisible(false);
-	m_Ui->dream3dMetadata->setDisabled(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::connectSignalsSlots()
+void EnterDREAM3DDataPage::connectSignalsSlots()
 {
-	connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterDataFilePage::selectBtn_clicked);
+  connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterDREAM3DDataPage::selectBtn_clicked);
 
 	QtSFileCompleter* com = new QtSFileCompleter(this, true);
   m_Ui->dataFileLE->setCompleter(com);
-  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterDataFilePage::dataFile_textChanged);
-  connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &EnterDataFilePage::dataFile_textChanged);
+  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterDREAM3DDataPage::dataFile_textChanged);
+  connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &EnterDREAM3DDataPage::dataFile_textChanged);
 
-  connect(m_Ui->sliceNumberLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, [=] { emit completeChanged(); });
+
+  connect(m_Ui->imageDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->cellAttrMatrixNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->imageArrayNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool EnterDataFilePage::isComplete() const
+bool EnterDREAM3DDataPage::isComplete() const
 {
   bool result = true;
+
+  if (m_Ui->montageNameLE->isEnabled())
+  {
+    if (m_Ui->montageNameLE->text().isEmpty())
+    {
+      result = false;
+    }
+  }
 
   if (m_Ui->dataFileLE->isEnabled())
   {
     if (m_Ui->dataFileLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
+    {
+      result = false;
+    }
+  }
+
+  QFileInfo fi(m_Ui->dataFileLE->text());
+  if (fi.completeSuffix() != "dream3d")
+  {
+    result = false;
   }
 
   if (m_Ui->numOfRowsSB->isEnabled())
   {
-	  if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
-	  {
-		  result = false;
-	  }
+    if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
+    {
+      result = false;
+    }
   }
 
   if (m_Ui->numOfColsSB->isEnabled())
   {
-	  if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
-	  {
-		  result = false;
-	  }
+    if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->imageDataContainerPrefixLE->isEnabled())
+  {
+    if (m_Ui->imageDataContainerPrefixLE->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+   
+  if (m_Ui->cellAttrMatrixNameLE->isEnabled())
+  {
+    if (m_Ui->cellAttrMatrixNameLE->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if (m_Ui->imageArrayNameLE->isEnabled())
+  {
+    if (m_Ui->imageArrayNameLE->text().isEmpty())
+    {
+      result = false;
+    }
   }
 
   if (m_Ui->tileOverlapSB->isEnabled())
   {
-	  if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
-	  {
-		  result = false;
-	  }
-  }
-
-  if (m_Ui->sliceNumberLE->isEnabled())
-  {
-	  if (m_Ui->sliceNumberLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-   
-  if (m_Ui->imageFilePrefixLE->isEnabled())
-  {
-	  if (m_Ui->imageFilePrefixLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
-  }
-
-  if (m_Ui->imageFileExtensionLE->isEnabled())
-  {
-	  if (m_Ui->imageFileExtensionLE->text().isEmpty())
-	  {
-		  result = false;
-	  }
+    if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
+    {
+      result = false;
+    }
   }
 
   return result;
@@ -187,47 +197,25 @@ bool EnterDataFilePage::isComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::registerFields()
+void EnterDREAM3DDataPage::registerFields()
 {
-  registerField(ImportMontage::FieldNames::DataFilePath, m_Ui->dataFileLE);
-
-  // Fiji / RoboMet
-  registerField(ImportMontage::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
-  registerField(ImportMontage::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
-
-  // RoboMet
-  registerField(ImportMontage::FieldNames::SliceNumber, m_Ui->sliceNumberLE);
-  registerField(ImportMontage::FieldNames::ImageFilePrefix, m_Ui->imageFilePrefixLE);
-  registerField(ImportMontage::FieldNames::ImageFileSuffix, m_Ui->imageFileSuffixLE);
-  registerField(ImportMontage::FieldNames::ImageFileExtension, m_Ui->imageFileExtensionLE);
-
-  // DREAM3D
-  registerField(ImportMontage::FieldNames::ImageDataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
-  registerField(ImportMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
-  registerField(ImportMontage::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
-  registerField(ImportMontage::FieldNames::DREAM3DTileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::DREAM3D::FieldNames::MontageName, m_Ui->montageNameLE);
+  registerField(ImportMontage::DREAM3D::FieldNames::DataFilePath, m_Ui->dataFileLE);
+  registerField(ImportMontage::DREAM3D::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
+  registerField(ImportMontage::DREAM3D::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
+  registerField(ImportMontage::DREAM3D::FieldNames::DataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
+  registerField(ImportMontage::DREAM3D::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
+  registerField(ImportMontage::DREAM3D::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
+  registerField(ImportMontage::DREAM3D::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::selectBtn_clicked()
+void EnterDREAM3DDataPage::selectBtn_clicked()
 {
-  bool usingConfigFile = field(ImportMontage::FieldNames::UsingConfigFile).toBool();
-
-  QString filter;
-  QString title;
-  if (usingConfigFile)
-  {
-    filter = tr("Fiji Configuration File (*.csv *.txt);;Robomet Configuration File (*.csv);; \
-		Zeiss Configuration File(*.xml);;All Files (*.*)");
-    title = "Select a configuration file";
-  }
-  else
-  {
-    filter = tr("DREAM3D File (*.dream3d);;All Files (*.*)");
-    title = "Select a DREAM3D file";
-  }
+  QString filter = tr("DREAM3D File (*.dream3d);;All Files (*.*)");
+  QString title = "Select a DREAM3D file";
 
   QString outputFile = QFileDialog::getOpenFileName(this, title,
 		getInputDirectory(), filter);
@@ -245,20 +233,12 @@ void EnterDataFilePage::selectBtn_clicked()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::dataFile_textChanged(const QString& text)
+void EnterDREAM3DDataPage::dataFile_textChanged(const QString& text)
 {
 	Q_UNUSED(text)
 
 		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
 	QString inputPath = validator->convertToAbsolutePath(text);
-
-	// Disable group boxes by default and only enable when needed
-	m_Ui->configFileMetadata->setVisible(false);
-	m_Ui->configFileMetadata->setDisabled(true);
-	m_Ui->roboMetMetadata->setVisible(false);
-	m_Ui->roboMetMetadata->setDisabled(true);
-	m_Ui->dream3dMetadata->setVisible(false);
-	m_Ui->dream3dMetadata->setDisabled(true);
 
   if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
 	{
@@ -271,43 +251,7 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
     QMimeDatabase db;
     QMimeType mimeType = db.mimeTypeForFile(inputPath, QMimeDatabase::MatchContent);
 
-    if (ext == "dream3d")
-    {
-      setField("InputType", ImportMontageWizard::InputType::DREAM3D);
-      setFinalPage(false);
-	  m_Ui->configFileMetadata->setVisible(true);
-	  m_Ui->configFileMetadata->setDisabled(false);
-	  m_Ui->dream3dMetadata->setVisible(true);
-	  m_Ui->dream3dMetadata->setDisabled(false);
-    }
-    else if (ext == "txt")
-    {
-      setField("InputType", ImportMontageWizard::InputType::Fiji);
-      setFinalPage(false);
-	  m_Ui->configFileMetadata->setVisible(true);
-	  m_Ui->configFileMetadata->setDisabled(false);
-    }
-    else if (ext == "csv")
-    {
-      setField("InputType", ImportMontageWizard::InputType::Robomet);
-      setFinalPage(false);
-	  m_Ui->configFileMetadata->setVisible(true);
-	  m_Ui->configFileMetadata->setDisabled(false);
-	  m_Ui->roboMetMetadata->setVisible(true);
-	  m_Ui->roboMetMetadata->setDisabled(false);
-    }
-	else if(ext == "xml")
-	{
-		setField("InputType", ImportMontageWizard::InputType::Zeiss);
-		setFinalPage(false);
-		m_Ui->configFileMetadata->setVisible(true);
-		m_Ui->configFileMetadata->setDisabled(false);
-	}
-    else
-    {
-      setField("InputType", ImportMontageWizard::InputType::Unknown);
-      setFinalPage(false);
-    }
+    setFinalPage(false);
   }
 
 	emit completeChanged();
@@ -317,7 +261,7 @@ void EnterDataFilePage::dataFile_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EnterDataFilePage::setInputDirectory(QString val)
+void EnterDREAM3DDataPage::setInputDirectory(QString val)
 {
   m_Ui->dataFileLE->setText(val);
 }
@@ -325,7 +269,7 @@ void EnterDataFilePage::setInputDirectory(QString val)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString EnterDataFilePage::getInputDirectory()
+QString EnterDREAM3DDataPage::getInputDirectory()
 {
   if (m_Ui->dataFileLE->text().isEmpty())
 	{
@@ -337,28 +281,23 @@ QString EnterDataFilePage::getInputDirectory()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EnterDataFilePage::nextId() const
+int EnterDREAM3DDataPage::nextId() const
 {
-  ImportMontageWizard::InputType inputType = field(ImportMontage::FieldNames::InputType).value<ImportMontageWizard::InputType>();
-  if(inputType == ImportMontageWizard::InputType::DREAM3D)
-  {
-    return ImportMontageWizard::WizardPages::LoadHDF5Data;
-  }
-  else if(inputType == ImportMontageWizard::InputType::Fiji || inputType == ImportMontageWizard::InputType::Robomet ||
-	  inputType == ImportMontageWizard::InputType::Zeiss)
-  {
-    return ImportMontageWizard::WizardPages::DataDisplayOptions;
-  }
-  else
-  {
-    return -1;
-  }
+  return ImportMontageWizard::WizardPages::LoadHDF5Data;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool EnterDataFilePage::validatePage()
+void EnterDREAM3DDataPage::cleanupPage()
+{
+  // Do not return the page to its original values if the user clicks back.
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool EnterDREAM3DDataPage::validatePage()
 {
   return true;
 }

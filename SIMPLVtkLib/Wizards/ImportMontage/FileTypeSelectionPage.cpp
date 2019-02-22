@@ -49,14 +49,11 @@
 // -----------------------------------------------------------------------------
 FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
 : QWizardPage(parent)
-, m_InputType(ImportMontageWizard::InputType::Unknown)
 , m_Ui(new Ui::FileTypeSelectionPage)
 {
   m_Ui->setupUi(this);
 
   setupGui();
-
-  registerFields();
 }
 
 // -----------------------------------------------------------------------------
@@ -69,6 +66,8 @@ FileTypeSelectionPage::~FileTypeSelectionPage() = default;
 // -----------------------------------------------------------------------------
 void FileTypeSelectionPage::setupGui()
 {
+  registerFields();
+
 	connectSignalsSlots();
 
 	// Set the default radio button selection
@@ -80,6 +79,40 @@ void FileTypeSelectionPage::setupGui()
 // -----------------------------------------------------------------------------
 void FileTypeSelectionPage::connectSignalsSlots()
 {
+  connect(m_Ui->imageFileListRB, &QRadioButton::toggled, [=] (bool checked) {
+    if (checked)
+    {
+      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Generic);
+    }
+  });
+
+  connect(m_Ui->dream3dFileRB, &QRadioButton::toggled, [=] (bool checked) {
+    if (checked)
+    {
+      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::DREAM3D);
+    }
+  });
+
+  connect(m_Ui->zeissFileRB, &QRadioButton::toggled, [=] (bool checked) {
+    if (checked)
+    {
+      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Zeiss);
+    }
+  });
+
+  connect(m_Ui->fijiFileRB, &QRadioButton::toggled, [=] (bool checked) {
+    if (checked)
+    {
+      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Fiji);
+    }
+  });
+
+  connect(m_Ui->robometFileRB, &QRadioButton::toggled, [=] (bool checked) {
+    if (checked)
+    {
+      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Robomet);
+    }
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -96,24 +129,7 @@ bool FileTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 void FileTypeSelectionPage::registerFields()
 {
-  registerField(ImportMontage::FieldNames::UsingImageFileList, m_Ui->imageFileListRB);
-  registerField(ImportMontage::FieldNames::UsingConfigFile, m_Ui->configFileRB);
-  registerField(ImportMontage::FieldNames::UsingDREAM3DFile, m_Ui->dream3dFileRB);
-  registerField(ImportMontage::FieldNames::InputType, this, "InputType", "inputTypeChanged");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool FileTypeSelectionPage::validatePage()
-{
-  if (m_Ui->imageFileListRB->isChecked())
-  {
-    m_InputType = ImportMontageWizard::InputType::GenericMontage;
-    emit inputTypeChanged(m_InputType);
-  }
-
-  return true;
+  registerField(ImportMontage::FieldNames::InputType, this, "InputType");
 }
 
 // -----------------------------------------------------------------------------
@@ -122,16 +138,24 @@ bool FileTypeSelectionPage::validatePage()
 int FileTypeSelectionPage::nextId() const
 {
   if (m_Ui->imageFileListRB->isChecked())
-	{
+  {
     return ImportMontageWizard::WizardPages::GenericMetadata;
 	}
-  else if (m_Ui->configFileRB->isChecked() || m_Ui->dream3dFileRB->isChecked())
+  else if (m_Ui->dream3dFileRB->isChecked())
 	{
-    return ImportMontageWizard::WizardPages::DataFile;
+    return ImportMontageWizard::WizardPages::EnterDREAM3DFile;
 	}
+  else if (m_Ui->fijiFileRB->isChecked())
+  {
+    return ImportMontageWizard::WizardPages::EnterFijiFile;
+  }
+  else if (m_Ui->robometFileRB->isChecked())
+  {
+    return ImportMontageWizard::WizardPages::EnterRobometFile;
+  }
   else if(m_Ui->zeissFileRB->isChecked())
   {
-	  return ImportMontageWizard::WizardPages::ZeissImport;
+    return ImportMontageWizard::WizardPages::EnterZeissFile;
   }
 	else
 	{

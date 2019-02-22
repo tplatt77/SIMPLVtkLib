@@ -37,12 +37,15 @@
 
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
-#include "SIMPLVtkLib/Wizards/ImportMontage/GenericMetadataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterGenericDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/FileTypeSelectionPage.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/EnterDataFilePage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/LoadHDF5DataPage.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/ZeissImportPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterZeissDataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterDREAM3DDataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterRobometDataPage.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/EnterFijiDataPage.h"
+
 
 // -----------------------------------------------------------------------------
 //
@@ -56,11 +59,15 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
 
   setPage(WizardPages::FileTypeSelection, new FileTypeSelectionPage);
 
-  setPage(WizardPages::GenericMetadata, new GenericMetadataPage);
+  setPage(WizardPages::GenericMetadata, new EnterGenericDataPage);
 
-  setPage(WizardPages::DataFile, new EnterDataFilePage);
+  setPage(WizardPages::EnterDREAM3DFile, new EnterDREAM3DDataPage);
 
-  setPage(WizardPages::ZeissImport, new ZeissImportPage);
+  setPage(WizardPages::EnterRobometFile, new EnterRobometDataPage);
+
+  setPage(WizardPages::EnterFijiFile, new EnterFijiDataPage);
+
+  setPage(WizardPages::EnterZeissFile, new EnterZeissDataPage);
 
   setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
 
