@@ -253,14 +253,6 @@ bool EnterRobometDataPage::isComplete() const
     }
   }
 
-  if (m_Ui->imageFileSuffixLE->isEnabled())
-  {
-    if (m_Ui->imageFileSuffixLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
   if (m_Ui->imageFileExtensionLE->isEnabled())
   {
     if (m_Ui->imageFileExtensionLE->text().isEmpty())
