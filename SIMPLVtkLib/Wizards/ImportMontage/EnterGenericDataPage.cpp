@@ -209,7 +209,7 @@ void EnterGenericDataPage::registerFields()
   registerField(ImportMontage::Generic::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
   registerField(ImportMontage::Generic::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
   registerField(ImportMontage::Generic::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
-  registerField(ImportMontage::Generic::FieldNames::FileListInfo, this);
+  registerField(ImportMontage::Generic::FieldNames::FileListInfo, this, "FileListInfo");
   registerField(ImportMontage::Generic::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
   registerField(ImportMontage::Generic::FieldNames::MontageType, m_Ui->collectionTypeCB);
   registerField(ImportMontage::Generic::FieldNames::MontageOrder, m_Ui->orderCB);

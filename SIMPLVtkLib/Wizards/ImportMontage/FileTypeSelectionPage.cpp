@@ -70,7 +70,7 @@ void FileTypeSelectionPage::setupGui()
 
 	connectSignalsSlots();
 
-	// Set the default radio button selection
+  // Set the default radio button selection
   m_Ui->imageFileListRB->setChecked(true);
 }
 
@@ -139,6 +139,7 @@ int FileTypeSelectionPage::nextId() const
 {
   if (m_Ui->imageFileListRB->isChecked())
   {
+	  emit m_Ui->imageFileListRB->toggled(true);
     return ImportMontageWizard::WizardPages::GenericMetadata;
 	}
   else if (m_Ui->dream3dFileRB->isChecked())
