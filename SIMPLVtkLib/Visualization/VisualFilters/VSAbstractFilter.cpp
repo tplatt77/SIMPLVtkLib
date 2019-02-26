@@ -875,15 +875,12 @@ double* VSAbstractFilter::getTransformBounds()
     return getBounds();
   }
 
-  vtkTransformFilter* trans = vtkTransformFilter::New();
+  VTK_PTR(vtkTransformFilter) trans = VTK_PTR(vtkTransformFilter)::New();
   trans->SetInputConnection(getOutputPort());
   trans->SetTransform(getTransform()->getGlobalTransform());
+  trans->ReleaseDataFlagOn();
   trans->Update();
-  double* transformBounds = trans->GetOutput()->GetBounds();
-
-  trans->Delete();
-
-  return transformBounds;
+  return trans->GetOutput()->GetBounds();
 }
 
 // -----------------------------------------------------------------------------

@@ -171,6 +171,12 @@ public:
    */
   static bool CompatibleWithParent(VSAbstractFilter* filter);
 
+  /**
+   * @brief Returns the bounds from the vtkTransformFilter
+   * @return
+   */
+  double* getTransformBounds() override;
+
 public slots:
   /**
    * @brief Wrap the entire DataContainer

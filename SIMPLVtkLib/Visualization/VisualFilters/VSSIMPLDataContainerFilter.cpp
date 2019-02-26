@@ -43,6 +43,9 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkImageData.h>
+#include <vtkTransformFilter.h>
+#include <vtkPointSet.h>
+#include <vtkExtractVOI.h>
 
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
@@ -481,4 +484,32 @@ bool VSSIMPLDataContainerFilter::CompatibleWithParent(VSAbstractFilter* filter)
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSSIMPLDataContainerFilter::getTransformBounds()
+{
+	if(nullptr == getTransformFilter())
+	{
+		return getBounds();
+	}
+	VTK_PTR(vtkDataSet) outputData = getOutput();
+	VTK_PTR(vtkImageData) imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+	// Subsample the image to reduce amount of data stored in transform filter
+	VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
+	int* inputDims = imageData->GetDimensions();
+	subsample->SetInputData(imageData);
+	subsample->SetSampleRate(20, 20, 20);
+	subsample->ReleaseDataFlagOn();
+	subsample->Update();
+
+	VTK_PTR(vtkTransformFilter) trans = getTransformFilter();
+	trans->SetInputConnection(subsample->GetOutputPort());
+	trans->SetTransform(getTransform()->getGlobalTransform());
+	trans->ReleaseDataFlagOn();
+	trans->Update();
+	return trans->GetOutput()->GetBounds();
 }
