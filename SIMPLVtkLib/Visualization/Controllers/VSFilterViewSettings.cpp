@@ -1369,7 +1369,7 @@ void VSFilterViewSettings::setupCubeAxesActor()
 
   if(m_Filter && m_Filter->getOutput())
   {
-    m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
+    m_CubeAxesActor->SetBounds(m_Filter->getBounds());
   }
 }
 
