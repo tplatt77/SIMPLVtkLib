@@ -88,6 +88,14 @@ namespace ImportMontage
       const QString CellAttributeMatrixName("fijiCellAttributeMatrixName");
       const QString DataContainerPrefix("fijiDataContainerPrefix");
       const QString ImageArrayName("fijiImageArrayName");
+	  const QString ChangeOrigin("fijiChangeOrigin");
+	  const QString ChangeSpacing("fijiChangeSpacing");
+	  const QString OriginX("fijiOriginX");
+	  const QString OriginY("fijiOriginY");
+	  const QString OriginZ("fijiOriginZ");
+	  const QString SpacingX("fijiSpacingX");
+	  const QString SpacingY("fijiSpacingY");
+	  const QString SpacingZ("fijiSpacingZ");
     }
   }
 

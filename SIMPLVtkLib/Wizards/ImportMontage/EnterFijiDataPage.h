@@ -96,6 +96,8 @@ class EnterFijiDataPage : public QWizardPage
     void selectBtn_clicked();
     void dataFile_textChanged(const QString& text);
     void changeTileOverlap_stateChanged(int state);
+	void changeOrigin_stateChanged(int state);
+	void changeSpacing_stateChanged(int state);
     void manualDCAElementNames_stateChanged(int state);
     void montageName_textChanged(const QString &text);
   protected:
