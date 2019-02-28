@@ -116,6 +116,7 @@ namespace ImportMontage
       const QString CellAttributeMatrixName("rbmCellAttributeMatrixName");
       const QString DataContainerPrefix("rbmDataContainerPrefix");
       const QString ImageArrayName("rbmImageArrayName");
+      const QString RobometListInfo("rbmListInfo");
     }
   }
 

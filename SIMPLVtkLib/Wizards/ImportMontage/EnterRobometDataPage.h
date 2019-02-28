@@ -91,16 +91,14 @@ class EnterRobometDataPage : public QWizardPage
     void cleanupPage() override;
 
   protected slots:
-
-    // Slots to catch signals emitted by the various ui widgets
-    void selectBtn_clicked();
-    void dataFile_textChanged(const QString& text);
     void changeTileOverlap_stateChanged(int state);
     void manualDCAElementNames_stateChanged(int state);
     void montageName_textChanged(const QString &text);
+    void robometListWidgetChanged();
+
   protected:
-    void setInputDirectory(QString val);
-    QString getInputDirectory();
+    SIMPL_INSTANCE_PROPERTY(RobometListInfo_t, RobometListInfo)
+    Q_PROPERTY(RobometListInfo_t RobometListInfo READ getRobometListInfo WRITE setRobometListInfo)
 
     static void setOpenDialogLastFilePath(QString val)
     {
@@ -127,6 +125,11 @@ class EnterRobometDataPage : public QWizardPage
      * @brief connectSignalsSlots
      */
     void connectSignalsSlots();
+
+    /**
+     * @brief disconnectSignalsSlots
+     */
+    void disconnectSignalsSlots();
 
   public:
     EnterRobometDataPage(const EnterRobometDataPage&) = delete;  // Copy Constructor Not Implemented

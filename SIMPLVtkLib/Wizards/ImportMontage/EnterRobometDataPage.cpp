@@ -72,7 +72,10 @@ EnterRobometDataPage::EnterRobometDataPage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EnterRobometDataPage::~EnterRobometDataPage() = default;
+EnterRobometDataPage::~EnterRobometDataPage()
+{
+  disconnectSignalsSlots();
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -81,12 +84,6 @@ void EnterRobometDataPage::setupGui()
 {
 	connectSignalsSlots();
 
-	m_Ui->numOfRowsSB->setMinimum(1);
-	m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
-
-	m_Ui->numOfColsSB->setMinimum(1);
-	m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
-
   // Store the advancedGridLayout inside the QtSDisclosableWidget
   QtSDisclosableWidget* advancedGB = new QtSDisclosableWidget(this);
   advancedGB->setTitle("Advanced");
@@ -94,7 +91,7 @@ void EnterRobometDataPage::setupGui()
   advancedGridLayout->setParent(nullptr);
   advancedGB->setContentLayout(advancedGridLayout);
 
-  m_Ui->gridLayout->addWidget(advancedGB, 8, 0, 1, 4);
+  m_Ui->gridLayout->addWidget(advancedGB, 9, 0, 1, 4);
 }
 
 QPair<int,int> gridPosition(QWidget* widget)
@@ -127,29 +124,48 @@ QPair<int,int> gridPosition(QWidget* widget)
 // -----------------------------------------------------------------------------
 void EnterRobometDataPage::connectSignalsSlots()
 {
-  connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterRobometDataPage::selectBtn_clicked);
-
-	QtSFileCompleter* com = new QtSFileCompleter(this, true);
-  m_Ui->dataFileLE->setCompleter(com);
-  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterRobometDataPage::dataFile_textChanged);
-  connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &EnterRobometDataPage::dataFile_textChanged);
-
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, &EnterRobometDataPage::montageName_textChanged);
 
-  connect(m_Ui->imageFilePrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->imageFileSuffixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->imageFileExtensionLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->cellAttrMatrixNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->imageArrayNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->sliceNumberSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+
+  connect(m_Ui->robometListWidget, &RobometListWidget::inputDirectoryChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::filePrefixChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::fileSuffixChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::fileExtensionChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::sliceNumberChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::numberOfRowsChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::numberOfColumnsChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::slicePaddingChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::rowColPaddingChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
 
   connect(m_Ui->changeTileOverlapCB, &QCheckBox::stateChanged, this, &EnterRobometDataPage::changeTileOverlap_stateChanged);
   connect(m_Ui->manualDCAElementNamesCB, &QCheckBox::stateChanged, this, &EnterRobometDataPage::manualDCAElementNames_stateChanged);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterRobometDataPage::disconnectSignalsSlots()
+{
+  disconnect(m_Ui->imageDataContainerPrefixLE, &QLineEdit::textChanged, 0, 0);
+  disconnect(m_Ui->cellAttrMatrixNameLE, &QLineEdit::textChanged, 0, 0);
+  disconnect(m_Ui->imageArrayNameLE, &QLineEdit::textChanged, 0, 0);
+  disconnect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), 0, 0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterRobometDataPage::robometListWidgetChanged()
+{
+  RobometListInfo_t robometListInfo = m_Ui->robometListWidget->getRobometListInfo();
+  setRobometListInfo(robometListInfo);
+
+  emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -207,55 +223,9 @@ bool EnterRobometDataPage::isComplete() const
     }
   }
 
-  if (m_Ui->dataFileLE->isEnabled())
+  if (m_Ui->robometListWidget->isEnabled())
   {
-    if (m_Ui->dataFileLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  QFileInfo fi(m_Ui->dataFileLE->text());
-  if (fi.completeSuffix() != "csv")
-  {
-    result = false;
-  }
-
-  if (m_Ui->numOfRowsSB->isEnabled())
-  {
-    if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->numOfColsSB->isEnabled())
-  {
-    if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->sliceNumberSB->isEnabled())
-  {
-    if (m_Ui->sliceNumberSB->value() < m_Ui->sliceNumberSB->minimum() || m_Ui->sliceNumberSB->value() > m_Ui->sliceNumberSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->imageFilePrefixLE->isEnabled())
-  {
-    if (m_Ui->imageFilePrefixLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->imageFileExtensionLE->isEnabled())
-  {
-    if (m_Ui->imageFileExtensionLE->text().isEmpty())
+    if (!m_Ui->robometListWidget->isComplete())
     {
       result = false;
     }
@@ -302,85 +272,12 @@ bool EnterRobometDataPage::isComplete() const
 void EnterRobometDataPage::registerFields()
 {
   registerField(ImportMontage::Robomet::FieldNames::MontageName, m_Ui->montageNameLE);
-  registerField(ImportMontage::Robomet::FieldNames::DataFilePath, m_Ui->dataFileLE);
-  registerField(ImportMontage::Robomet::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
-  registerField(ImportMontage::Robomet::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
-  registerField(ImportMontage::Robomet::FieldNames::SliceNumber, m_Ui->sliceNumberSB);
-  registerField(ImportMontage::Robomet::FieldNames::ImageFilePrefix, m_Ui->imageFilePrefixLE);
-  registerField(ImportMontage::Robomet::FieldNames::ImageFileSuffix, m_Ui->imageFileSuffixLE);
-  registerField(ImportMontage::Robomet::FieldNames::ImageFileExtension, m_Ui->imageFileExtensionLE);
+  registerField(ImportMontage::Robomet::FieldNames::RobometListInfo, this, "RobometListInfo");
   registerField(ImportMontage::Robomet::FieldNames::DataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
   registerField(ImportMontage::Robomet::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::Robomet::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
   registerField(ImportMontage::Robomet::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
   registerField(ImportMontage::Robomet::FieldNames::ChangeTileOverlap, m_Ui->changeTileOverlapCB);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterRobometDataPage::selectBtn_clicked()
-{
-  QString filter = tr("Robomet Configuration File (*.csv);;All Files (*.*)");
-  QString title = "Select a Robomet configuration file";
-
-  QString outputFile = QFileDialog::getOpenFileName(this, title,
-		getInputDirectory(), filter);
-
-	if (!outputFile.isNull())
-	{
-    m_Ui->dataFileLE->blockSignals(true);
-    m_Ui->dataFileLE->setText(QDir::toNativeSeparators(outputFile));
-    dataFile_textChanged(m_Ui->dataFileLE->text());
-		setOpenDialogLastFilePath(outputFile);
-    m_Ui->dataFileLE->blockSignals(false);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterRobometDataPage::dataFile_textChanged(const QString& text)
-{
-  Q_UNUSED(text)
-
-  SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-  QString inputPath = validator->convertToAbsolutePath(text);
-
-  if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
-  {
-  }
-
-  if (!inputPath.isEmpty())
-  {
-    QFileInfo fi(inputPath);
-    QString ext = fi.completeSuffix();
-    QMimeDatabase db;
-    QMimeType mimeType = db.mimeTypeForFile(inputPath, QMimeDatabase::MatchContent);
-  }
-
-  emit completeChanged();
-  emit dataFileChanged(text);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterRobometDataPage::setInputDirectory(QString val)
-{
-  m_Ui->dataFileLE->setText(val);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString EnterRobometDataPage::getInputDirectory()
-{
-  if (m_Ui->dataFileLE->text().isEmpty())
-	{
-		return QDir::homePath();
-	}
-  return m_Ui->dataFileLE->text();
 }
 
 // -----------------------------------------------------------------------------
