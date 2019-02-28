@@ -66,10 +66,6 @@ RobometListWidget::RobometListWidget(QWidget* parent)
 {
   m_Ui->setupUi(this);
   setupGui();
-  if(m_Ui->inputDir->text().isEmpty())
-  {
-    setInputDirectory(QDir::homePath());
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -99,7 +95,6 @@ void RobometListWidget::setupGui()
 
   m_Ui->numOfRows->setMaximum(std::numeric_limits<int>().max());
   m_Ui->numOfCols->setMaximum(std::numeric_limits<int>().max());
-  m_Ui->slicePadding->setMaximum(std::numeric_limits<int>().max());
   m_Ui->rowColPadding->setMaximum(std::numeric_limits<int>().max());
   m_Ui->slice->setMaximum(std::numeric_limits<int>().max());
 
@@ -107,7 +102,7 @@ void RobometListWidget::setupGui()
 
   m_WidgetList << m_Ui->inputDir << m_Ui->inputDirBtn;
   m_WidgetList << m_Ui->filePrefix << m_Ui->fileSuffix << m_Ui->fileExt << m_Ui->slice;
-  m_WidgetList << m_Ui->numOfRows << m_Ui->numOfCols << m_Ui->slicePadding << m_Ui->rowColPadding;
+  m_WidgetList << m_Ui->numOfRows << m_Ui->numOfCols << m_Ui->rowColPadding;
 
   m_Ui->errorMessage->setVisible(false);
 
@@ -160,11 +155,6 @@ void RobometListWidget::connectSignalsSlots()
   connect(m_Ui->numOfCols, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
     generateExampleInputFile();
     emit numberOfColumnsChanged(value);
-  });
-
-  connect(m_Ui->slicePadding, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    generateExampleInputFile();
-    emit slicePaddingChanged(value);
   });
 
   connect(m_Ui->rowColPadding, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
@@ -283,20 +273,6 @@ void RobometListWidget::validateInputFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometListWidget::checkIOFiles()
-{
-  SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-  QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
-
-  if(QtSFileUtils::VerifyPathExists(inputPath, m_Ui->inputDir))
-  {
-    findMaxSliceAndPrefix();
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void RobometListWidget::inputDirBtn_clicked()
 {
   QString filter = tr("Robomet Configuration File (*.csv);;All Files (*.*)");
@@ -341,7 +317,7 @@ void RobometListWidget::inputDir_textChanged(const QString& text)
   if(QtSFileUtils::VerifyPathExists(inputPath, m_Ui->inputDir))
   {
     m_ShowFileAction->setEnabled(true);
-    findMaxSliceAndPrefix();
+    findPrefix();
     QDir dir(inputPath);
     QString dirname = dir.dirName();
     dir.cdUp();
@@ -365,9 +341,9 @@ void RobometListWidget::inputDir_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 void RobometListWidget::generateExampleInputFile()
 {
-  QString rowString = StringOperations::GeneratePaddedString(m_Ui->numOfRows->value() - 1, m_Ui->rowColPadding->value(), '0');
-  QString colString = StringOperations::GeneratePaddedString(m_Ui->numOfCols->value() - 1, m_Ui->rowColPadding->value(), '0');
-  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), m_Ui->slicePadding->value(), '0');
+  QString rowString = StringOperations::GeneratePaddedString(0, m_Ui->rowColPadding->value(), '0');
+  QString colString = StringOperations::GeneratePaddedString(0, m_Ui->rowColPadding->value(), '0');
+  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), k_SlicePadding, '0');
   QFileInfo fi(m_Ui->inputDir->text());
   QString parentPath = tr("%1%2").arg(fi.path()).arg(QDir::separator());
   QString filename = QString("%1%2%3_%4_%5%6.%7").arg(parentPath).arg(m_Ui->filePrefix->text()).arg(sliceString).arg(rowString).arg(colString).arg(m_Ui->fileSuffix->text()).arg(m_Ui->fileExt->text());
@@ -379,21 +355,21 @@ void RobometListWidget::generateExampleInputFile()
   QString prefix = m_Ui->filePrefix->text();
   QString suffix = m_Ui->fileSuffix->text();
   QString ext = m_Ui->fileExt->text();
-  int slicePadding = m_Ui->slicePadding->value();
   int rowColPadding = m_Ui->rowColPadding->value();
   bool hasMissingFiles = false;
 
   fi.setFile(m_Ui->inputDir->text());
-  QString slicePath = tr("%1%2%3%4").arg(fi.path()).arg(QDir::separator()).arg(m_Ui->filePrefix->text()).arg(sliceString);
+  QString slicePath = tr("%1%2%3_%4").arg(fi.path()).arg(QDir::separator()).arg(m_Ui->filePrefix->text()).arg(sliceString);
 
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(slicePath);
 
   // Now generate all the file names the user is asking for and populate the table
-  QVector<QString> fileList = generateFileList(sliceNumber, numOfRows, numOfCols, hasMissingFiles, inputPath, prefix, suffix, ext, slicePadding, rowColPadding);
+  QVector<QString> fileList = generateFileList(sliceNumber, numOfRows, numOfCols, hasMissingFiles, inputPath, prefix, suffix, ext, rowColPadding);
   m_Ui->fileListView->clear();
   QIcon greenDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_green.png"));
   QIcon redDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_red.png"));
+  int fileExistsCount = 0;
   for(QVector<QString>::size_type i = 0; i < fileList.size(); ++i)
   {
     QString filePath(fileList.at(i));
@@ -402,6 +378,7 @@ void RobometListWidget::generateExampleInputFile()
     if(fi.exists())
     {
       item->setIcon(greenDot);
+      fileExistsCount++;
     }
     else
     {
@@ -420,31 +397,44 @@ void RobometListWidget::generateExampleInputFile()
     m_Ui->errorMessage->setVisible(true);
     m_Ui->errorMessage->setText("All files exist.");
   }
+
+  m_Ui->totalFilesFound->setText(tr("%1/%2").arg(fileExistsCount).arg(fileList.size()));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
-                                                     const QString& fileSuffix, const QString& fileExtension, int slicePaddingDigits, int rowColPaddingDigits)
+                                                     const QString& fileSuffix, const QString& fileExtension, int rowColPaddingDigits)
 {
   QVector<QString> fileList;
-  QDir dir(inputPath);
-  if(!dir.exists())
-  {
-    return fileList;
-  }
-  int index = 0;
+//  QDir dir(inputPath);
+//  if(!dir.exists())
+//  {
+//    return fileList;
+//  }
 
-  QString filename;
   bool missingFiles = false;
   for(int row = 0; row < numberOfRows; row++)
   {
     for(int col = 0; col < numberOfColumns; col++)
     {
-      filename = QString("%1%2_%3_%4%5.%6").arg(filePrefix).arg(QString::number(sliceNumber), slicePaddingDigits, '0')
-          .arg(QString::number(row), rowColPaddingDigits, '0').arg(QString::number(col), rowColPaddingDigits, '0')
-          .arg(fileSuffix).arg(fileExtension);
+      QString filename;
+      if (!filePrefix.isEmpty())
+      {
+        filename.append(QString("%1_").arg(filePrefix));
+      }
+
+      filename.append(QString("%1_%2_%3").arg(QString::number(sliceNumber), k_SlicePadding, '0')
+          .arg(QString::number(row), rowColPaddingDigits, '0').arg(QString::number(col), rowColPaddingDigits, '0'));
+
+      if (!fileSuffix.isEmpty())
+      {
+        filename.append(QString("_%1").arg(fileSuffix));
+      }
+
+      filename.append(QString(".%5").arg(fileExtension));
+
       QString filePath = inputPath + QDir::separator() + filename;
       filePath = QDir::toNativeSeparators(filePath);
 
@@ -466,101 +456,26 @@ QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int number
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void RobometListWidget::findMaxSliceAndPrefix()
+void RobometListWidget::findPrefix()
 {
-  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), m_Ui->slicePadding->value(), '0');
-  QFileInfo fi(m_Ui->inputDir->text());
-  QString slicePath = tr("%1%2%3%4").arg(fi.path()).arg(QDir::separator()).arg(m_Ui->filePrefix->text()).arg(sliceString);
+  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), k_SlicePadding, '0');
+  QFileInfo inputFi(m_Ui->inputDir->text());
 
-  if(slicePath.length() == 0)
+  // Find Prefix
   {
-    return;
-  }
-
-  SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-  QString inputPath = validator->convertToAbsolutePath(slicePath);
-
-  QDir dir(inputPath);
-
-  // Final check to make sure we have a valid file extension
-  if(m_Ui->fileExt->text().isEmpty())
-  {
-    return;
-  }
-
-  QString ext = "." + m_Ui->fileExt->text();
-  QStringList filters;
-  filters << "*" + ext;
-  dir.setNameFilters(filters);
-  QFileInfoList fiList = dir.entryInfoList();
-
-  int minSlice = 0;
-  int maxSlice = 0;
-  int currValue = 0;
-  bool flag = false;
-  bool ok;
-  QString fPrefix;
-  QRegExp rx("(\\d+)");
-  QStringList list;
-  int pos = 0;
-  int digitStart = 0;
-  int digitEnd = 0;
-  int totalOimFilesFound = 0;
-  int minTotalDigits = 1000;
-  foreach(QFileInfo fi, fiList)
-  {
-    if((fi.suffix().compare(ext) != 0) && fi.isFile())
+    QDir dir(inputFi.path());
+    dir.setFilter(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
+    QFileInfoList fiList = dir.entryInfoList();
+    for (QFileInfo fi : fiList)
     {
-      pos = 0;
-      list.clear();
-      QString fn = fi.baseName();
-      int length = fn.length();
-      digitEnd = length - 1;
-      while(digitEnd >= 0 && fn[digitEnd] >= '0' && fn[digitEnd] <= '9')
+      QString folderName = fi.baseName();
+      if (folderName.endsWith(tr("_%1").arg(sliceString)))
       {
-        --digitEnd;
+        folderName.remove(tr("_%1").arg(sliceString));
+        m_Ui->filePrefix->setText(folderName);
       }
-      pos = digitEnd;
-
-      digitStart = pos = rx.indexIn(fn, pos);
-      digitEnd = digitStart;
-      while((pos = rx.indexIn(fn, pos)) != -1)
-      {
-        list << rx.cap(0);
-        fPrefix = fn.left(pos);
-        pos += rx.matchedLength();
-      }
-      while(digitEnd >= 0 && fn[digitEnd] >= '0' && fn[digitEnd] <= '9')
-      {
-        ++digitEnd;
-      }
-
-      if(digitEnd - digitStart < minTotalDigits)
-      {
-        minTotalDigits = digitEnd - digitStart;
-      }
-      if(!list.empty())
-      {
-        currValue = list.front().toInt(&ok);
-        if(!flag)
-        {
-          minSlice = currValue;
-          flag = true;
-        }
-        if(currValue > maxSlice)
-        {
-          maxSlice = currValue;
-        }
-        if(currValue < minSlice)
-        {
-          minSlice = currValue;
-        }
-      }
-      ++totalOimFilesFound;
     }
   }
-  this->m_Ui->totalSlices->setText(QString::number(totalOimFilesFound));
-  this->m_Ui->filePrefix->setText(fPrefix);
 }
 
 // -----------------------------------------------------------------------------
@@ -573,7 +488,7 @@ RobometListInfo_t RobometListWidget::getRobometListInfo()
 
   RobometListInfo_t data;
   data.RowColPaddingDigits = m_Ui->rowColPadding->value();
-  data.SlicePaddingDigits = m_Ui->slicePadding->value();
+  data.SlicePaddingDigits = k_SlicePadding;
   data.NumberOfColumns = m_Ui->numOfCols->value();
   data.NumberOfRows = m_Ui->numOfRows->value();
   data.SliceNumber = m_Ui->slice->value();

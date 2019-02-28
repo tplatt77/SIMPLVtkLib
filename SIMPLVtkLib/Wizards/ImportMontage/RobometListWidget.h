@@ -163,11 +163,6 @@ protected:
   }
 
   /**
-   * @brief checkIOFiles
-   */
-  virtual void checkIOFiles();
-
-  /**
    * @brief validateInputFile
    */
   void validateInputFile();
@@ -178,9 +173,9 @@ protected:
   void setWidgetListEnabled(bool v);
 
   /**
-   * @brief Method to attempt the extraction of the file max slice value and prefix
+   * @brief Method to attempt the extraction of the file prefix
    */
-  void findMaxSliceAndPrefix();
+  void findPrefix();
 
   /**
    * @brief generateExampleInputFile
@@ -263,6 +258,8 @@ private:
   QString m_CurrentText = "";
   bool m_DidCausePreflight = false;
 
+  const int k_SlicePadding = 6;
+
   /**
    * @brief connectSignalsSlots
    */
@@ -284,12 +281,11 @@ private:
    * @param filePrefix
    * @param fileSuffix
    * @param fileExtension
-   * @param slicePaddingDigits
    * @param rowColPaddingDigits
    * @return
    */
   QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
-                                                       const QString& fileSuffix, const QString& fileExtension, int slicePaddingDigits, int rowColPaddingDigits);
+                                                       const QString& fileSuffix, const QString& fileExtension, int rowColPaddingDigits);
 
 public:
   RobometListWidget(const RobometListWidget&) = delete; // Copy Constructor Not Implemented
