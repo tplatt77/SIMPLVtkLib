@@ -113,6 +113,20 @@ void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataCo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSController::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
+{
+	m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
+	for(FilterPipeline::Pointer pipeline : pipelines)
+	{
+		DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
+		m_ImportObject->addDataContainerArray(pipeline, dca);
+	}
+	m_ImportObject->run();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSController::reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
   VSPipelineFilter* parentFilter = dynamic_cast<VSPipelineFilter*>(getFilterModel()->getPipelineFilter(pipeline));

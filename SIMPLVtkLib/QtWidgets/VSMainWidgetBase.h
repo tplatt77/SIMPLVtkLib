@@ -185,6 +185,13 @@ public:
   bool importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**
+   * @brief importPipelineOutput
+   * @param pipelines
+   * @return
+   */
+  bool importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines);
+
+  /**
    * @brief importVTKData
    * @param filePath
    * @return

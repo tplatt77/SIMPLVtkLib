@@ -1,4 +1,5 @@
 set(${PROJECT_NAME}_ImportMontage_HDRS
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/BatchProcessingFijiOptionsPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDREAM3DDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.h
@@ -15,10 +16,10 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.h
 )
 
 set(${PROJECT_NAME}_ImportMontage_SRCS
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/BatchProcessingFijiOptionsPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/DataDisplayOptionsPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterDREAM3DDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.cpp
@@ -34,10 +35,10 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.cpp
 )
 
 set(${PROJECT_NAME}_ImportMontage_UIS
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/BatchProcessingFijiOptionsPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/DataDisplayOptionsPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterDREAM3DDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterFijiDataPage.ui
@@ -49,7 +50,6 @@ set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/LoadHDF5DataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/RobometListWidget.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/TileListWidget.ui
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterZeissDataPage.ui
   
 )
 

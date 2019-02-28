@@ -373,7 +373,14 @@ void EnterFijiDataPage::registerFields()
 // -----------------------------------------------------------------------------
 int EnterFijiDataPage::nextId() const
 {
-  return ImportMontageWizard::WizardPages::DataDisplayOptions;
+	if(field(ImportMontage::FieldNames::BatchProcessing).toBool())
+	{
+		return ImportMontageWizard::WizardPages::BatchProcessingFijiOptions;
+	}
+	else
+	{
+		return ImportMontageWizard::WizardPages::DataDisplayOptions;
+	}
 }
 
 // -----------------------------------------------------------------------------

@@ -44,7 +44,7 @@ class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
 public:
-  MontageWorker(FilterPipeline::Pointer pipeline);
+  MontageWorker(std::vector<FilterPipeline::Pointer> pipelines);
 	~MontageWorker();
 
 signals:
@@ -56,5 +56,5 @@ public slots:
 	void process();
 
 private:
-	FilterPipeline::Pointer m_pipeline;
+	std::vector<FilterPipeline::Pointer> m_pipelines;
 };

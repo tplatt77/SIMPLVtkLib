@@ -495,6 +495,15 @@ bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, Da
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
+{
+	m_Controller->importPipelineOutput(pipelines);
+	return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importVTKData(const QString &filePath)
 {
   QFileInfo fi(filePath);

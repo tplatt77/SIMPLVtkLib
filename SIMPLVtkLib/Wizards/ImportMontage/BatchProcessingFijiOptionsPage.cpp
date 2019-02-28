@@ -33,7 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "FileTypeSelectionPage.h"
+#include "BatchProcessingFijiOptionsPage.h"
 #include "ImportMontageWizard.h"
 
 #include <QtCore/QDir>
@@ -47,121 +47,106 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FileTypeSelectionPage::FileTypeSelectionPage(QWidget* parent)
-: QWizardPage(parent)
-, m_Ui(new Ui::FileTypeSelectionPage)
+BatchProcessingFijiOptionsPage::BatchProcessingFijiOptionsPage(QWidget* parent)
+  : QWizardPage(parent)
+  , m_Ui(new Ui::BatchProcessingFijiOptionsPage)
 {
   m_Ui->setupUi(this);
 
   setupGui();
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-FileTypeSelectionPage::~FileTypeSelectionPage() = default;
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void FileTypeSelectionPage::setupGui()
-{
   registerFields();
-
-	connectSignalsSlots();
-
-  // Set the default radio button selection
-  m_Ui->imageFileListRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void FileTypeSelectionPage::connectSignalsSlots()
+BatchProcessingFijiOptionsPage::~BatchProcessingFijiOptionsPage() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void BatchProcessingFijiOptionsPage::setupGui()
 {
-  connect(m_Ui->imageFileListRB, &QRadioButton::toggled, [=] (bool checked) {
-    if (checked)
-    {
-      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Generic);
-    }
-  });
-
-  connect(m_Ui->dream3dFileRB, &QRadioButton::toggled, [=] (bool checked) {
-    if (checked)
-    {
-      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::DREAM3D);
-    }
-  });
-
-  connect(m_Ui->zeissFileRB, &QRadioButton::toggled, [=] (bool checked) {
-    if (checked)
-    {
-      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Zeiss);
-    }
-  });
-
-  connect(m_Ui->fijiFileRB, &QRadioButton::toggled, [=] (bool checked) {
-    if (checked)
-    {
-      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Fiji);
-    }
-  });
-
-  connect(m_Ui->robometFileRB, &QRadioButton::toggled, [=] (bool checked) {
-    if (checked)
-    {
-      setField(ImportMontage::FieldNames::InputType, ImportMontageWizard::InputType::Robomet);
-    }
-  });
+  connectSignalsSlots();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool FileTypeSelectionPage::isComplete() const
+void BatchProcessingFijiOptionsPage::connectSignalsSlots()
+{
+	connect(m_Ui->minTileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+	connect(m_Ui->maxTileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+	connect(m_Ui->stepTileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+
+	connect(m_Ui->tileOverlapCB, &QCheckBox::stateChanged, this, &BatchProcessingFijiOptionsPage::constantTileOverlap_stateChanged);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void BatchProcessingFijiOptionsPage::constantTileOverlap_stateChanged(int state)
+{
+	// Disable each of the spin boxes
+	m_Ui->minTileOverlapSB->setEnabled(!state);
+	m_Ui->maxTileOverlapSB->setEnabled(!state);
+	m_Ui->stepTileOverlapSB->setEnabled(!state);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool BatchProcessingFijiOptionsPage::isComplete() const
 {
   bool result = true;
+
+
+  if(m_Ui->minTileOverlapSB->isEnabled())
+  {
+	  if(m_Ui->minTileOverlapSB->value() < m_Ui->minTileOverlapSB->minimum() || m_Ui->minTileOverlapSB->value() > m_Ui->minTileOverlapSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
+
+
+  if(m_Ui->maxTileOverlapSB->isEnabled())
+  {
+	  if(m_Ui->maxTileOverlapSB->value() < m_Ui->maxTileOverlapSB->minimum() || m_Ui->maxTileOverlapSB->value() > m_Ui->maxTileOverlapSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
+
+
+
+  if(m_Ui->stepTileOverlapSB->isEnabled())
+  {
+	  if(m_Ui->stepTileOverlapSB->value() < m_Ui->stepTileOverlapSB->minimum() || m_Ui->stepTileOverlapSB->value() > m_Ui->stepTileOverlapSB->maximum())
+	  {
+		  result = false;
+	  }
+  }
   return result;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void FileTypeSelectionPage::registerFields()
+void BatchProcessingFijiOptionsPage::registerFields()
 {
-  registerField(ImportMontage::FieldNames::InputType, this, "InputType");
-  registerField(ImportMontage::FieldNames::BatchProcessing, m_Ui->batchProcessingCB);
+	registerField(ImportMontage::Fiji::FieldNames::ConstantTileOverlap, m_Ui->tileOverlapCB);
+	registerField(ImportMontage::Fiji::FieldNames::MinTileOverlap, m_Ui->minTileOverlapSB);
+	registerField(ImportMontage::Fiji::FieldNames::MaxTileOverlap, m_Ui->maxTileOverlapSB);
+	registerField(ImportMontage::Fiji::FieldNames::StepTileOverlap, m_Ui->stepTileOverlapSB);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int FileTypeSelectionPage::nextId() const
+int BatchProcessingFijiOptionsPage::nextId() const
 {
-  if (m_Ui->imageFileListRB->isChecked())
-  {
-	  emit m_Ui->imageFileListRB->toggled(true);
-    return ImportMontageWizard::WizardPages::GenericMetadata;
-	}
-  else if (m_Ui->dream3dFileRB->isChecked())
-	{
-    return ImportMontageWizard::WizardPages::EnterDREAM3DFile;
-	}
-  else if (m_Ui->fijiFileRB->isChecked())
-  {
-    return ImportMontageWizard::WizardPages::EnterFijiFile;
-  }
-  else if (m_Ui->robometFileRB->isChecked())
-  {
-    return ImportMontageWizard::WizardPages::EnterRobometFile;
-  }
-  else if(m_Ui->zeissFileRB->isChecked())
-  {
-    return ImportMontageWizard::WizardPages::EnterZeissFile;
-  }
-	else
-	{
-		return -1;
-	}
+  return ImportMontageWizard::WizardPages::DataDisplayOptions;
 }
 

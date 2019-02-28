@@ -33,63 +33,67 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
 #pragma once
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-#include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/MontageSettings.h"
+#include <QtWidgets/QWizardPage>
 
+#include "ui_BatchProcessingFijiOptionsPage.h"
 
-class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
+class BatchProcessingFijiOptionsPage : public QWizardPage
 {
     Q_OBJECT
 
   public:
-    enum WizardPages
-    {
-      FileTypeSelection,
-      GenericMetadata,
-      EnterDREAM3DFile,
-      EnterRobometFile,
-      EnterFijiFile,
-      EnterZeissFile,
-      DataDisplayOptions,
-      LoadHDF5Data,
-	  BatchProcessingFijiOptions
-    };
+    /**
+    * @brief Constructor
+    * @param parameter The FilterParameter object that this widget represents
+    * @param filter The instance of the filter that this parameter is a part of
+    * @param parent The parent QWidget for this Widget
+    */
+    BatchProcessingFijiOptionsPage(QWidget* parent = nullptr);
 
-    enum InputType
-    {
-      DREAM3D,
-      Generic,
-      Fiji,
-      Robomet,
-      Zeiss
-    };
-
-	enum DisplayType
-	{
-		NotSpecified,
-		Montage,
-		SideBySide,
-		Outline
-	};
+    ~BatchProcessingFijiOptionsPage() override;
 
     /**
-     * @brief ImportMontageWizard
-     * @param parent
+     * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
-    ImportMontageWizard(QWidget* parent = nullptr);
+    virtual void setupGui();
 
-    ~ImportMontageWizard() override;
+    /**
+     * @brief registerFields
+     */
+    void registerFields();
+
+    /**
+     * @brief isComplete
+     * @return
+     */
+    virtual bool isComplete() const override;
+
+    /**
+     * @brief nextId
+     * @return
+     */
+    int nextId() const override;
+
+protected slots:
+
+	// Slots to catch signals emitted by the various ui widgets
+	void constantTileOverlap_stateChanged(int state);
 
   private:
-    MontageSettings* m_MontageSettings = nullptr;
+    QSharedPointer<Ui::BatchProcessingFijiOptionsPage> m_Ui;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
+
   public:
-    ImportMontageWizard(const ImportMontageWizard&) = delete; // Copy Constructor Not Implemented
-    ImportMontageWizard(ImportMontageWizard&&) = delete;      // Move Constructor Not Implemented
-    ImportMontageWizard& operator=(const ImportMontageWizard&) = delete; // Copy Assignment Not Implemented
-    ImportMontageWizard& operator=(ImportMontageWizard&&) = delete;      // Move Assignment Not Implemented
+    BatchProcessingFijiOptionsPage(const BatchProcessingFijiOptionsPage&) = delete;  // Copy Constructor Not Implemented
+    BatchProcessingFijiOptionsPage(BatchProcessingFijiOptionsPage&&) = delete;       // Move Constructor Not Implemented
+    BatchProcessingFijiOptionsPage& operator=(const BatchProcessingFijiOptionsPage&) = delete; // Copy Assignment Not Implemented
+    BatchProcessingFijiOptionsPage& operator=(BatchProcessingFijiOptionsPage&&) = delete;      // Move Assignment Not Implemented
 };
-Q_DECLARE_METATYPE(ImportMontageWizard::InputType)
 

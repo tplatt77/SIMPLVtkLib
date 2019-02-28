@@ -94,6 +94,10 @@ namespace ImportMontage
 	  const QString SpacingX("fijiSpacingX");
 	  const QString SpacingY("fijiSpacingY");
 	  const QString SpacingZ("fijiSpacingZ");
+	  const QString ConstantTileOverlap("constantTileOverlap");
+	  const QString MinTileOverlap("minTileOverlap");
+	  const QString MaxTileOverlap("maxTileOverlap");
+	  const QString StepTileOverlap("stepTileOverlap");
     }
   }
 
@@ -155,5 +159,6 @@ namespace ImportMontage
     const QString DisplaySideBySide("DisplaySideBySide");
     const QString DisplayOutlineOnly("DisplayOutlineOnly");
     const QString InputType("InputType");
+	const QString BatchProcessing("BatchProcessing");
   }
 }

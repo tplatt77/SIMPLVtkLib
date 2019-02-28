@@ -38,9 +38,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(FilterPipeline::Pointer pipeline)
+MontageWorker::MontageWorker(std::vector<FilterPipeline::Pointer> pipelines)
 {
-  m_pipeline = pipeline;
+  m_pipelines = pipelines;
 }
 
 // -----------------------------------------------------------------------------
@@ -56,10 +56,21 @@ MontageWorker::~MontageWorker()
 // -----------------------------------------------------------------------------
 void MontageWorker::process()
 {
-	m_pipeline->execute();
+	int err = 0;
+	for(FilterPipeline::Pointer pipeline : m_pipelines)
+	{
+		pipeline->execute();
 
-	int err = m_pipeline->getErrorCondition();
-	qInfo() << "Pipeline err condition: " << err;
+		err = pipeline->getErrorCondition();
+		qInfo() << "Pipeline err condition: " << err;
+		// For now, quit after an error condition
+		// However, may want to consider returning
+		// list of errors associated with each pipeline
+		if(err < 0)
+		{
+			break;
+		}
+	}
 
 	emit resultReady(err);
 }
