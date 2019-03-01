@@ -4,6 +4,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterRobometDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/FijiListWidget.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterGenericDataPage.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageConstants.h
@@ -23,6 +24,7 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterFijiDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterRobometDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterZeissDataPage.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/FijiListWidget.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/FileTypeSelectionPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterGenericDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.cpp
@@ -41,6 +43,7 @@ set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterFijiDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterRobometDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterZeissDataPage.ui
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/FijiListWidget.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/FileTypeSelectionPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/EnterGenericDataPage.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/LoadHDF5DataPage.ui

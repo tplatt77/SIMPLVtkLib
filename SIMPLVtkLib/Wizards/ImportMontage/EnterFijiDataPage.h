@@ -93,16 +93,15 @@ class EnterFijiDataPage : public QWizardPage
   protected slots:
 
     // Slots to catch signals emitted by the various ui widgets
-    void selectBtn_clicked();
-    void dataFile_textChanged(const QString& text);
     void changeTileOverlap_stateChanged(int state);
 	void changeOrigin_stateChanged(int state);
 	void changeSpacing_stateChanged(int state);
     void manualDCAElementNames_stateChanged(int state);
     void montageName_textChanged(const QString &text);
+	void fijiListWidgetChanged();
   protected:
-    void setInputDirectory(QString val);
-    QString getInputDirectory();
+	SIMPL_INSTANCE_PROPERTY(FijiListInfo_t, FijiListInfo)
+	Q_PROPERTY(FijiListInfo_t FijiListInfo READ getFijiListInfo WRITE setFijiListInfo)
 
     static void setOpenDialogLastFilePath(QString val)
     {
@@ -129,6 +128,11 @@ class EnterFijiDataPage : public QWizardPage
      * @brief connectSignalsSlots
      */
     void connectSignalsSlots();
+
+	/**
+	 * @brief disconnectSignalsSlots
+	 */
+	void disconnectSignalsSlots();
 
   public:
     EnterFijiDataPage(const EnterFijiDataPage&) = delete;  // Copy Constructor Not Implemented

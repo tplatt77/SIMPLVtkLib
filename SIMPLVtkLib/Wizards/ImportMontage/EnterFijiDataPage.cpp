@@ -81,12 +81,6 @@ void EnterFijiDataPage::setupGui()
 {
 	connectSignalsSlots();
 
-	m_Ui->numOfRowsSB->setMinimum(1);
-	m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
-
-	m_Ui->numOfColsSB->setMinimum(1);
-	m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
-
 	m_Ui->tileOverlapSB->setMinimum(0);
 	m_Ui->tileOverlapSB->setMaximum(100);
 
@@ -112,13 +106,6 @@ void EnterFijiDataPage::setupGui()
 // -----------------------------------------------------------------------------
 void EnterFijiDataPage::connectSignalsSlots()
 {
-  connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterFijiDataPage::selectBtn_clicked);
-
-	QtSFileCompleter* com = new QtSFileCompleter(this, true);
-  m_Ui->dataFileLE->setCompleter(com);
-  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterFijiDataPage::dataFile_textChanged);
-  connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &EnterFijiDataPage::dataFile_textChanged);
-
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, &EnterFijiDataPage::montageName_textChanged);
 
   connect(m_Ui->imageDataContainerPrefixLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
@@ -126,8 +113,11 @@ void EnterFijiDataPage::connectSignalsSlots()
   connect(m_Ui->imageArrayNameLE, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
-  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+
+
+  connect(m_Ui->fijiListWidget, &FijiListWidget::inputDirectoryChanged, this, &EnterFijiDataPage::fijiListWidgetChanged);
+  connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfRowsChanged, this, &EnterFijiDataPage::fijiListWidgetChanged);
+  connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfColumnsChanged, this, &EnterFijiDataPage::fijiListWidgetChanged);
 
   connect(m_Ui->changeTileOverlapCB, &QCheckBox::stateChanged, this, &EnterFijiDataPage::changeTileOverlap_stateChanged);
   connect(m_Ui->manualDCAElementNamesCB, &QCheckBox::stateChanged, this, &EnterFijiDataPage::manualDCAElementNames_stateChanged);
@@ -153,6 +143,28 @@ void EnterFijiDataPage::connectSignalsSlots()
   connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterFijiDataPage::disconnectSignalsSlots()
+{
+	disconnect(m_Ui->imageDataContainerPrefixLE, &QLineEdit::textChanged, 0, 0);
+	disconnect(m_Ui->cellAttrMatrixNameLE, &QLineEdit::textChanged, 0, 0);
+	disconnect(m_Ui->imageArrayNameLE, &QLineEdit::textChanged, 0, 0);
+	disconnect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), 0, 0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterFijiDataPage::fijiListWidgetChanged()
+{
+	FijiListInfo_t fijiListInfo = m_Ui->fijiListWidget->getFijiListInfo();
+	setFijiListInfo(fijiListInfo);
+
+	emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -238,36 +250,6 @@ bool EnterFijiDataPage::isComplete() const
   if (m_Ui->montageNameLE->isEnabled())
   {
     if (m_Ui->montageNameLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->dataFileLE->isEnabled())
-  {
-    if (m_Ui->dataFileLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  QFileInfo fi(m_Ui->dataFileLE->text());
-  if (fi.completeSuffix() != "txt")
-  {
-    result = false;
-  }
-
-  if (m_Ui->numOfRowsSB->isEnabled())
-  {
-    if (m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if (m_Ui->numOfColsSB->isEnabled())
-  {
-    if (m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
     {
       result = false;
     }
@@ -362,9 +344,7 @@ bool EnterFijiDataPage::isComplete() const
 void EnterFijiDataPage::registerFields()
 {
   registerField(ImportMontage::Fiji::FieldNames::MontageName, m_Ui->montageNameLE);
-  registerField(ImportMontage::Fiji::FieldNames::DataFilePath, m_Ui->dataFileLE);
-  registerField(ImportMontage::Fiji::FieldNames::NumberOfRows, m_Ui->numOfRowsSB);
-  registerField(ImportMontage::Fiji::FieldNames::NumberOfColumns, m_Ui->numOfColsSB);
+  registerField(ImportMontage::Fiji::FieldNames::FijiListInfo, this, "FijiListInfo");
   registerField(ImportMontage::Fiji::FieldNames::DataContainerPrefix, m_Ui->imageDataContainerPrefixLE);
   registerField(ImportMontage::Fiji::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::Fiji::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
@@ -378,65 +358,6 @@ void EnterFijiDataPage::registerFields()
   registerField(ImportMontage::Fiji::FieldNames::OriginX, m_Ui->originX);
   registerField(ImportMontage::Fiji::FieldNames::OriginY, m_Ui->originY);
   registerField(ImportMontage::Fiji::FieldNames::OriginZ, m_Ui->originZ);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterFijiDataPage::selectBtn_clicked()
-{
-  QString filter = tr("Fiji Configuration File (*.txt);;All Files (*.*)");
-  QString title = "Select a Fiji configuration file";
-
-  QString outputFile = QFileDialog::getOpenFileName(this, title,
-		getInputDirectory(), filter);
-
-	if (!outputFile.isNull())
-	{
-    m_Ui->dataFileLE->blockSignals(true);
-    m_Ui->dataFileLE->setText(QDir::toNativeSeparators(outputFile));
-    dataFile_textChanged(m_Ui->dataFileLE->text());
-		setOpenDialogLastFilePath(outputFile);
-    m_Ui->dataFileLE->blockSignals(false);
-	}
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterFijiDataPage::dataFile_textChanged(const QString& text)
-{
-	Q_UNUSED(text)
-
-		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-	QString inputPath = validator->convertToAbsolutePath(text);
-
-  if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->dataFileLE))
-	{
-	}
-
-	emit completeChanged();
-  emit dataFileChanged(text);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterFijiDataPage::setInputDirectory(QString val)
-{
-  m_Ui->dataFileLE->setText(val);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString EnterFijiDataPage::getInputDirectory()
-{
-  if (m_Ui->dataFileLE->text().isEmpty())
-	{
-		return QDir::homePath();
-	}
-  return m_Ui->dataFileLE->text();
 }
 
 // -----------------------------------------------------------------------------

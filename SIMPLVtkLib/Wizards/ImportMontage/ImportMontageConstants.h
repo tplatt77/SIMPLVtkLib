@@ -80,6 +80,7 @@ namespace ImportMontage
     namespace FieldNames
     {
       const QString MontageName("fijiMontageName");
+	  const QString FijiListInfo("fijiListInfo");
       const QString DataFilePath("fijiDataFilePath");
       const QString NumberOfRows("fijiGenericNumOfRows");
       const QString NumberOfColumns("fijiGenericNumOfCols");
