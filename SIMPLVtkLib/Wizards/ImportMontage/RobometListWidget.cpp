@@ -101,7 +101,7 @@ void RobometListWidget::setupGui()
   m_Ui->absPathLabel->hide();
 
   m_WidgetList << m_Ui->inputDir << m_Ui->inputDirBtn;
-  m_WidgetList << m_Ui->filePrefix << m_Ui->fileSuffix << m_Ui->fileExt << m_Ui->slice;
+  m_WidgetList << m_Ui->filePrefix << m_Ui->fileExt << m_Ui->slice;
   m_WidgetList << m_Ui->numOfRows << m_Ui->numOfCols << m_Ui->rowColPadding;
 
   m_Ui->errorMessage->setVisible(false);
@@ -132,27 +132,25 @@ void RobometListWidget::connectSignalsSlots()
     emit filePrefixChanged(filePrefix);
   });
 
-  connect(m_Ui->fileSuffix, &QtSLineEdit::textChanged, this, [=] (const QString &fileSuffix) {
-    generateExampleInputFile();
-    emit fileSuffixChanged(fileSuffix);
-  });
-
   connect(m_Ui->fileExt, &QtSLineEdit::textChanged, this, [=] (const QString &fileExtension) {
     generateExampleInputFile();
     emit fileExtensionChanged(fileExtension);
   });
 
   connect(m_Ui->slice, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
+    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit sliceNumberChanged(value);
   });
 
   connect(m_Ui->numOfRows, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
+    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit numberOfRowsChanged(value);
   });
 
   connect(m_Ui->numOfCols, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
+    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit numberOfColumnsChanged(value);
   });
@@ -298,6 +296,8 @@ void RobometListWidget::inputDir_textChanged(const QString& text)
 {
   Q_UNUSED(text)
 
+  findNumberOfRowsAndColumns();
+
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(text);
 
@@ -346,14 +346,13 @@ void RobometListWidget::generateExampleInputFile()
   QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), k_SlicePadding, '0');
   QFileInfo fi(m_Ui->inputDir->text());
   QString parentPath = tr("%1%2").arg(fi.path()).arg(QDir::separator());
-  QString filename = QString("%1%2%3_%4_%5%6.%7").arg(parentPath).arg(m_Ui->filePrefix->text()).arg(sliceString).arg(rowString).arg(colString).arg(m_Ui->fileSuffix->text()).arg(m_Ui->fileExt->text());
+  QString filename = QString("%1%2%3_%4_%5.%6").arg(parentPath).arg(m_Ui->filePrefix->text()).arg(sliceString).arg(rowString).arg(colString).arg(m_Ui->fileExt->text());
   m_Ui->generatedFileNameExample->setText(filename);
 
   int sliceNumber = m_Ui->slice->value();
   int numOfRows = m_Ui->numOfRows->value();
   int numOfCols = m_Ui->numOfCols->value();
   QString prefix = m_Ui->filePrefix->text();
-  QString suffix = m_Ui->fileSuffix->text();
   QString ext = m_Ui->fileExt->text();
   int rowColPadding = m_Ui->rowColPadding->value();
   bool hasMissingFiles = false;
@@ -365,7 +364,7 @@ void RobometListWidget::generateExampleInputFile()
   QString inputPath = validator->convertToAbsolutePath(slicePath);
 
   // Now generate all the file names the user is asking for and populate the table
-  QVector<QString> fileList = generateFileList(sliceNumber, numOfRows, numOfCols, hasMissingFiles, inputPath, prefix, suffix, ext, rowColPadding);
+  QVector<QString> fileList = generateFileList(sliceNumber, numOfRows, numOfCols, hasMissingFiles, inputPath, prefix, ext, rowColPadding);
   m_Ui->fileListView->clear();
   QIcon greenDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_green.png"));
   QIcon redDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_red.png"));
@@ -405,7 +404,7 @@ void RobometListWidget::generateExampleInputFile()
 //
 // -----------------------------------------------------------------------------
 QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
-                                                     const QString& fileSuffix, const QString& fileExtension, int rowColPaddingDigits)
+                                                     const QString& fileExtension, int rowColPaddingDigits)
 {
   QVector<QString> fileList;
 //  QDir dir(inputPath);
@@ -427,11 +426,6 @@ QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int number
 
       filename.append(QString("%1_%2_%3").arg(QString::number(sliceNumber), k_SlicePadding, '0')
           .arg(QString::number(row), rowColPaddingDigits, '0').arg(QString::number(col), rowColPaddingDigits, '0'));
-
-      if (!fileSuffix.isEmpty())
-      {
-        filename.append(QString("_%1").arg(fileSuffix));
-      }
 
       filename.append(QString(".%5").arg(fileExtension));
 
@@ -481,6 +475,27 @@ void RobometListWidget::findPrefix()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void RobometListWidget::findNumberOfRowsAndColumns()
+{
+  QFileInfo fi(m_Ui->inputDir->text());
+  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), k_SlicePadding, '0');
+  QString slicePath = tr("%1%2%3_%4").arg(fi.path()).arg(QDir::separator()).arg(m_Ui->filePrefix->text()).arg(sliceString);
+
+  SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
+  QString inputPath = validator->convertToAbsolutePath(slicePath);
+
+  QDir dir(inputPath);
+  dir.setFilter(QDir::Filter::Files);
+  QFileInfoList fiList = dir.entryInfoList();
+  for (QFileInfo fi : fiList)
+  {
+
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 RobometListInfo_t RobometListWidget::getRobometListInfo()
 {
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
@@ -494,7 +509,6 @@ RobometListInfo_t RobometListWidget::getRobometListInfo()
   data.SliceNumber = m_Ui->slice->value();
   data.RobometFilePath = inputPath;
   data.ImagePrefix = m_Ui->filePrefix->text();
-  data.ImageSuffix = m_Ui->fileSuffix->text();
   data.ImageExtension = m_Ui->fileExt->text();
 
   return data;

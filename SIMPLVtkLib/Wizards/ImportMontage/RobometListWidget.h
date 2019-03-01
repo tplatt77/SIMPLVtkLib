@@ -62,7 +62,6 @@ typedef struct
   qint32 SliceNumber = 0;
   QString RobometFilePath;
   QString ImagePrefix;
-  QString ImageSuffix;
   QString ImageExtension;
 
   void writeJson(QJsonObject& json)
@@ -74,7 +73,6 @@ typedef struct
     json["SliceNumber"] = static_cast<double>(SliceNumber);
     json["RobometFilePath"] = RobometFilePath;
     json["ImagePrefix"] = ImagePrefix;
-    json["ImageSuffix"] = ImageSuffix;
     json["ImageExtension"] = ImageExtension;
   }
 
@@ -90,7 +88,6 @@ typedef struct
       SliceNumber = static_cast<qint32>(json["SliceNumber"].toDouble());
       RobometFilePath = json["RobometFilePath"].toString();
       ImagePrefix = json["ImagePrefix"].toString();
-      ImageSuffix = json["ImageSuffix"].toString();
       ImageExtension = json["ImageExtension"].toString();
       return true;
     }
@@ -176,6 +173,11 @@ protected:
    * @brief Method to attempt the extraction of the file prefix
    */
   void findPrefix();
+
+  /**
+   * @brief findNumberOfRowsAndColumns
+   */
+  void findNumberOfRowsAndColumns();
 
   /**
    * @brief generateExampleInputFile
@@ -279,13 +281,11 @@ private:
    * @param hasMissingFiles
    * @param inputPath
    * @param filePrefix
-   * @param fileSuffix
    * @param fileExtension
    * @param rowColPaddingDigits
    * @return
    */
-  QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
-                                                       const QString& fileSuffix, const QString& fileExtension, int rowColPaddingDigits);
+  QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix, const QString& fileExtension, int rowColPaddingDigits);
 
 public:
   RobometListWidget(const RobometListWidget&) = delete; // Copy Constructor Not Implemented
