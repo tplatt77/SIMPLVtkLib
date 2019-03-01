@@ -50,7 +50,7 @@ public:
 signals:
 	void finished();
 	void error(QString err);
-	void resultReady(int err);
+  void resultReady(FilterPipeline::Pointer pipeline, int err);
 	
 public slots:
 	void process();

@@ -63,14 +63,13 @@ void MontageWorker::process()
 
 		err = pipeline->getErrorCondition();
 		qInfo() << "Pipeline err condition: " << err;
-		// For now, quit after an error condition
-		// However, may want to consider returning
-		// list of errors associated with each pipeline
-		if(err < 0)
-		{
-			break;
-		}
+//		// For now, quit after an error condition
+//		// However, may want to consider returning
+//		// list of errors associated with each pipeline
+//		if(err < 0)
+//		{
+//			break;
+//		}
+    emit resultReady(pipeline, err);
 	}
-
-	emit resultReady(err);
 }
