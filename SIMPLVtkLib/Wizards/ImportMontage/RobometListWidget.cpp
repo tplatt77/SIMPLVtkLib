@@ -138,19 +138,16 @@ void RobometListWidget::connectSignalsSlots()
   });
 
   connect(m_Ui->slice, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit sliceNumberChanged(value);
   });
 
   connect(m_Ui->numOfRows, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit numberOfRowsChanged(value);
   });
 
   connect(m_Ui->numOfCols, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    findNumberOfRowsAndColumns();
     generateExampleInputFile();
     emit numberOfColumnsChanged(value);
   });
@@ -296,8 +293,6 @@ void RobometListWidget::inputDir_textChanged(const QString& text)
 {
   Q_UNUSED(text)
 
-  findNumberOfRowsAndColumns();
-
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(text);
 
@@ -318,6 +313,8 @@ void RobometListWidget::inputDir_textChanged(const QString& text)
   {
     m_ShowFileAction->setEnabled(true);
     findPrefix();
+    findFileExtension();
+    findNumberOfRowsAndColumns();
     QDir dir(inputPath);
     QString dirname = dir.dirName();
     dir.cdUp();
@@ -413,6 +410,11 @@ QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int number
 //    return fileList;
 //  }
 
+  if (inputPath.isEmpty())
+  {
+    return fileList;
+  }
+
   bool missingFiles = false;
   for(int row = 0; row < numberOfRows; row++)
   {
@@ -467,9 +469,46 @@ void RobometListWidget::findPrefix()
       {
         folderName.remove(tr("_%1").arg(sliceString));
         m_Ui->filePrefix->setText(folderName);
+        return;
       }
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void RobometListWidget::findFileExtension()
+{
+  QFileInfo fi(m_Ui->inputDir->text());
+  QString sliceString = StringOperations::GeneratePaddedString(m_Ui->slice->value(), k_SlicePadding, '0');
+  QString slicePath = tr("%1%2%3_%4").arg(fi.path()).arg(QDir::separator()).arg(m_Ui->filePrefix->text()).arg(sliceString);
+
+  SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
+  QString inputPath = validator->convertToAbsolutePath(slicePath);
+
+  QDir dir(inputPath);
+  dir.setFilter(QDir::Filter::Files);
+  QFileInfoList fiList = dir.entryInfoList();
+  QMap<QString,int> extCount;
+  for (QFileInfo fi : fiList)
+  {
+    QString ext = fi.completeSuffix();
+    extCount.insert(ext, extCount[ext] + 1);
+  }
+
+  QString mostCommonExt = "";
+  int largestNumber = 0;
+  for (QMap<QString,int>::iterator iter = extCount.begin(); iter != extCount.end(); iter++)
+  {
+    if (iter.value() > largestNumber)
+    {
+      largestNumber = iter.value();
+      mostCommonExt = iter.key();
+    }
+  }
+
+  m_Ui->fileExt->setText(mostCommonExt);
 }
 
 // -----------------------------------------------------------------------------
@@ -486,11 +525,35 @@ void RobometListWidget::findNumberOfRowsAndColumns()
 
   QDir dir(inputPath);
   dir.setFilter(QDir::Filter::Files);
+  QStringList nameFilters;
+  nameFilters << tr("*.%1").arg(m_Ui->fileExt->text());
+  dir.setNameFilters(nameFilters);
   QFileInfoList fiList = dir.entryInfoList();
+  int maxRow = 0;
+  int maxCol = 0;
   for (QFileInfo fi : fiList)
   {
+    QString fileBaseName = fi.baseName();
+    QStringList tokens = fileBaseName.split("_");
+    if (tokens.size() > 1)  // Only get the rows and columns if they exist in the file name
+    {
+      int col = tokens[tokens.size() - 1].toInt();
+      int row = tokens[tokens.size() - 2].toInt();
 
+      if (row > maxRow)
+      {
+        maxRow = row;
+      }
+
+      if (col > maxCol)
+      {
+        maxCol = col;
+      }
+    }
   }
+
+  m_Ui->numOfRows->setValue(maxRow + 1);  // Convert to 1-based
+  m_Ui->numOfCols->setValue(maxCol + 1);  // Convert to 1-based
 }
 
 // -----------------------------------------------------------------------------

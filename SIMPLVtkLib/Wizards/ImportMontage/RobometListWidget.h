@@ -175,6 +175,11 @@ protected:
   void findPrefix();
 
   /**
+   * @brief findFileExtension
+   */
+  void findFileExtension();
+
+  /**
    * @brief findNumberOfRowsAndColumns
    */
   void findNumberOfRowsAndColumns();
