@@ -72,7 +72,10 @@ EnterDREAM3DDataPage::EnterDREAM3DDataPage(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EnterDREAM3DDataPage::~EnterDREAM3DDataPage() = default;
+EnterDREAM3DDataPage::~EnterDREAM3DDataPage()
+{
+	delete m_LoadingMovie;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -89,6 +92,8 @@ void EnterDREAM3DDataPage::setupGui()
 
 	m_Ui->tileOverlapSB->setMinimum(0);
 	m_Ui->tileOverlapSB->setMaximum(100);
+
+	m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -112,6 +117,43 @@ void EnterDREAM3DDataPage::connectSignalsSlots()
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
+
+  connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &EnterDREAM3DDataPage::proxyChanged);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
+{
+	size_t checkCount = 0;
+	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+	
+	// Automatically set the data array path variables
+	if (dataContainers.size() > 0)
+	{
+    DataContainerProxy dcProxy = dataContainers.first();
+    QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+    AttributeMatrixProxy attributeMatrixProxy = attributeMatricies.first();
+    QMap<QString, DataArrayProxy>& dataArrays = attributeMatrixProxy.getDataArrays();
+    DataArrayProxy dataArrayProxy = dataArrays.first();
+    m_Ui->imageDataContainerPrefixLE->setText(dcProxy.getName().split("_").first());
+    m_Ui->cellAttrMatrixNameLE->setText(attributeMatrixProxy.getName());
+    m_Ui->imageArrayNameLE->setText(dataArrayProxy.getName());
+	}
+
+	for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
+	{
+		DataContainerProxy dcProxy = iter.value();
+		if(dcProxy.getFlag() == Qt::Checked)
+		{
+			checkCount++;
+		}
+	}
+
+	setFinalPage(checkCount <= 1);
+
+	emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -191,7 +233,50 @@ bool EnterDREAM3DDataPage::isComplete() const
     }
   }
 
+  DataContainerArrayProxy proxy = getProxy();
+
+  bool allChecked = true;
+  Qt::CheckState checkState = Qt::Unchecked;
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
+  {
+	  DataContainerProxy dcProxy = iter.value();
+	  if(dcProxy.getFlag() == Qt::Checked)
+	  {
+		  checkState = Qt::PartiallyChecked;
+	  }
+	  else
+	  {
+		  allChecked = false;
+	  }
+  }
+
+  if(allChecked == true)
+  {
+	  checkState = Qt::Checked;
+  }
+
+  if(checkState == Qt::Unchecked)
+  {
+	  return false;
+  }
+
+  if(m_LoadingProxy)
+  {
+	  return false;
+  }
+
   return result;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::initializePage()
+{
+	QString filePath = field(ImportMontage::DREAM3D::FieldNames::DataFilePath).toString();
+
+	m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
 
 // -----------------------------------------------------------------------------
@@ -207,6 +292,7 @@ void EnterDREAM3DDataPage::registerFields()
   registerField(ImportMontage::DREAM3D::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::DREAM3D::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
   registerField(ImportMontage::DREAM3D::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
+  registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget);
 }
 
 // -----------------------------------------------------------------------------
@@ -254,6 +340,10 @@ void EnterDREAM3DDataPage::dataFile_textChanged(const QString& text)
     setFinalPage(false);
   }
 
+  QString filePath = field(ImportMontage::DREAM3D::FieldNames::DataFilePath).toString();
+  
+  m_Ui->loadHDF5DataWidget->initialize(filePath);
+
 	emit completeChanged();
   emit dataFileChanged(text);
 }
@@ -283,7 +373,25 @@ QString EnterDREAM3DDataPage::getInputDirectory()
 // -----------------------------------------------------------------------------
 int EnterDREAM3DDataPage::nextId() const
 {
-  return ImportMontageWizard::WizardPages::LoadHDF5Data;
+	DataContainerArrayProxy proxy = getProxy();
+
+	size_t checkCount = 0;
+	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+	for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
+	{
+		DataContainerProxy dcProxy = iter.value();
+		if(dcProxy.getFlag() == Qt::Checked)
+		{
+			checkCount++;
+		}
+	}
+
+	if(checkCount > 1)
+	{
+		return ImportMontageWizard::WizardPages::DataDisplayOptions;
+	}
+
+	return -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -300,4 +408,20 @@ void EnterDREAM3DDataPage::cleanupPage()
 bool EnterDREAM3DDataPage::validatePage()
 {
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::setProxy(DataContainerArrayProxy proxy)
+{
+	m_Ui->loadHDF5DataWidget->setProxy(proxy);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+DataContainerArrayProxy EnterDREAM3DDataPage::getProxy() const
+{
+	return m_Ui->loadHDF5DataWidget->getProxy();
 }

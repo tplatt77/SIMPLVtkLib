@@ -167,7 +167,7 @@ bool LoadHDF5DataPage::isComplete() const
 // -----------------------------------------------------------------------------
 void LoadHDF5DataPage::registerFields()
 {
-  registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget);
+  //registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget);
 }
 
 // -----------------------------------------------------------------------------

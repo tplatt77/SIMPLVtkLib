@@ -37,10 +37,16 @@
 #pragma once
 
 #include <QtWidgets/QWizardPage>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QDateTime>
+
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
 #include "ui_EnterDREAM3DDataPage.h"
+
+class DataContainerArrayProxy;
 
 class EnterDREAM3DDataPage : public QWizardPage
 {
@@ -89,6 +95,23 @@ class EnterDREAM3DDataPage : public QWizardPage
      * @brief cleanupPage
      */
     void cleanupPage() override;
+	
+	/**
+	 * @brief getLoadProxy
+	 * @return
+	 */
+	DataContainerArrayProxy getProxy() const;
+
+	/**
+	 * @brief setProxy
+	 * @param proxy
+	 */
+	void setProxy(DataContainerArrayProxy proxy);
+
+	/**
+	 * @brief initializePage
+	 */
+	void initializePage();
 
   protected slots:
 
@@ -107,6 +130,10 @@ class EnterDREAM3DDataPage : public QWizardPage
     {
       return m_OpenDialogLastDirectory;
     }
+	/**
+	 * @brief modelDataChanged
+	 */
+	void proxyChanged(DataContainerArrayProxy proxy);
 
   signals:
     /**
@@ -117,6 +144,15 @@ class EnterDREAM3DDataPage : public QWizardPage
 
   private:
     QSharedPointer<Ui::EnterDREAM3DDataPage> m_Ui;
+
+	bool m_LoadingProxy = false;
+	QMovie* m_LoadingMovie = nullptr;
+
+	DataContainerArrayProxy m_Proxy;
+	QString m_ProxyFilePath;
+	QDateTime m_ProxyLastModified;
+
+	QFutureWatcher<DataContainerArrayProxy> m_ProxyInitWatcher;
 
     static QString m_OpenDialogLastDirectory;
 

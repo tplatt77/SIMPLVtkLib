@@ -157,8 +157,19 @@
      </property>
     </widget>
    </item>
+   <item row="8" column="0" colspan="4">
+    <widget class="VSLoadHDF5DataWidget" name="loadHDF5DataWidget" native="true"/>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VSLoadHDF5DataWidget</class>
+   <extends>QWidget</extends>
+   <header>VSLoadHDF5DataWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>dataFileLE</tabstop>
   <tabstop>selectButton</tabstop>

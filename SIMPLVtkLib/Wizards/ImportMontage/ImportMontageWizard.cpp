@@ -71,8 +71,6 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
 
   setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
 
-  setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
-
   setStartId(WizardPages::FileTypeSelection);
 }
 
