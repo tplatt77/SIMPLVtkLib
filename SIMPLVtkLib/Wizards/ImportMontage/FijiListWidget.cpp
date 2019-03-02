@@ -93,11 +93,6 @@ void FijiListWidget::setupGui()
 
   setupMenuField();
 
-  m_Ui->numOfRows->setMaximum(std::numeric_limits<int>().max());
-  m_Ui->numOfCols->setMaximum(std::numeric_limits<int>().max());
-
-  m_Ui->absPathLabel->hide();
-
   m_WidgetList << m_Ui->inputDir << m_Ui->inputDirBtn;
 
   m_Ui->errorMessage->setVisible(false);
@@ -122,14 +117,6 @@ void FijiListWidget::connectSignalsSlots()
   m_Ui->inputDir->setCompleter(com);
   connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &FijiListWidget::inputDir_textChanged);
   connect(m_Ui->inputDir, &QtSLineEdit::textChanged, this, &FijiListWidget::inputDir_textChanged);
-
-  connect(m_Ui->numOfRows, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    emit numberOfRowsChanged(value);
-  });
-
-  connect(m_Ui->numOfCols, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=] (int value) {
-    emit numberOfColumnsChanged(value);
-  });
 }
 
 // -----------------------------------------------------------------------------
@@ -270,17 +257,6 @@ void FijiListWidget::inputDir_textChanged(const QString& text)
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(text);
 
-  QFileInfo fi(text);
-  if (fi.isRelative())
-  {
-    m_Ui->absPathLabel->setText(inputPath);
-    m_Ui->absPathLabel->show();
-  }
-  else
-  {
-    m_Ui->absPathLabel->hide();
-  }
-
   m_Ui->inputDir->setToolTip("Absolute File Path: " + inputPath);
 
   if(QtSFileUtils::VerifyPathExists(inputPath, m_Ui->inputDir))
@@ -311,10 +287,6 @@ void FijiListWidget::inputDir_textChanged(const QString& text)
 void FijiListWidget::generateExampleInputFile(QStringList filenameList)
 {
   QFileInfo fi(m_Ui->inputDir->text());
-  QString parentPath = tr("%1%2").arg(fi.path()).arg(QDir::separator());
-
-  int numOfRows = m_Ui->numOfRows->value();
-  int numOfCols = m_Ui->numOfCols->value();
   bool hasMissingFiles = false;
 
   fi.setFile(m_Ui->inputDir->text());
@@ -325,7 +297,6 @@ void FijiListWidget::generateExampleInputFile(QStringList filenameList)
   // Now generate all the file names the user is asking for and populate the table
   QVector<QString> fileList = generateFileList(filenameList, hasMissingFiles, inputPath);
   m_Ui->fileListView->clear();
-  m_Ui->generatedFileNameExample->setText(fileList.at(0));
   QIcon greenDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_green.png"));
   QIcon redDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_red.png"));
   int fileExistsCount = 0;
@@ -409,51 +380,19 @@ QStringList FijiListWidget::readFijiConfigFile()
 	}
 
 	QStringList fileNameList;
-	QStringList coordinatesList;
-	int lineNumber = 1;
-	int imageCount = 0;
-	while(!file.atEnd()) {
-		QByteArray line = file.readLine();
-		if(lineNumber > 4) // Skip first 4 line
-		{
-			fileNameList.append(line.split(';').first());
-			QString coordinates(line.split(';').last().trimmed());
-			coordinates.remove("(").remove(")");
-			coordinatesList.append(coordinates);
-			imageCount++;
-		}
-		lineNumber++;
+
+  while(!file.atEnd())
+  {
+    QByteArray line = file.readLine().trimmed();
+
+    // this is either an empty line, a comment, or a dimension declaration
+    if (line.isEmpty() || line[0] == '#' || line.startsWith("dim"))
+    {
+      continue;
+    }
+
+    fileNameList.append(line.split(';').first());
 	}
-	qDebug() << fileNameList;
-	qDebug() << coordinatesList;
-
-	int rowCount = 0;
-	int colCount = 0;
-	float prevXPos = 0;
-
-	for(QString coordinates : coordinatesList)
-	{
-		QStringList coordinateList = coordinates.split(",");
-		float xPos = coordinateList.first().toFloat();
-		float yPos = coordinateList.last().toFloat();
-		if(xPos >= prevXPos)
-		{
-			colCount++;
-		}
-		else
-		{
-			break;
-		}
-		prevXPos = xPos;
-	}
-	
-	qDebug() << "Column count: " << colCount;
-
-	rowCount = imageCount / colCount;
-	qDebug() << "Row count: " << rowCount;
-
-	m_Ui->numOfRows->setValue(rowCount);
-	m_Ui->numOfCols->setValue(colCount);
 
 	return fileNameList;
 }
@@ -467,8 +406,6 @@ FijiListInfo_t FijiListWidget::getFijiListInfo()
   QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
 
   FijiListInfo_t data;
-  data.NumberOfColumns = m_Ui->numOfCols->value();
-  data.NumberOfRows = m_Ui->numOfRows->value();
   data.FijiFilePath = inputPath;
 
   return data;

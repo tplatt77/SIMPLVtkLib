@@ -255,6 +255,14 @@ bool EnterFijiDataPage::isComplete() const
     }
   }
 
+  if (m_Ui->fijiListWidget->isEnabled())
+  {
+    if (!m_Ui->fijiListWidget->isComplete())
+    {
+      result = false;
+    }
+  }
+
   if (m_Ui->tileOverlapSB->isEnabled())
   {
     if (m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())

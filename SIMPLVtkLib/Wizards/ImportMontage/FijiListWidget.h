@@ -55,14 +55,10 @@
 
 typedef struct
 {
-  qint32 NumberOfColumns = 0;
-  qint32 NumberOfRows = 0;
   QString FijiFilePath;
 
   void writeJson(QJsonObject& json)
   {
-    json["NumberOfColumns"] = static_cast<double>(NumberOfColumns);
-    json["NumberOfRows"] = static_cast<double>(NumberOfRows);
     json["RobometFilePath"] = FijiFilePath;
   }
 
@@ -71,9 +67,7 @@ typedef struct
     if(json["Ordering"].isDouble() && json["FilePrefix"].isString() && 
 		json["FileSuffix"].isString() && json["FileExtension"].isString())
     {
-      NumberOfColumns = static_cast<qint32>(json["NumberOfColumns"].toDouble());
-      NumberOfRows = static_cast<qint32>(json["NumberOfRows"].toDouble());
-	  FijiFilePath = json["FijiFilePath"].toString();
+      FijiFilePath = json["FijiFilePath"].toString();
       return true;
     }
     return false;

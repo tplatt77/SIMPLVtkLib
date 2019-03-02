@@ -81,9 +81,6 @@ namespace ImportMontage
     {
       const QString MontageName("fijiMontageName");
 	  const QString FijiListInfo("fijiListInfo");
-      const QString DataFilePath("fijiDataFilePath");
-      const QString NumberOfRows("fijiGenericNumOfRows");
-      const QString NumberOfColumns("fijiGenericNumOfCols");
       const QString ChangeTileOverlap("fijiChangeTileOverlap");
       const QString TileOverlap("fijiTileOverlap");
       const QString CellAttributeMatrixName("fijiCellAttributeMatrixName");
