@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>506</height>
+    <width>631</width>
+    <height>502</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,45 +121,16 @@ font-size: 11px;
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_20">
-     <item row="0" column="1">
-      <widget class="SVLineEdit" name="filePrefix">
+     <item row="2" column="1">
+      <widget class="SVSpinBox" name="numOfRows">
        <property name="toolTip">
-        <string>The front part of the input file name</string>
+        <string>The number of digits to allow for the slice index.</string>
        </property>
-       <property name="text">
-        <string/>
+       <property name="minimum">
+        <number>1</number>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_32">
-       <property name="styleSheet">
-        <string notr="true">QLabel {
-font-weight: bold;
-font-size: 11px;
-}</string>
-       </property>
-       <property name="text">
-        <string>File Prefix:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_56">
-       <property name="styleSheet">
-        <string notr="true">QLabel {
-font-weight: bold;
-font-size: 11px;
-}</string>
-       </property>
-       <property name="text">
-        <string>File Extension:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+       <property name="value">
+        <number>5</number>
        </property>
       </widget>
      </item>
@@ -173,24 +144,18 @@ font-size: 11px;
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QLabel" name="label_52">
-       <property name="styleSheet">
-        <string notr="true">QLabel {
-font-weight: bold;
-font-size: 11px;
-}</string>
+     <item row="0" column="1">
+      <widget class="SVLineEdit" name="filePrefix">
+       <property name="toolTip">
+        <string>The front part of the input file name</string>
        </property>
        <property name="text">
-        <string>Slice Number:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <string/>
        </property>
       </widget>
      </item>
      <item row="0" column="5">
-      <widget class="SVSpinBox" name="slice">
+      <widget class="SVSpinBox" name="sliceMin">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -227,8 +192,8 @@ font-size: 11px;
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="SVSpinBox" name="numOfRows">
+     <item row="2" column="3">
+      <widget class="SVSpinBox" name="numOfCols">
        <property name="toolTip">
         <string>The number of digits to allow for the slice index.</string>
        </property>
@@ -237,6 +202,38 @@ font-size: 11px;
        </property>
        <property name="value">
         <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="label_52">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+font-weight: bold;
+font-size: 11px;
+}</string>
+       </property>
+       <property name="text">
+        <string>Slice Min:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_32">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+font-weight: bold;
+font-size: 11px;
+}</string>
+       </property>
+       <property name="text">
+        <string>File Prefix:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -256,21 +253,8 @@ font-size: 11px;
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
-      <widget class="SVSpinBox" name="numOfCols">
-       <property name="toolTip">
-        <string>The number of digits to allow for the slice index.</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="QLabel" name="label_23">
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_56">
        <property name="styleSheet">
         <string notr="true">QLabel {
 font-weight: bold;
@@ -278,7 +262,23 @@ font-size: 11px;
 }</string>
        </property>
        <property name="text">
-        <string>Row/Col Padding:</string>
+        <string>File Extension:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QLabel" name="label_53">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+font-weight: bold;
+font-size: 11px;
+}</string>
+       </property>
+       <property name="text">
+        <string>Slice Max:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -286,15 +286,24 @@ font-size: 11px;
       </widget>
      </item>
      <item row="2" column="5">
-      <widget class="SVSpinBox" name="rowColPadding">
+      <widget class="SVSpinBox" name="sliceMax">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="toolTip">
-        <string>The number of digits to allow for the slice index.</string>
+        <string>Which file index to start the import at.</string>
        </property>
        <property name="minimum">
-        <number>1</number>
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>1000000</number>
        </property>
        <property name="value">
-        <number>2</number>
+        <number>0</number>
        </property>
       </widget>
      </item>

@@ -136,7 +136,8 @@ void EnterRobometDataPage::connectSignalsSlots()
   connect(m_Ui->robometListWidget, &RobometListWidget::filePrefixChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::fileSuffixChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::fileExtensionChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
-  connect(m_Ui->robometListWidget, &RobometListWidget::sliceNumberChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::sliceMinChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::sliceMaxChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::numberOfRowsChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::numberOfColumnsChanged, this, &EnterRobometDataPage::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::slicePaddingChanged, this, &EnterRobometDataPage::robometListWidgetChanged);

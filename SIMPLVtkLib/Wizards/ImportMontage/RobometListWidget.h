@@ -55,22 +55,20 @@
 
 typedef struct
 {
-  qint32 RowColPaddingDigits = 3;
-  qint32 SlicePaddingDigits = 3;
   qint32 NumberOfColumns = 0;
   qint32 NumberOfRows = 0;
-  qint32 SliceNumber = 0;
+  qint32 SliceMin = 0;
+  qint32 SliceMax = 0;
   QString RobometFilePath;
   QString ImagePrefix;
   QString ImageExtension;
 
   void writeJson(QJsonObject& json)
   {
-    json["RowColPaddingDigits"] = static_cast<double>(RowColPaddingDigits);
-    json["SlicePaddingDigits"] = static_cast<double>(SlicePaddingDigits);
     json["NumberOfColumns"] = static_cast<double>(NumberOfColumns);
     json["NumberOfRows"] = static_cast<double>(NumberOfRows);
-    json["SliceNumber"] = static_cast<double>(SliceNumber);
+    json["SliceMin"] = static_cast<double>(SliceMin);
+    json["SliceMax"] = static_cast<double>(SliceMax);
     json["RobometFilePath"] = RobometFilePath;
     json["ImagePrefix"] = ImagePrefix;
     json["ImageExtension"] = ImageExtension;
@@ -81,11 +79,10 @@ typedef struct
     if(json["PaddingDigits"].isDouble() && json["Ordering"].isDouble() && json["StartIndex"].isDouble() && json["EndIndex"].isDouble() && json["IncrementIndex"].isDouble() &&
        json["InputPath"].isString() && json["FilePrefix"].isString() && json["FileSuffix"].isString() && json["FileExtension"].isString())
     {
-      RowColPaddingDigits = static_cast<qint32>(json["RowColPaddingDigits"].toDouble());
-      SlicePaddingDigits = static_cast<quint32>(json["SlicePaddingDigits"].toDouble());
       NumberOfColumns = static_cast<qint32>(json["NumberOfColumns"].toDouble());
       NumberOfRows = static_cast<qint32>(json["NumberOfRows"].toDouble());
-      SliceNumber = static_cast<qint32>(json["SliceNumber"].toDouble());
+      SliceMin = static_cast<qint32>(json["SliceMin"].toDouble());
+      SliceMax = static_cast<qint32>(json["SliceMax"].toDouble());
       RobometFilePath = json["RobometFilePath"].toString();
       ImagePrefix = json["ImagePrefix"].toString();
       ImageExtension = json["ImageExtension"].toString();
@@ -226,10 +223,16 @@ signals:
   void fileExtensionChanged(const QString &fileExtension);
 
   /**
-   * @brief sliceNumberChanged
+   * @brief sliceMinChanged
    * @param sliceNumber
    */
-  void sliceNumberChanged(size_t sliceNumber);
+  void sliceMinChanged(size_t sliceNumber);
+
+  /**
+   * @brief sliceMaxChanged
+   * @param sliceNumber
+   */
+  void sliceMaxChanged(size_t sliceNumber);
 
   /**
    * @brief numberOfRowsChanged
@@ -266,6 +269,7 @@ private:
   bool m_DidCausePreflight = false;
 
   const int k_SlicePadding = 6;
+  const int k_RowColPadding = 2;
 
   /**
    * @brief connectSignalsSlots
@@ -287,10 +291,9 @@ private:
    * @param inputPath
    * @param filePrefix
    * @param fileExtension
-   * @param rowColPaddingDigits
    * @return
    */
-  QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix, const QString& fileExtension, int rowColPaddingDigits);
+  QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix, const QString& fileExtension);
 
 public:
   RobometListWidget(const RobometListWidget&) = delete; // Copy Constructor Not Implemented
