@@ -54,11 +54,11 @@ class EnterDREAM3DDataPage : public QWizardPage
 
   public:
     /**
-    * @brief Constructor
-    * @param parameter The FilterParameter object that this widget represents
-    * @param filter The instance of the filter that this parameter is a part of
-    * @param parent The parent QWidget for this Widget
-    */
+     * @brief Constructor
+     * @param parameter The FilterParameter object that this widget represents
+     * @param filter The instance of the filter that this parameter is a part of
+     * @param parent The parent QWidget for this Widget
+     */
     EnterDREAM3DDataPage(QWidget* parent = nullptr);
 
     ~EnterDREAM3DDataPage() override;
@@ -69,8 +69,8 @@ class EnterDREAM3DDataPage : public QWizardPage
     virtual void setupGui();
 
     /**
-   * @brief Register fields
-   */
+     * @brief Register fields
+     */
     void registerFields();
 
     /**
@@ -80,16 +80,10 @@ class EnterDREAM3DDataPage : public QWizardPage
     virtual bool isComplete() const override;
 
     /**
-  * @brief nextId
-  * @return
-  */
+     * @brief nextId
+     * @return
+     */
     int nextId() const override;
-
-    /**
-   * @brief validatePage
-   * @return
-   */
-    bool validatePage() override;
 
     /**
      * @brief cleanupPage

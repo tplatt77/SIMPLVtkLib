@@ -48,6 +48,8 @@
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
 #include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
 
+#include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
+
 #include "ImportMontage/ImportMontageConstants.h"
 
 #include "ImportMontageWizard.h"
@@ -82,6 +84,8 @@ EnterDREAM3DDataPage::~EnterDREAM3DDataPage()
 // -----------------------------------------------------------------------------
 void EnterDREAM3DDataPage::setupGui()
 {
+	m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
+	
 	connectSignalsSlots();
 
 	m_Ui->numOfRowsSB->setMinimum(1);
@@ -101,6 +105,7 @@ void EnterDREAM3DDataPage::setupGui()
 // -----------------------------------------------------------------------------
 void EnterDREAM3DDataPage::connectSignalsSlots()
 {
+  connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &EnterDREAM3DDataPage::proxyChanged);
   connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterDREAM3DDataPage::selectBtn_clicked);
 
 	QtSFileCompleter* com = new QtSFileCompleter(this, true);
@@ -150,6 +155,58 @@ void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
 			checkCount++;
 		}
 	}
+
+	setFinalPage(checkCount <= 1);
+
+	emit completeChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
+{
+	size_t checkCount = 0;
+	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+	
+	int rowCount = 0;
+	int colCount = 0;
+
+	for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
+	{
+		DataContainerProxy dcProxy = iter.value();
+		if(dcProxy.getFlag() == Qt::Checked)
+		{
+			checkCount++;
+		}
+
+		QString dcName = dcProxy.getName();
+        QString rowColString = dcName.split("_").last();
+		QString rowString = rowColString.split("c").first().replace("r", "");
+        QString colString = rowColString.split("c").last();
+		int rowNumber = rowString.toInt();
+		if(rowNumber >= rowCount)
+		{
+			rowCount = rowNumber + 1;
+		}
+        int colNumber = colString.toInt();
+		if(colNumber >= colCount)
+		{
+			colCount = colNumber + 1;
+		}
+
+		// Automatically set the data array path variables
+		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+		AttributeMatrixProxy attributeMatrixProxy = attributeMatricies.first();
+		QMap<QString, DataArrayProxy>& dataArrays = attributeMatrixProxy.getDataArrays();
+		DataArrayProxy dataArrayProxy = dataArrays.first();
+		m_Ui->imageDataContainerPrefixLE->setText(dcProxy.getName().split("_").first());
+		m_Ui->cellAttrMatrixNameLE->setText(attributeMatrixProxy.getName());
+		m_Ui->imageArrayNameLE->setText(dataArrayProxy.getName());
+	}
+
+	m_Ui->numOfRowsSB->setValue(rowCount);
+	m_Ui->numOfColsSB->setValue(colCount);
 
 	setFinalPage(checkCount <= 1);
 
@@ -261,11 +318,14 @@ bool EnterDREAM3DDataPage::isComplete() const
 	  return false;
   }
 
+<<<<<<< Updated upstream
   if(m_LoadingProxy)
   {
 	  return false;
   }
 
+=======
+>>>>>>> Stashed changes
   return result;
 }
 
@@ -275,6 +335,7 @@ bool EnterDREAM3DDataPage::isComplete() const
 void EnterDREAM3DDataPage::initializePage()
 {
 	QString filePath = field(ImportMontage::DREAM3D::FieldNames::DataFilePath).toString();
+	QString filePath = m_Ui->dataFileLE->text();
 
 	m_Ui->loadHDF5DataWidget->initialize(filePath);
 }
@@ -341,6 +402,7 @@ void EnterDREAM3DDataPage::dataFile_textChanged(const QString& text)
   }
 
   QString filePath = field(ImportMontage::DREAM3D::FieldNames::DataFilePath).toString();
+  QString filePath = m_Ui->dataFileLE->text();
   
   m_Ui->loadHDF5DataWidget->initialize(filePath);
 
@@ -388,6 +450,9 @@ int EnterDREAM3DDataPage::nextId() const
 
 	if(checkCount > 1)
 	{
+		QString filePath = m_Ui->dataFileLE->text();
+
+		m_Ui->loadHDF5DataWidget->initialize(filePath);
 		return ImportMontageWizard::WizardPages::DataDisplayOptions;
 	}
 
@@ -405,9 +470,17 @@ void EnterDREAM3DDataPage::cleanupPage()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool EnterDREAM3DDataPage::validatePage()
+void EnterDREAM3DDataPage::setProxy(DataContainerArrayProxy proxy)
 {
-  return true;
+	m_Ui->loadHDF5DataWidget->setProxy(proxy);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+DataContainerArrayProxy EnterDREAM3DDataPage::getProxy() const
+{
+	return m_Ui->loadHDF5DataWidget->getProxy();
 }
 
 // -----------------------------------------------------------------------------
