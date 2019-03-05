@@ -40,7 +40,6 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterGenericDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/FileTypeSelectionPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/DataDisplayOptionsPage.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/LoadHDF5DataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterZeissDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterDREAM3DDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterRobometDataPage.h"
@@ -70,8 +69,6 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
   setPage(WizardPages::EnterZeissFile, new EnterZeissDataPage);
 
   setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
-
-  setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
 
   setStartId(WizardPages::FileTypeSelection);
 }

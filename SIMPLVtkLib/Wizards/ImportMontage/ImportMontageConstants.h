@@ -131,6 +131,14 @@ namespace ImportMontage
       const QString ImageArrayName("d3dImageArrayName");
       const QString TileOverlap("d3dTileOverlap");
       const QString Proxy("d3dProxy");
+      const QString ChangeOrigin("d3dChangeOrigin");
+      const QString ChangeSpacing("d3dChangeSpacing");
+      const QString OriginX("d3dOriginX");
+      const QString OriginY("d3dOriginY");
+      const QString OriginZ("d3dOriginZ");
+      const QString SpacingX("d3dSpacingX");
+      const QString SpacingY("d3dSpacingY");
+      const QString SpacingZ("d3dSpacingZ");
     }
   }
 

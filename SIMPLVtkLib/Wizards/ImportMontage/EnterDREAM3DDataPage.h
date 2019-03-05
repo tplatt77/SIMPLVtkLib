@@ -37,10 +37,16 @@
 #pragma once
 
 #include <QtWidgets/QWizardPage>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QDateTime>
+
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
 #include "ui_EnterDREAM3DDataPage.h"
+
+class DataContainerArrayProxy;
 
 class EnterDREAM3DDataPage : public QWizardPage
 {
@@ -48,11 +54,11 @@ class EnterDREAM3DDataPage : public QWizardPage
 
   public:
     /**
-    * @brief Constructor
-    * @param parameter The FilterParameter object that this widget represents
-    * @param filter The instance of the filter that this parameter is a part of
-    * @param parent The parent QWidget for this Widget
-    */
+     * @brief Constructor
+     * @param parameter The FilterParameter object that this widget represents
+     * @param filter The instance of the filter that this parameter is a part of
+     * @param parent The parent QWidget for this Widget
+     */
     EnterDREAM3DDataPage(QWidget* parent = nullptr);
 
     ~EnterDREAM3DDataPage() override;
@@ -63,8 +69,8 @@ class EnterDREAM3DDataPage : public QWizardPage
     virtual void setupGui();
 
     /**
-   * @brief Register fields
-   */
+     * @brief Register fields
+     */
     void registerFields();
 
     /**
@@ -74,27 +80,40 @@ class EnterDREAM3DDataPage : public QWizardPage
     virtual bool isComplete() const override;
 
     /**
-  * @brief nextId
-  * @return
-  */
+     * @brief nextId
+     * @return
+     */
     int nextId() const override;
-
-    /**
-   * @brief validatePage
-   * @return
-   */
-    bool validatePage() override;
 
     /**
      * @brief cleanupPage
      */
     void cleanupPage() override;
+	
+	/**
+	 * @brief getLoadProxy
+	 * @return
+	 */
+	DataContainerArrayProxy getProxy() const;
+
+	/**
+	 * @brief setProxy
+	 * @param proxy
+	 */
+	void setProxy(DataContainerArrayProxy proxy);
+
+	/**
+	 * @brief initializePage
+	 */
+	void initializePage();
 
   protected slots:
 
     // Slots to catch signals emitted by the various ui widgets
     void selectBtn_clicked();
     void dataFile_textChanged(const QString& text);
+    void changeOrigin_stateChanged(int state);
+    void changeSpacing_stateChanged(int state);
   protected:
     void setInputDirectory(QString val);
     QString getInputDirectory();
@@ -107,6 +126,10 @@ class EnterDREAM3DDataPage : public QWizardPage
     {
       return m_OpenDialogLastDirectory;
     }
+	/**
+	 * @brief modelDataChanged
+	 */
+	void proxyChanged(DataContainerArrayProxy proxy);
 
   signals:
     /**
@@ -117,6 +140,15 @@ class EnterDREAM3DDataPage : public QWizardPage
 
   private:
     QSharedPointer<Ui::EnterDREAM3DDataPage> m_Ui;
+
+	bool m_LoadingProxy = false;
+	QMovie* m_LoadingMovie = nullptr;
+
+	DataContainerArrayProxy m_Proxy;
+	QString m_ProxyFilePath;
+	QDateTime m_ProxyLastModified;
+
+	QFutureWatcher<DataContainerArrayProxy> m_ProxyInitWatcher;
 
     static QString m_OpenDialogLastDirectory;
 
