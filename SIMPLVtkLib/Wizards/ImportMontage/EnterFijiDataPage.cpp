@@ -79,6 +79,8 @@ EnterFijiDataPage::~EnterFijiDataPage() = default;
 // -----------------------------------------------------------------------------
 void EnterFijiDataPage::setupGui()
 {
+  qRegisterMetaType<FijiListInfo_t>();
+
 	connectSignalsSlots();
 
 	m_Ui->tileOverlapSB->setMinimum(0);

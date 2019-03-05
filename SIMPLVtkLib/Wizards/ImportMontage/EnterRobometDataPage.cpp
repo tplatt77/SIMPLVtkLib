@@ -82,6 +82,8 @@ EnterRobometDataPage::~EnterRobometDataPage()
 // -----------------------------------------------------------------------------
 void EnterRobometDataPage::setupGui()
 {
+  qRegisterMetaType<RobometListInfo_t>();
+
 	connectSignalsSlots();
 
   // Store the advancedGridLayout inside the QtSDisclosableWidget
