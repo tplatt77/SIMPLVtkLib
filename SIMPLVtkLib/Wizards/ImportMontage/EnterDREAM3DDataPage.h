@@ -112,6 +112,8 @@ class EnterDREAM3DDataPage : public QWizardPage
     // Slots to catch signals emitted by the various ui widgets
     void selectBtn_clicked();
     void dataFile_textChanged(const QString& text);
+    void changeOrigin_stateChanged(int state);
+    void changeSpacing_stateChanged(int state);
   protected:
     void setInputDirectory(QString val);
     QString getInputDirectory();

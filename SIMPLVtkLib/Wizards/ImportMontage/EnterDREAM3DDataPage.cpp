@@ -87,6 +87,8 @@ void EnterDREAM3DDataPage::setupGui()
 	m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
 	
 	connectSignalsSlots();
+	
+	m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
 
 	m_Ui->numOfRowsSB->setMinimum(1);
 	m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
@@ -96,8 +98,22 @@ void EnterDREAM3DDataPage::setupGui()
 
 	m_Ui->tileOverlapSB->setMinimum(0);
 	m_Ui->tileOverlapSB->setMaximum(100);
+	
+	m_Ui->originX->setValidator(new QDoubleValidator);
+	m_Ui->originY->setValidator(new QDoubleValidator);
+	m_Ui->originZ->setValidator(new QDoubleValidator);
+	m_Ui->spacingX->setValidator(new QDoubleValidator);
+	m_Ui->spacingY->setValidator(new QDoubleValidator);
+	m_Ui->spacingZ->setValidator(new QDoubleValidator);
 
-	m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
+	// Store the advancedGridLayout inside the QtSDisclosableWidget
+	QtSDisclosableWidget* advancedGB = new QtSDisclosableWidget(this);
+	advancedGB->setTitle("Advanced");
+	QLayout* advancedGridLayout = m_Ui->advancedGridLayout;
+	advancedGridLayout->setParent(nullptr);
+	advancedGB->setContentLayout(advancedGridLayout);
+
+	m_Ui->gridLayout->addWidget(advancedGB, 9, 0, 1, 4);
 }
 
 // -----------------------------------------------------------------------------
@@ -124,6 +140,59 @@ void EnterDREAM3DDataPage::connectSignalsSlots()
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { emit completeChanged(); });
 
   connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &EnterDREAM3DDataPage::proxyChanged);
+
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
+    bool isChecked = m_Ui->changeOriginCB->isChecked();
+    m_Ui->originX->setEnabled(isChecked);
+    m_Ui->originY->setEnabled(isChecked);
+    m_Ui->originZ->setEnabled(isChecked);
+  });
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &EnterDREAM3DDataPage::changeOrigin_stateChanged);
+  connect(m_Ui->originX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->originY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
+    bool isChecked = m_Ui->changeSpacingCB->isChecked();
+    m_Ui->spacingX->setEnabled(isChecked);
+    m_Ui->spacingY->setEnabled(isChecked);
+    m_Ui->spacingZ->setEnabled(isChecked);
+  });
+  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &EnterDREAM3DDataPage::changeSpacing_stateChanged);
+  connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::changeOrigin_stateChanged(int state)
+{
+  m_Ui->originX->setEnabled(state);
+  m_Ui->originY->setEnabled(state);
+  m_Ui->originZ->setEnabled(state);
+  if(state == false)
+  {
+    m_Ui->originX->setText("0");
+    m_Ui->originY->setText("0");
+    m_Ui->originZ->setText("0");
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterDREAM3DDataPage::changeSpacing_stateChanged(int state)
+{
+  m_Ui->spacingX->setEnabled(state);
+  m_Ui->spacingY->setEnabled(state);
+  m_Ui->spacingZ->setEnabled(state);
+  if(state == false)
+  {
+    m_Ui->spacingX->setText("1");
+    m_Ui->spacingY->setText("1");
+    m_Ui->spacingZ->setText("1");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -174,10 +243,6 @@ void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
 	m_Ui->numOfColsSB->setValue(colCount);
 
 	setFinalPage(checkCount <= 1);
-	
-	QVariant var;
-	var.setValue(proxy);
-	setField(ImportMontage::DREAM3D::FieldNames::Proxy, var);
 
 	emit completeChanged();
 }
@@ -292,6 +357,54 @@ bool EnterDREAM3DDataPage::isComplete() const
 	  return false;
   }
 
+  if(m_Ui->originX->isEnabled())
+  {
+    if(m_Ui->originX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->originY->isEnabled())
+  {
+    if(m_Ui->originY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->originZ->isEnabled())
+  {
+    if(m_Ui->originZ->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingX->isEnabled())
+  {
+    if(m_Ui->spacingX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingY->isEnabled())
+  {
+    if(m_Ui->spacingY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingZ->isEnabled())
+  {
+    if(m_Ui->spacingZ->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
   return result;
 }
 
@@ -318,7 +431,15 @@ void EnterDREAM3DDataPage::registerFields()
   registerField(ImportMontage::DREAM3D::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(ImportMontage::DREAM3D::FieldNames::ImageArrayName, m_Ui->imageArrayNameLE);
   registerField(ImportMontage::DREAM3D::FieldNames::TileOverlap, m_Ui->tileOverlapSB);
-  registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget);
+  registerField(ImportMontage::DREAM3D::FieldNames::Proxy, m_Ui->loadHDF5DataWidget, "Proxy");
+  registerField(ImportMontage::DREAM3D::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
+  registerField(ImportMontage::DREAM3D::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);
+  registerField(ImportMontage::DREAM3D::FieldNames::SpacingX, m_Ui->spacingX);
+  registerField(ImportMontage::DREAM3D::FieldNames::SpacingY, m_Ui->spacingY);
+  registerField(ImportMontage::DREAM3D::FieldNames::SpacingZ, m_Ui->spacingZ);
+  registerField(ImportMontage::DREAM3D::FieldNames::OriginX, m_Ui->originX);
+  registerField(ImportMontage::DREAM3D::FieldNames::OriginY, m_Ui->originY);
+  registerField(ImportMontage::DREAM3D::FieldNames::OriginZ, m_Ui->originZ);
 }
 
 // -----------------------------------------------------------------------------
