@@ -209,7 +209,8 @@ void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
 	for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
 	{
 		DataContainerProxy dcProxy = iter.value();
-		if(dcProxy.getFlag() == Qt::Checked)
+		if(dcProxy.getFlag() == Qt::Checked ||
+			dcProxy.getFlag() == Qt::PartiallyChecked)
 		{
 			checkCount++;
 		}
@@ -332,7 +333,8 @@ bool EnterDREAM3DDataPage::isComplete() const
   for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
   {
 	  DataContainerProxy dcProxy = iter.value();
-	  if(dcProxy.getFlag() == Qt::Checked)
+	  if(dcProxy.getFlag() == Qt::Checked ||
+		  dcProxy.getFlag() == Qt::PartiallyChecked)
 	  {
 		  checkState = Qt::PartiallyChecked;
 	  }
