@@ -55,7 +55,6 @@ class SIMPLVtkLib_EXPORT ImportMontageWizard : public AbstractMontageWizard
       EnterZeissFile,
       DataDisplayOptions,
       LoadHDF5Data,
-	  BatchProcessingFijiOptions
     };
 
     enum InputType

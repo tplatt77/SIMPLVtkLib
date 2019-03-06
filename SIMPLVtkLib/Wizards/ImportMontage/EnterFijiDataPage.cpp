@@ -375,14 +375,7 @@ void EnterFijiDataPage::registerFields()
 // -----------------------------------------------------------------------------
 int EnterFijiDataPage::nextId() const
 {
-	if(field(ImportMontage::FieldNames::BatchProcessing).toBool())
-	{
-		return ImportMontageWizard::WizardPages::BatchProcessingFijiOptions;
-	}
-	else
-	{
-		return ImportMontageWizard::WizardPages::DataDisplayOptions;
-	}
+  return ImportMontageWizard::WizardPages::DataDisplayOptions;
 }
 
 // -----------------------------------------------------------------------------

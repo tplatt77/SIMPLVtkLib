@@ -234,16 +234,19 @@ void FijiListWidget::inputDirBtn_clicked()
   QString filter = tr("Fiji Configuration File (*.txt);;All Files (*.*)");
   QString title = "Select a Fiji configuration file";
 
-  QString outputFile = QFileDialog::getOpenFileName(this, title,
+  QStringList outputFiles = QFileDialog::getOpenFileNames(this, title,
     getInputDirectory(), filter);
 
-  if(!outputFile.isNull())
+  for (QString outputFile : outputFiles)
   {
-    m_Ui->inputDir->blockSignals(true);
-    m_Ui->inputDir->setText(QDir::toNativeSeparators(outputFile));
-    inputDir_textChanged(m_Ui->inputDir->text());
-    setOpenDialogLastFilePath(outputFile);
-    m_Ui->inputDir->blockSignals(false);
+    if(!outputFile.isNull())
+    {
+      m_Ui->inputDir->blockSignals(true);
+      m_Ui->inputDir->setText(QDir::toNativeSeparators(outputFile));
+      inputDir_textChanged(m_Ui->inputDir->text());
+      setOpenDialogLastFilePath(outputFile);
+      m_Ui->inputDir->blockSignals(false);
+    }
   }
 }
 

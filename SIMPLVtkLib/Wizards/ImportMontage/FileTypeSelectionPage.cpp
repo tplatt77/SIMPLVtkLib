@@ -130,7 +130,6 @@ bool FileTypeSelectionPage::isComplete() const
 void FileTypeSelectionPage::registerFields()
 {
   registerField(ImportMontage::FieldNames::InputType, this, "InputType");
-  registerField(ImportMontage::FieldNames::BatchProcessing, m_Ui->batchProcessingCB);
 }
 
 // -----------------------------------------------------------------------------

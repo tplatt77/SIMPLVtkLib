@@ -45,7 +45,6 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterDREAM3DDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterRobometDataPage.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/EnterFijiDataPage.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/BatchProcessingFijiOptionsPage.h"
 
 
 // -----------------------------------------------------------------------------
@@ -73,8 +72,6 @@ ImportMontageWizard::ImportMontageWizard(QWidget* parent)
   setPage(WizardPages::DataDisplayOptions, new DataDisplayOptionsPage);
 
   setPage(WizardPages::LoadHDF5Data, new LoadHDF5DataPage);
-
-  setPage(WizardPages::BatchProcessingFijiOptions, new BatchProcessingFijiOptionsPage);
 
   setStartId(WizardPages::FileTypeSelection);
 }
