@@ -53,7 +53,6 @@ namespace ImportMontage
     namespace FieldNames
     {
       const QString MontageName("zeissMontageName");
-      const QString DataFilePath("zeissDataFilePath");
       const QString DataContainerPrefix("zeissDataContainerPrefix");
       const QString CellAttributeMatrixName("zeissCellAttributeMatrixName");
       const QString ImageDataArrayName("zeissImageDataArrayName");
@@ -72,6 +71,7 @@ namespace ImportMontage
       const QString SpacingX("zeissSpacingX");
       const QString SpacingY("zeissSpacingY");
       const QString SpacingZ("zeissSpacingZ");
+	  const QString ZeissListInfo("zeissListInfo");
     }
   }
 

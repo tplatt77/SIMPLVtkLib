@@ -107,12 +107,10 @@ void EnterZeissDataPage::setupGui()
 // -----------------------------------------------------------------------------
 void EnterZeissDataPage::connectSignalsSlots()
 {
-  connect(m_Ui->selectButton, &QPushButton::clicked, this, &EnterZeissDataPage::selectBtn_clicked);
 
-	QtSFileCompleter* com = new QtSFileCompleter(this, true);
-  m_Ui->zeissDataFileLE->setCompleter(com);
-  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &EnterZeissDataPage::dataFile_textChanged);
-  connect(m_Ui->zeissDataFileLE, &QLineEdit::textChanged, this, &EnterZeissDataPage::dataFile_textChanged);
+  connect(m_Ui->zeissListWidget, &ZeissListWidget::inputDirectoryChanged, this, &EnterZeissDataPage::zeissListWidgetChanged);
+  connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfRowsChanged, this, &EnterZeissDataPage::zeissListWidgetChanged);
+  connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfColumnsChanged, this, &EnterZeissDataPage::zeissListWidgetChanged);
 
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, &EnterZeissDataPage::montageName_textChanged);
 
@@ -160,6 +158,17 @@ void EnterZeissDataPage::connectSignalsSlots()
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, this, &EnterZeissDataPage::convertGrayscale_stateChanged);
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &EnterZeissDataPage::changeOrigin_stateChanged);
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &EnterZeissDataPage::changeSpacing_stateChanged);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterZeissDataPage::zeissListWidgetChanged()
+{
+	ZeissListInfo_t zeissListInfo = m_Ui->zeissListWidget->getZeissListInfo();
+	setZeissListInfo(zeissListInfo);
+
+	emit completeChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -235,20 +244,6 @@ bool EnterZeissDataPage::isComplete() const
     {
       result = false;
     }
-  }
-
-  if (m_Ui->zeissDataFileLE->isEnabled())
-  {
-    if (m_Ui->zeissDataFileLE->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  QFileInfo fi(m_Ui->zeissDataFileLE->text());
-  if (fi.completeSuffix() != "xml")
-  {
-    result = false;
   }
 
   if(m_Ui->zeissDataContainerPrefixLE->isEnabled())
@@ -372,7 +367,6 @@ bool EnterZeissDataPage::isComplete() const
 void EnterZeissDataPage::registerFields()
 {
   registerField(ImportMontage::Zeiss::FieldNames::MontageName, m_Ui->montageNameLE);
-  registerField(ImportMontage::Zeiss::FieldNames::DataFilePath, m_Ui->zeissDataFileLE);
 
   registerField(ImportMontage::Zeiss::FieldNames::DataContainerPrefix, m_Ui->zeissDataContainerPrefixLE);
   registerField(ImportMontage::Zeiss::FieldNames::CellAttributeMatrixName, m_Ui->zeissCellAttrMatrixLE);
@@ -393,27 +387,7 @@ void EnterZeissDataPage::registerFields()
   registerField(ImportMontage::Zeiss::FieldNames::SpacingX, m_Ui->spacingX);
   registerField(ImportMontage::Zeiss::FieldNames::SpacingY, m_Ui->spacingY);
   registerField(ImportMontage::Zeiss::FieldNames::SpacingZ, m_Ui->spacingZ);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterZeissDataPage::selectBtn_clicked()
-{
-  QString filter = tr("Zeiss Configuration File(*.xml);;All Files (*.*)");
-  QString title = "Select a configuration file";
-
-  QString outputFile = QFileDialog::getOpenFileName(this, title,
-		getInputDirectory(), filter);
-
-	if (!outputFile.isNull())
-	{
-    m_Ui->zeissDataFileLE->blockSignals(true);
-    m_Ui->zeissDataFileLE->setText(QDir::toNativeSeparators(outputFile));
-    dataFile_textChanged(m_Ui->zeissDataFileLE->text());
-		setOpenDialogLastFilePath(outputFile);
-    m_Ui->zeissDataFileLE->blockSignals(false);
-	}
+  registerField(ImportMontage::Zeiss::FieldNames::ZeissListInfo, this, "ZeissListInfo");
 }
 
 // -----------------------------------------------------------------------------
@@ -444,49 +418,6 @@ void EnterZeissDataPage::montageName_textChanged(const QString &text)
   }
 
   emit completeChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterZeissDataPage::dataFile_textChanged(const QString& text)
-{
-	Q_UNUSED(text)
-
-		SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
-	QString inputPath = validator->convertToAbsolutePath(text);
-
-//	// Disable optional group boxes by default and only enable when needed
-//	m_Ui->colorWeighting->setDisabled(true);
-//	m_Ui->newOrigin->setDisabled(true);
-//	m_Ui->newSpacing->setDisabled(true);
-
-  if (QtSFileUtils::VerifyPathExists(inputPath, m_Ui->zeissDataFileLE))
-	{
-	}
-
-	emit completeChanged();
-  emit dataFileChanged(text);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EnterZeissDataPage::setInputDirectory(QString val)
-{
-  m_Ui->zeissDataFileLE->setText(val);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString EnterZeissDataPage::getInputDirectory()
-{
-  if (m_Ui->zeissDataFileLE->text().isEmpty())
-	{
-		return QDir::homePath();
-	}
-  return m_Ui->zeissDataFileLE->text();
 }
 
 // -----------------------------------------------------------------------------

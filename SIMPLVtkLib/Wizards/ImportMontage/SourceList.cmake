@@ -14,6 +14,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissListWidget.h
 )
 
 set(${PROJECT_NAME}_ImportMontage_SRCS
@@ -31,6 +32,7 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ZeissListWidget.cpp
 )
 
 set(${PROJECT_NAME}_ImportMontage_UIS
@@ -45,6 +47,7 @@ set(${PROJECT_NAME}_ImportMontage_UIS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/RobometListWidget.ui
   ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/TileListWidget.ui
   
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/UI_Files/ZeissListWidget.ui
 )
 
 cmp_IDE_SOURCE_PROPERTIES( "${PROJECT_NAME}/Wizards" "${${PROJECT_NAME}_ImportMontage_HDRS}" "${${PROJECT_NAME}_ImportMontage_SRCS}" "0")

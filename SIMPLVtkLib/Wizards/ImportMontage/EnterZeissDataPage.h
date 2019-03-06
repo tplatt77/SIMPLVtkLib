@@ -93,18 +93,16 @@ class EnterZeissDataPage : public QWizardPage
   protected slots:
 
     // Slots to catch signals emitted by the various ui widgets
-    void selectBtn_clicked();
-    void dataFile_textChanged(const QString& text);
-
     void manualDCAElementNames_stateChanged(int state);
     void changeTileOverlap_stateChanged(int state);
     void convertGrayscale_stateChanged(int state);
     void changeOrigin_stateChanged(int state);
     void changeSpacing_stateChanged(int state);
     void montageName_textChanged(const QString& text);
+	void zeissListWidgetChanged();
   protected:
-    void setInputDirectory(QString val);
-    QString getInputDirectory();
+	SIMPL_INSTANCE_PROPERTY(ZeissListInfo_t, ZeissListInfo)
+	Q_PROPERTY(ZeissListInfo_t ZeissListInfo READ getZeissListInfo WRITE setZeissListInfo)
 
     static void setOpenDialogLastFilePath(QString val)
     {
