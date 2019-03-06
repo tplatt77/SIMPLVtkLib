@@ -477,6 +477,32 @@ void VSMainWidgetBase::launchHDF5SelectionDialog(const QString& filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importMontage(ImportMontageWizard* montageWizard)
+{
+  bool displayMontage = montageWizard->field(ImportMontage::FieldNames::DisplayMontage).toBool();
+  bool displayOutline = montageWizard->field(ImportMontage::FieldNames::DisplayOutlineOnly).toBool();
+
+  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
+  if(displayMontage)
+  {
+    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
+  }
+  else if(displayOutline)
+  {
+    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
+  }
+  else
+  {
+    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::SideBySide);
+  }
+
+  m_Controller->importMontage(montageWizard);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca)
 {
   m_Controller->importDataContainerArray(filePath, dca);

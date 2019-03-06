@@ -49,6 +49,9 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class ImportMontageWizard;
+class MontageWorker;
+
 /**
  * @class VSController VSController.h SIMPLVtkLib/Visualization/Controllers/VSController.h
  * @brief This class handles the top-level controls for SIMPLVtkLib from importing data
@@ -87,6 +90,13 @@ public:
    * @return
    */
   bool loadSession(const QString& sessionFilePath);
+
+  /**
+   * @brief importMontage
+   * @param montageWizard
+   * @return
+   */
+  bool importMontage(ImportMontageWizard* montageWizard);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
@@ -174,6 +184,14 @@ public:
    */
   //void selectFilter(VSAbstractFilter* filter);
 
+protected slots:
+  /**
+   * @brief handleMontageResults
+   * @param pipeline
+   * @param err
+   */
+  void handleMontageResults(FilterPipeline::Pointer pipeline, int err);
+
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
@@ -188,6 +206,13 @@ private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
 
+
+  QThread* m_WorkerThread;
+  MontageWorker* m_MontageWorker;
+  std::vector<FilterPipeline::Pointer> m_Pipelines;
+  DataContainerArray::Pointer m_dataContainerArray;
+  bool m_DisplayMontage;
+
   /**
    * @brief saveFilter
    * @param filter
@@ -200,4 +225,44 @@ private:
    * @param filterObj
    */
   void loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter = nullptr);
+
+  /**
+   * @brief importGenericMontage
+   * @param montageWizard
+   */
+  void importGenericMontage(ImportMontageWizard* montageWizard);
+
+  /**
+   * @brief importDREAM3DMontage
+   * @param montageWizard
+   */
+  void importDREAM3DMontage(ImportMontageWizard* montageWizard);
+
+  /**
+   * @brief importFijiMontage
+   * @param montageWizard
+   */
+  void importFijiMontage(ImportMontageWizard* montageWizard);
+
+  /**
+   * @brief importRobometMontage
+   * @param montageWizard
+   */
+  void importRobometMontage(ImportMontageWizard* montageWizard);
+
+  /**
+   * @brief importZeissMontage
+   * @param montageWizard
+   */
+  void importZeissMontage(ImportMontageWizard* montageWizard);
+
+  /**
+   * @brief Perform the montaging workflow
+   * @param montageWizard
+   * @param dataContainerNames
+   * @param dream3dFile
+   * @return
+   */
+  void performMontaging(ImportMontageWizard* montageWizard, QStringList dataContainerNames,
+    ImportMontageWizard::InputType inputType, int rowCount, int colCount, FilterPipeline::Pointer pipeline);
 };

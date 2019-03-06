@@ -38,9 +38,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker(std::vector<FilterPipeline::Pointer> pipelines)
+MontageWorker::MontageWorker()
 {
-  m_pipelines = pipelines;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -54,15 +54,29 @@ MontageWorker::~MontageWorker()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void MontageWorker::addMontagePipeline(FilterPipeline::Pointer pipeline)
+{
+  m_PipelinesSem.acquire();
+  m_Pipelines.push_back(pipeline);
+  m_PipelinesSem.release();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void MontageWorker::process()
 {
 	int err = 0;
-	for(FilterPipeline::Pointer pipeline : m_pipelines)
-	{
+  m_PipelinesSem.acquire();
+  while(m_Pipelines.size() > 0)
+  {
+    FilterPipeline::Pointer pipeline = m_Pipelines.front();
+    m_Pipelines.erase(m_Pipelines.begin());
+    m_PipelinesSem.release();
 		pipeline->execute();
 
 		err = pipeline->getErrorCondition();
-		qInfo() << "Pipeline err condition: " << err;
+//		qInfo() << "Pipeline err condition: " << err;
 //		// For now, quit after an error condition
 //		// However, may want to consider returning
 //		// list of errors associated with each pipeline
@@ -71,5 +85,7 @@ void MontageWorker::process()
 //			break;
 //		}
     emit resultReady(pipeline, err);
+    m_PipelinesSem.acquire();
 	}
+  m_PipelinesSem.release();
 }

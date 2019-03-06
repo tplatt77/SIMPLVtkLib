@@ -4,6 +4,7 @@ set(${PROJECT_NAME}_QtWidgets_HDRS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSAdvancedVisibilitySettingsWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorButton.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorMappingWidget.h
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterFactory.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterViewDelegate.h
@@ -24,6 +25,7 @@ set(${PROJECT_NAME}_QtWidgets_SRCS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSAdvancedVisibilitySettingsWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorButton.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorMappingWidget.cpp
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterFactory.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterViewDelegate.cpp

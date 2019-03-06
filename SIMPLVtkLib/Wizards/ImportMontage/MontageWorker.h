@@ -37,6 +37,8 @@
 
 #include <qthread.h>
 
+#include <QtCore/QSemaphore>
+
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -44,8 +46,10 @@ class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
 public:
-  MontageWorker(std::vector<FilterPipeline::Pointer> pipelines);
+  MontageWorker();
 	~MontageWorker();
+
+  void addMontagePipeline(FilterPipeline::Pointer pipeline);
 
 signals:
 	void finished();
@@ -56,5 +60,6 @@ public slots:
 	void process();
 
 private:
-	std::vector<FilterPipeline::Pointer> m_pipelines;
+  std::vector<FilterPipeline::Pointer> m_Pipelines;
+  QSemaphore m_PipelinesSem;
 };

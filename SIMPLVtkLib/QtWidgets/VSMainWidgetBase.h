@@ -171,6 +171,13 @@ public:
   void setTransformWidget(VSTransformWidget* widget);
 
   /**
+   * @brief importMontage
+   * @param montageWizard
+   * @return
+   */
+  bool importMontage(ImportMontageWizard* montageWizard);
+
+  /**
    * @brief importDataContainerArray
    * @param dca
    */
