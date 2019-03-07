@@ -66,6 +66,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageConstants.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -87,6 +88,8 @@ void VSMainWidgetBase::connectSlots()
   connect(m_Controller, &VSController::filterAdded, this, &VSMainWidgetBase::filterAdded);
   connect(m_Controller, &VSController::filterRemoved, this, &VSMainWidgetBase::filterRemoved);
   connect(m_Controller, &VSController::blockRender, this, &VSMainWidgetBase::setBlockRender);
+  connect(m_Controller, &VSController::notifyErrorMessage, this, &VSMainWidgetBase::notifyErrorMessage);
+  connect(m_Controller, &VSController::notifyStatusMessage, this, &VSMainWidgetBase::notifyStatusMessage);
 }
 
 // -----------------------------------------------------------------------------

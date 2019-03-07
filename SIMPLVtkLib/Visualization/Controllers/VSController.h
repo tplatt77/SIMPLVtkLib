@@ -96,7 +96,7 @@ public:
    * @param montageWizard
    * @return
    */
-  bool importMontage(ImportMontageWizard* montageWizard);
+  void importMontage(ImportMontageWizard* montageWizard);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
@@ -192,6 +192,22 @@ protected slots:
    */
   void handleMontageResults(FilterPipeline::Pointer pipeline, int err);
 
+  /**
+   * @brief processPipelineMessage
+   * @param pipelineMsg
+   */
+  void processPipelineMessage(const PipelineMessage& pipelineMsg);
+
+  /**
+   * @brief workerFinished
+   */
+  void montageWorkerFinished();
+
+  /**
+   * @brief montageThreadFinished
+   */
+  void montageThreadFinished();
+
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
@@ -201,17 +217,20 @@ signals:
   //void filterSelected(VSAbstractFilter* filter);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
+  void notifyErrorMessage(const QString &msg, int code);
+  void notifyStatusMessage(const QString &msg);
 
 private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
 
 
-  QThread* m_WorkerThread;
-  MontageWorker* m_MontageWorker;
+  QThread* m_WorkerThread = nullptr;
+  MontageWorker* m_MontageWorker = nullptr;
   std::vector<FilterPipeline::Pointer> m_Pipelines;
   DataContainerArray::Pointer m_dataContainerArray;
-  bool m_DisplayMontage;
+  bool m_DisplayMontage = false;
+  bool m_DisplayOutline = false;
 
   /**
    * @brief saveFilter
@@ -257,12 +276,8 @@ private:
   void importZeissMontage(ImportMontageWizard* montageWizard);
 
   /**
-   * @brief Perform the montaging workflow
-   * @param montageWizard
-   * @param dataContainerNames
-   * @param dream3dFile
-   * @return
+   * @brief runPipeline
+   * @param pipeline
    */
-  void performMontaging(ImportMontageWizard* montageWizard, QStringList dataContainerNames,
-    ImportMontageWizard::InputType inputType, int rowCount, int colCount, FilterPipeline::Pointer pipeline);
+  void addMontagePipelineToQueue(FilterPipeline::Pointer pipeline);
 };

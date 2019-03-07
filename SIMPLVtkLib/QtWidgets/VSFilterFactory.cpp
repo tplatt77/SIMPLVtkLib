@@ -38,16 +38,15 @@
 
 #include <array>
 
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/FilterParameters/FloatVec3.h"
 
-VSFilterFactory* VSFilterFactory::s_Self = nullptr;
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterFactory::VSFilterFactory(QWidget* parent)
+VSFilterFactory::VSFilterFactory(QObject* parent)
 : QObject(parent)
 {
 }
@@ -55,18 +54,90 @@ VSFilterFactory::VSFilterFactory(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterFactory::~VSFilterFactory() = default;
+AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const QString& inputFile, DataContainerArrayProxy inputFileDCAProxy)
+{
+  QString filterName = "DataContainerReader";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+    AbstractFilter::Pointer dataContainerReader = factory->create();
+    if(dataContainerReader.get() != nullptr)
+    {
+      QVariant var;
+
+      // Set input file
+      var.setValue(inputFile);
+      if(!setFilterProperty(dataContainerReader, "InputFile", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set data container array proxy
+      var.setValue(inputFileDCAProxy);
+      if(!setFilterProperty(dataContainerReader, "InputFileDataContainerArrayProxy", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+    }
+  }
+  return AbstractFilter::NullPointer();
+}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterFactory* VSFilterFactory::Instance()
+AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3_t resolution, FloatVec3_t origin)
 {
-  if(s_Self == nullptr)
+  QString filterName = "SetOriginResolutionImageGeom";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
   {
-    s_Self = new VSFilterFactory();
+    AbstractFilter::Pointer setOriginResolutionFilter = factory->create();
+    if(setOriginResolutionFilter.get() != nullptr)
+    {
+      QVariant var;
+
+      // Set the data container name
+      var.setValue(dcName);
+      if(!setFilterProperty(setOriginResolutionFilter, "DataContainerName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the change spacing boolean flag (change resolution)
+      var.setValue(changeResolution);
+      if(!setFilterProperty(setOriginResolutionFilter, "ChangeResolution", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the spacing
+      var.setValue(resolution);
+      if(!setFilterProperty(setOriginResolutionFilter, "Resolution", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the change origin boolean flag (change resolution)
+      var.setValue(changeOrigin);
+      if(!setFilterProperty(setOriginResolutionFilter, "ChangeOrigin", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the origin
+      var.setValue(origin);
+      if(!setFilterProperty(setOriginResolutionFilter, "Origin", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+    }
   }
-  return s_Self;
+  return AbstractFilter::NullPointer();
 }
 
 // -----------------------------------------------------------------------------
@@ -89,28 +160,28 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
       var.setValue(fijiFile);
       if(!setFilterProperty(importFijiMontageFilter, "FijiConfigFilePath", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
       if(!setFilterProperty(importFijiMontageFilter, "DataContainerPrefix", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Cell Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(importFijiMontageFilter, "CellAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Image Array Name
       var.setValue(daName);
       if(!setFilterProperty(importFijiMontageFilter, "AttributeArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       return importFijiMontageFilter;
@@ -141,49 +212,49 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
       var.setValue(robometFile);
       if(!setFilterProperty(importRoboMetMontageFilter, "RegistrationFile", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
       if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPrefix", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Cell Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(importRoboMetMontageFilter, "CellAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Image Array Name
       var.setValue(daName);
       if(!setFilterProperty(importRoboMetMontageFilter, "AttributeArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Slice number
       var.setValue(sliceNumber);
       if(!setFilterProperty(importRoboMetMontageFilter, "SliceNumber", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Image file prefix
       var.setValue(imageFilePrefix);
       if(!setFilterProperty(importRoboMetMontageFilter, "ImageFilePrefix", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Image file extension
       var.setValue(imageFileExtension);
       if(!setFilterProperty(importRoboMetMontageFilter, "ImageFileExtension", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       return importRoboMetMontageFilter;
@@ -216,49 +287,49 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       var.setValue(zeissFile);
       if(!setFilterProperty(importZeissMontageFilter, "InputFile", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
       if(!setFilterProperty(importZeissMontageFilter, "DataContainerName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Cell Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(importZeissMontageFilter, "CellAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Image Array Name
       var.setValue(daName);
       if(!setFilterProperty(importZeissMontageFilter, "ImageDataArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the Metadata Attribute MatrixName
       var.setValue(metaAmName);
       if(!setFilterProperty(importZeissMontageFilter, "MetaDataAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Import All Metadata
       var.setValue(importAllMetadata);
       if(!setFilterProperty(importZeissMontageFilter, "ImportAllMetaData", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Convert to Grayscale
       var.setValue(convertToGrayscale);
       if(!setFilterProperty(importZeissMontageFilter, "ConvertToGrayScale", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       if(convertToGrayscale)
@@ -270,7 +341,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         var.setValue(colorWeights);
         if(!setFilterProperty(importZeissMontageFilter, "ColorWeights", var))
         {
-          return;
+          return AbstractFilter::NullPointer();
         }
       }
 
@@ -278,7 +349,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       var.setValue(changeOrigin);
       if(!setFilterProperty(importZeissMontageFilter, "ChangeOrigin", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       if(changeOrigin)
@@ -290,7 +361,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         var.setValue(newOrigin);
         if(!setFilterProperty(importZeissMontageFilter, "Origin", var))
         {
-          return;
+          return AbstractFilter::NullPointer();
         }
       }
 
@@ -298,7 +369,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       var.setValue(changeSpacing);
       if(!setFilterProperty(importZeissMontageFilter, "ChangeSpacing", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       if(changeSpacing)
@@ -310,7 +381,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         var.setValue(newSpacing);
         if(!setFilterProperty(importZeissMontageFilter, "Spacing", var))
         {
-          return;
+          return AbstractFilter::NullPointer();
         }
       }
 
@@ -341,28 +412,28 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
       var.setValue(montageSize);
       if(!setFilterProperty(itkRegistrationFilter, "MontageSize", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Common Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(itkRegistrationFilter, "CommonAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Common Data Array Name
       var.setValue(daName);
       if(!setFilterProperty(itkRegistrationFilter, "CommonDataArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the list of image data containers
       var.setValue(dcNames);
       if(!setFilterProperty(itkRegistrationFilter, "ImageDataContainers", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       return itkRegistrationFilter;
@@ -392,35 +463,35 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3_t mon
       var.setValue(montageSize);
       if(!setFilterProperty(itkStitchingFilter, "MontageSize", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Common Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(itkStitchingFilter, "CommonAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set Common Data Array Name
       var.setValue(daName);
       if(!setFilterProperty(itkStitchingFilter, "CommonDataArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Set the list of image data containers
       var.setValue(dcNames);
       if(!setFilterProperty(itkStitchingFilter, "ImageDataContainers", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Tile overlap
       var.setValue(tileOverlap);
       if(!setFilterProperty(itkStitchingFilter, "TileOverlap", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       // Montage results data array path components
@@ -428,21 +499,21 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3_t mon
       var.setValue(montageDataContainer);
       if(!setFilterProperty(itkStitchingFilter, "MontageDataContainerName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       QString montageAttriubeMatrixName = montagePath.getAttributeMatrixName();
       var.setValue(montageAttriubeMatrixName);
       if(!setFilterProperty(itkStitchingFilter, "MontageAttributeMatrixName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       QString montageDataArrayName = montagePath.getDataArrayName();
       var.setValue(montageDataArrayName);
       if(!setFilterProperty(itkStitchingFilter, "MontageDataArrayName", var))
       {
-        return;
+        return AbstractFilter::NullPointer();
       }
 
       return itkStitchingFilter;
@@ -459,7 +530,7 @@ bool VSFilterFactory::setFilterProperty(AbstractFilter::Pointer filter, const ch
 {
   if(!filter->setProperty(propertyName, value))
   {
-    statusBar()->showMessage(tr("%1: %2 property not set. Aborting.").arg(filter->getHumanLabel()).arg(propertyName));
+    notifyErrorMessage(tr("%1: %2 property not set. Aborting.").arg(filter->getHumanLabel()).arg(propertyName), -1000);
     return false;
   }
   return true;

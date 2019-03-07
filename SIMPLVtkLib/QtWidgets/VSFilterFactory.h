@@ -40,6 +40,7 @@
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/IntVec3.h"
+#include "SIMPLib/FilterParameters/FloatVec3.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -53,18 +54,14 @@ class SIMPLVtkLib_EXPORT VSFilterFactory : public QObject
   Q_OBJECT
 
 public:
+  SIMPL_SHARED_POINTERS(VSFilterFactory)
+  SIMPL_STATIC_NEW_MACRO(VSFilterFactory)
   SIMPL_TYPE_MACRO(VSFilterFactory)
 
   /**
    * @brief Deconstructor
    */
   virtual ~VSFilterFactory() = default;
-
-  /**
-   * @brief Static instance to retrieve the global instance of this class
-   * @return
-   */
-  static VSFilterFactory* Instance();
 
   /**
    * @brief Creates a filter that imports a Fiji montage, and sets all the necessary properties
@@ -135,6 +132,25 @@ public:
    */
   AbstractFilter::Pointer createTileStitchingFilter(IntVec3_t montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap = 0.0);
 
+  /**
+   * @brief Creates a Set Origin Resolution filter that sets the origin and resolution of a data container's image geometry
+   * @param dcName The name of the data container
+   * @param changeResolution Boolean that determines whether or not to change the resolution
+   * @param changeOrigin Boolean that determines whether or not to change the origin
+   * @param resolution The resolution to set into the image geometry
+   * @param origin The origin to set into the image geometry
+   * @return
+   */
+  AbstractFilter::Pointer createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3_t resolution, FloatVec3_t origin);
+
+  /**
+   * @brief Creates a Data Container Reader filter that reads the data from a DREAM3D file and sets all necessary properties
+   * @param inputFile The DREAM3D file path to read
+   * @param inputFileDCAProxy The proxy structure from the DREAM3D file
+   * @return
+   */
+  AbstractFilter::Pointer createDataContainerReaderFilter(const QString& inputFile, DataContainerArrayProxy inputFileDCAProxy);
+
 protected:
   /**
    * @brief Constructor
@@ -142,8 +158,10 @@ protected:
    */
   VSFilterFactory(QObject* parent = nullptr);
 
+signals:
+  void notifyErrorMessage(const QString &msg, int code);
+
 private:
-  static VSFilterFactory* s_Self;
 
   /**
    * @brief printPropertyError

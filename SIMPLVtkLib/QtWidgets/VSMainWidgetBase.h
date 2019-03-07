@@ -459,6 +459,10 @@ protected slots:
    */
   void generateError(const QString& title, const QString& msg, const int& code);
 
+signals:
+  void notifyErrorMessage(const QString &msg, int code);
+  void notifyStatusMessage(const QString &msg);
+
 private:
   VSController* m_Controller = nullptr;
   // VSAbstractFilterWidget::ListType m_CurrentFilterWidgets;

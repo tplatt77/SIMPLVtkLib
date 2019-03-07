@@ -39,12 +39,15 @@
 
 #include <QtCore/QSemaphore>
 
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
+
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 
 class SIMPLVtkLib_EXPORT MontageWorker : public QObject
 {
 	Q_OBJECT
+
 public:
   MontageWorker();
 	~MontageWorker();
