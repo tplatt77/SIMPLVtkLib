@@ -61,6 +61,7 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/MontageWorker.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/RobometListWidget.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/TileConfigFileGenerator.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ZeissListWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -438,7 +439,10 @@ void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
 
   VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
 
-  QString configFilePath = montageWizard->field(ImportMontage::Zeiss::FieldNames::DataFilePath).toString();
+  qRegisterMetaType<ZeissListInfo_t>();
+  ZeissListInfo_t zeissListInfo = montageWizard->field(ImportMontage::Zeiss::FieldNames::ZeissListInfo).value<ZeissListInfo_t>();
+
+  QString configFilePath = zeissListInfo.ZeissFilePath;
   QString dataContainerPrefix = montageWizard->field(ImportMontage::Zeiss::FieldNames::DataContainerPrefix).toString();
   QString cellAttrMatrixName = montageWizard->field(ImportMontage::Zeiss::FieldNames::CellAttributeMatrixName).toString();
   QString attributeArrayName = montageWizard->field(ImportMontage::Zeiss::FieldNames::ImageDataArrayName).toString();

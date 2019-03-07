@@ -246,6 +246,14 @@ bool EnterZeissDataPage::isComplete() const
     }
   }
 
+  if(m_Ui->zeissListWidget->isEnabled())
+  {
+	  if(!m_Ui->zeissListWidget->isComplete())
+	  {
+		  result = false;
+	  }
+  }
+
   if(m_Ui->zeissDataContainerPrefixLE->isEnabled())
   {
     if(m_Ui->zeissDataContainerPrefixLE->text().isEmpty())

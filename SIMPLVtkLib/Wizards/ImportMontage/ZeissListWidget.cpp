@@ -325,6 +325,11 @@ void ZeissListWidget::generateExampleInputFile(QStringList filenameList)
     m_Ui->errorMessage->setVisible(true);
     m_Ui->errorMessage->setText("Alert: Red Dot File(s) on the list do NOT exist on the filesystem. Please make sure all files exist");
   }
+  else if(!inputPath.isEmpty() && fileList.isEmpty())
+  {
+    m_Ui->errorMessage->setVisible(true);
+    m_Ui->errorMessage->setText("Alert: An invalid configuration file was selected. Please select another one.");
+  }
   else
   {
     m_Ui->errorMessage->setVisible(true);
