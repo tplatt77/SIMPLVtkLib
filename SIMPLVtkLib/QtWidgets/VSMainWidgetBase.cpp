@@ -515,6 +515,15 @@ bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataCon
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importPipeline(ExecutePipelineWizard* pipelineWizard)
+{
+  m_Controller->importPipeline(pipelineWizard);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
   m_Controller->importPipelineOutput(pipeline, dca);

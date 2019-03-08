@@ -189,6 +189,13 @@ public:
    * @param dca
    * @return
    */
+  bool importPipeline(ExecutePipelineWizard* pipelineWizard);
+  /**
+   * @brief importPipelineOutput
+   * @param pipeline
+   * @param dca
+   * @return
+   */
   bool importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**

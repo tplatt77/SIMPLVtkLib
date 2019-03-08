@@ -135,6 +135,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
       {
         return AbstractFilter::NullPointer();
       }
+
+	  return setOriginResolutionFilter;
     }
   }
   return AbstractFilter::NullPointer();

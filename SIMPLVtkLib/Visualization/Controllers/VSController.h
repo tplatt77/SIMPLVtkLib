@@ -50,7 +50,9 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 class ImportMontageWizard;
+class ExecutePipelineWizard;
 class MontageWorker;
+class PipelineWorker;
 
 /**
  * @class VSController VSController.h SIMPLVtkLib/Visualization/Controllers/VSController.h
@@ -104,6 +106,12 @@ public:
    * @param dca
    */
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
+
+  /**
+   * @brief Import a pipeline to execute
+   * @param executePipelineWizard
+   */
+  void importPipeline(ExecutePipelineWizard* executePipelineWizard);
 
   /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
@@ -227,6 +235,7 @@ private:
 
   QThread* m_WorkerThread = nullptr;
   MontageWorker* m_MontageWorker = nullptr;
+  PipelineWorker* m_PipelineWorker = nullptr;
   std::vector<FilterPipeline::Pointer> m_Pipelines;
   DataContainerArray::Pointer m_dataContainerArray;
   bool m_DisplayMontage = false;
@@ -280,4 +289,10 @@ private:
    * @param pipeline
    */
   void addMontagePipelineToQueue(FilterPipeline::Pointer pipeline);
+
+  /**
+   * @brief executePipeline
+   * @param pipeline
+   */
+  void executePipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer);
 };

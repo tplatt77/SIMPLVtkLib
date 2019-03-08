@@ -208,6 +208,10 @@ set(Project_SRCS
   ${${PROJECT_NAME}_ImportMontage_SRCS}
   ${${PROJECT_NAME}_ImportMontage_Generated_UI_HDRS}
 
+  ${${PROJECT_NAME}_ExecutePipeline_HDRS}
+  ${${PROJECT_NAME}_ExecutePipeline_SRCS}
+  ${${PROJECT_NAME}_ExecutePipeline_Generated_UI_HDRS}
+
   ${${PROJECT_NAME}_Dialogs_Moc_HDRS}
   ${${PROJECT_NAME}_Dialogs_HDRS}
   ${${PROJECT_NAME}_Dialogs_SRCS}
@@ -281,6 +285,7 @@ target_include_directories(SIMPLVtkLib
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VisualFilters
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Visualization/VtkWidgets
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards
+                              ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/ExecutePipeline
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/GenericMontage
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportMontage
                               ${SIMPLVtkLib_BINARY_PARENT_DIR})

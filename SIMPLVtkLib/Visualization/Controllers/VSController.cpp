@@ -55,6 +55,10 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
+#include "SIMPLVtkLib/Wizards/ExecutePipeline/ExecutePipelineConstants.h"
+#include "SIMPLVtkLib/Wizards/ExecutePipeline/ExecutePipelineWizard.h"
+#include "SIMPLVtkLib/Wizards/ExecutePipeline/PipelineWorker.h"
+
 #include "SIMPLVtkLib/Wizards/ImportMontage/FijiListWidget.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageConstants.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
@@ -517,6 +521,34 @@ void VSController::addMontagePipelineToQueue(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSController::executePipeline(FilterPipeline::Pointer pipeline,
+  DataContainerArray::Pointer dca)
+{
+  pipeline->addMessageReceiver(this);
+  if(!m_PipelineWorker)
+  {
+	m_PipelineWorker = new PipelineWorker();
+	connect(m_PipelineWorker, SIGNAL(finished()), this, SLOT(montageWorkerFinished()));
+	connect(m_PipelineWorker, &PipelineWorker::resultReady, this, &VSController::handleMontageResults);
+  }
+
+  m_PipelineWorker->addPipeline(pipeline, dca);
+
+  if(!m_WorkerThread)
+  {
+	m_WorkerThread = new QThread;
+	m_PipelineWorker->moveToThread(m_WorkerThread);
+	connect(m_WorkerThread, SIGNAL(started()), m_PipelineWorker, SLOT(process()));
+	connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
+	connect(m_PipelineWorker, SIGNAL(finished()), m_WorkerThread, SLOT(quit()));
+
+	m_WorkerThread->start();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSController::handleMontageResults(FilterPipeline::Pointer pipeline, int err)
 {
   if(err >= 0)
@@ -574,6 +606,86 @@ void VSController::reloadDataContainerArray(VSFileNameFilter* fileFilter, DataCo
   m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Reload);
   m_ImportObject->addDataContainerArray(fileFilter, dca);
   m_ImportObject->run();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::importPipeline(ExecutePipelineWizard* executePipelineWizard)
+{
+	QString filePath = executePipelineWizard->field(ExecutePipeline::FieldNames::PipelineFile)
+	  .toString();
+	ExecutePipelineWizard::ExecutionType executionType = executePipelineWizard
+	  ->field(ExecutePipeline::FieldNames::ExecutionType)
+	  .value<ExecutePipelineWizard::ExecutionType>();
+
+	if(filePath.isEmpty())
+	{
+		return;
+	}
+
+	QFileInfo fi(filePath);
+
+	QString jsonContent;
+	QFile jsonFile;
+	jsonFile.setFileName(fi.absoluteFilePath());
+	jsonFile.open(QIODevice::ReadOnly | QIODevice::Text);
+	jsonContent = jsonFile.readAll();
+	jsonFile.close();
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContent.toUtf8());
+	QJsonObject jsonObj = jsonDoc.object();
+	FilterPipeline::Pointer pipelineFromJson = FilterPipeline::FromJson(jsonObj);
+
+	if(pipelineFromJson != FilterPipeline::NullPointer())
+	{
+	  if(executionType == ExecutePipelineWizard::ExecutionType::FromFilesystem)
+	  {
+		addMontagePipelineToQueue(pipelineFromJson);
+	  }
+	  else if(executionType == ExecutePipelineWizard::ExecutionType::OnLoadedData)
+	  {
+		int startFilter = executePipelineWizard->field(ExecutePipeline::FieldNames::StartFilter).toInt();
+		int selectedDataset = executePipelineWizard->field(ExecutePipeline::FieldNames::SelectedDataset).toInt();
+		
+		// Construct Data Container Array with selected Dataset
+		DataContainerArray::Pointer dca = DataContainerArray::New();
+		VSAbstractFilter::FilterListType datasets = this->getBaseFilters();
+		int i = 0;
+		for(VSAbstractFilter* dataset : datasets)
+		{
+		  if(i == selectedDataset)
+		  {
+			// Add contents to data container array
+			VSAbstractFilter::FilterListType children = dataset->getChildren();
+			for(VSAbstractFilter* childFilter : children)
+			{
+			  bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+			  if(isSIMPL)
+			  {
+				VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+				if(dcFilter != nullptr)
+				{
+				  DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+				  dca->addDataContainer(dataContainer);
+				}
+			  }
+			}
+			break;
+		  }
+		  i++;
+		}
+
+		// Reconstruct pipeline starting with new start filter
+		FilterPipeline::Pointer pipeline = FilterPipeline::New();
+		for(int i = startFilter; i < pipelineFromJson->getFilterContainer().size(); i++)
+		{
+		  AbstractFilter::Pointer filter = pipelineFromJson->getFilterContainer().at(i);
+		  filter->setDataContainerArray(dca);
+		  pipeline->pushBack(filter);
+		}
+		executePipeline(pipeline, dca);
+	  }
+	}
 }
 
 // -----------------------------------------------------------------------------
