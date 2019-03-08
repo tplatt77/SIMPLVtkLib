@@ -79,6 +79,8 @@ EnterZeissDataPage::~EnterZeissDataPage() = default;
 // -----------------------------------------------------------------------------
 void EnterZeissDataPage::setupGui()
 {
+  qRegisterMetaType<ZeissListInfo_t>();
+
   connectSignalsSlots();
 
   m_Ui->colorWeightingR->setValidator(new QDoubleValidator);

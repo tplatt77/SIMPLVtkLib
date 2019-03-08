@@ -439,7 +439,6 @@ void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
 
   VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
 
-  qRegisterMetaType<ZeissListInfo_t>();
   ZeissListInfo_t zeissListInfo = montageWizard->field(ImportMontage::Zeiss::FieldNames::ZeissListInfo).value<ZeissListInfo_t>();
 
   QString configFilePath = zeissListInfo.ZeissFilePath;
