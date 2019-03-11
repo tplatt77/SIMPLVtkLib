@@ -95,7 +95,10 @@ void AdvancedPipelineExecutionPage::setupGui()
   advancedGridLayout->setParent(nullptr);
   advancedGB->setContentLayout(advancedGridLayout);
 
-  m_Ui->gridLayout->addWidget(advancedGB, 4, 0, 1, 4);
+  m_Ui->gridLayout->addWidget(advancedGB, 5, 0, 1, 4);
+
+  // Set the default radio button selection
+  m_Ui->displayMontageRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -306,6 +309,10 @@ void AdvancedPipelineExecutionPage::registerFields()
   registerField(ExecutePipeline::FieldNames::OriginX, m_Ui->originX);
   registerField(ExecutePipeline::FieldNames::OriginY, m_Ui->originY);
   registerField(ExecutePipeline::FieldNames::OriginZ, m_Ui->originZ);
+
+  registerField(ExecutePipeline::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
+  registerField(ExecutePipeline::FieldNames::DisplaySideBySide, m_Ui->sideBySideRB);
+  registerField(ExecutePipeline::FieldNames::DisplayOutlineOnly, m_Ui->outlineOnlyRB);
 }
 
 // -----------------------------------------------------------------------------

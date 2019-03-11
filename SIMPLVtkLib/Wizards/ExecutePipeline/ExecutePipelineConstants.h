@@ -63,5 +63,8 @@ namespace ExecutePipeline
 	const QString SpacingX("SpacingX");
 	const QString SpacingY("SpacingY");
 	const QString SpacingZ("SpacingZ");
+	const QString DisplayMontage("DisplayMontage");
+	const QString DisplaySideBySide("DisplaySideBySide");
+	const QString DisplayOutlineOnly("DisplayOutlineOnly");
   }
 }

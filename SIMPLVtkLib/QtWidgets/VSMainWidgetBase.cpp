@@ -66,6 +66,7 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Wizards/ExecutePipeline/ExecutePipelineConstants.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageConstants.h"
 
 // -----------------------------------------------------------------------------
@@ -517,6 +518,22 @@ bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataCon
 // -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importPipeline(ExecutePipelineWizard* pipelineWizard)
 {
+  bool displayMontage = ((QWizard*) pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayMontage).toBool();
+  bool displayOutline = ((QWizard*)pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayOutlineOnly).toBool();
+
+  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
+  if(displayMontage)
+  {
+	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
+  }
+  else if(displayOutline)
+  {
+	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
+  }
+  else
+  {
+	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::SideBySide);
+  }
   m_Controller->importPipeline(pipelineWizard);
   return true;
 }

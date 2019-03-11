@@ -618,6 +618,8 @@ void VSController::importPipeline(ExecutePipelineWizard* executePipelineWizard)
 	ExecutePipelineWizard::ExecutionType executionType = executePipelineWizard
 	  ->field(ExecutePipeline::FieldNames::ExecutionType)
 	  .value<ExecutePipelineWizard::ExecutionType>();
+	m_DisplayMontage = executePipelineWizard->field(ImportMontage::FieldNames::DisplayMontage).toBool();
+	m_DisplayOutline = executePipelineWizard->field(ImportMontage::FieldNames::DisplayOutlineOnly).toBool();
 
 	if(filePath.isEmpty())
 	{
