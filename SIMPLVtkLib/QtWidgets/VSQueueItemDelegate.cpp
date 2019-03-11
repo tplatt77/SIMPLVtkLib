@@ -33,35 +33,35 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "VSQueueItemDelegate.h"
 
-#include <qthread.h>
+#include <QtCore/QFileInfo>
 
-#include <QtCore/QSemaphore>
+#include <QtWidgets/QLineEdit>
 
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include <QtGui/QIntValidator>
+#include <QtGui/QPainter>
 
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
-#include "QtWidgets/VSAbstractImporter.h"
+#include "SVWidgetsLib/Widgets/SVStyle.h"
 
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSQueueItemDelegate::VSQueueItemDelegate(QObject* parent)
+: QStyledItemDelegate(parent)
 {
-	Q_OBJECT
+}
 
-public:
-  MontageWorker();
-	~MontageWorker();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSQueueItemDelegate::~VSQueueItemDelegate() = default;
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
-
-signals:
-	void finished();
-  void error(QString err);
-	
-public slots:
-	void process();
-
-private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
-  QSemaphore m_ImportSem;
-};
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+  // Place any painting code here
+  QStyledItemDelegate::paint(painter, option, index);
+}

@@ -35,33 +35,30 @@
 
 #pragma once
 
-#include <qthread.h>
-
-#include <QtCore/QSemaphore>
+#include <QtCore/QObject>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
-#include "QtWidgets/VSAbstractImporter.h"
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+class SIMPLVtkLib_EXPORT VSAbstractImporter : public QObject
 {
 	Q_OBJECT
 
 public:
-  MontageWorker();
-	~MontageWorker();
+  SIMPL_SHARED_POINTERS(VSAbstractImporter)
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
+  ~VSAbstractImporter();
+
+  virtual void execute() = 0;
 
 signals:
-	void finished();
-  void error(QString err);
-	
-public slots:
-	void process();
+  void started();
+  void notifyErrorMessage(const QString &msg, int code);
+  void notifyStatusMessage(const QString &msg);
+  void finished();
 
-private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
-  QSemaphore m_ImportSem;
+protected:
+  VSAbstractImporter();
 };
+Q_DECLARE_METATYPE(VSAbstractImporter::Pointer)

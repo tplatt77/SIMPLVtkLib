@@ -33,50 +33,18 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "MontageWorker.h"
+#include "VSAbstractImporter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker()
-: m_ImportSem(1)
+VSAbstractImporter::VSAbstractImporter()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::~MontageWorker()
+VSAbstractImporter::~VSAbstractImporter()
 {
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void MontageWorker::addDataImporter(VSAbstractImporter::Pointer importer)
-{
-  m_ImportSem.acquire();
-  m_Importers.push_back(importer);
-  m_ImportSem.release();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void MontageWorker::process()
-{
-  m_ImportSem.acquire();
-  while(m_Importers.size() > 0)
-  {
-    VSAbstractImporter::Pointer importer = m_Importers.front();
-    m_Importers.erase(m_Importers.begin());
-    m_ImportSem.release();
-
-    importer->execute();
-
-    m_ImportSem.acquire();
-  }
-  m_ImportSem.release();
-
-  emit finished();
 }

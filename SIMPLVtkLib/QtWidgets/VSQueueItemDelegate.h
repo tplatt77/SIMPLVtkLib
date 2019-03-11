@@ -35,33 +35,26 @@
 
 #pragma once
 
-#include <qthread.h>
+#include <QtCore/QModelIndex>
 
-#include <QtCore/QSemaphore>
+#include <QtWidgets/QStyledItemDelegate>
 
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
-#include "QtWidgets/VSAbstractImporter.h"
-
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+class VSQueueItemDelegate : public QStyledItemDelegate
 {
-	Q_OBJECT
+    Q_OBJECT
 
-public:
-  MontageWorker();
-	~MontageWorker();
+  public:
+    explicit VSQueueItemDelegate(QObject* parent = 0);
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
+    ~VSQueueItemDelegate() override;
 
-signals:
-	void finished();
-  void error(QString err);
-	
-public slots:
-	void process();
+  protected:
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
-private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
-  QSemaphore m_ImportSem;
+  public:
+    VSQueueItemDelegate(const VSQueueItemDelegate&) = delete; // Copy Constructor Not Implemented
+    VSQueueItemDelegate(VSQueueItemDelegate&&) = delete;      // Move Constructor Not Implemented
+    VSQueueItemDelegate& operator=(const VSQueueItemDelegate&) = delete; // Copy Assignment Not Implemented
+    VSQueueItemDelegate& operator=(VSQueueItemDelegate&&) = delete;      // Move Assignment Not Implemented
 };
+

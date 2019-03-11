@@ -311,6 +311,7 @@ public slots:
   void launchHDF5SelectionDialog(const QString& filePath);
 
 signals:
+  void importerAddedToQueue(const QString &name, VSAbstractImporter::Pointer importer);
   void changedActiveView(VSAbstractViewWidget* viewWidget);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
   void selectedFiltersChanged(VSAbstractFilter::FilterListType filters);

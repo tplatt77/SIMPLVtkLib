@@ -35,33 +35,30 @@
 
 #pragma once
 
-#include <qthread.h>
-
-#include <QtCore/QSemaphore>
-
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "QtWidgets/VSAbstractImporter.h"
 
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+class VSDataSetFilter;
+class VSFileNameFilter;
+
+class SIMPLVtkLib_EXPORT VSDatasetImporter : public VSAbstractImporter
 {
 	Q_OBJECT
 
 public:
-  MontageWorker();
-	~MontageWorker();
+  SIMPL_SHARED_POINTERS(VSDatasetImporter)
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
+  ~VSDatasetImporter();
+
+  static Pointer New(const QString &filePath);
+
+  virtual void execute() override;
+
+protected:
+  VSDatasetImporter(const QString &filePath);
 
 signals:
-	void finished();
-  void error(QString err);
-	
-public slots:
-	void process();
+  void resultReady(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
 
 private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
-  QSemaphore m_ImportSem;
+  QString m_FilePath;
 };

@@ -37,6 +37,8 @@
 
 #include <QtWidgets/QColorDialog>
 
+#include "QtWidgets/VSQueueItemDelegate.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -53,7 +55,10 @@ VSQueueWidget::VSQueueWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSQueueWidget::setupGui()
 {
+  connectSignalsSlots();
 
+  VSQueueItemDelegate* delegate = new VSQueueItemDelegate(this);
+  m_Ui->queueListWidget->setItemDelegate(delegate);
 }
 
 // -----------------------------------------------------------------------------
@@ -63,4 +68,68 @@ VSQueueWidget::Pointer VSQueueWidget::New(QWidget* parent)
 {
   VSQueueWidget::Pointer sharedPtr (new VSQueueWidget(parent));
   return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::connectSignalsSlots()
+{
+  connect(m_Ui->clearBtn, &QPushButton::clicked, [=] { m_Ui->queueListWidget->clear(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::addImporterToQueue(const QString &name, VSAbstractImporter::Pointer importer)
+{
+  m_Ui->queueListWidget->addItem(name);
+  QListWidgetItem* listWidgetItem = m_Ui->queueListWidget->item(m_Ui->queueListWidget->count() - 1);
+
+  QVariant var;
+  var.setValue(importer);
+  listWidgetItem->setData(ImporterRole, var);
+  listWidgetItem->setIcon(QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
+
+  connect(importer.get(), &VSAbstractImporter::started, [=] {
+    listWidgetItem->setIcon(QIcon(":/SIMPL/icons/images/bullet_ball_yellow.png"));
+    m_Ui->queueListWidget->viewport()->update();
+  });
+
+  connect(importer.get(), &VSAbstractImporter::notifyStatusMessage, [=] (const QString &msg) {
+    m_Ui->outputTextEdit->append(msg);
+  });
+
+  connect(importer.get(), &VSAbstractImporter::notifyErrorMessage, [=] (const QString &msg) {
+    m_Ui->outputTextEdit->append(msg);
+  });
+
+  connect(importer.get(), &VSAbstractImporter::finished, [=] {
+    listWidgetItem->setIcon(QIcon(":/SIMPL/icons/images/bullet_ball_green.png"));
+    m_Ui->queueListWidget->viewport()->update();
+  });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::removeImporterFromQueue(const QString &name, VSAbstractImporter::Pointer importer)
+{
+  QList<QListWidgetItem*> listWidgetItems = m_Ui->queueListWidget->findItems(name, Qt::MatchExactly);
+
+  for (QListWidgetItem* listWidgetItem : listWidgetItems)
+  {
+    VSAbstractImporter::Pointer internalImporter = listWidgetItem->data(ImporterRole).value<VSAbstractImporter::Pointer>();
+    if (internalImporter == importer)
+    {
+      disconnect(importer.get(), &VSAbstractImporter::started, 0, 0);
+      disconnect(importer.get(), &VSAbstractImporter::notifyStatusMessage, 0, 0);
+      disconnect(importer.get(), &VSAbstractImporter::notifyErrorMessage, 0, 0);
+      disconnect(importer.get(), &VSAbstractImporter::finished, 0, 0);
+
+      int row = m_Ui->queueListWidget->row(listWidgetItem);
+      m_Ui->queueListWidget->takeItem(row);
+      delete listWidgetItem;
+    }
+  }
 }

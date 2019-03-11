@@ -43,6 +43,7 @@
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSConcurrentImport.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
@@ -53,6 +54,7 @@ class ImportMontageWizard;
 class ExecutePipelineWizard;
 class MontageWorker;
 class PipelineWorker;
+class VSDataSetFilter;
 
 /**
  * @class VSController VSController.h SIMPLVtkLib/Visualization/Controllers/VSController.h
@@ -194,17 +196,18 @@ public:
 
 protected slots:
   /**
+   * @brief handleDatasetResults
+   * @param textFilter
+   * @param filter
+   */
+  void handleDatasetResults(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
+
+  /**
    * @brief handleMontageResults
    * @param pipeline
    * @param err
    */
   void handleMontageResults(FilterPipeline::Pointer pipeline, int err);
-
-  /**
-   * @brief processPipelineMessage
-   * @param pipelineMsg
-   */
-  void processPipelineMessage(const PipelineMessage& pipelineMsg);
 
   /**
    * @brief workerFinished
@@ -230,6 +233,7 @@ signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
   void filterCheckStateChanged(VSAbstractFilter* filter);
+  void importerAddedToQueue(const QString &name, VSAbstractImporter::Pointer importer);
   void blockRender(bool block);
   void dataImported();
   //void filterSelected(VSAbstractFilter* filter);
@@ -242,15 +246,21 @@ private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
 
-
-  QThread* m_MontageWorkerThread = nullptr;
+  QThread* m_ImportDataWorkerThread = nullptr;
   QThread* m_PipelineWorkerThread = nullptr;
-  MontageWorker* m_MontageWorker = nullptr;
+  MontageWorker* m_ImportDataWorker = nullptr;
   PipelineWorker* m_PipelineWorker = nullptr;
+
   std::vector<FilterPipeline::Pointer> m_Pipelines;
   DataContainerArray::Pointer m_dataContainerArray;
   bool m_DisplayMontage = false;
   bool m_DisplayOutline = false;
+
+  /**
+   * @brief getImportDataWorker
+   * @return
+   */
+  MontageWorker* getImportDataWorker();
 
   /**
    * @brief saveFilter

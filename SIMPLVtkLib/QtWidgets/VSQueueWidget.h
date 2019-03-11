@@ -38,6 +38,9 @@
 #include <QtWidgets/QWidget>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
+
+#include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
 
 #include "ui_VSQueueWidget.h"
 
@@ -63,6 +66,21 @@ public:
    */
   static Pointer New(QWidget* parent = nullptr);
 
+public slots:
+  /**
+   * @brief addImporterToQueue
+   * @param name
+   * @param importer
+   */
+  void addImporterToQueue(const QString &name, VSAbstractImporter::Pointer importer);
+
+  /**
+   * @brief removeImporterFromQueue
+   * @param name
+   * @param importer
+   */
+  void removeImporterFromQueue(const QString &name, VSAbstractImporter::Pointer importer);
+
 protected:
   /**
    * @brief Constructor
@@ -77,5 +95,15 @@ protected:
 
 private:
   QSharedPointer<Ui::VSQueueWidget> m_Ui;
+
+  enum Roles
+  {
+    ImporterRole = Qt::UserRole + 1
+  };
+
+  /**
+   * @brief connectSignalsSlots
+   */
+  void connectSignalsSlots();
 
 };

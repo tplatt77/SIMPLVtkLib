@@ -35,33 +35,36 @@
 
 #pragma once
 
-#include <qthread.h>
-
-#include <QtCore/QSemaphore>
-
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-
-#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "QtWidgets/VSAbstractImporter.h"
 
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+#include "SIMPLib/Filtering/FilterPipeline.h"
+
+class SIMPLVtkLib_EXPORT VSMontageImporter : public VSAbstractImporter
 {
 	Q_OBJECT
 
 public:
-  MontageWorker();
-	~MontageWorker();
+  SIMPL_SHARED_POINTERS(VSMontageImporter)
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
+  ~VSMontageImporter();
+
+  static Pointer New(FilterPipeline::Pointer pipeline);
+
+  virtual void execute() override;
+
+protected:
+  VSMontageImporter(FilterPipeline::Pointer pipeline);
+
+protected slots:
+  /**
+   * @brief processPipelineMessage
+   * @param pipelineMsg
+   */
+  void processPipelineMessage(const PipelineMessage& pipelineMsg);
 
 signals:
-	void finished();
-  void error(QString err);
-	
-public slots:
-	void process();
+  void resultReady(FilterPipeline::Pointer pipeline, int err);
 
 private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
-  QSemaphore m_ImportSem;
+  FilterPipeline::Pointer m_Pipeline;
 };

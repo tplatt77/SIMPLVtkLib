@@ -33,50 +33,46 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "MontageWorker.h"
+#include "VSDatasetImporter.h"
+
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker()
-: m_ImportSem(1)
+VSDatasetImporter::VSDatasetImporter(const QString &filePath)
+: VSAbstractImporter()
+, m_FilePath(filePath)
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::~MontageWorker()
+VSDatasetImporter::~VSDatasetImporter()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MontageWorker::addDataImporter(VSAbstractImporter::Pointer importer)
+VSDatasetImporter::Pointer VSDatasetImporter::New(const QString &filePath)
 {
-  m_ImportSem.acquire();
-  m_Importers.push_back(importer);
-  m_ImportSem.release();
+  VSDatasetImporter::Pointer sharedPtr(new VSDatasetImporter(filePath));
+  return sharedPtr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MontageWorker::process()
+void VSDatasetImporter::execute()
 {
-  m_ImportSem.acquire();
-  while(m_Importers.size() > 0)
-  {
-    VSAbstractImporter::Pointer importer = m_Importers.front();
-    m_Importers.erase(m_Importers.begin());
-    m_ImportSem.release();
+  emit started();
 
-    importer->execute();
+  VSFileNameFilter* textFilter = new VSFileNameFilter(m_FilePath);
+  VSDataSetFilter* filter = new VSDataSetFilter(m_FilePath, textFilter);
 
-    m_ImportSem.acquire();
-  }
-  m_ImportSem.release();
-
+  emit resultReady(textFilter, filter);
   emit finished();
 }

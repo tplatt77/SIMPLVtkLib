@@ -39,29 +39,25 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
-       <number>12</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>12</number>
+       <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="importsPendingLabel">
-        <property name="text">
-         <string>0 imports pending</string>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
+        <widget class="QListWidget" name="queueListWidget"/>
+        <widget class="QTextEdit" name="outputTextEdit"/>
        </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QListWidget" name="queueListWidget"/>
       </item>
      </layout>
     </widget>
@@ -73,6 +69,9 @@
      </property>
      <item>
       <widget class="QPushButton" name="startStopBtn">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Start</string>
        </property>
@@ -100,6 +99,16 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="clearBtn">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

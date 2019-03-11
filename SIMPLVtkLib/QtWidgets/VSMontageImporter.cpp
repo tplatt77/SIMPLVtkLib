@@ -33,50 +33,68 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "MontageWorker.h"
+#include "VSMontageImporter.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::MontageWorker()
-: m_ImportSem(1)
+VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline)
+: VSAbstractImporter()
+, m_Pipeline(pipeline)
 {
+  pipeline->addMessageReceiver(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MontageWorker::~MontageWorker()
+VSMontageImporter::~VSMontageImporter() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeline)
 {
+  VSMontageImporter::Pointer sharedPtr(new VSMontageImporter(pipeline));
+  return sharedPtr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MontageWorker::addDataImporter(VSAbstractImporter::Pointer importer)
+void VSMontageImporter::processPipelineMessage(const PipelineMessage& pipelineMsg)
 {
-  m_ImportSem.acquire();
-  m_Importers.push_back(importer);
-  m_ImportSem.release();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void MontageWorker::process()
-{
-  m_ImportSem.acquire();
-  while(m_Importers.size() > 0)
+  if(pipelineMsg.getType() == PipelineMessage::MessageType::StatusMessage)
   {
-    VSAbstractImporter::Pointer importer = m_Importers.front();
-    m_Importers.erase(m_Importers.begin());
-    m_ImportSem.release();
-
-    importer->execute();
-
-    m_ImportSem.acquire();
+    QString str = pipelineMsg.generateStatusString();
+    notifyStatusMessage(str);
   }
-  m_ImportSem.release();
+  else if (pipelineMsg.getType() == PipelineMessage::MessageType::Error)
+  {
+    notifyErrorMessage(pipelineMsg.generateErrorString(), pipelineMsg.getCode());
+  }
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMontageImporter::execute()
+{
+  emit started();
+
+  m_Pipeline->execute();
+
+  int err = m_Pipeline->getErrorCondition();
+
+//  qInfo() << "Pipeline err condition: " << err;
+//  // For now, quit after an error condition
+//  // However, may want to consider returning
+//  // list of errors associated with each pipeline
+//  if(err < 0)
+//  {
+//    break;
+//  }
+
+  emit resultReady(m_Pipeline, err);
   emit finished();
 }

@@ -45,6 +45,8 @@
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 #include "SIMPLVtkLib/QtWidgets/VSFilterFactory.h"
+#include "SIMPLVtkLib/QtWidgets/VSMontageImporter.h"
+#include "SIMPLVtkLib/QtWidgets/VSDatasetImporter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
@@ -76,6 +78,17 @@ VSController::VSController(QObject* parent)
 {
   m_ImportObject = new VSConcurrentImport(this);
 
+  qRegisterMetaType<VSAbstractImporter::Pointer>();
+
+  m_ImportDataWorker = new MontageWorker();
+//  connect(m_ImportDataWorker, SIGNAL(finished()), this, SLOT(montageWorkerFinished()));
+
+  m_WorkerThread = new QThread;
+  m_ImportDataWorker->moveToThread(m_WorkerThread);
+  connect(m_WorkerThread, SIGNAL(started()), m_ImportDataWorker, SLOT(process()));
+//  connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
+  connect(m_ImportDataWorker, SIGNAL(finished()), m_WorkerThread, SLOT(quit()));
+
   connect(m_FilterModel, &VSFilterModel::filterAdded, this, &VSController::filterAdded);
   connect(m_FilterModel, &VSFilterModel::filterRemoved, this, &VSController::filterRemoved);
 
@@ -98,8 +111,8 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 void VSController::montageWorkerFinished()
 {
-  delete m_MontageWorker;
-  m_MontageWorker = nullptr;
+//  delete m_ImportDataWorker;
+//  m_ImportDataWorker = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -107,8 +120,8 @@ void VSController::montageWorkerFinished()
 // -----------------------------------------------------------------------------
 void VSController::montageThreadFinished()
 {
-  delete m_MontageWorkerThread;
-  m_MontageWorkerThread = nullptr;
+  //  delete m_WorkerThread;
+  //  m_WorkerThread = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -422,10 +435,7 @@ void VSController::importRobometMontage(ImportMontageWizard* montageWizard)
     FilterPipeline::Pointer pipeline = FilterPipeline::New();
     QString montageName = montageWizard->field(ImportMontage::DREAM3D::FieldNames::MontageName).toString();
     QString pipelineName = montageName;
-    if(sliceMax - sliceMin + 1 > 1)
-    {
-      pipelineName.append(tr("_%1").arg(slice));
-    }
+    pipelineName.append(tr("_%1").arg(slice));
     pipeline->setName(pipelineName);
 
     QString robometFilePath = rbmListInfo.RobometFilePath;
@@ -556,26 +566,15 @@ void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
 // -----------------------------------------------------------------------------
 void VSController::addMontagePipelineToQueue(FilterPipeline::Pointer pipeline)
 {
-  pipeline->addMessageReceiver(this);
-  if (!m_MontageWorker)
-  {
-    m_MontageWorker = new MontageWorker();
-    connect(m_MontageWorker, SIGNAL(finished()), this, SLOT(montageWorkerFinished()));
-    connect(m_MontageWorker, &MontageWorker::resultReady, this, &VSController::handleMontageResults);
-  }
+  VSMontageImporter::Pointer importer = VSMontageImporter::New(pipeline);
+  connect(importer.get(), &VSMontageImporter::notifyStatusMessage, this, &VSController::notifyStatusMessage);
+  connect(importer.get(), &VSMontageImporter::notifyErrorMessage, this, &VSController::notifyErrorMessage);
+  connect(importer.get(), &VSMontageImporter::resultReady, this, &VSController::handleMontageResults);
 
-  m_MontageWorker->addMontagePipeline(pipeline);
+  m_ImportDataWorker->addDataImporter(importer);
+  emit importerAddedToQueue(pipeline->getName(), importer);
 
-  if (!m_MontageWorkerThread)
-  {
-    m_MontageWorkerThread = new QThread;
-    m_MontageWorker->moveToThread(m_MontageWorkerThread);
-    connect(m_MontageWorkerThread, SIGNAL(started()), m_MontageWorker, SLOT(process()));
-    connect(m_MontageWorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
-    connect(m_MontageWorker, SIGNAL(finished()), m_MontageWorkerThread, SLOT(quit()));
-
-    m_MontageWorkerThread->start();
-  }
+  m_ImportDataWorkerThread->start();
 }
 
 // -----------------------------------------------------------------------------
@@ -639,6 +638,25 @@ void VSController::handleMontageResults(FilterPipeline::Pointer pipeline, int er
     }
 
     importPipelineOutput(pipeline, dca);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::handleDatasetResults(VSFileNameFilter* textFilter, VSDataSetFilter* filter)
+{
+  // Check if any data was imported
+  if(filter->getOutput())
+  {
+    m_FilterModel->addFilter(textFilter, false);
+    m_FilterModel->addFilter(filter);
+
+    emit dataImported();
+  }
+  else
+  {
+    textFilter->deleteLater();
   }
 }
 
@@ -852,20 +870,14 @@ void VSController::importDataContainer(DataContainer::Pointer dc)
 // -----------------------------------------------------------------------------
 void VSController::importData(const QString& filePath)
 {
-  VSFileNameFilter* textFilter = new VSFileNameFilter(filePath);
-  VSDataSetFilter* filter = new VSDataSetFilter(filePath, textFilter);
-  // Check if any data was imported
-  if(filter->getOutput())
-  {
-    m_FilterModel->addFilter(textFilter, false);
-    m_FilterModel->addFilter(filter);
+  VSDatasetImporter::Pointer importer = VSDatasetImporter::New(filePath);
+  connect(importer.get(), &VSDatasetImporter::resultReady, this, &VSController::handleDatasetResults);
+  m_ImportDataWorker->addDataImporter(importer);
 
-    emit dataImported();
-  }
-  else
-  {
-    textFilter->deleteLater();
-  }
+  QFileInfo fi(filePath);
+  emit importerAddedToQueue(fi.fileName(), importer);
+
+  m_WorkerThread->start();
 }
 
 #if 0
@@ -884,22 +896,6 @@ void VSController::selectFilter(VSAbstractFilter* filter)
   //m_SelectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
 }
 #endif
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSController::processPipelineMessage(const PipelineMessage& pipelineMsg)
-{
-  if(pipelineMsg.getType() == PipelineMessage::MessageType::StatusMessage)
-  {
-    QString str = pipelineMsg.generateStatusString();
-    notifyStatusMessage(str);
-  }
-  else if (pipelineMsg.getType() == PipelineMessage::MessageType::Error)
-  {
-    notifyErrorMessage(pipelineMsg.generateErrorString(), pipelineMsg.getCode());
-  }
-}
 
 // -----------------------------------------------------------------------------
 //
