@@ -14,6 +14,7 @@ set(${PROJECT_NAME}_QtWidgets_HDRS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget2.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSQueueWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSTransformWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSViewWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget.h
@@ -35,6 +36,7 @@ set(${PROJECT_NAME}_QtWidgets_SRCS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidget2.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSMainWidgetBase.cpp
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSQueueWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSTransformWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSViewWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget.cpp
@@ -51,6 +53,7 @@ set(${PROJECT_NAME}_QtWidgets_UIS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSInfoWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSMainWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSMainWidget2.ui
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSQueueWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSTransformWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSViewWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSVisibilitySettingsWidget.ui
