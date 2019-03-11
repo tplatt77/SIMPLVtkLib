@@ -674,15 +674,47 @@ void VSController::importPipeline(ExecutePipelineWizard* executePipelineWizard)
 		  }
 		  i++;
 		}
+		// Change origin and/or spacing if specified
+		FilterPipeline::Pointer pipeline = FilterPipeline::New();
+		VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+		QStringList dcNames = dca->getDataContainerNames();
+
+		bool changeSpacing = executePipelineWizard->field(ExecutePipeline::FieldNames::ChangeSpacing).toBool();
+		bool changeOrigin = executePipelineWizard->field(ExecutePipeline::FieldNames::ChangeOrigin).toBool();
+		if(changeSpacing || changeOrigin)
+		{
+		  float spacingX = executePipelineWizard->field(ExecutePipeline::FieldNames::SpacingX).toFloat();
+		  float spacingY = executePipelineWizard->field(ExecutePipeline::FieldNames::SpacingY).toFloat();
+		  float spacingZ = executePipelineWizard->field(ExecutePipeline::FieldNames::SpacingZ).toFloat();
+		  FloatVec3_t newSpacing = { spacingX, spacingY, spacingZ };
+		  float originX = executePipelineWizard->field(ExecutePipeline::FieldNames::OriginX).toFloat();
+		  float originY = executePipelineWizard->field(ExecutePipeline::FieldNames::OriginY).toFloat();
+		  float originZ = executePipelineWizard->field(ExecutePipeline::FieldNames::OriginZ).toFloat();
+		  FloatVec3_t newOrigin = { originX, originY, originZ };
+		  QVariant var;
+
+		  // For each data container, add a new filter
+		  for(QString dcName : dcNames)
+		  {
+			AbstractFilter::Pointer setOriginResolutionFilter = filterFactory->createSetOriginResolutionFilter(dcName, changeSpacing, changeOrigin, newSpacing, newOrigin);
+
+			if(!setOriginResolutionFilter)
+			{
+			  // Error!
+			}
+
+			pipeline->pushBack(setOriginResolutionFilter);
+		  }
+		}
 
 		// Reconstruct pipeline starting with new start filter
-		FilterPipeline::Pointer pipeline = FilterPipeline::New();
 		for(int i = startFilter; i < pipelineFromJson->getFilterContainer().size(); i++)
 		{
 		  AbstractFilter::Pointer filter = pipelineFromJson->getFilterContainer().at(i);
 		  filter->setDataContainerArray(dca);
 		  pipeline->pushBack(filter);
 		}
+
 		executePipeline(pipeline, dca);
 	  }
 	}

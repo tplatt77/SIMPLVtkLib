@@ -108,6 +108,10 @@ void PipelineExecutionTypeSelectionPage::connectSignalsSlots()
       setField(ExecutePipeline::FieldNames::ExecutionType, ExecutePipelineWizard::ExecutionType::OnLoadedData);
 	  setFinalPage(false);
     }
+	else
+	{
+	  setFinalPage(true);
+	}
   });
 }
 

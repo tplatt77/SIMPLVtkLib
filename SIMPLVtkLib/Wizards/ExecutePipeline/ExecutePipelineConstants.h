@@ -55,5 +55,13 @@ namespace ExecutePipeline
 	const QString ExecutionType("ExecutionType");
 	const QString StartFilter("StartFilter");
 	const QString SelectedDataset("SelectedDataset");
+	const QString ChangeOrigin("ChangeOrigin");
+	const QString ChangeSpacing("ChangeSpacing");
+	const QString OriginX("OriginX");
+	const QString OriginY("OriginY");
+	const QString OriginZ("OriginZ");
+	const QString SpacingX("SpacingX");
+	const QString SpacingY("SpacingY");
+	const QString SpacingZ("SpacingZ");
   }
 }

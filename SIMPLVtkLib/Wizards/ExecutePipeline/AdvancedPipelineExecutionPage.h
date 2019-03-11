@@ -84,6 +84,12 @@ class AdvancedPipelineExecutionPage : public QWizardPage
 	 */
 	void initializePage();
 
+protected slots:
+
+  // Slots to catch signals emitted by the various ui widgets
+  void changeOrigin_stateChanged(int state);
+  void changeSpacing_stateChanged(int state);
+
   private:
     QSharedPointer<Ui::AdvancedPipelineExecutionPage> m_Ui;
 
