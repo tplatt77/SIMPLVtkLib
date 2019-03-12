@@ -42,6 +42,8 @@
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QFileDialog>
 
+#include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
+
 #include "ImportMontage/ImportMontageConstants.h"
 #include "ImportMontageWizard.h"
 
@@ -81,6 +83,22 @@ void EnterGenericDataPage::setupGui()
 
   m_Ui->tileOverlapSB->setMinimum(0);
   m_Ui->tileOverlapSB->setMaximum(100);
+
+  m_Ui->originX->setValidator(new QDoubleValidator);
+  m_Ui->originY->setValidator(new QDoubleValidator);
+  m_Ui->originZ->setValidator(new QDoubleValidator);
+  m_Ui->spacingX->setValidator(new QDoubleValidator);
+  m_Ui->spacingY->setValidator(new QDoubleValidator);
+  m_Ui->spacingZ->setValidator(new QDoubleValidator);
+
+  // Store the advancedGridLayout inside the QtSDisclosableWidget
+  QtSDisclosableWidget* advancedGB = new QtSDisclosableWidget(this);
+  advancedGB->setTitle("Advanced");
+  QLayout* advancedGridLayout = m_Ui->advancedGridLayout;
+  advancedGridLayout->setParent(nullptr);
+  advancedGB->setContentLayout(advancedGridLayout);
+
+  m_Ui->gridLayout->addWidget(advancedGB, 4, 0, 1, 4);
 }
 
 // -----------------------------------------------------------------------------
@@ -113,6 +131,28 @@ void EnterGenericDataPage::connectSignalsSlots()
   connect(m_Ui->orderCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index) {
     emit completeChanged();
   });
+
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
+	bool isChecked = m_Ui->changeOriginCB->isChecked();
+	m_Ui->originX->setEnabled(isChecked);
+	m_Ui->originY->setEnabled(isChecked);
+	m_Ui->originZ->setEnabled(isChecked);
+  });
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &EnterGenericDataPage::changeOrigin_stateChanged);
+  connect(m_Ui->originX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->originY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
+	bool isChecked = m_Ui->changeSpacingCB->isChecked();
+	m_Ui->spacingX->setEnabled(isChecked);
+	m_Ui->spacingY->setEnabled(isChecked);
+	m_Ui->spacingZ->setEnabled(isChecked);
+  });
+  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &EnterGenericDataPage::changeSpacing_stateChanged);
+  connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+  connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -124,6 +164,39 @@ void EnterGenericDataPage::tileListWidgetChanged()
 
   FileListInfo_t fileListInfo = m_Ui->tileListWidget->getFileListInfo();
   setFileListInfo(fileListInfo);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterGenericDataPage::changeOrigin_stateChanged(int state)
+{
+  m_Ui->originX->setEnabled(state);
+  m_Ui->originY->setEnabled(state);
+  m_Ui->originZ->setEnabled(state);
+  if(state == false)
+  {
+	m_Ui->originX->setText("0");
+	m_Ui->originY->setText("0");
+	m_Ui->originZ->setText("0");
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EnterGenericDataPage::changeSpacing_stateChanged(int state)
+{
+  m_Ui->spacingX->setEnabled(state);
+  m_Ui->spacingY->setEnabled(state);
+  m_Ui->spacingZ->setEnabled(state);
+  if(state == false)
+  {
+	m_Ui->spacingX->setText("1");
+	m_Ui->spacingY->setText("1");
+	m_Ui->spacingZ->setText("1");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -197,6 +270,54 @@ bool EnterGenericDataPage::isComplete() const
     }
   }
 
+  if(m_Ui->originX->isEnabled())
+  {
+	if(m_Ui->originX->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
+  if(m_Ui->originY->isEnabled())
+  {
+	if(m_Ui->originY->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
+  if(m_Ui->originZ->isEnabled())
+  {
+	if(m_Ui->originZ->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
+  if(m_Ui->spacingX->isEnabled())
+  {
+	if(m_Ui->spacingX->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
+  if(m_Ui->spacingY->isEnabled())
+  {
+	if(m_Ui->spacingY->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
+  if(m_Ui->spacingZ->isEnabled())
+  {
+	if(m_Ui->spacingZ->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
   return result;
 }
 
@@ -213,6 +334,14 @@ void EnterGenericDataPage::registerFields()
   registerField(ImportMontage::Generic::FieldNames::OutputFileName, m_Ui->outputTextFileNameLE);
   registerField(ImportMontage::Generic::FieldNames::MontageType, m_Ui->collectionTypeCB);
   registerField(ImportMontage::Generic::FieldNames::MontageOrder, m_Ui->orderCB);
+  registerField(ImportMontage::Generic::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
+  registerField(ImportMontage::Generic::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);
+  registerField(ImportMontage::Generic::FieldNames::SpacingX, m_Ui->spacingX);
+  registerField(ImportMontage::Generic::FieldNames::SpacingY, m_Ui->spacingY);
+  registerField(ImportMontage::Generic::FieldNames::SpacingZ, m_Ui->spacingZ);
+  registerField(ImportMontage::Generic::FieldNames::OriginX, m_Ui->originX);
+  registerField(ImportMontage::Generic::FieldNames::OriginY, m_Ui->originY);
+  registerField(ImportMontage::Generic::FieldNames::OriginZ, m_Ui->originZ);
 }
 
 // -----------------------------------------------------------------------------

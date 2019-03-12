@@ -206,6 +206,8 @@ void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
 	int rowCount = 0;
 	int colCount = 0;
 
+	bool variablesSet = false;
+
 	for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
 	{
 		DataContainerProxy dcProxy = iter.value();
@@ -230,14 +232,18 @@ void EnterDREAM3DDataPage::proxyChanged(DataContainerArrayProxy proxy)
 			colCount = colNumber + 1;
 		}
 
-		// Automatically set the data array path variables
-		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
-		AttributeMatrixProxy attributeMatrixProxy = attributeMatricies.first();
-		QMap<QString, DataArrayProxy>& dataArrays = attributeMatrixProxy.getDataArrays();
-		DataArrayProxy dataArrayProxy = dataArrays.first();
-		m_Ui->imageDataContainerPrefixLE->setText(dcProxy.getName().split("_").first());
-		m_Ui->cellAttrMatrixNameLE->setText(attributeMatrixProxy.getName());
-		m_Ui->imageArrayNameLE->setText(dataArrayProxy.getName());
+		if(!variablesSet)
+		{
+		  // Automatically set the data array path variables
+		  QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+		  AttributeMatrixProxy attributeMatrixProxy = attributeMatricies.first();
+		  QMap<QString, DataArrayProxy>& dataArrays = attributeMatrixProxy.getDataArrays();
+		  DataArrayProxy dataArrayProxy = dataArrays.first();
+		  m_Ui->imageDataContainerPrefixLE->setText(dcProxy.getName().split("_").first());
+		  m_Ui->cellAttrMatrixNameLE->setText(attributeMatrixProxy.getName());
+		  m_Ui->imageArrayNameLE->setText(dataArrayProxy.getName());
+		  variablesSet = true;
+		}
 	}
 
 	m_Ui->numOfRowsSB->setValue(rowCount);

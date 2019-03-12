@@ -154,6 +154,14 @@ namespace ImportMontage
       const QString OutputFileName("genericOutputFileName");
       const QString MontageType("genericMontageType");
       const QString MontageOrder("genericMontageOrder");
+	  const QString ChangeOrigin("genericChangeOrigin");
+	  const QString ChangeSpacing("genericChangeSpacing");
+	  const QString OriginX("genericOriginX");
+	  const QString OriginY("genericOriginY");
+	  const QString OriginZ("genericOriginZ");
+	  const QString SpacingX("genericSpacingX");
+	  const QString SpacingY("genericSpacingY");
+	  const QString SpacingZ("genericSpacingZ");
     }
   }
 

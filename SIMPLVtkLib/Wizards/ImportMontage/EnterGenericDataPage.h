@@ -101,6 +101,8 @@ class EnterGenericDataPage : public QWizardPage
 
   private slots:
     void updateOrderChoices(CollectionType collectionType);
+	void changeOrigin_stateChanged(int state);
+	void changeSpacing_stateChanged(int state);
 
   private:
     QSharedPointer<Ui::EnterGenericDataPage> m_Ui;

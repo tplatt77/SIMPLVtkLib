@@ -81,6 +81,7 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const Q
         return AbstractFilter::NullPointer();
       }
     }
+	return dataContainerReader;
   }
   return AbstractFilter::NullPointer();
 }

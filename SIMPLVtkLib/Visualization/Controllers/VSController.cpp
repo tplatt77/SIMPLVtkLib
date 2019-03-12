@@ -198,6 +198,28 @@ void VSController::importGenericMontage(ImportMontageWizard* montageWizard)
   QVariant var;
   var.setValue(fijiListInfo);
   montageWizard->setField(ImportMontage::Fiji::FieldNames::FijiListInfo, var);
+  bool changeSpacing = montageWizard->field(ImportMontage::Generic::FieldNames::ChangeSpacing).toBool();
+  montageWizard->setField(ImportMontage::Fiji::FieldNames::ChangeSpacing, changeSpacing);
+  if(changeSpacing)
+  {
+	float spacingX = montageWizard->field(ImportMontage::Generic::FieldNames::SpacingX).toFloat();
+	float spacingY = montageWizard->field(ImportMontage::Generic::FieldNames::SpacingY).toFloat();
+	float spacingZ = montageWizard->field(ImportMontage::Generic::FieldNames::SpacingZ).toFloat();
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::SpacingX, spacingX);
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::SpacingY, spacingY);
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::SpacingZ, spacingZ);
+  }
+  bool changeOrigin = montageWizard->field(ImportMontage::Generic::FieldNames::ChangeOrigin).toBool();
+  montageWizard->setField(ImportMontage::Fiji::FieldNames::ChangeOrigin, changeOrigin);
+  if(changeOrigin)
+  {
+	float originX = montageWizard->field(ImportMontage::Generic::FieldNames::OriginX).toFloat();
+	float originY = montageWizard->field(ImportMontage::Generic::FieldNames::OriginY).toFloat();
+	float originZ = montageWizard->field(ImportMontage::Generic::FieldNames::OriginZ).toFloat();
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::OriginX, originX);
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::OriginY, originY);
+	montageWizard->setField(ImportMontage::Fiji::FieldNames::OriginZ, originZ);
+  }
 
   importFijiMontage(montageWizard);
 }
@@ -444,9 +466,9 @@ void VSController::importRobometMontage(ImportMontageWizard* montageWizard)
       DataArrayPath montagePath("MontageDC", "MontageAM", "MontageData");
       AbstractFilter::Pointer itkStitchingFilter = filterFactory->createTileStitchingFilter(montageSize, dcNames, amName, daName, montagePath, tileOverlap);
       pipeline->pushBack(itkStitchingFilter);
-
-      addMontagePipelineToQueue(pipeline);
     }
+
+	addMontagePipelineToQueue(pipeline);
   }
 }
 
