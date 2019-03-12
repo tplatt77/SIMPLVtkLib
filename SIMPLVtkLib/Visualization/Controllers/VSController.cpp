@@ -107,8 +107,26 @@ void VSController::montageWorkerFinished()
 // -----------------------------------------------------------------------------
 void VSController::montageThreadFinished()
 {
-  delete m_WorkerThread;
-  m_WorkerThread = nullptr;
+  delete m_MontageWorkerThread;
+  m_MontageWorkerThread = nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::pipelineWorkerFinished()
+{
+  delete m_PipelineWorker;
+  m_PipelineWorker = nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::pipelineThreadFinished()
+{
+  delete m_PipelineWorkerThread;
+  m_PipelineWorkerThread = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -438,6 +456,7 @@ void VSController::importRobometMontage(ImportMontageWizard* montageWizard)
 void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
 {
   FilterPipeline::Pointer pipeline = FilterPipeline::New();
+  AbstractFilter::Pointer importZeissMontage;
   QString montageName = montageWizard->field(ImportMontage::DREAM3D::FieldNames::MontageName).toString();
   pipeline->setName(montageName);
 
@@ -451,12 +470,31 @@ void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
   QString attributeArrayName = montageWizard->field(ImportMontage::Zeiss::FieldNames::ImageDataArrayName).toString();
   QString metadataAttrMatrixName = montageWizard->field(ImportMontage::Zeiss::FieldNames::MetadataAttrMatrixName).toString();
   bool importAllMetadata = true;
-  bool convertToGrayscale = false;
-  bool changeOrigin = false;
-  bool changeSpacing = false;
+  bool convertToGrayscale = montageWizard->field(ImportMontage::Zeiss::FieldNames::ConvertToGrayscale).toBool();
+  bool changeSpacing = montageWizard->field(ImportMontage::Zeiss::FieldNames::ChangeSpacing).toBool();
+  bool changeOrigin = montageWizard->field(ImportMontage::Zeiss::FieldNames::ChangeOrigin).toBool();
+  float colorWeights[3];
+  float newSpacing[3];
+  float newOrigin[3];
 
-  AbstractFilter::Pointer importZeissMontage = filterFactory->createImportZeissMontageFilter(configFilePath, dataContainerPrefix, cellAttrMatrixName, attributeArrayName, metadataAttrMatrixName,
-                                                                                             importAllMetadata, convertToGrayscale, changeOrigin, changeSpacing);
+  if(changeSpacing || changeOrigin)
+  {
+	newSpacing[0] = montageWizard->field(ImportMontage::Zeiss::FieldNames::SpacingX).toFloat();
+	newSpacing[1] = montageWizard->field(ImportMontage::Zeiss::FieldNames::SpacingY).toFloat();
+	newSpacing[2] = montageWizard->field(ImportMontage::Zeiss::FieldNames::SpacingZ).toFloat();
+	newOrigin[0] = montageWizard->field(ImportMontage::Zeiss::FieldNames::OriginX).toFloat();
+	newOrigin[1] = montageWizard->field(ImportMontage::Zeiss::FieldNames::OriginY).toFloat();
+	newOrigin[2] = montageWizard->field(ImportMontage::Zeiss::FieldNames::OriginZ).toFloat();
+  }
+  if(convertToGrayscale)
+  {
+	colorWeights[0] = montageWizard->field(ImportMontage::Zeiss::FieldNames::ColorWeightingR).toFloat();
+	colorWeights[1] = montageWizard->field(ImportMontage::Zeiss::FieldNames::ColorWeightingG).toFloat();
+	colorWeights[2] = montageWizard->field(ImportMontage::Zeiss::FieldNames::ColorWeightingB).toFloat();
+  }
+  importZeissMontage = filterFactory->createImportZeissMontageFilter(configFilePath, dataContainerPrefix, cellAttrMatrixName, attributeArrayName, metadataAttrMatrixName,
+	  importAllMetadata, convertToGrayscale, changeOrigin, changeSpacing, colorWeights, newOrigin, newSpacing);
+
   if (!importZeissMontage)
   {
     // Error!
@@ -506,15 +544,15 @@ void VSController::addMontagePipelineToQueue(FilterPipeline::Pointer pipeline)
 
   m_MontageWorker->addMontagePipeline(pipeline);
 
-  if (!m_WorkerThread)
+  if (!m_MontageWorkerThread)
   {
-    m_WorkerThread = new QThread;
-    m_MontageWorker->moveToThread(m_WorkerThread);
-    connect(m_WorkerThread, SIGNAL(started()), m_MontageWorker, SLOT(process()));
-    connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
-    connect(m_MontageWorker, SIGNAL(finished()), m_WorkerThread, SLOT(quit()));
+    m_MontageWorkerThread = new QThread;
+    m_MontageWorker->moveToThread(m_MontageWorkerThread);
+    connect(m_MontageWorkerThread, SIGNAL(started()), m_MontageWorker, SLOT(process()));
+    connect(m_MontageWorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
+    connect(m_MontageWorker, SIGNAL(finished()), m_MontageWorkerThread, SLOT(quit()));
 
-    m_WorkerThread->start();
+    m_MontageWorkerThread->start();
   }
 }
 
@@ -525,25 +563,19 @@ void VSController::executePipeline(FilterPipeline::Pointer pipeline,
   DataContainerArray::Pointer dca)
 {
   pipeline->addMessageReceiver(this);
-  if(!m_PipelineWorker)
-  {
-	m_PipelineWorker = new PipelineWorker();
-	connect(m_PipelineWorker, SIGNAL(finished()), this, SLOT(montageWorkerFinished()));
-	connect(m_PipelineWorker, &PipelineWorker::resultReady, this, &VSController::handleMontageResults);
-  }
+  m_PipelineWorker = new PipelineWorker();
+  connect(m_PipelineWorker, SIGNAL(finished()), this, SLOT(pipelineWorkerFinished()));
+  connect(m_PipelineWorker, &PipelineWorker::resultReady, this, &VSController::handleMontageResults);
 
   m_PipelineWorker->addPipeline(pipeline, dca);
-
-  if(!m_WorkerThread)
-  {
-	m_WorkerThread = new QThread;
-	m_PipelineWorker->moveToThread(m_WorkerThread);
-	connect(m_WorkerThread, SIGNAL(started()), m_PipelineWorker, SLOT(process()));
-	connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
-	connect(m_PipelineWorker, SIGNAL(finished()), m_WorkerThread, SLOT(quit()));
-
-	m_WorkerThread->start();
-  }
+  
+  m_PipelineWorkerThread = new QThread;
+  m_PipelineWorker->moveToThread(m_PipelineWorkerThread);
+  connect(m_PipelineWorkerThread, SIGNAL(started()), m_PipelineWorker, SLOT(process()));
+  connect(m_PipelineWorkerThread, SIGNAL(finished()), this, SLOT(pipelineThreadFinished()));
+  connect(m_PipelineWorker, SIGNAL(finished()), m_PipelineWorkerThread, SLOT(quit()));
+  
+  m_PipelineWorkerThread->start();
 }
 
 // -----------------------------------------------------------------------------

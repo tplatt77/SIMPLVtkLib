@@ -216,6 +216,16 @@ protected slots:
    */
   void montageThreadFinished();
 
+  /**
+   * @brief workerFinished
+   */
+  void pipelineWorkerFinished();
+
+  /**
+   * @brief montageThreadFinished
+   */
+  void pipelineThreadFinished();
+
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
@@ -233,7 +243,8 @@ private:
   VSConcurrentImport* m_ImportObject;
 
 
-  QThread* m_WorkerThread = nullptr;
+  QThread* m_MontageWorkerThread = nullptr;
+  QThread* m_PipelineWorkerThread = nullptr;
   MontageWorker* m_MontageWorker = nullptr;
   PipelineWorker* m_PipelineWorker = nullptr;
   std::vector<FilterPipeline::Pointer> m_Pipelines;
