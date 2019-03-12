@@ -1417,11 +1417,20 @@ void VSFilterViewSettings::updateTransform()
 	  int extent[6];
 	  imageData->GetExtent(extent);
 
+	  // Get transform vectors
+	  VSTransform* transform = m_Filter->getTransform();
+	  double* transformPosition = transform->getPosition();
+	  double* transformRotation = transform->getRotation();
+	  double* transformScale = transform->getScale();
+
 	  // Add half the image width to the xMin and half the image height to the yMin
 	  // This "matches" the origin of the Outline representation
-	  m_Actor->SetPosition(bounds[0] + 0.5 * extent[1], bounds[2] + 0.5 * extent[3], bounds[4] + 0.5 * extent[5]);
-	  m_Actor->SetOrientation(0.0, 0.0, 0.0);
-	  m_Actor->SetScale(extent[1], extent[3], extent[5]);
+	  m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
+		transformPosition[1] + bounds[2] + 0.5 * extent[3],
+		transformPosition[2] + bounds[4] + 0.5 * extent[5]);
+	  m_Actor->SetOrientation(transformRotation);
+	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
+		extent[5] * transformScale[2]);
   }
   else
   {
