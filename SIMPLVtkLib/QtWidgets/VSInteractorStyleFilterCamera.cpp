@@ -170,6 +170,10 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   {
     cancelAction();
   }
+  else if(keyDown == "a")
+  {
+	setActionType(ActionType::None);
+  }
 }
 
 // -----------------------------------------------------------------------------

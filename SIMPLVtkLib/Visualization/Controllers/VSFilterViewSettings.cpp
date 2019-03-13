@@ -80,9 +80,12 @@ VSFilterViewSettings::VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation)
-: QObject(nullptr)
-, m_ShowFilter(true)
+VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation,
+  ImportMontageWizard::DisplayType displayType)
+  : QObject(nullptr)
+  , m_ShowFilter(true),
+  m_DisplayType(displayType),
+  m_Representation(representation)
 {
   SetupStaticIcons();
 
@@ -90,7 +93,6 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representat
   setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
-  setRepresentation(representation);
   if(isSIMPL && (representation == Representation::Surface ||
 	 representation == Representation::SurfaceWithEdges))
   {
@@ -1423,11 +1425,31 @@ void VSFilterViewSettings::updateTransform()
 	  double* transformRotation = transform->getRotation();
 	  double* transformScale = transform->getScale();
 
-	  // Add half the image width to the xMin and half the image height to the yMin
-	  // This "matches" the origin of the Outline representation
-	  m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
-		transformPosition[1] + bounds[2] + 0.5 * extent[3],
-		transformPosition[2] + bounds[4] + 0.5 * extent[5]);
+	  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
+	  {		
+		// Move images to respective row, col pair
+		QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(m_Filter)
+		  ->getWrappedDataContainer()->m_DataContainer->getName();
+		int indexOfUnderscore = dataContainerName.lastIndexOf("_");
+		QString rowCol = dataContainerName.right(dataContainerName.size() 
+		  - indexOfUnderscore - 1);
+		rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
+		QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
+		int row = rowCol_Split[0].toInt();
+		int col = rowCol_Split[1].toInt();
+		
+		double imageWidth = extent[1];
+		double imageHeight = extent[3];
+		m_Actor->SetPosition(transformPosition[0] + (1.01f * imageWidth) * col,
+		  transformPosition[1] + (1.01f * imageHeight) * row,
+		  transformPosition[2]);
+	  }
+	  else
+	  {
+		m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
+		  transformPosition[1] + bounds[2] + 0.5 * extent[3],
+		  transformPosition[2] + bounds[4] + 0.5 * extent[5]);
+	  }
 	  m_Actor->SetOrientation(transformRotation);
 	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
 		extent[5] * transformScale[2]);
@@ -2682,4 +2704,20 @@ void VSFilterViewSettings::inputUpdated(VSAbstractFilter* filter)
 		}
 	}
 	updateTexture();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setDisplayType(ImportMontageWizard::DisplayType displayType)
+{
+  m_DisplayType = displayType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ImportMontageWizard::DisplayType VSFilterViewSettings::getDisplayType()
+{
+  return m_DisplayType;
 }

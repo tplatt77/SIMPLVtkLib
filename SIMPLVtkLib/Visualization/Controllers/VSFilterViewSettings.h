@@ -56,6 +56,7 @@
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -145,7 +146,9 @@ public:
    * @brief Constructor
    * @param filter
    */
-  VSFilterViewSettings(VSAbstractFilter* filter, Representation representation = Representation::Default);
+  VSFilterViewSettings(VSAbstractFilter* filter,
+	Representation representation = Representation::Default,
+	ImportMontageWizard::DisplayType displayType = ImportMontageWizard::DisplayType::NotSpecified);
 
   /**
    * @brief Copy constructor
@@ -443,6 +446,18 @@ public:
    * @return
    */
   int getSubsampling() const;
+
+  /**
+   * @brief Set the display type
+   * @param displayType
+   */
+  void setDisplayType(ImportMontageWizard::DisplayType displayType);
+
+  /**
+   * @brief Get the display type
+   * @return
+   */
+  ImportMontageWizard::DisplayType getDisplayType();
 
   /**
    * @brief Returns the QIcon used for solid colors
@@ -975,6 +990,7 @@ private:
   int m_Subsampling = 1;
   ColorMapping m_MapColors = ColorMapping::NonColors;
   Representation m_Representation = Representation::Default;
+  ImportMontageWizard::DisplayType m_DisplayType = ImportMontageWizard::DisplayType::NotSpecified;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
   VTK_PTR(vtkTexture) m_Texture = nullptr;
