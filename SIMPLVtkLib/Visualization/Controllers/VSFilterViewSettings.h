@@ -993,6 +993,7 @@ private:
   ImportMontageWizard::DisplayType m_DisplayType = ImportMontageWizard::DisplayType::NotSpecified;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
+  VTK_PTR(vtkProp3D) m_OutlineActor = nullptr;
   VTK_PTR(vtkTexture) m_Texture = nullptr;
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
   VTK_PTR(vtkPlaneSource) m_Plane = nullptr;

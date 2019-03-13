@@ -542,6 +542,25 @@ void VSFilterViewSettings::setIsSelected(bool selected)
 {
   m_Selected = selected;
   updateScalarBarVisibility();
+  vtkActor* actor = getDataSetActor();
+  if(nullptr == actor)
+  {
+	return;
+  }
+  if(selected)
+  {
+	actor->GetProperty()->EdgeVisibilityOn();
+	actor->GetProperty()->SetEdgeColor(0.0, 1.0, 0.0);
+  }
+  else
+  {
+	if(m_Representation != Representation::SurfaceWithEdges ||
+	  m_Representation != Representation::Outline)
+	{
+	  actor->GetProperty()->EdgeVisibilityOff();
+	}
+	actor->GetProperty()->SetEdgeColor(1.0, 1.0, 1.0);
+  }
 }
 
 // -----------------------------------------------------------------------------

@@ -96,6 +96,9 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
     case ActionType::Scale:
       scaleFilter();
       break;
+	case ActionType::ResetTransform:
+	  resetTransform();
+	  break;
     case ActionType::None:
       break;
     }
@@ -173,6 +176,10 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   else if(keyDown == "a")
   {
 	setActionType(ActionType::None);
+  }
+  else if(keyDown == "z")
+  {
+	setActionType(ActionType::ResetTransform);
   }
 }
 
@@ -644,6 +651,25 @@ void VSInteractorStyleFilterCamera::cancelScaling()
   {
     filter->getTransform()->scale(1.0 / m_ScaleAmt);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::resetTransform()
+{
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  double resetTranslation[3] = {0.0, 0.0, 0.0};
+  double resetRotation[3] = {0.0, 0.0, 0.0};
+  double resetScale[3] = {1.0, 1.0, 1.0};
+ 
+  for(VSAbstractFilter* filter : selection)
+  {
+	filter->getTransform()->setLocalPosition(resetTranslation);
+	filter->getTransform()->setLocalScale(resetScale);
+	filter->getTransform()->setLocalRotation(resetRotation);
+  }
+  setActionType(ActionType::None);
 }
 
 // -----------------------------------------------------------------------------
