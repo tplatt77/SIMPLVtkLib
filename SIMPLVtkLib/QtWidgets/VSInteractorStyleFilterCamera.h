@@ -111,7 +111,8 @@ protected:
     None = 0,
     Translate,
     Rotate,
-    Scale
+    Scale,
+	ResetTransform
   };
 
   /**
@@ -231,6 +232,21 @@ protected:
    * @brief Resets the selected filter's scaling to the initial value.
    */
   void cancelScaling();
+
+  /**
+   * @brief Resets the transform of the selected filter
+   */
+  void resetTransform();
+
+  /**
+   * @brief Selects all the filters
+   */
+  void selectAllFilters();
+
+  /**
+   * @brief Deselects all the filters
+   */
+  void deselectAllFilters();
 
   /**
    * @brief Returns true if the CTRL key is down.  Returns false otherwise.

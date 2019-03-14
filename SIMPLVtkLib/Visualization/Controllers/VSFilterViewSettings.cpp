@@ -80,9 +80,12 @@ VSFilterViewSettings::VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation)
-: QObject(nullptr)
-, m_ShowFilter(true)
+VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation,
+  ImportMontageWizard::DisplayType displayType)
+  : QObject(nullptr)
+  , m_ShowFilter(true),
+  m_DisplayType(displayType),
+  m_Representation(representation)
 {
   SetupStaticIcons();
 
@@ -90,7 +93,6 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representat
   setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
-  setRepresentation(representation);
   if(isSIMPL && (representation == Representation::Surface ||
 	 representation == Representation::SurfaceWithEdges))
   {
@@ -540,6 +542,25 @@ void VSFilterViewSettings::setIsSelected(bool selected)
 {
   m_Selected = selected;
   updateScalarBarVisibility();
+  vtkActor* actor = getDataSetActor();
+  if(nullptr == actor)
+  {
+	return;
+  }
+  if(selected)
+  {
+	actor->GetProperty()->EdgeVisibilityOn();
+	actor->GetProperty()->SetEdgeColor(0.0, 1.0, 0.0);
+  }
+  else
+  {
+	if(m_Representation != Representation::SurfaceWithEdges ||
+	  m_Representation != Representation::Outline)
+	{
+	  actor->GetProperty()->EdgeVisibilityOff();
+	}
+	actor->GetProperty()->SetEdgeColor(1.0, 1.0, 1.0);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1417,11 +1438,40 @@ void VSFilterViewSettings::updateTransform()
 	  int extent[6];
 	  imageData->GetExtent(extent);
 
-	  // Add half the image width to the xMin and half the image height to the yMin
-	  // This "matches" the origin of the Outline representation
-	  m_Actor->SetPosition(bounds[0] + 0.5 * extent[1], bounds[2] + 0.5 * extent[3], bounds[4] + 0.5 * extent[5]);
-	  m_Actor->SetOrientation(0.0, 0.0, 0.0);
-	  m_Actor->SetScale(extent[1], extent[3], extent[5]);
+	  // Get transform vectors
+	  VSTransform* transform = m_Filter->getTransform();
+	  double* transformPosition = transform->getPosition();
+	  double* transformRotation = transform->getRotation();
+	  double* transformScale = transform->getScale();
+
+	  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
+	  {		
+		// Move images to respective row, col pair
+		QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(m_Filter)
+		  ->getWrappedDataContainer()->m_DataContainer->getName();
+		int indexOfUnderscore = dataContainerName.lastIndexOf("_");
+		QString rowCol = dataContainerName.right(dataContainerName.size() 
+		  - indexOfUnderscore - 1);
+		rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
+		QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
+		int row = rowCol_Split[0].toInt();
+		int col = rowCol_Split[1].toInt();
+		
+		double imageWidth = extent[1];
+		double imageHeight = extent[3];
+		m_Actor->SetPosition(transformPosition[0] + (1.01f * imageWidth) * col,
+		  transformPosition[1] + (1.01f * imageHeight) * row,
+		  transformPosition[2]);
+	  }
+	  else
+	  {
+		m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
+		  transformPosition[1] + bounds[2] + 0.5 * extent[3],
+		  transformPosition[2] + bounds[4] + 0.5 * extent[5]);
+	  }
+	  m_Actor->SetOrientation(transformRotation);
+	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
+		extent[5] * transformScale[2]);
   }
   else
   {
@@ -2673,4 +2723,20 @@ void VSFilterViewSettings::inputUpdated(VSAbstractFilter* filter)
 		}
 	}
 	updateTexture();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setDisplayType(ImportMontageWizard::DisplayType displayType)
+{
+  m_DisplayType = displayType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ImportMontageWizard::DisplayType VSFilterViewSettings::getDisplayType()
+{
+  return m_DisplayType;
 }

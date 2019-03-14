@@ -96,6 +96,9 @@ void VSInteractorStyleFilterCamera::OnMouseMove()
     case ActionType::Scale:
       scaleFilter();
       break;
+	case ActionType::ResetTransform:
+	  resetTransform();
+	  break;
     case ActionType::None:
       break;
     }
@@ -169,6 +172,22 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   else if(keyDown == "Escape")
   {
     cancelAction();
+  }
+  else if(keyDown == "a")
+  {
+	setActionType(ActionType::None);
+	if(ctrlKey() && !shiftKey())
+	{
+	  selectAllFilters();
+	}
+	else if(ctrlKey() && shiftKey())
+	{
+	  deselectAllFilters();
+	}
+  }
+  else if(keyDown == "z")
+  {
+	setActionType(ActionType::ResetTransform);
   }
 }
 
@@ -639,6 +658,74 @@ void VSInteractorStyleFilterCamera::cancelScaling()
   for(VSAbstractFilter* filter : selection)
   {
     filter->getTransform()->scale(1.0 / m_ScaleAmt);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::resetTransform()
+{
+  VSAbstractFilter::FilterListType selection = getFilterSelection();
+  double resetTranslation[3] = {0.0, 0.0, 0.0};
+  double resetRotation[3] = {0.0, 0.0, 0.0};
+  double resetScale[3] = {1.0, 1.0, 1.0};
+ 
+  for(VSAbstractFilter* filter : selection)
+  {
+	filter->getTransform()->setLocalPosition(resetTranslation);
+	filter->getTransform()->setLocalScale(resetScale);
+	filter->getTransform()->setLocalRotation(resetRotation);
+  }
+  setActionType(ActionType::None);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::selectAllFilters()
+{
+  VSAbstractFilter::FilterListType allFilters;
+  if(m_ActiveFilter != nullptr)
+  {
+	if(m_ActiveFilter->getParentFilter() != nullptr)
+	{
+	  allFilters = m_ActiveFilter->getParentFilter()->getChildren();
+	}
+	else
+	{
+	  allFilters = m_ActiveFilter->getChildren();
+	}
+  }
+  else
+  {
+	allFilters = m_ViewWidget->getFilterViewModel()->getAllFilters();
+  }
+  for(VSAbstractFilter* filter : allFilters)
+  {
+	if(filter->getParentFilter() == nullptr)
+	{
+	  continue;
+	}
+	vtkProp3D* prop = m_ViewWidget->getFilterViewSettings(filter)->getActor();
+
+	if(nullptr == prop || nullptr == filter)
+	{
+	  continue;
+	}
+
+	addSelection(filter, prop);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::deselectAllFilters()
+{
+  for(VSAbstractFilter* filter : getFilterSelection())
+  {
+	removeSelection(filter);
   }
 }
 

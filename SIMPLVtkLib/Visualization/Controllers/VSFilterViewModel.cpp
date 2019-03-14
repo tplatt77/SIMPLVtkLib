@@ -305,28 +305,7 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 	  {
 		  representation = VSFilterViewSettings::Representation::Surface;
 	  }
-	  viewSettings = new VSFilterViewSettings(filter, representation);
-  }
-
-  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
-  {
-	  // Move images to respective row, col pair
-	  VTK_PTR(vtkProp3D) actor = viewSettings->getActor().GetPointer();
-	  if(nullptr != actor)
-	  {
-		  QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(filter)
-			  ->getWrappedDataContainer()->m_DataContainer->getName();
-		  int indexOfUnderscore = dataContainerName.lastIndexOf("_");
-		  QString rowCol = dataContainerName.right(dataContainerName.size() - indexOfUnderscore - 1);
-		  rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
-		  QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
-		  int row = rowCol_Split[0].toInt();
-		  int col = rowCol_Split[1].toInt();
-
-		  double imageWidth = actor->GetScale()[0];
-		  double imageHeight = actor->GetScale()[1];
-		  actor->SetPosition((1.01f * imageWidth) * col, (1.01f * imageHeight) * row , 0.0f);
-	  }
+	  viewSettings = new VSFilterViewSettings(filter, representation, m_DisplayType);
   }
 
   // When multiplpe images are loaded, place side by side
