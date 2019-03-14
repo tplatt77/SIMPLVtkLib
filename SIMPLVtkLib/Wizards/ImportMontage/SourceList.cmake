@@ -10,7 +10,7 @@ set(${PROJECT_NAME}_ImportMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageConstants.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.h
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.h
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ImporterWorker.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.h
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.h
@@ -28,7 +28,7 @@ set(${PROJECT_NAME}_ImportMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/ImportMontage/EnterGenericDataPage.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/ImportMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageSettings.cpp
-  ${WIZARDS_SOURCE_DIR}/ImportMontage/MontageWorker.cpp
+  ${WIZARDS_SOURCE_DIR}/ImportMontage/ImporterWorker.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/RobometListWidget.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileConfigFileGenerator.cpp
   ${WIZARDS_SOURCE_DIR}/ImportMontage/TileListWidget.cpp

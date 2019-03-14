@@ -80,8 +80,7 @@ void VSMontageImporter::processPipelineMessage(const PipelineMessage& pipelineMs
 // -----------------------------------------------------------------------------
 void VSMontageImporter::execute()
 {
-  emit started();
-
+  setState(State::Executing);
   m_Pipeline->execute();
 
   int err = m_Pipeline->getErrorCondition();
@@ -95,6 +94,45 @@ void VSMontageImporter::execute()
 //    break;
 //  }
 
-  emit resultReady(m_Pipeline, err);
-  emit finished();
+  if (m_Resetting)
+  {
+    setState(State::Ready);
+    m_Resetting = false;
+  }
+  else if (m_Pipeline->getCancel())
+  {
+    setState(State::Canceled);
+  }
+  else
+  {
+    setState(State::Finished);
+    emit resultReady(m_Pipeline, err);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMontageImporter::cancel()
+{
+  if (m_Pipeline->isExecuting())
+  {
+    m_Pipeline->setCancel(true);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMontageImporter::reset()
+{
+  if (m_Pipeline->isExecuting())
+  {
+    m_Resetting = true;
+    m_Pipeline->setCancel(true);
+  }
+  else
+  {
+    setState(State::Ready);
+  }
 }

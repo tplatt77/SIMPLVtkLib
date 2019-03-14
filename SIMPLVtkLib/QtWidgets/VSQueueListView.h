@@ -35,41 +35,62 @@
 
 #pragma once
 
-#include "QtWidgets/VSAbstractImporter.h"
+#include <QtWidgets/QListView>
 
-#include "SIMPLib/Filtering/FilterPipeline.h"
-
-class SIMPLVtkLib_EXPORT VSMontageImporter : public VSAbstractImporter
+class VSQueueListView : public QListView
 {
-	Q_OBJECT
+    Q_OBJECT
 
-public:
-  SIMPL_SHARED_POINTERS(VSMontageImporter)
+  public:
+    VSQueueListView(QWidget* parent = nullptr);
 
-  ~VSMontageImporter();
+    ~VSQueueListView() override;
 
-  static Pointer New(FilterPipeline::Pointer pipeline);
+  protected:
+    /**
+     * @brief mousePressEvent
+     * @param event
+     */
+    void mousePressEvent(QMouseEvent* event) override;
 
-  virtual void execute() override;
+    /**
+     * @brief handleClearAllImports
+     */
+    void handleClearAllImports();
 
-  virtual void cancel() override;
+    /**
+     * @brief handleClearCompletedImports
+     */
+    void handleClearCompletedImports();
 
-  virtual void reset() override;
+    /**
+     * @brief resetImporter
+     */
+    void resetImporter(const QModelIndex &index);
 
-protected:
-  VSMontageImporter(FilterPipeline::Pointer pipeline);
+    /**
+     * @brief stopImporter
+     * @param index
+     */
+    void stopImporter(const QModelIndex &index);
 
-protected slots:
-  /**
-   * @brief processPipelineMessage
-   * @param pipelineMsg
-   */
-  void processPipelineMessage(const PipelineMessage& pipelineMsg);
+    /**
+     * @brief clearImporter
+     * @param index
+     */
+    bool clearImporter(const QModelIndex &index);
 
-signals:
-  void resultReady(FilterPipeline::Pointer pipeline, int err);
+  protected slots:
+    /**
+     * @brief requestContextMenu
+     * @param pos
+     */
+    void requestContextMenu(const QPoint& pos);
 
-private:
-  FilterPipeline::Pointer m_Pipeline;
-  bool m_Resetting = false;
+  public:
+    VSQueueListView(const VSQueueListView&) = delete; // Copy Constructor Not Implemented
+    VSQueueListView(VSQueueListView&&) = delete;      // Move Constructor Not Implemented
+    VSQueueListView& operator=(const VSQueueListView&) = delete; // Copy Assignment Not Implemented
+    VSQueueListView& operator=(VSQueueListView&&) = delete;      // Move Assignment Not Implemented
 };
+

@@ -35,41 +35,55 @@
 
 #pragma once
 
+#include <QtCore/QList>
+#include <QtCore/QVariant>
+#include <QtCore/QVector>
+
+#include <QtGui/QIcon>
+
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+
 #include "QtWidgets/VSAbstractImporter.h"
 
-#include "SIMPLib/Filtering/FilterPipeline.h"
-
-class SIMPLVtkLib_EXPORT VSMontageImporter : public VSAbstractImporter
+class VSQueueItem
 {
-	Q_OBJECT
+  public:
+    VSQueueItem(const QString &name, const QString &path = "", VSQueueItem* parent = 0);
+    virtual ~VSQueueItem();
 
-public:
-  SIMPL_SHARED_POINTERS(VSMontageImporter)
+    enum ItemData
+    {
+      Contents
+    };
 
-  ~VSMontageImporter();
+    SIMPL_INSTANCE_PROPERTY(QString, Name)
+    SIMPL_INSTANCE_PROPERTY(VSAbstractImporter::Pointer, Importer)
 
-  static Pointer New(FilterPipeline::Pointer pipeline);
+    SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
 
-  virtual void execute() override;
+    VSQueueItem* child(int number);
+    VSQueueItem* parent();
 
-  virtual void cancel() override;
+    int childCount() const;
 
-  virtual void reset() override;
+    bool insertChild(int position, VSQueueItem* child);
+    bool insertChildren(int position, int count, int columns);
 
-protected:
-  VSMontageImporter(FilterPipeline::Pointer pipeline);
+    bool removeChild(int position);
+    bool removeChildren(int position, int count);
 
-protected slots:
-  /**
-   * @brief processPipelineMessage
-   * @param pipelineMsg
-   */
-  void processPipelineMessage(const PipelineMessage& pipelineMsg);
+    int childNumber() const;
 
-signals:
-  void resultReady(FilterPipeline::Pointer pipeline, int err);
+    void setParent(VSQueueItem* parent);
 
-private:
-  FilterPipeline::Pointer m_Pipeline;
-  bool m_Resetting = false;
+  private:
+    QList<VSQueueItem*>               m_ChildItems;
+    VSQueueItem*                      m_ParentItem;
+
+  public:
+    VSQueueItem(const VSQueueItem&) = delete;            // Copy Constructor Not Implemented
+    VSQueueItem(VSQueueItem&&) = delete;                 // Move Constructor Not Implemented
+    VSQueueItem& operator=(const VSQueueItem&) = delete; // Copy Assignment Not Implemented
+    VSQueueItem& operator=(VSQueueItem&&) = delete;      // Move Assignment Not Implemented
 };
+

@@ -52,7 +52,7 @@
 
 class ImportMontageWizard;
 class ExecutePipelineWizard;
-class MontageWorker;
+class ImporterWorker;
 class PipelineWorker;
 class VSDataSetFilter;
 
@@ -194,6 +194,16 @@ public:
    */
   //void selectFilter(VSAbstractFilter* filter);
 
+  /**
+   * @brief startImportQueue
+   */
+  void startImportQueue();
+
+  /**
+   * @brief stopImportQueue
+   */
+  void stopImportQueue();
+
 protected slots:
   /**
    * @brief handleDatasetResults
@@ -233,7 +243,6 @@ signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
   void filterCheckStateChanged(VSAbstractFilter* filter);
-  void importerAddedToQueue(const QString &name, VSAbstractImporter::Pointer importer);
   void blockRender(bool block);
   void dataImported();
   //void filterSelected(VSAbstractFilter* filter);
@@ -248,19 +257,13 @@ private:
 
   QThread* m_ImportDataWorkerThread = nullptr;
   QThread* m_PipelineWorkerThread = nullptr;
-  MontageWorker* m_ImportDataWorker = nullptr;
+  ImporterWorker* m_ImportDataWorker = nullptr;
   PipelineWorker* m_PipelineWorker = nullptr;
 
   std::vector<FilterPipeline::Pointer> m_Pipelines;
   DataContainerArray::Pointer m_dataContainerArray;
   bool m_DisplayMontage = false;
   bool m_DisplayOutline = false;
-
-  /**
-   * @brief getImportDataWorker
-   * @return
-   */
-  MontageWorker* getImportDataWorker();
 
   /**
    * @brief saveFilter

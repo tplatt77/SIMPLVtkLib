@@ -235,6 +235,16 @@ public:
 
 public slots:
   /**
+   * @brief startImportQueue
+   */
+  void startImportQueue();
+
+  /**
+   * @brief stopImportQueue
+   */
+  void stopImportQueue();
+
+  /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
    * @param parents
@@ -311,10 +321,11 @@ public slots:
   void launchHDF5SelectionDialog(const QString& filePath);
 
 signals:
-  void importerAddedToQueue(const QString &name, VSAbstractImporter::Pointer importer);
   void changedActiveView(VSAbstractViewWidget* viewWidget);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
   void selectedFiltersChanged(VSAbstractFilter::FilterListType filters);
+  void notifyErrorMessage(const QString &msg, int code);
+  void notifyStatusMessage(const QString &msg);
 
 protected:
   /**
@@ -466,10 +477,6 @@ protected slots:
    * @param code
    */
   void generateError(const QString& title, const QString& msg, const int& code);
-
-signals:
-  void notifyErrorMessage(const QString &msg, int code);
-  void notifyStatusMessage(const QString &msg);
 
 private:
   VSController* m_Controller = nullptr;

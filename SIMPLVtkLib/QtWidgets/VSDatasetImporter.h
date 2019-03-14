@@ -53,6 +53,10 @@ public:
 
   virtual void execute() override;
 
+  virtual void cancel() override;
+
+  virtual void reset() override;
+
 protected:
   VSDatasetImporter(const QString &filePath);
 

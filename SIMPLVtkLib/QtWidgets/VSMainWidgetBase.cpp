@@ -88,7 +88,6 @@ void VSMainWidgetBase::connectSlots()
   // Signals from VSController should be on the main thread, so Qt5 connections should be safe
   connect(m_Controller, &VSController::filterAdded, this, &VSMainWidgetBase::filterAdded);
   connect(m_Controller, &VSController::filterRemoved, this, &VSMainWidgetBase::filterRemoved);
-  connect(m_Controller, &VSController::importerAddedToQueue, this, &VSMainWidgetBase::importerAddedToQueue);
   connect(m_Controller, &VSController::blockRender, this, &VSMainWidgetBase::setBlockRender);
   connect(m_Controller, &VSController::notifyErrorMessage, this, &VSMainWidgetBase::notifyErrorMessage);
   connect(m_Controller, &VSController::notifyStatusMessage, this, &VSMainWidgetBase::notifyStatusMessage);
@@ -613,6 +612,22 @@ bool VSMainWidgetBase::importSTLData(const QString &filePath)
 void VSMainWidgetBase::importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
   m_Controller->importPipelineOutput(pipeline, dca);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::startImportQueue()
+{
+  m_Controller->startImportQueue();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::stopImportQueue()
+{
+  m_Controller->stopImportQueue();
 }
 
 // -----------------------------------------------------------------------------

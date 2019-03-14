@@ -68,11 +68,29 @@ VSDatasetImporter::Pointer VSDatasetImporter::New(const QString &filePath)
 // -----------------------------------------------------------------------------
 void VSDatasetImporter::execute()
 {
-  emit started();
+  setState(State::Executing);
 
   VSFileNameFilter* textFilter = new VSFileNameFilter(m_FilePath);
   VSDataSetFilter* filter = new VSDataSetFilter(m_FilePath, textFilter);
 
+  setState(State::Finished);
   emit resultReady(textFilter, filter);
-  emit finished();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetImporter::cancel()
+{
+  // Cancel
+  setState(State::Canceled);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetImporter::reset()
+{
+  // Cancel
+  setState(State::Ready);
 }

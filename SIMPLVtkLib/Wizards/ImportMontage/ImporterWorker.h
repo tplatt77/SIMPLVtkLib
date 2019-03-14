@@ -44,24 +44,43 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "QtWidgets/VSAbstractImporter.h"
 
-class SIMPLVtkLib_EXPORT MontageWorker : public QObject
+class SIMPLVtkLib_EXPORT ImporterWorker : public QObject
 {
 	Q_OBJECT
 
 public:
-  MontageWorker();
-	~MontageWorker();
+  ImporterWorker();
+  ~ImporterWorker();
 
-  void addDataImporter(VSAbstractImporter::Pointer importer);
+  SIMPL_GET_PROPERTY(bool, Cancelled)
+
+  void addDataImporter(const QString &name, VSAbstractImporter::Pointer importer);
+
+  void insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer);
+
+  void removeDataImporter(VSAbstractImporter::Pointer importer);
+
+  void cancelWorker();
 
 signals:
+  void cancelled();
 	void finished();
   void error(QString err);
 	
 public slots:
-	void process();
+  void process();
+
+protected slots:
+  void handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+
+  void handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
 
 private:
-  std::vector<VSAbstractImporter::Pointer> m_Importers;
+  bool m_Cancelled = false;
+  VSAbstractImporter::Pointer m_CurrentImporter;
+  QPersistentModelIndex m_CurrentIndex;
+
+  typedef std::vector<VSAbstractImporter::Pointer> ExecutionQueue;
+
   QSemaphore m_ImportSem;
 };

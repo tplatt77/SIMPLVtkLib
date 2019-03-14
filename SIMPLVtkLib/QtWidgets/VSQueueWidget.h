@@ -57,7 +57,7 @@ public:
   /**
    * @brief Deconstructor
    */
-  virtual ~VSQueueWidget() = default;
+  virtual ~VSQueueWidget();
 
   /**
    * @brief New
@@ -65,21 +65,6 @@ public:
    * @return
    */
   static Pointer New(QWidget* parent = nullptr);
-
-public slots:
-  /**
-   * @brief addImporterToQueue
-   * @param name
-   * @param importer
-   */
-  void addImporterToQueue(const QString &name, VSAbstractImporter::Pointer importer);
-
-  /**
-   * @brief removeImporterFromQueue
-   * @param name
-   * @param importer
-   */
-  void removeImporterFromQueue(const QString &name, VSAbstractImporter::Pointer importer);
 
 protected:
   /**
@@ -93,13 +78,30 @@ protected:
    */
   void setupGui();
 
-private:
-  QSharedPointer<Ui::VSQueueWidget> m_Ui;
+  /**
+   * @brief updateNavigationButtons
+   */
+  void updateNavigationButtons();
 
-  enum Roles
+protected slots:
+  /**
+   * @brief startStopButtonClicked
+   */
+  void startStopButtonClicked();
+
+signals:
+  void startQueueTriggered();
+  void stopQueueTriggered();
+
+private:
+  enum class QueueState : unsigned int
   {
-    ImporterRole = Qt::UserRole + 1
+    Idle,
+    Executing
   };
+
+  QSharedPointer<Ui::VSQueueWidget> m_Ui;
+  QueueState m_QueueState = QueueState::Idle;
 
   /**
    * @brief connectSignalsSlots

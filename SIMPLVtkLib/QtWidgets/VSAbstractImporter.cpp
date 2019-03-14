@@ -39,7 +39,9 @@
 //
 // -----------------------------------------------------------------------------
 VSAbstractImporter::VSAbstractImporter()
+: m_Canceled(false)
 {
+  qRegisterMetaType<VSAbstractImporter::State>("VSAbstractImporter::State");
 }
 
 // -----------------------------------------------------------------------------
@@ -47,4 +49,13 @@ VSAbstractImporter::VSAbstractImporter()
 // -----------------------------------------------------------------------------
 VSAbstractImporter::~VSAbstractImporter()
 {
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractImporter::setState(VSAbstractImporter::State state)
+{
+  m_State = state;
+  emit stateChanged(state);
 }

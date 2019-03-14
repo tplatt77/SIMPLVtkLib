@@ -64,7 +64,7 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/FijiListWidget.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageConstants.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/MontageWorker.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImporterWorker.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/RobometListWidget.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/TileConfigFileGenerator.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ZeissListWidget.h"
@@ -80,14 +80,14 @@ VSController::VSController(QObject* parent)
 
   qRegisterMetaType<VSAbstractImporter::Pointer>();
 
-  m_ImportDataWorker = new MontageWorker();
+  m_ImportDataWorker = new ImporterWorker();
 //  connect(m_ImportDataWorker, SIGNAL(finished()), this, SLOT(montageWorkerFinished()));
 
-  m_WorkerThread = new QThread;
-  m_ImportDataWorker->moveToThread(m_WorkerThread);
-  connect(m_WorkerThread, SIGNAL(started()), m_ImportDataWorker, SLOT(process()));
+  m_ImportDataWorkerThread = new QThread;
+  m_ImportDataWorker->moveToThread(m_ImportDataWorkerThread);
+  connect(m_ImportDataWorkerThread, SIGNAL(started()), m_ImportDataWorker, SLOT(process()));
 //  connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(montageThreadFinished()));
-  connect(m_ImportDataWorker, SIGNAL(finished()), m_WorkerThread, SLOT(quit()));
+  connect(m_ImportDataWorker, SIGNAL(finished()), m_ImportDataWorkerThread, SLOT(quit()));
 
   connect(m_FilterModel, &VSFilterModel::filterAdded, this, &VSController::filterAdded);
   connect(m_FilterModel, &VSFilterModel::filterRemoved, this, &VSController::filterRemoved);
@@ -567,12 +567,9 @@ void VSController::importZeissMontage(ImportMontageWizard* montageWizard)
 void VSController::addMontagePipelineToQueue(FilterPipeline::Pointer pipeline)
 {
   VSMontageImporter::Pointer importer = VSMontageImporter::New(pipeline);
-  connect(importer.get(), &VSMontageImporter::notifyStatusMessage, this, &VSController::notifyStatusMessage);
-  connect(importer.get(), &VSMontageImporter::notifyErrorMessage, this, &VSController::notifyErrorMessage);
   connect(importer.get(), &VSMontageImporter::resultReady, this, &VSController::handleMontageResults);
 
-  m_ImportDataWorker->addDataImporter(importer);
-  emit importerAddedToQueue(pipeline->getName(), importer);
+  m_ImportDataWorker->addDataImporter(pipeline->getName(), importer);
 
   m_ImportDataWorkerThread->start();
 }
@@ -872,12 +869,27 @@ void VSController::importData(const QString& filePath)
 {
   VSDatasetImporter::Pointer importer = VSDatasetImporter::New(filePath);
   connect(importer.get(), &VSDatasetImporter::resultReady, this, &VSController::handleDatasetResults);
-  m_ImportDataWorker->addDataImporter(importer);
 
   QFileInfo fi(filePath);
-  emit importerAddedToQueue(fi.fileName(), importer);
+  m_ImportDataWorker->addDataImporter(fi.fileName(), importer);
 
-  m_WorkerThread->start();
+  m_ImportDataWorkerThread->start();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::startImportQueue()
+{
+  m_ImportDataWorkerThread->start();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::stopImportQueue()
+{
+  m_ImportDataWorker->cancelWorker();
 }
 
 #if 0

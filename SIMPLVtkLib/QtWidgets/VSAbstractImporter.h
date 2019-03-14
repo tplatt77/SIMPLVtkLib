@@ -50,15 +50,49 @@ public:
 
   ~VSAbstractImporter();
 
+  enum class State : unsigned int
+  {
+    Ready,
+    Executing,
+    Finished,
+    Canceled
+  };
+
+  SIMPL_GET_PROPERTY(State, State)
+
+  /**
+   * @brief setState
+   * @param state
+   */
+  void setState(State state);
+
+  /**
+   * @brief execute
+   */
   virtual void execute() = 0;
 
+  /**
+   * @brief cancel
+   */
+  virtual void cancel() = 0;
+
+  /**
+   * @brief reset
+   */
+  virtual void reset() = 0;
+
 signals:
-  void started();
+  void stateChanged(VSAbstractImporter::State state);
   void notifyErrorMessage(const QString &msg, int code);
   void notifyStatusMessage(const QString &msg);
-  void finished();
 
 protected:
   VSAbstractImporter();
+
+private:
+  State m_State = State::Ready;
+  bool m_Canceled = false;
+
 };
 Q_DECLARE_METATYPE(VSAbstractImporter::Pointer)
+Q_DECLARE_METATYPE(VSAbstractImporter::State)
