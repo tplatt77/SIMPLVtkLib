@@ -239,6 +239,16 @@ protected:
   void resetTransform();
 
   /**
+   * @brief Selects all the filters
+   */
+  void selectAllFilters();
+
+  /**
+   * @brief Deselects all the filters
+   */
+  void deselectAllFilters();
+
+  /**
    * @brief Returns true if the CTRL key is down.  Returns false otherwise.
    * @return
    */
