@@ -267,6 +267,7 @@ void DisplayTypeSelectionPage::registerFields()
 
   registerField(PerformMontage::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
   registerField(PerformMontage::FieldNames::DisplayOutlineOnly, m_Ui->outlineOnlyRB);
+  registerField(PerformMontage::FieldNames::StitchingOnly, m_Ui->stitchingOnlyCB);
 }
 
 // -----------------------------------------------------------------------------

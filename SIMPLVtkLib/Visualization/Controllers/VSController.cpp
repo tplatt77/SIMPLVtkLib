@@ -121,6 +121,9 @@ void VSController::performMontage(PerformMontageWizard* performMontageWizard,
 {
   FilterPipeline::Pointer pipeline = FilterPipeline::New();
   VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+  m_DisplayMontage = performMontageWizard->field(PerformMontage::FieldNames::DisplayMontage).toBool();
+  m_DisplayOutline = performMontageWizard->field(PerformMontage::FieldNames::DisplayOutlineOnly).toBool();
+  bool stitchingOnly = performMontageWizard->field(PerformMontage::FieldNames::StitchingOnly).toBool();
 
   // Construct Data Container Array with selected Dataset
   DataContainerArray::Pointer dca = DataContainerArray::New();
@@ -192,8 +195,11 @@ void VSController::performMontage(PerformMontageWizard* performMontageWizard,
 
 		double tileOverlap = 15.0;
 
-		AbstractFilter::Pointer itkRegistrationFilter = filterFactory->createPCMTileRegistrationFilter(montageSize, dcNames, amName, daName);
-		pipeline->pushBack(itkRegistrationFilter);
+		if(!stitchingOnly)
+		{
+		  AbstractFilter::Pointer itkRegistrationFilter = filterFactory->createPCMTileRegistrationFilter(montageSize, dcNames, amName, daName);
+		  pipeline->pushBack(itkRegistrationFilter);
+		}
 
 		DataArrayPath montagePath("MontageDC", "MontageAM", "MontageData");
 		AbstractFilter::Pointer itkStitchingFilter = filterFactory->createTileStitchingFilter(montageSize, dcNames, amName, daName, montagePath, 15.0);

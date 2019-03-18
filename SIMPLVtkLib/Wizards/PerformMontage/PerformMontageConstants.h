@@ -62,5 +62,6 @@ namespace PerformMontage
 		const QString SpacingZ("SpacingZ");
 		const QString DisplayMontage("DisplayMontage");
 		const QString DisplayOutlineOnly("DisplayOutlineOnly");
+		const QString StitchingOnly("StitchingOnly");
   }
 }

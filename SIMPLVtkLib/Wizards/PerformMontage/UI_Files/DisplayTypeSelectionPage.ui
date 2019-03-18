@@ -63,10 +63,13 @@
    </item>
    <item row="4" column="0">
     <layout class="QGridLayout" name="advancedGridLayout">
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="changeOriginCB">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="spacingX">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>Change Origin (X, Y, Z)</string>
+        <string>1</string>
        </property>
       </widget>
      </item>
@@ -77,6 +80,23 @@
        </property>
        <property name="text">
         <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="changeOriginCB">
+       <property name="text">
+        <string>Change Origin (X, Y, Z)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLineEdit" name="spacingZ">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>1</string>
        </property>
       </widget>
      </item>
@@ -107,16 +127,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="spacingX">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>1</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="2">
       <widget class="QLineEdit" name="spacingY">
        <property name="enabled">
@@ -127,13 +137,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QLineEdit" name="spacingZ">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="stitchingOnlyCB">
        <property name="text">
-        <string>1</string>
+        <string>Perform Stitching Only</string>
        </property>
       </widget>
      </item>
