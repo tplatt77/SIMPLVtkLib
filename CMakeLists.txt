@@ -216,6 +216,10 @@ set(Project_SRCS
   ${${PROJECT_NAME}_ExecutePipeline_SRCS}
   ${${PROJECT_NAME}_ExecutePipeline_Generated_UI_HDRS}
 
+  ${${PROJECT_NAME}_PerformMontage_HDRS}
+  ${${PROJECT_NAME}_PerformMontage_SRCS}
+  ${${PROJECT_NAME}_PerformMontage_Generated_UI_HDRS}
+
   ${${PROJECT_NAME}_Dialogs_Moc_HDRS}
   ${${PROJECT_NAME}_Dialogs_HDRS}
   ${${PROJECT_NAME}_Dialogs_SRCS}

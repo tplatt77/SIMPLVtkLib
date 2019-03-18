@@ -62,6 +62,9 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/TileConfigFileGenerator.h"
 #include "SIMPLVtkLib/Wizards/ImportMontage/ZeissListWidget.h"
 
+#include "SIMPLVtkLib/Wizards/PerformMontage/PerformMontageConstants.h"
+#include "SIMPLVtkLib/Wizards/PerformMontage/PerformMontageWizard.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -108,6 +111,98 @@ void VSController::reloadDataContainerArray(VSFileNameFilter* fileFilter, DataCo
   m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Reload);
   m_ImportObject->addDataContainerArray(fileFilter, dca);
   m_ImportObject->run();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSController::performMontage(PerformMontageWizard* performMontageWizard, 
+  VSAbstractFilter::FilterListType selectedFilters)
+{
+  FilterPipeline::Pointer pipeline = FilterPipeline::New();
+  VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+
+  // Construct Data Container Array with selected Dataset
+  DataContainerArray::Pointer dca = DataContainerArray::New();
+  VSAbstractFilter::FilterListType datasets = this->getBaseFilters();
+  int i = 0;
+  for(VSAbstractFilter* dataset : datasets)
+  {
+	bool found = (std::find(selectedFilters.begin(),
+	  selectedFilters.end(), dataset) != selectedFilters.end());
+	if(found)
+	{
+	  // Add contents to data container array
+	  VSAbstractFilter::FilterListType children = dataset->getChildren();
+	  bool validSIMPL = false;
+	  QString amName;
+	  QString daName;
+	  for(VSAbstractFilter* childFilter : children)
+	  {
+		bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+		if(isSIMPL)
+		{
+		  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+		  if(dcFilter != nullptr)
+		  {
+			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+			dca->addDataContainer(dataContainer);
+			validSIMPL = true;
+			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+			amName = am->getName();
+			daName = am->getAttributeArrayNames().first();
+		  }
+		}
+	  }
+
+	  if(validSIMPL)
+	  {
+		QStringList dcNames = dca->getDataContainerNames();
+
+		bool changeSpacing = performMontageWizard->field(PerformMontage::FieldNames::ChangeSpacing).toBool();
+		bool changeOrigin = performMontageWizard->field(PerformMontage::FieldNames::ChangeOrigin).toBool();
+		if(changeSpacing || changeOrigin)
+		{
+		  float spacingX = performMontageWizard->field(PerformMontage::FieldNames::SpacingX).toFloat();
+		  float spacingY = performMontageWizard->field(PerformMontage::FieldNames::SpacingY).toFloat();
+		  float spacingZ = performMontageWizard->field(PerformMontage::FieldNames::SpacingZ).toFloat();
+		  FloatVec3_t newSpacing = { spacingX, spacingY, spacingZ };
+		  float originX = performMontageWizard->field(PerformMontage::FieldNames::OriginX).toFloat();
+		  float originY = performMontageWizard->field(PerformMontage::FieldNames::OriginY).toFloat();
+		  float originZ = performMontageWizard->field(PerformMontage::FieldNames::OriginZ).toFloat();
+		  FloatVec3_t newOrigin = { originX, originY, originZ };
+		  QVariant var;
+
+		  // For each data container, add a new filter
+		  for(QString dcName : dcNames)
+		  {
+			AbstractFilter::Pointer setOriginResolutionFilter = filterFactory->createSetOriginResolutionFilter(dcName, changeSpacing, changeOrigin, newSpacing, newOrigin);
+
+			if(!setOriginResolutionFilter)
+			{
+			  // Error!
+			}
+
+			pipeline->pushBack(setOriginResolutionFilter);
+		  }
+		}
+		
+		// TODO Replace when a wizard has input for this
+		IntVec3_t montageSize = { 3, 3, 1 }; 
+
+		double tileOverlap = 15.0;
+
+		AbstractFilter::Pointer itkRegistrationFilter = filterFactory->createPCMTileRegistrationFilter(montageSize, dcNames, amName, daName);
+		pipeline->pushBack(itkRegistrationFilter);
+
+		DataArrayPath montagePath("MontageDC", "MontageAM", "MontageData");
+		AbstractFilter::Pointer itkStitchingFilter = filterFactory->createTileStitchingFilter(montageSize, dcNames, amName, daName, montagePath, 15.0);
+		pipeline->pushBack(itkStitchingFilter);
+
+		executePipeline(pipeline, dca);
+	  }
+	}
+  }
 }
 
 // -----------------------------------------------------------------------------

@@ -15,3 +15,6 @@ include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportMontage/SourceLi
 
   # -- Include the Execute Pipeline sources
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/ExecutePipeline/SourceList.cmake)
+
+  # -- Include the Execute Pipeline sources
+include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Wizards/PerformMontage/SourceList.cmake)
