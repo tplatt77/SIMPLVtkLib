@@ -115,6 +115,14 @@ protected:
 	ResetTransform
   };
 
+  enum class Axis
+  {
+    None = 0,
+	X,
+	Y,
+	Z
+  };
+
   /**
    * @brief Returns the ActionType for the interactor style
    * @return
@@ -126,6 +134,18 @@ protected:
    * @param type
    */
   void setActionType(ActionType type);
+
+  /**
+   * @brief Returns the Axis for the interactor style
+   * @return
+   */
+  Axis getAxis();
+
+  /**
+   * @brief Sets the Axis for the interactor style
+   * @param axis
+   */
+  void setAxis(Axis axis);
 
   /**
    * @brief Ends the current action
@@ -239,6 +259,16 @@ protected:
   void resetTransform();
 
   /**
+   * @brief Undo the transform of the selected filter
+   */
+  void undoTransform();
+
+  /**
+   * @brief Redo the transform of the selected filter
+   */
+  void redoTransform();
+
+  /**
    * @brief Selects all the filters
    */
   void selectAllFilters();
@@ -286,6 +316,11 @@ private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;
   ActionType m_ActionType = ActionType::None;
+  Axis m_ActionAxis = Axis::None;
+  bool m_CustomTransform = false;
+  std::string m_CustomTransformAmount;
+  std::map<VSAbstractFilter*, VSTransform*> m_PreviousTransforms;
+  std::map<VSAbstractFilter*, VSTransform*> m_LastUndoneTransforms;
   // Position
   double* m_InitialPosition;
   double m_Translation[3];
