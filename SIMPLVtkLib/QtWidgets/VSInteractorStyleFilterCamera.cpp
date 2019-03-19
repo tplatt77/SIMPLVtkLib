@@ -252,7 +252,7 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
       {
         m_CustomTransform = true;
       }
-      m_CustomTransformAmount.append(keyDown);
+      m_CustomTransformAmount.append(keyDown.at(0));
     }
   }
   else if (keyDown == "minus" || keyDown == "plus")
@@ -279,8 +279,7 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
     }
     if (m_CustomTransform)
     {
-      int pos = m_CustomTransformAmount.find(".");
-      if (pos == std::string::npos)
+      if (!m_CustomTransformAmount.contains("."))
       {
         m_CustomTransformAmount.append(".");
       }
@@ -291,6 +290,141 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
       m_CustomTransformAmount.clear();
       m_CustomTransformAmount.append("0.");
     }
+  }
+  else if(keyDown == "Up" || keyDown == "Down")
+  {
+	if(!m_CustomTransform)
+	{
+	  m_CustomTransform = true;
+	}
+	QString previousCustomTransformAmount = m_CustomTransformAmount;
+	m_CustomTransformAmount.clear();
+	if(m_ActiveFilter && ActionType::None != m_ActionType)
+	{
+	  setAxis(Axis::Y);
+	  switch(m_ActionType)
+	  {
+	  case ActionType::Translate:
+		if(keyDown == "Up")
+		{
+		  m_CustomTransformAmount = "1.0";
+		}
+		else
+		{
+		  m_CustomTransformAmount = "-1.0";
+		}
+		translateFilter();
+		break;
+	  case ActionType::Rotate:
+		setAxis(Axis::X);
+		if(keyDown == "Up")
+		{
+		  m_CustomTransformAmount = "-1.0";
+		}
+		else
+		{
+		  m_CustomTransformAmount = "1.0";
+		}
+		rotateFilter();
+		break;
+	  case ActionType::Scale:
+		if(!previousCustomTransformAmount.isEmpty())
+		{
+		  if(keyDown == "Up")
+		  {
+			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
+		  }
+		  else
+		  {
+			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
+		  }
+		}
+		else
+		{
+		  if(keyDown == "Up")
+		  {
+			m_CustomTransformAmount = "1.1";
+		  }
+		  else
+		  {
+			m_CustomTransformAmount = "0.9";
+		  }
+		}
+		scaleFilter();
+		break;
+	  }
+	}
+	m_CustomTransform = false;
+	m_CustomTransformAmount.clear();
+	setAxis(Axis::None);
+  }
+  else if(keyDown == "Left" || keyDown == "Right")
+  {
+	if(!m_CustomTransform)
+	{
+	  m_CustomTransform = true;
+	}
+	QString previousCustomTransformAmount = m_CustomTransformAmount;
+	m_CustomTransformAmount.clear();
+	if(m_ActiveFilter && ActionType::None != m_ActionType)
+	{
+	  switch(m_ActionType)
+	  {
+	  case ActionType::Translate:
+		setAxis(Axis::X);
+		if(keyDown == "Right")
+		{
+		  m_CustomTransformAmount = "1.0";
+		}
+		else
+		{
+		  m_CustomTransformAmount = "-1.0";
+		}
+		translateFilter();
+		break;
+	  case ActionType::Rotate:
+		if(keyDown == "Right")
+		{
+		  m_CustomTransformAmount = "-1.0";
+		}
+		else
+		{
+		  m_CustomTransformAmount = "1.0";
+		}
+		setAxis(Axis::Z);
+		rotateFilter();
+		break;
+	  case ActionType::Scale:
+		setAxis(Axis::X);
+		if(!previousCustomTransformAmount.isEmpty())
+		{
+		  if(keyDown == "Right")
+		  {
+			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
+		  }
+		  else
+		  {
+			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
+		  }
+		}
+		else
+		{
+		  if(keyDown == "Right")
+		  {
+			m_CustomTransformAmount = "1.1";
+		  }
+		  else
+		  {
+			m_CustomTransformAmount = "0.9";
+		  }
+		}
+		scaleFilter();
+		break;
+	  }
+	}
+	m_CustomTransform = false;
+	m_CustomTransformAmount.clear();
+	setAxis(Axis::None);
   }
 }
 
@@ -604,7 +738,7 @@ void VSInteractorStyleFilterCamera::translateFilter()
   // Check for custom transform
   if (m_CustomTransform)
   {
-    double newDelta = stod(m_CustomTransformAmount);
+    double newDelta = m_CustomTransformAmount.toDouble();
     localDelta[0] = newDelta;
     localDelta[1] = newDelta;
     localDelta[2] = newDelta;
@@ -710,7 +844,7 @@ void VSInteractorStyleFilterCamera::rotateFilter()
   // Check for custom transform
   if(m_CustomTransform)
   {
-    rotateAmt = stod(m_CustomTransformAmount);
+    rotateAmt = m_CustomTransformAmount.toDouble();
   }
 
   switch(m_ActionAxis)
@@ -812,7 +946,12 @@ void VSInteractorStyleFilterCamera::scaleFilter()
   // Check for custom transform
   if(m_CustomTransform)
   {
-    deltaScale = stod(m_CustomTransformAmount);
+    deltaScale = m_CustomTransformAmount.toDouble();
+  }
+
+  if(deltaScale == 0.0)
+  {
+	deltaScale = 1.0;
   }
 
   double scaleVector[3];

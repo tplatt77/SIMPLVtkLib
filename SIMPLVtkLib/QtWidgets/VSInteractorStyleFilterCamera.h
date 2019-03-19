@@ -318,7 +318,7 @@ private:
   ActionType m_ActionType = ActionType::None;
   Axis m_ActionAxis = Axis::None;
   bool m_CustomTransform = false;
-  std::string m_CustomTransformAmount;
+  QString m_CustomTransformAmount;
   std::map<VSAbstractFilter*, VSTransform*> m_PreviousTransforms;
   std::map<VSAbstractFilter*, VSTransform*> m_LastUndoneTransforms;
   // Position
