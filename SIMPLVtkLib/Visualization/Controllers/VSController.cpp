@@ -148,6 +148,7 @@ void VSController::performMontage(PerformMontageWizard* performMontageWizard,
 		  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
 		  if(dcFilter != nullptr)
 		  {
+			double* pos = dcFilter->getBounds();
 			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
 			dca->addDataContainer(dataContainer);
 			validSIMPL = true;

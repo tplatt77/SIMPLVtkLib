@@ -460,6 +460,18 @@ public:
   ImportMontageWizard::DisplayType getDisplayType();
 
   /**
+   * @brief Set the default transform
+   * @param defaultTransform
+   */
+  void setDefaultTransform(VSTransform* defaultTransform);
+
+  /**
+   * @brief Get the display type
+   * @return
+   */
+  VSTransform* getDefaultTransform();
+
+  /**
    * @brief Returns the QIcon used for solid colors
    * @return
    */
@@ -792,6 +804,11 @@ public slots:
   void updateTransform();
 
   /**
+   * @brief Sets up the side by side transform
+   */
+  void sideBySideTransform();
+
+  /**
    * @brief Handles updated input to show textured quads
    * @param filter
    */
@@ -991,6 +1008,7 @@ private:
   ColorMapping m_MapColors = ColorMapping::NonColors;
   Representation m_Representation = Representation::Default;
   ImportMontageWizard::DisplayType m_DisplayType = ImportMontageWizard::DisplayType::NotSpecified;
+  VSTransform* m_DefaultTransform = nullptr;
   VTK_PTR(vtkAbstractMapper3D) m_Mapper = nullptr;
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
   VTK_PTR(vtkProp3D) m_OutlineActor = nullptr;

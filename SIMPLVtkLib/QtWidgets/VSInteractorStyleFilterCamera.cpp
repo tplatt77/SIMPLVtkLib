@@ -901,15 +901,13 @@ void VSInteractorStyleFilterCamera::cancelScaling()
 void VSInteractorStyleFilterCamera::resetTransform()
 {
   VSAbstractFilter::FilterListType selection = getFilterSelection();
-  double resetTranslation[3] = {0.0, 0.0, 0.0};
-  double resetRotation[3] = {0.0, 0.0, 0.0};
-  double resetScale[3] = {1.0, 1.0, 1.0};
 
   for(VSAbstractFilter* filter : selection)
   {
-    filter->getTransform()->setLocalPosition(resetTranslation);
-    filter->getTransform()->setLocalScale(resetScale);
-    filter->getTransform()->setLocalRotation(resetRotation);
+	VSTransform* defaultTransform = m_ViewWidget->getFilterViewSettings(filter)->getDefaultTransform();
+    filter->getTransform()->setLocalPosition(defaultTransform->getLocalPosition());
+    filter->getTransform()->setLocalScale(defaultTransform->getLocalScale());
+    filter->getTransform()->setLocalRotation(defaultTransform->getLocalRotation());
   }
   setActionType(ActionType::None);
 }

@@ -151,6 +151,7 @@ VSFilterViewSettings::~VSFilterViewSettings()
   }
 
   m_Filter = nullptr;
+  m_DefaultTransform = nullptr;
 }
 
 // -----------------------------------------------------------------------------
@@ -168,6 +169,7 @@ void VSFilterViewSettings::deepCopy(VSFilterViewSettings* target)
   setSolidColor(target->getSolidColor());
   setPointSize(target->getPointSize());
   setIsSelected(target->m_Selected);
+  setDefaultTransform(target->getDefaultTransform());
 }
 
 // -----------------------------------------------------------------------------
@@ -1371,6 +1373,15 @@ void VSFilterViewSettings::setupDataSetActors()
   m_Plane = plane;
 
   m_ActorType = ActorType::DataSet;
+  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
+  {
+	sideBySideTransform();
+  }
+  // Save the initial transform
+  VSTransform* defaultTransform = getDefaultTransform();
+  defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
+  defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
+  defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
   updateTransform();
 }
 
@@ -1431,44 +1442,22 @@ void VSFilterViewSettings::updateTransform()
   }
   else if(ActorType::DataSet == m_ActorType)
   {
-	  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
-	  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-	  double bounds[6];
-	  imageData->GetBounds(bounds);
-	  int extent[6];
-	  imageData->GetExtent(extent);
+	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+	double bounds[6];
+	imageData->GetBounds(bounds);
+	int extent[6];
+	imageData->GetExtent(extent);
 
-	  // Get transform vectors
-	  VSTransform* transform = m_Filter->getTransform();
-	  double* transformPosition = transform->getPosition();
-	  double* transformRotation = transform->getRotation();
-	  double* transformScale = transform->getScale();
-
-	  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
-	  {		
-		// Move images to respective row, col pair
-		QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(m_Filter)
-		  ->getWrappedDataContainer()->m_DataContainer->getName();
-		int indexOfUnderscore = dataContainerName.lastIndexOf("_");
-		QString rowCol = dataContainerName.right(dataContainerName.size() 
-		  - indexOfUnderscore - 1);
-		rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
-		QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
-		int row = rowCol_Split[0].toInt();
-		int col = rowCol_Split[1].toInt();
-		
-		double imageWidth = extent[1];
-		double imageHeight = extent[3];
-		m_Actor->SetPosition(transformPosition[0] + (1.01f * imageWidth) * col,
-		  transformPosition[1] + (1.01f * imageHeight) * row,
-		  transformPosition[2]);
-	  }
-	  else
-	  {
-		m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
-		  transformPosition[1] + bounds[2] + 0.5 * extent[3],
-		  transformPosition[2] + bounds[4] + 0.5 * extent[5]);
-	  }
+	// Get transform vectors
+	VSTransform* transform = m_Filter->getTransform();
+	double* transformPosition = transform->getPosition();
+	double* transformRotation = transform->getRotation();
+	double* transformScale = transform->getScale();
+	  
+	m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
+	  transformPosition[1] + bounds[2] + 0.5 * extent[3],
+	  transformPosition[2] + bounds[4] + 0.5 * extent[5]);
 	  m_Actor->SetOrientation(transformRotation);
 	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
 		extent[5] * transformScale[2]);
@@ -2662,6 +2651,45 @@ double VSFilterViewSettings::GetSubsampling(VSFilterViewSettings::Collection col
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSFilterViewSettings::sideBySideTransform()
+{		
+  if(false == (m_Filter && m_Filter->getTransform() && m_Actor) ||
+	m_DisplayType != ImportMontageWizard::DisplayType::SideBySide)
+  {
+	return;
+  }
+  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+  double bounds[6];
+  imageData->GetBounds(bounds);
+  int extent[6];
+  imageData->GetExtent(extent);
+
+  // Get transform vectors
+  VSTransform* transform = m_Filter->getTransform();
+  double* transformPosition = transform->getPosition();
+
+  // Move images to respective row, col pair
+  QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(m_Filter)
+	->getWrappedDataContainer()->m_DataContainer->getName();
+  int indexOfUnderscore = dataContainerName.lastIndexOf("_");
+  QString rowCol = dataContainerName.right(dataContainerName.size()
+	- indexOfUnderscore - 1);
+  rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
+  QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
+  int row = rowCol_Split[0].toInt();
+  int col = rowCol_Split[1].toInt();
+
+  double imageWidth = extent[1];
+  double imageHeight = extent[3];
+  double newPosition[3] = { transformPosition[0] + (0.17 * imageWidth) * col,
+	transformPosition[1] + (0.17 * imageHeight) * row,
+	transformPosition[2] };
+  transform->setLocalPosition(newPosition);
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int VSFilterViewSettings::getSubsampling() const
 {
 	return m_Subsampling;
@@ -2739,4 +2767,28 @@ void VSFilterViewSettings::setDisplayType(ImportMontageWizard::DisplayType displ
 ImportMontageWizard::DisplayType VSFilterViewSettings::getDisplayType()
 {
   return m_DisplayType;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setDefaultTransform(VSTransform* defaultTransform)
+{
+  m_DefaultTransform = defaultTransform;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSTransform* VSFilterViewSettings::getDefaultTransform()
+{
+  if(m_DefaultTransform == nullptr)
+  {
+	m_DefaultTransform = new VSTransform(m_Filter->getTransform());
+	return m_DefaultTransform;
+  }
+  else
+  {
+	return m_DefaultTransform;
+  }
 }
