@@ -171,25 +171,11 @@ public:
   void setTransformWidget(VSTransformWidget* widget);
 
   /**
-   * @brief importMontage
-   * @param montageWizard
-   * @return
-   */
-  bool importMontage(ImportMontageWizard* montageWizard);
-
-  /**
    * @brief importDataContainerArray
    * @param dca
    */
   bool importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca);
 
-  /**
-   * @brief importPipelineOutput
-   * @param pipeline
-   * @param dca
-   * @return
-   */
-  bool importPipeline(ExecutePipelineWizard* pipelineWizard);
   /**
    * @brief importPipelineOutput
    * @param pipeline
@@ -206,27 +192,6 @@ public:
   bool importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines);
 
   /**
-   * @brief importVTKData
-   * @param filePath
-   * @return
-   */
-  bool importVTKData(const QString &filePath);
-
-  /**
-   * @brief importImageData
-   * @param filePath
-   * @return
-   */
-  bool importImageData(const QString &filePath);
-
-  /**
-   * @brief importSTLData
-   * @param filePath
-   * @return
-   */
-  bool importSTLData(const QString &filePath);
-
-  /**
    * @brief Imports or reloads the given DataContainerArray from the FilterPipeline
    * @param pipeline
    * @param dca
@@ -234,16 +199,6 @@ public:
   void importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
 public slots:
-  /**
-   * @brief startImportQueue
-   */
-  void startImportQueue();
-
-  /**
-   * @brief stopImportQueue
-   */
-  void stopImportQueue();
-
   /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
@@ -324,8 +279,8 @@ signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
   void selectedFiltersChanged(VSAbstractFilter::FilterListType filters);
-  void notifyErrorMessage(const QString &msg, int code);
-  void notifyStatusMessage(const QString &msg);
+  void importDataQueueStarted();
+  void importDataQueueFinished();
 
 protected:
   /**

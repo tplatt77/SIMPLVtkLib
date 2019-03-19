@@ -44,6 +44,8 @@
 #include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
 #include "QtWidgets/VSAbstractImporter.h"
 
+class VSQueueModel;
+
 class SIMPLVtkLib_EXPORT ImporterWorker : public QObject
 {
 	Q_OBJECT
@@ -52,30 +54,23 @@ public:
   ImporterWorker();
   ~ImporterWorker();
 
+  SIMPL_GET_PROPERTY(VSQueueModel*, QueueModel)
   SIMPL_GET_PROPERTY(bool, Cancelled)
 
-  void addDataImporter(const QString &name, VSAbstractImporter::Pointer importer);
+  void setQueueModel(VSQueueModel* queueModel);
 
-  void insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer);
-
-  void removeDataImporter(VSAbstractImporter::Pointer importer);
-
+public slots:
   void cancelWorker();
 
 signals:
-  void cancelled();
-	void finished();
+  void finished();
   void error(QString err);
 	
 public slots:
   void process();
 
-protected slots:
-  void handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
-
-  void handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
-
 private:
+  VSQueueModel* m_QueueModel = nullptr;
   bool m_Cancelled = false;
   VSAbstractImporter::Pointer m_CurrentImporter;
   QPersistentModelIndex m_CurrentIndex;

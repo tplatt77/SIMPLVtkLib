@@ -42,6 +42,7 @@
 #include "QtWidgets/VSAbstractImporter.h"
 
 class VSQueueItem;
+class ImporterWorker;
 
 class VSQueueModel : public QAbstractItemModel
 {
@@ -55,13 +56,21 @@ class VSQueueModel : public QAbstractItemModel
       ImporterRole = Qt::UserRole + 1
     };
 
+    enum class QueueState : unsigned int
+    {
+      Idle,
+      Executing,
+      Canceling
+    };
+
+    VSQueueModel(QObject* parent = nullptr);
+
     ~VSQueueModel() override;
 
-    /**
-     * @brief Instance
-     * @return
-     */
-    static VSQueueModel* Instance();
+    SIMPL_GET_PROPERTY(QueueState, QueueState)
+
+    void startQueue();
+    void cancelQueue();
 
     void addImporter(const QString &name, VSAbstractImporter::Pointer importer, QIcon icon);
     void insertImporter(int row, const QString &name, VSAbstractImporter::Pointer importer, QIcon icon);
@@ -94,20 +103,31 @@ class VSQueueModel : public QAbstractItemModel
     VSQueueItem* getRootItem();
 
   protected:
-    VSQueueModel(QObject* parent = nullptr);
-
     void initialize();
 
+  protected slots:
+    /**
+     * @brief handleDataQueueFinished
+     */
+    void handleDataQueueFinished();
+
   signals:
+    void queueStateChanged(VSQueueModel::QueueState queueState);
     void notifyStatusMessage(const QString &msg);
     void notifyErrorMessage(const QString &msg, int code);
 
   private:
-    static VSQueueModel*    self;
+    static VSQueueModel* self;
 
-    VSQueueItem*            rootItem;
+    VSQueueItem* rootItem = nullptr;
+
+    QThread* m_ImportDataWorkerThread = nullptr;
+    ImporterWorker* m_ImportDataWorker = nullptr;
+    QueueState m_QueueState = QueueState::Idle;
 
     VSQueueItem* getItem(const QModelIndex& index) const;
+
+    void setQueueState(QueueState queueState);
 
   public:
     VSQueueModel(const VSQueueModel&) = delete;            // Copy Constructor Not Implemented
@@ -115,4 +135,4 @@ class VSQueueModel : public QAbstractItemModel
     VSQueueModel& operator=(const VSQueueModel&) = delete; // Copy Assignment Not Implemented
     VSQueueModel& operator=(VSQueueModel&&) = delete;      // Move Assignment Not Implemented
 };
-
+Q_DECLARE_METATYPE(VSQueueModel::QueueState)

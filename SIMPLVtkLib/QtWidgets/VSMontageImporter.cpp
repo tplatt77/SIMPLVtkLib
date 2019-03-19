@@ -99,7 +99,7 @@ void VSMontageImporter::execute()
     setState(State::Ready);
     m_Resetting = false;
   }
-  else if (m_Pipeline->getCancel())
+  else if (m_Pipeline->getExecutionResult() == FilterPipeline::ExecutionResult::Canceled)
   {
     setState(State::Canceled);
   }
@@ -115,9 +115,9 @@ void VSMontageImporter::execute()
 // -----------------------------------------------------------------------------
 void VSMontageImporter::cancel()
 {
-  if (m_Pipeline->isExecuting())
+  if (m_Pipeline->getState() == FilterPipeline::State::Executing)
   {
-    m_Pipeline->setCancel(true);
+    m_Pipeline->cancel();
   }
 }
 
@@ -126,10 +126,10 @@ void VSMontageImporter::cancel()
 // -----------------------------------------------------------------------------
 void VSMontageImporter::reset()
 {
-  if (m_Pipeline->isExecuting())
+  if (m_Pipeline->getState() == FilterPipeline::State::Executing)
   {
     m_Resetting = true;
-    m_Pipeline->setCancel(true);
+    m_Pipeline->cancel();
   }
   else
   {

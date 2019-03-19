@@ -129,7 +129,15 @@ void VSQueueListView::requestContextMenu(const QPoint& pos)
 // -----------------------------------------------------------------------------
 void VSQueueListView::handleClearCompletedImports()
 {
-  VSQueueModel* model = VSQueueModel::Instance();
+  clearCompletedImports();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueListView::clearCompletedImports()
+{
+  VSQueueModel* model = getQueueModel();
   for(int row = 0; row < model->rowCount(); row++)
   {
     QPersistentModelIndex index = model->index(row, VSQueueItem::ItemData::Contents);
@@ -147,7 +155,15 @@ void VSQueueListView::handleClearCompletedImports()
 // -----------------------------------------------------------------------------
 void VSQueueListView::handleClearAllImports()
 {
-  VSQueueModel* model = VSQueueModel::Instance();
+  clearAllImports();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueListView::clearAllImports()
+{
+  VSQueueModel* model = getQueueModel();
   for(int row = 0; row < model->rowCount(); row++)
   {
     QPersistentModelIndex index = model->index(row, VSQueueItem::ItemData::Contents);
@@ -163,7 +179,7 @@ void VSQueueListView::handleClearAllImports()
 // -----------------------------------------------------------------------------
 bool VSQueueListView::clearImporter(const QModelIndex &index)
 {
-  VSQueueModel* model = VSQueueModel::Instance();
+  VSQueueModel* model = getQueueModel();
 
   VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
   if(importer->getState() == VSAbstractImporter::State::Executing)
@@ -188,7 +204,7 @@ bool VSQueueListView::clearImporter(const QModelIndex &index)
 // -----------------------------------------------------------------------------
 void VSQueueListView::stopImporter(const QModelIndex &index)
 {
-  VSQueueModel* model = VSQueueModel::Instance();
+  VSQueueModel* model = getQueueModel();
 
   VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
   if(importer->getState() == VSAbstractImporter::State::Executing)
@@ -210,7 +226,7 @@ void VSQueueListView::stopImporter(const QModelIndex &index)
 // -----------------------------------------------------------------------------
 void VSQueueListView::resetImporter(const QModelIndex &index)
 {
-  VSQueueModel* model = VSQueueModel::Instance();
+  VSQueueModel* model = getQueueModel();
 
   VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
   if(importer->getState() == VSAbstractImporter::State::Executing)
@@ -225,4 +241,12 @@ void VSQueueListView::resetImporter(const QModelIndex &index)
   }
 
   importer->reset();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSQueueModel* VSQueueListView::getQueueModel()
+{
+  return dynamic_cast<VSQueueModel*>(model());
 }

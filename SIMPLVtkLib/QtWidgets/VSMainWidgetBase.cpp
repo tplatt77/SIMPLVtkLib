@@ -89,8 +89,8 @@ void VSMainWidgetBase::connectSlots()
   connect(m_Controller, &VSController::filterAdded, this, &VSMainWidgetBase::filterAdded);
   connect(m_Controller, &VSController::filterRemoved, this, &VSMainWidgetBase::filterRemoved);
   connect(m_Controller, &VSController::blockRender, this, &VSMainWidgetBase::setBlockRender);
-  connect(m_Controller, &VSController::notifyErrorMessage, this, &VSMainWidgetBase::notifyErrorMessage);
-  connect(m_Controller, &VSController::notifyStatusMessage, this, &VSMainWidgetBase::notifyStatusMessage);
+  connect(m_Controller, &VSController::importDataQueueStarted, this, &VSMainWidgetBase::importDataQueueStarted);
+  connect(m_Controller, &VSController::importDataQueueFinished, this, &VSMainWidgetBase::importDataQueueFinished);
 }
 
 // -----------------------------------------------------------------------------
@@ -481,60 +481,9 @@ void VSMainWidgetBase::launchHDF5SelectionDialog(const QString& filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importMontage(ImportMontageWizard* montageWizard)
-{
-  bool displayMontage = montageWizard->field(ImportMontage::FieldNames::DisplayMontage).toBool();
-  bool displayOutline = montageWizard->field(ImportMontage::FieldNames::DisplayOutlineOnly).toBool();
-
-  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
-  if(displayMontage)
-  {
-    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
-  }
-  else if(displayOutline)
-  {
-    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
-  }
-  else
-  {
-    filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::SideBySide);
-  }
-
-  m_Controller->importMontage(montageWizard);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca)
 {
   m_Controller->importDataContainerArray(filePath, dca);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importPipeline(ExecutePipelineWizard* pipelineWizard)
-{
-  bool displayMontage = ((QWizard*) pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayMontage).toBool();
-  bool displayOutline = ((QWizard*)pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayOutlineOnly).toBool();
-
-  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
-  if(displayMontage)
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
-  }
-  else if(displayOutline)
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
-  }
-  else
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::SideBySide);
-  }
-  m_Controller->importPipeline(pipelineWizard);
   return true;
 }
 
@@ -559,75 +508,9 @@ bool VSMainWidgetBase::importPipelineOutput(std::vector<FilterPipeline::Pointer>
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importVTKData(const QString &filePath)
-{
-  QFileInfo fi(filePath);
-  QString ext = fi.completeSuffix();
-
-  if (ext != "vtk" && ext != "vti" && ext != "vtp" && ext != "vtr" && ext != "vts" && ext != "vtu")
-  {
-    return false;
-  }
-
-  m_Controller->importData(filePath);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importImageData(const QString &filePath)
-{
-  QMimeDatabase db;
-  QMimeType mimeType = db.mimeTypeForFile(filePath, QMimeDatabase::MatchContent);
-  if (!mimeType.inherits("image/png") && !mimeType.inherits("image/tiff") && !mimeType.inherits("image/jpeg") && !mimeType.inherits("image/bmp"))
-  {
-    return false;
-  }
-
-  m_Controller->importData(filePath);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importSTLData(const QString &filePath)
-{
-  QFileInfo fi(filePath);
-  QString ext = fi.completeSuffix();
-
-  if (ext != "stl")
-  {
-    return false;
-  }
-
-  m_Controller->importData(filePath);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSMainWidgetBase::importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
   m_Controller->importPipelineOutput(pipeline, dca);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::startImportQueue()
-{
-  m_Controller->startImportQueue();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::stopImportQueue()
-{
-  m_Controller->stopImportQueue();
 }
 
 // -----------------------------------------------------------------------------

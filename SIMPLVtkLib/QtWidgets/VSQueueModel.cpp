@@ -40,6 +40,8 @@
 
 #include "QtWidgets/VSQueueItem.h"
 
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImporterWorker.h"
+
 VSQueueModel* VSQueueModel::self = nullptr;
 
 // -----------------------------------------------------------------------------
@@ -62,23 +64,55 @@ VSQueueModel::~VSQueueModel()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSQueueModel* VSQueueModel::Instance()
+void VSQueueModel::initialize()
 {
-  if(self == nullptr)
-  {
-    self = new VSQueueModel();
-  }
+  qRegisterMetaType<VSQueueModel::QueueState>();
 
-  return self;
+  rootItem = new VSQueueItem("");
+
+  m_ImportDataWorker = new ImporterWorker();
+  m_ImportDataWorker->setQueueModel(this);
+
+  m_ImportDataWorkerThread = new QThread;
+  m_ImportDataWorker->moveToThread(m_ImportDataWorkerThread);
+  connect(m_ImportDataWorkerThread, SIGNAL(started()), m_ImportDataWorker, SLOT(process()));
+  connect(m_ImportDataWorker, SIGNAL(finished()), m_ImportDataWorkerThread, SLOT(quit()));
+  connect(m_ImportDataWorkerThread, SIGNAL(finished()), this, SLOT(handleDataQueueFinished()));
 }
-
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueModel::initialize()
+void VSQueueModel::startQueue()
 {
-  rootItem = new VSQueueItem("");
+  setQueueState(VSQueueModel::QueueState::Executing);
+  m_ImportDataWorkerThread->start();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueModel::cancelQueue()
+{
+  setQueueState(VSQueueModel::QueueState::Canceling);
+  m_ImportDataWorker->cancelWorker();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueModel::handleDataQueueFinished()
+{
+  setQueueState(VSQueueModel::QueueState::Idle);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueModel::setQueueState(QueueState queueState)
+{
+  m_QueueState = queueState;
+  emit queueStateChanged(queueState);
 }
 
 // -----------------------------------------------------------------------------

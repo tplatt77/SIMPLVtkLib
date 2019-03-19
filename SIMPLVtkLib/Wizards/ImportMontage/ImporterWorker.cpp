@@ -47,15 +47,9 @@
 // -----------------------------------------------------------------------------
 ImporterWorker::ImporterWorker()
 : m_ImportSem(1)
+, m_QueueModel(nullptr)
 {
-  qRegisterMetaType<QVector<int>>();
 
-  VSQueueModel* model = VSQueueModel::Instance();
-
-  m_CurrentIndex = model->index(0, VSQueueItem::ItemData::Contents);
-
-  connect(model, &VSQueueModel::dataChanged, this, &ImporterWorker::handleModelDataChanged);
-  connect(model, &VSQueueModel::rowsAboutToBeRemoved, this, &ImporterWorker::handleRowsAboutToBeRemoved);
 }
 
 // -----------------------------------------------------------------------------
@@ -68,51 +62,9 @@ ImporterWorker::~ImporterWorker()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImporterWorker::addDataImporter(const QString &name, VSAbstractImporter::Pointer importer)
+void ImporterWorker::setQueueModel(VSQueueModel* queueModel)
 {
-  if (!importer)
-  {
-    return;
-  }
-
-  VSQueueModel* model = VSQueueModel::Instance();
-  model->addImporter(name, importer, QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
-  if (!m_CurrentIndex.isValid())
-  {
-    m_CurrentIndex = model->index(model->rowCount() - 1, VSQueueItem::ItemData::Contents);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImporterWorker::insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer)
-{
-  if (!importer)
-  {
-    return;
-  }
-
-  VSQueueModel* model = VSQueueModel::Instance();
-  model->insertImporter(row, name, importer, QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
-  if (!m_CurrentIndex.isValid())
-  {
-    m_CurrentIndex = model->index(model->rowCount() - 1, VSQueueItem::ItemData::Contents);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImporterWorker::removeDataImporter(VSAbstractImporter::Pointer importer)
-{
-  VSQueueModel* model = VSQueueModel::Instance();
-
-  QPersistentModelIndex index = model->indexOfImporter(importer);
-  if (index.isValid())
-  {
-    model->removeRow(index.row());
-  }
+  m_QueueModel = queueModel;
 }
 
 // -----------------------------------------------------------------------------
@@ -127,76 +79,16 @@ void ImporterWorker::cancelWorker()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImporterWorker::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
-{
-//  VSQueueModel* model = VSQueueModel::Instance();
-
-//  if (m_CurrentIndex.row() >= first && m_CurrentIndex.row() <= last)
-//  {
-//    m_CurrentImporter->setCancel(true);
-//    m_CurrentIndex = model->index(m_CurrentIndex.row() + 1, VSQueueItem::ItemData::Contents);
-//  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImporterWorker::handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
-{
-  if (!roles.contains(VSQueueModel::Roles::ImporterRole))
-  {
-    return;
-  }
-
-//  VSQueueModel* model = VSQueueModel::Instance();
-
-  int start = topLeft.row();
-  int end = bottomRight.row();
-  m_ImportSem.acquire();
-  for (int i = start; i <= end; i++)
-  {
-//    QPersistentModelIndex index = model->index(i, VSQueueItem::ItemData::Contents);
-//    VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
-//    if (m_ExecutionQueue.contains(index))
-//    {
-//      VSAbstractImporter::Pointer queuedImporter = m_ExecutionQueue.value(index);
-//      if (importer != queuedImporter)
-//      {
-//        m_ExecutionQueue.insert(index, importer);
-//      }
-//    }
-//    else
-//    {
-
-//    }
-
-//    if (importer && !importer->getImported())
-//    {
-//      m_ImportSem.acquire();
-//      m_ExecutionQueue.insert(index, importer);
-//      m_ImportSem.release();
-//    }
-//    else if (!importer)
-//    {
-//      m_ImportSem.acquire();
-//      m_ExecutionQueue.remove(index);
-//      m_ImportSem.release();
-//    }
-  }
-  m_ImportSem.release();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ImporterWorker::process()
 {
+  m_QueueModel->startQueue();
+
   m_Cancelled = false;
 
-  VSQueueModel* model = VSQueueModel::Instance();
+  m_CurrentIndex = m_QueueModel->index(0, VSQueueItem::ItemData::Contents);
 
   m_ImportSem.acquire();
-  while(m_CurrentIndex.isValid() && m_CurrentIndex.row() < model->rowCount())
+  while(m_CurrentIndex.isValid() && m_CurrentIndex.row() < m_QueueModel->rowCount())
   {
     m_ImportSem.release();
 
@@ -204,23 +96,19 @@ void ImporterWorker::process()
 
     if (m_Cancelled)
     {
-      emit cancelled();
+      emit finished();
       return;
     }
 
-    m_ImportSem.acquire();
+    m_CurrentImporter = m_QueueModel->data(m_CurrentIndex, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
 
-    m_CurrentImporter = model->data(m_CurrentIndex, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
-
-    m_ImportSem.release();
-
-    if (m_CurrentImporter && m_CurrentImporter->getState() != VSAbstractImporter::State::Finished)
+    if (m_CurrentImporter && m_CurrentImporter->getState() == VSAbstractImporter::State::Ready)
     {
       m_CurrentImporter->execute();
     }
 
     m_ImportSem.acquire();
-    m_CurrentIndex = model->index(m_CurrentIndex.row() + 1, VSQueueItem::ItemData::Contents);
+    m_CurrentIndex = m_QueueModel->index(m_CurrentIndex.row() + 1, VSQueueItem::ItemData::Contents);
   }
   m_ImportSem.release();
 

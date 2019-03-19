@@ -96,24 +96,11 @@ public:
   bool loadSession(const QString& sessionFilePath);
 
   /**
-   * @brief importMontage
-   * @param montageWizard
-   * @return
-   */
-  void importMontage(ImportMontageWizard* montageWizard);
-
-  /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
    * as top-level VisualFilters
    * @param dca
    */
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
-
-  /**
-   * @brief Import a pipeline to execute
-   * @param executePipelineWizard
-   */
-  void importPipeline(ExecutePipelineWizard* executePipelineWizard);
 
   /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
@@ -158,12 +145,6 @@ public:
   void importDataContainer(DataContainer::Pointer dc);
 
   /**
-   * @brief Import data from a file
-   * @param filePath
-   */
-  void importData(const QString& filePath);
-
-  /**
    * @brief Returns the first top level text filter with the given value;
    * @param text
    * @return
@@ -194,51 +175,6 @@ public:
    */
   //void selectFilter(VSAbstractFilter* filter);
 
-  /**
-   * @brief startImportQueue
-   */
-  void startImportQueue();
-
-  /**
-   * @brief stopImportQueue
-   */
-  void stopImportQueue();
-
-protected slots:
-  /**
-   * @brief handleDatasetResults
-   * @param textFilter
-   * @param filter
-   */
-  void handleDatasetResults(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
-
-  /**
-   * @brief handleMontageResults
-   * @param pipeline
-   * @param err
-   */
-  void handleMontageResults(FilterPipeline::Pointer pipeline, int err);
-
-  /**
-   * @brief workerFinished
-   */
-  void montageWorkerFinished();
-
-  /**
-   * @brief montageThreadFinished
-   */
-  void montageThreadFinished();
-
-  /**
-   * @brief workerFinished
-   */
-  void pipelineWorkerFinished();
-
-  /**
-   * @brief montageThreadFinished
-   */
-  void pipelineThreadFinished();
-
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
   void filterRemoved(VSAbstractFilter*);
@@ -248,22 +184,12 @@ signals:
   //void filterSelected(VSAbstractFilter* filter);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
-  void notifyErrorMessage(const QString &msg, int code);
-  void notifyStatusMessage(const QString &msg);
+  void importDataQueueStarted();
+  void importDataQueueFinished();
 
 private:
   VSFilterModel* m_FilterModel;
   VSConcurrentImport* m_ImportObject;
-
-  QThread* m_ImportDataWorkerThread = nullptr;
-  QThread* m_PipelineWorkerThread = nullptr;
-  ImporterWorker* m_ImportDataWorker = nullptr;
-  PipelineWorker* m_PipelineWorker = nullptr;
-
-  std::vector<FilterPipeline::Pointer> m_Pipelines;
-  DataContainerArray::Pointer m_dataContainerArray;
-  bool m_DisplayMontage = false;
-  bool m_DisplayOutline = false;
 
   /**
    * @brief saveFilter
@@ -277,46 +203,4 @@ private:
    * @param filterObj
    */
   void loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter = nullptr);
-
-  /**
-   * @brief importGenericMontage
-   * @param montageWizard
-   */
-  void importGenericMontage(ImportMontageWizard* montageWizard);
-
-  /**
-   * @brief importDREAM3DMontage
-   * @param montageWizard
-   */
-  void importDREAM3DMontage(ImportMontageWizard* montageWizard);
-
-  /**
-   * @brief importFijiMontage
-   * @param montageWizard
-   */
-  void importFijiMontage(ImportMontageWizard* montageWizard);
-
-  /**
-   * @brief importRobometMontage
-   * @param montageWizard
-   */
-  void importRobometMontage(ImportMontageWizard* montageWizard);
-
-  /**
-   * @brief importZeissMontage
-   * @param montageWizard
-   */
-  void importZeissMontage(ImportMontageWizard* montageWizard);
-
-  /**
-   * @brief runPipeline
-   * @param pipeline
-   */
-  void addMontagePipelineToQueue(FilterPipeline::Pointer pipeline);
-
-  /**
-   * @brief executePipeline
-   * @param pipeline
-   */
-  void executePipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer);
 };

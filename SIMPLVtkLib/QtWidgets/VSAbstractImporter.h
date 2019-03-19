@@ -82,7 +82,7 @@ public:
   virtual void reset() = 0;
 
 signals:
-  void stateChanged(VSAbstractImporter::State state);
+  void stateChanged(VSAbstractImporter* importer, VSAbstractImporter::State state);
   void notifyErrorMessage(const QString &msg, int code);
   void notifyStatusMessage(const QString &msg);
 

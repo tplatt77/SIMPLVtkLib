@@ -41,7 +41,6 @@
 
 #include "QtWidgets/VSQueueItem.h"
 #include "QtWidgets/VSQueueItemDelegate.h"
-#include "QtWidgets/VSQueueModel.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -51,6 +50,7 @@ VSQueueWidget::VSQueueWidget(QWidget* parent)
 , m_Ui(new Ui::VSQueueWidget)
 {
   m_Ui->setupUi(this);
+
   setupGui();
 }
 
@@ -59,10 +59,7 @@ VSQueueWidget::VSQueueWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 VSQueueWidget::~VSQueueWidget()
 {
-  VSQueueModel* model = VSQueueModel::Instance();
-  disconnect(model, &VSQueueModel::notifyStatusMessage, 0, 0);
-  disconnect(model, &VSQueueModel::notifyErrorMessage, 0, 0);
-  disconnect(model, &VSQueueModel::dataChanged, 0, 0);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -78,18 +75,6 @@ void VSQueueWidget::setupGui()
   m_Ui->queueListView->setItemDelegate(delegate);
 
   m_Ui->queueListView->installEventFilter(this);
-
-  VSQueueModel* model = VSQueueModel::Instance();
-  m_Ui->queueListView->setModel(model);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-VSQueueWidget::Pointer VSQueueWidget::New(QWidget* parent)
-{
-  VSQueueWidget::Pointer sharedPtr(new VSQueueWidget(parent));
-  return sharedPtr;
 }
 
 // -----------------------------------------------------------------------------
@@ -97,20 +82,68 @@ VSQueueWidget::Pointer VSQueueWidget::New(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSQueueWidget::connectSignalsSlots()
 {
-  VSQueueModel* model = VSQueueModel::Instance();
-  connect(model, &VSQueueModel::notifyStatusMessage, [=](const QString& msg) { m_Ui->outputTextEdit->append(msg); });
-  connect(model, &VSQueueModel::notifyErrorMessage, [=](const QString& msg) { m_Ui->outputTextEdit->append(msg); });
-
-  connect(model, &VSQueueModel::dataChanged, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
-    if (roles.contains(VSQueueModel::Roles::ImporterRole))
-    {
-      updateNavigationButtons();
-    }
-  });
-
   connect(m_Ui->startStopBtn, &QPushButton::clicked, this, &VSQueueWidget::startStopButtonClicked);
 
-  //  connect(m_Ui->clearBtn, &QPushButton::clicked, [=] { m_Ui->queueListView->clear(); });
+  connect(m_Ui->clearBtn, &QPushButton::clicked, [=] { m_Ui->queueListView->clearAllImports(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::addDataImporter(const QString &name, VSAbstractImporter::Pointer importer)
+{
+  if (!importer)
+  {
+    return;
+  }
+
+  VSQueueModel* queueModel = getQueueModel();
+
+  if (queueModel)
+  {
+    queueModel->addImporter(name, importer, QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
+    queueModel->startQueue();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer)
+{
+  if (!importer)
+  {
+    return;
+  }
+
+  VSQueueModel* queueModel = getQueueModel();
+
+  if (queueModel)
+  {
+    queueModel->insertImporter(row, name, importer, QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::removeDataImporter(VSAbstractImporter::Pointer importer)
+{
+  if (!importer)
+  {
+    return;
+  }
+
+  VSQueueModel* queueModel = getQueueModel();
+
+  if (queueModel)
+  {
+    QPersistentModelIndex index = queueModel->indexOfImporter(importer);
+    if (index.isValid())
+    {
+      queueModel->removeRow(index.row());
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -118,37 +151,35 @@ void VSQueueWidget::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void VSQueueWidget::startStopButtonClicked()
 {
-  if (m_QueueState == QueueState::Idle)
+  VSQueueModel* model = getQueueModel();
+
+  if (model->getQueueState() == VSQueueModel::QueueState::Idle)
   {
-    emit startQueueTriggered();
+    model->startQueue();
+  }
+  else if (model->getQueueState() == VSQueueModel::QueueState::Executing)
+  {
+    model->cancelQueue();
   }
   else
   {
-    emit stopQueueTriggered();
+    // We should not enter here, because you should not be able to click the button when the queue is in the canceling state
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueWidget::updateNavigationButtons()
+void VSQueueWidget::setIdleState()
 {
-  VSQueueModel* model = VSQueueModel::Instance();
-  bool executing = false;
+  VSQueueModel* model = getQueueModel();
   bool filtersAtReady = false;
-  for (int row = 0; row < model->rowCount(); row++)
+  for (int row = 0; row < model->rowCount() && !filtersAtReady; row++)
   {
     QModelIndex index = model->index(row, VSQueueItem::ItemData::Contents);
     VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
     if (importer)
     {
-      if (importer->getState() == VSAbstractImporter::State::Executing)
-      {
-        m_Ui->startStopBtn->setText("Stop");
-        m_Ui->startStopBtn->setEnabled(true);
-        m_QueueState = QueueState::Executing;
-        executing = true;
-      }
       if (importer->getState() == VSAbstractImporter::State::Ready)
       {
         filtersAtReady = true;
@@ -156,10 +187,89 @@ void VSQueueWidget::updateNavigationButtons()
     }
   }
 
-  if (!executing)
+  m_Ui->startStopBtn->setText("Start");
+  m_Ui->startStopBtn->setEnabled(filtersAtReady);
+  m_Ui->clearBtn->setEnabled(model->rowCount() > 0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::setExecutingState()
+{
+  m_Ui->startStopBtn->setText("Stop");
+  m_Ui->startStopBtn->setEnabled(true);
+  m_Ui->clearBtn->setDisabled(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::setCancelingState()
+{
+  m_Ui->startStopBtn->setText("Stopping...");
+  m_Ui->startStopBtn->setDisabled(true);
+  m_Ui->clearBtn->setDisabled(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::handleStatusMessage(const QString &msg)
+{
+  m_Ui->outputTextEdit->append(msg);
+  emit notifyStatusMessage(msg);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::handleErrorMessage(const QString &msg, int code)
+{
+  m_Ui->outputTextEdit->append(msg);
+  emit notifyErrorMessage(msg, code);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::handleQueueStateChanged(VSQueueModel::QueueState queueState)
+{
+  if (queueState == VSQueueModel::QueueState::Idle)
   {
-    m_QueueState = QueueState::Idle;
-    m_Ui->startStopBtn->setText("Start");
-    m_Ui->startStopBtn->setEnabled(filtersAtReady);
+    setIdleState();
   }
+  else if (queueState == VSQueueModel::QueueState::Executing)
+  {
+    setExecutingState();
+  }
+  else
+  {
+    setCancelingState();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSQueueModel* VSQueueWidget::getQueueModel()
+{
+  return m_Ui->queueListView->getQueueModel();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::setQueueModel(VSQueueModel* queueModel)
+{
+  VSQueueModel* oldModel = getQueueModel();
+  if (oldModel)
+  {
+    disconnect(oldModel, &VSQueueModel::queueStateChanged, 0, 0);
+  }
+
+  m_Ui->queueListView->setModel(queueModel);
+  connect(queueModel, &VSQueueModel::queueStateChanged, this, &VSQueueWidget::handleQueueStateChanged);
+  connect(queueModel, &VSQueueModel::notifyStatusMessage, this, &VSQueueWidget::handleStatusMessage);
+  connect(queueModel, &VSQueueModel::notifyErrorMessage, this, &VSQueueWidget::handleErrorMessage);
 }

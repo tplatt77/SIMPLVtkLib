@@ -40,6 +40,7 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
+#include "SIMPLVtkLib/QtWidgets/VSQueueModel.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
 
 #include "ui_VSQueueWidget.h"
@@ -55,33 +56,69 @@ public:
   SIMPL_SHARED_POINTERS(VSQueueWidget)
 
   /**
+   * @brief Constructor
+   * @param parent
+   */
+  VSQueueWidget(QWidget* parent = nullptr);
+
+  /**
    * @brief Deconstructor
    */
   virtual ~VSQueueWidget();
 
   /**
-   * @brief New
-   * @param parent
+   * @brief addDataImporter
+   * @param name
+   * @param importer
+   */
+  void addDataImporter(const QString &name, VSAbstractImporter::Pointer importer);
+
+  /**
+   * @brief insertDataImporter
+   * @param row
+   * @param name
+   * @param importer
+   */
+  void insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer);
+
+  /**
+   * @brief removeDataImporter
+   * @param importer
+   */
+  void removeDataImporter(VSAbstractImporter::Pointer importer);
+
+  /**
+   * @brief getQueueModel
    * @return
    */
-  static Pointer New(QWidget* parent = nullptr);
+  VSQueueModel* getQueueModel();
+
+  /**
+   * @brief setQueueModel
+   * @param queueModel
+   */
+  void setQueueModel(VSQueueModel* queueModel);
 
 protected:
-  /**
-   * @brief Constructor
-   * @param parent
-   */
-  VSQueueWidget(QWidget* parent);
-
   /**
    * @brief Initializes some of the GUI elements with selections or other GUI related items
    */
   void setupGui();
 
   /**
-   * @brief updateNavigationButtons
+   * @brief setIdleState
    */
-  void updateNavigationButtons();
+  void setIdleState();
+
+  /**
+   * @brief setExecutingState
+   */
+  void setExecutingState();
+
+  /**
+   * @brief setCancelingState
+   */
+  void setCancelingState();
 
 protected slots:
   /**
@@ -89,19 +126,20 @@ protected slots:
    */
   void startStopButtonClicked();
 
+  /**
+   * @brief handleQueueStateChanged
+   */
+  void handleQueueStateChanged(VSQueueModel::QueueState queueState);
+
+  void handleStatusMessage(const QString &msg);
+  void handleErrorMessage(const QString &msg, int code);
+
 signals:
-  void startQueueTriggered();
-  void stopQueueTriggered();
+  void notifyStatusMessage(const QString &msg);
+  void notifyErrorMessage(const QString &msg, int code);
 
 private:
-  enum class QueueState : unsigned int
-  {
-    Idle,
-    Executing
-  };
-
   QSharedPointer<Ui::VSQueueWidget> m_Ui;
-  QueueState m_QueueState = QueueState::Idle;
 
   /**
    * @brief connectSignalsSlots

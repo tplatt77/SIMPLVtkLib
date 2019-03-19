@@ -57,5 +57,5 @@ VSAbstractImporter::~VSAbstractImporter()
 void VSAbstractImporter::setState(VSAbstractImporter::State state)
 {
   m_State = state;
-  emit stateChanged(state);
+  emit stateChanged(this, state);
 }

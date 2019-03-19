@@ -37,6 +37,8 @@
 
 #include <QtWidgets/QListView>
 
+class VSQueueModel;
+
 class VSQueueListView : public QListView
 {
     Q_OBJECT
@@ -46,22 +48,15 @@ class VSQueueListView : public QListView
 
     ~VSQueueListView() override;
 
-  protected:
     /**
-     * @brief mousePressEvent
-     * @param event
+     * @brief clearAllImports
      */
-    void mousePressEvent(QMouseEvent* event) override;
+    void clearAllImports();
 
     /**
-     * @brief handleClearAllImports
+     * @brief clearCompletedImports
      */
-    void handleClearAllImports();
-
-    /**
-     * @brief handleClearCompletedImports
-     */
-    void handleClearCompletedImports();
+    void clearCompletedImports();
 
     /**
      * @brief resetImporter
@@ -79,6 +74,29 @@ class VSQueueListView : public QListView
      * @param index
      */
     bool clearImporter(const QModelIndex &index);
+
+    /**
+     * @brief getQueueModel
+     * @return
+     */
+    VSQueueModel* getQueueModel();
+
+  protected:
+    /**
+     * @brief mousePressEvent
+     * @param event
+     */
+    void mousePressEvent(QMouseEvent* event) override;
+
+    /**
+     * @brief handleClearAllImports
+     */
+    void handleClearAllImports();
+
+    /**
+     * @brief handleClearCompletedImports
+     */
+    void handleClearCompletedImports();
 
   protected slots:
     /**
