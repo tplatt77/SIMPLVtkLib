@@ -1455,9 +1455,7 @@ void VSFilterViewSettings::updateTransform()
 	double* transformRotation = transform->getRotation();
 	double* transformScale = transform->getScale();
 	  
-	m_Actor->SetPosition(transformPosition[0] + bounds[0] + 0.5 * extent[1],
-	  transformPosition[1] + bounds[2] + 0.5 * extent[3],
-	  transformPosition[2] + bounds[4] + 0.5 * extent[5]);
+	m_Actor->SetPosition(transformPosition);
 	  m_Actor->SetOrientation(transformRotation);
 	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
 		extent[5] * transformScale[2]);
@@ -2682,9 +2680,9 @@ void VSFilterViewSettings::sideBySideTransform()
 
   double imageWidth = extent[1];
   double imageHeight = extent[3];
-  double newPosition[3] = { transformPosition[0] + (0.17 * imageWidth) * col,
-	transformPosition[1] + (0.17 * imageHeight) * row,
-	transformPosition[2] };
+  double newPosition[3] = { transformPosition[0] + col * imageWidth,
+	  transformPosition[1] + row * imageHeight,
+	  0.0 };
   transform->setLocalPosition(newPosition);
 }
 // -----------------------------------------------------------------------------

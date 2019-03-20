@@ -48,6 +48,18 @@ VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline,
+  DataContainerArray::Pointer dataContainerArray)
+  : VSAbstractImporter()
+  , m_Pipeline(pipeline)
+  , m_DataContainerArray(dataContainerArray)
+{
+  pipeline->addMessageReceiver(this);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSMontageImporter::~VSMontageImporter() = default;
 
 // -----------------------------------------------------------------------------
@@ -56,6 +68,17 @@ VSMontageImporter::~VSMontageImporter() = default;
 VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeline)
 {
   VSMontageImporter::Pointer sharedPtr(new VSMontageImporter(pipeline));
+  return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeline,
+  DataContainerArray::Pointer dataContainerArray)
+{
+  VSMontageImporter::Pointer sharedPtr(new VSMontageImporter(pipeline, 
+	dataContainerArray));
   return sharedPtr;
 }
 
@@ -93,7 +116,14 @@ QString VSMontageImporter::getName()
 void VSMontageImporter::execute()
 {
   setState(State::Executing);
-  m_Pipeline->execute();
+  if(m_DataContainerArray != nullptr)
+  {
+	m_Pipeline->execute(m_DataContainerArray);
+  }
+  else
+  {
+	m_Pipeline->execute();
+  }
 
   int err = m_Pipeline->getErrorCondition();
 

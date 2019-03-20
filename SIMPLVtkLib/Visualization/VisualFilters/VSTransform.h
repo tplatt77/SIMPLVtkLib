@@ -44,6 +44,7 @@
 #include <vtkTransform.h>
 
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
+#include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 /**
  * @class VSTransform VSTransform.h SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h
@@ -51,7 +52,7 @@
  * space including local values for position, rotation, and scale. Global values
  * are found by applying the local value to the parent's global value.
  */
-class VSTransform : public QObject
+class SIMPLVtkLib_EXPORT VSTransform : public QObject
 {
   Q_OBJECT
 

@@ -49,6 +49,8 @@ public:
   ~VSMontageImporter();
 
   static Pointer New(FilterPipeline::Pointer pipeline);
+  static Pointer New(FilterPipeline::Pointer pipeline,
+	DataContainerArray::Pointer dataContainerArray);
 
   virtual QString getName() override;
 
@@ -60,6 +62,8 @@ public:
 
 protected:
   VSMontageImporter(FilterPipeline::Pointer pipeline);
+  VSMontageImporter(FilterPipeline::Pointer pipeline,
+	DataContainerArray::Pointer dataContainerArray);
 
 protected slots:
   /**
@@ -73,5 +77,6 @@ signals:
 
 private:
   FilterPipeline::Pointer m_Pipeline;
+  DataContainerArray::Pointer m_DataContainerArray = nullptr;
   bool m_Resetting = false;
 };
