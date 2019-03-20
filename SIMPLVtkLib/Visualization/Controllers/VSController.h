@@ -102,20 +102,6 @@ public:
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
-   * @brief Import a pipeline to execute
-   * @param executePipelineWizard
-   */
-  void importPipeline(ExecutePipelineWizard* executePipelineWizard);
-
-  /**
-   * @brief Perform a montage on selectedFilters
-   * @param performMontageWizard
-   * @param selectedFilter
-   */
-  void performMontage(PerformMontageWizard* performMontageWizard,
-	VSAbstractFilter::FilterListType selectedFilters);
-
-  /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
    * @param pipeline
    * @param dca

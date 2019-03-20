@@ -182,21 +182,6 @@ public:
    * @param dca
    * @return
    */
-  bool importPipeline(ExecutePipelineWizard* pipelineWizard);
-
-  /**
-   * @brief performMontage
-   * @param performMontageWizard
-   * @return
-   */
-  bool performMontage(PerformMontageWizard* performMontageWizard);
-
-  /**
-   * @brief importPipelineOutput
-   * @param pipeline
-   * @param dca
-   * @return
-   */
   bool importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**

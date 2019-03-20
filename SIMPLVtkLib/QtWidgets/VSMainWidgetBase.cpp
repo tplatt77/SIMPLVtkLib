@@ -491,51 +491,6 @@ bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataCon
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importPipeline(ExecutePipelineWizard* pipelineWizard)
-{
-  bool displayMontage = ((QWizard*) pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayMontage).toBool();
-  bool displayOutline = ((QWizard*)pipelineWizard)->field(ExecutePipeline::FieldNames::DisplayOutlineOnly).toBool();
-
-  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
-  if(displayMontage)
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
-  }
-  else if(displayOutline)
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
-  }
-  else
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::SideBySide);
-  }
-  m_Controller->importPipeline(pipelineWizard);
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSMainWidgetBase::performMontage(PerformMontageWizard* performMontageWizard)
-{
-  VSFilterViewModel* filterViewModel = getActiveViewWidget()->getFilterViewModel();
-  bool displayOutline = ((QWizard*)performMontageWizard)->field(PerformMontage::FieldNames::DisplayOutlineOnly).toBool();
-
-  if(displayOutline)
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Outline);
-  }
-  else
-  {
-	filterViewModel->setDisplayType(ImportMontageWizard::DisplayType::Montage);
-  }
-  m_Controller->performMontage(performMontageWizard, getActiveViewWidget()->getSelectedFilters());
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
   m_Controller->importPipelineOutput(pipeline, dca);
