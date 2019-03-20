@@ -48,7 +48,7 @@
 /**
  * @class VSQueueWidget VSQueueWidget.h SIMPLVtkLib/QtWidgets/VSQueueWidget.h
  */
-class VSQueueWidget : public QWidget
+class SIMPLVtkLib_EXPORT VSQueueWidget : public QWidget
 {
   Q_OBJECT
 

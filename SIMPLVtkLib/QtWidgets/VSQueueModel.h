@@ -44,7 +44,7 @@
 class VSQueueItem;
 class ImporterWorker;
 
-class VSQueueModel : public QAbstractItemModel
+class SIMPLVtkLib_EXPORT VSQueueModel : public QAbstractItemModel
 {
     Q_OBJECT
 
