@@ -35,36 +35,14 @@
 
 #pragma once
 
-#include "QtWidgets/VSAbstractImporter.h"
+#include <QtCore/QString>
 
-class VSDataSetFilter;
-class VSFileNameFilter;
-
-class SIMPLVtkLib_EXPORT VSDatasetImporter : public VSAbstractImporter
+namespace SIMPLVtkLib
 {
-	Q_OBJECT
+  namespace DockWidgetSettings
+  {
+    const QString GroupName("DockWidgetSettings");
+    const QString ImportQueueGroupName("Import Queue Dock Widget");
+  }
+}
 
-public:
-  SIMPL_SHARED_POINTERS(VSDatasetImporter)
-
-  ~VSDatasetImporter();
-
-  static Pointer New(const QString &filePath);
-
-  virtual QString getName() override;
-
-  virtual void execute() override;
-
-  virtual void cancel() override;
-
-  virtual void reset() override;
-
-protected:
-  VSDatasetImporter(const QString &filePath);
-
-signals:
-  void resultReady(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
-
-private:
-  QString m_FilePath;
-};

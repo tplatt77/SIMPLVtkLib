@@ -50,6 +50,8 @@ public:
 
   static Pointer New(FilterPipeline::Pointer pipeline);
 
+  virtual QString getName() override;
+
   virtual void execute() override;
 
   virtual void cancel() override;

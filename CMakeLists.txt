@@ -147,6 +147,7 @@ foreach(h ${SIMPLVtkLib_Generated_RC_SRCS})
   set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
 endforeach()
 
+include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Common/SourceList.cmake)
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/SourceList.cmake)
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/SIMPLBridge/SourceList.cmake)
 include(${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/Visualization/SourceList.cmake)
@@ -185,6 +186,9 @@ set(Project_SRCS
   # ${VS_VisualFilterWidgets_HDRS}
   ${VS_VisualFilterWidgets_UIS}
   ${${PROJECT_NAME}_VisualFilterWidgets_Generated_UI_HDRS}
+
+  ${${PROJECT_NAME}_Common_HDRS}
+  ${${PROJECT_NAME}_Common_SRCS}
 
   ${${PROJECT_NAME}_VtkWidget_HDRS}
   ${${PROJECT_NAME}_VtkWidget_SRCS}

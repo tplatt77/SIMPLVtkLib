@@ -67,6 +67,12 @@ public:
   void setState(State state);
 
   /**
+   * @brief getName
+   * @return
+   */
+  virtual QString getName() = 0;
+
+  /**
    * @brief execute
    */
   virtual void execute() = 0;
@@ -83,6 +89,7 @@ public:
 
 signals:
   void stateChanged(VSAbstractImporter* importer, VSAbstractImporter::State state);
+  void notifyProgressMessage(VSAbstractImporter* importer, int progress);
   void notifyErrorMessage(const QString &msg, int code);
   void notifyStatusMessage(const QString &msg);
 

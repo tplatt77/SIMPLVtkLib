@@ -75,6 +75,9 @@ void VSQueueWidget::setupGui()
   m_Ui->queueListView->setItemDelegate(delegate);
 
   m_Ui->queueListView->installEventFilter(this);
+
+  m_Ui->statusLabel->hide();
+  m_Ui->progressLabel->hide();
 }
 
 // -----------------------------------------------------------------------------
@@ -190,6 +193,9 @@ void VSQueueWidget::setIdleState()
   m_Ui->startStopBtn->setText("Start");
   m_Ui->startStopBtn->setEnabled(filtersAtReady);
   m_Ui->clearBtn->setEnabled(model->rowCount() > 0);
+  m_Ui->statusLabel->hide();
+  m_Ui->progressLabel->hide();
+  m_Ui->progressBar->setValue(0);
 }
 
 // -----------------------------------------------------------------------------
@@ -200,6 +206,8 @@ void VSQueueWidget::setExecutingState()
   m_Ui->startStopBtn->setText("Stop");
   m_Ui->startStopBtn->setEnabled(true);
   m_Ui->clearBtn->setDisabled(true);
+  m_Ui->statusLabel->show();
+  m_Ui->progressLabel->show();
 }
 
 // -----------------------------------------------------------------------------
@@ -210,6 +218,7 @@ void VSQueueWidget::setCancelingState()
   m_Ui->startStopBtn->setText("Stopping...");
   m_Ui->startStopBtn->setDisabled(true);
   m_Ui->clearBtn->setDisabled(true);
+  m_Ui->statusLabel->setText("Stopping Import Queue...");
 }
 
 // -----------------------------------------------------------------------------
@@ -217,8 +226,7 @@ void VSQueueWidget::setCancelingState()
 // -----------------------------------------------------------------------------
 void VSQueueWidget::handleStatusMessage(const QString &msg)
 {
-  m_Ui->outputTextEdit->append(msg);
-  emit notifyStatusMessage(msg);
+//  emit notifyStatusMessage(msg);
 }
 
 // -----------------------------------------------------------------------------
@@ -226,8 +234,24 @@ void VSQueueWidget::handleStatusMessage(const QString &msg)
 // -----------------------------------------------------------------------------
 void VSQueueWidget::handleErrorMessage(const QString &msg, int code)
 {
-  m_Ui->outputTextEdit->append(msg);
-  emit notifyErrorMessage(msg, code);
+//  emit notifyErrorMessage(msg, code);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSQueueWidget::handleProgressUpdate(VSAbstractImporter* importer, int progress)
+{
+  m_Ui->progressBar->setValue(progress);
+  m_Ui->progressLabel->setText(tr("%1%").arg(progress));
+
+  QString name = importer->getName();
+  QString importText = tr("Importing '%1'").arg(name);
+  m_Ui->statusLabel->setText(importText);
+
+  importText.append(tr(": %1%").arg(progress));
+
+  emit notifyStatusMessage(importText);
 }
 
 // -----------------------------------------------------------------------------
@@ -265,11 +289,12 @@ void VSQueueWidget::setQueueModel(VSQueueModel* queueModel)
   VSQueueModel* oldModel = getQueueModel();
   if (oldModel)
   {
-    disconnect(oldModel, &VSQueueModel::queueStateChanged, 0, 0);
   }
 
   m_Ui->queueListView->setModel(queueModel);
   connect(queueModel, &VSQueueModel::queueStateChanged, this, &VSQueueWidget::handleQueueStateChanged);
   connect(queueModel, &VSQueueModel::notifyStatusMessage, this, &VSQueueWidget::handleStatusMessage);
   connect(queueModel, &VSQueueModel::notifyErrorMessage, this, &VSQueueWidget::handleErrorMessage);
+  connect(queueModel, &VSQueueModel::notifyProgressUpdate, this, &VSQueueWidget::handleProgressUpdate);
+  connect(queueModel, &VSQueueModel::queueFinished, [=] { emit notifyStatusMessage(""); });
 }

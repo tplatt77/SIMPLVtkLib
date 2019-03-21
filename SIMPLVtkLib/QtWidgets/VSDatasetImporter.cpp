@@ -35,6 +35,8 @@
 
 #include "VSDatasetImporter.h"
 
+#include <QtCore/QFileInfo>
+
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
@@ -61,6 +63,15 @@ VSDatasetImporter::Pointer VSDatasetImporter::New(const QString &filePath)
 {
   VSDatasetImporter::Pointer sharedPtr(new VSDatasetImporter(filePath));
   return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSDatasetImporter::getName()
+{
+  QFileInfo fi(m_FilePath);
+  return fi.fileName();
 }
 
 // -----------------------------------------------------------------------------

@@ -112,9 +112,12 @@ class VSQueueModel : public QAbstractItemModel
     void handleDataQueueFinished();
 
   signals:
+    void importerStateChanged(VSAbstractImporter* importer, VSAbstractImporter::State state);
     void queueStateChanged(VSQueueModel::QueueState queueState);
+    void queueFinished();
     void notifyStatusMessage(const QString &msg);
     void notifyErrorMessage(const QString &msg, int code);
+    void notifyProgressUpdate(VSAbstractImporter* importer, int progress);
 
   private:
     static VSQueueModel* self;

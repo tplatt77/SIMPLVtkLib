@@ -134,6 +134,13 @@ protected slots:
   void handleStatusMessage(const QString &msg);
   void handleErrorMessage(const QString &msg, int code);
 
+  /**
+   * @brief handleProgressUpdate
+   * @param importer
+   * @param progress
+   */
+  void handleProgressUpdate(VSAbstractImporter* importer, int progress);
+
 signals:
   void notifyStatusMessage(const QString &msg);
   void notifyErrorMessage(const QString &msg, int code);
