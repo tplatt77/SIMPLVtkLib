@@ -117,6 +117,18 @@ void DisplayTypeSelectionPage::initializePage()
 	int i = 0;
 	for(VSAbstractFilter* dataset : datasets)
 	{
+	  if(i = 0)
+	  {
+		VSAbstractFilter* childFilter = dataset->getChildren().front();
+		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+		if(dcFilter != nullptr)
+		{
+		  DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+		  AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+		  m_Ui->cellAttrMatrixNameLE->setText(am->getName());
+		  m_Ui->imageArrayNameLE->setText(am->getAttributeArrayNames().first());
+		}
+	  }
 	  m_Ui->datasetCB->addItem(dataset->getFilterName(), i++);
 	}
   }
@@ -128,6 +140,33 @@ void DisplayTypeSelectionPage::initializePage()
 void DisplayTypeSelectionPage::connectSignalsSlots()
 {
   connect(m_Ui->datasetCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
+
+	VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(wizard()->parentWidget());
+	if(baseWidget != nullptr)
+	{
+	  QString datasetName = m_Ui->datasetCB->itemText(index);
+	  QString amName;
+	  QString daName;
+	  VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
+	  for(VSAbstractFilter* dataset : datasets)
+	  {
+		if(datasetName == dataset->getFilterName())
+		{
+		  VSAbstractFilter* childFilter = dataset->getChildren().front();
+		  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+		  if(dcFilter != nullptr)
+		  {
+			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+			amName = am->getName();
+			daName = am->getAttributeArrayNames().first();
+			m_Ui->cellAttrMatrixNameLE->setText(amName);
+			m_Ui->imageArrayNameLE->setText(daName);
+		  }
+		  break;
+		}
+	  }
+	}
 	emit completeChanged();
   });
 
@@ -255,6 +294,9 @@ bool DisplayTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 void DisplayTypeSelectionPage::registerFields()
 {
+  registerField(PerformMontage::FieldNames::MontageName, m_Ui->montageNameLE);
+  registerField(PerformMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
+  registerField(PerformMontage::FieldNames::ImageDataArrayName, m_Ui->imageArrayNameLE);
   registerField(PerformMontage::FieldNames::SelectedDataset, m_Ui->datasetCB);
   registerField(PerformMontage::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
   registerField(PerformMontage::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);

@@ -51,17 +51,20 @@ namespace PerformMontage
   
   namespace FieldNames
   {
-		const QString SelectedDataset("SelectedDataset");
-		const QString ChangeOrigin("ChangeOrigin");
-		const QString ChangeSpacing("ChangeSpacing");
-		const QString OriginX("OriginX");
-		const QString OriginY("OriginY");
-		const QString OriginZ("OriginZ");
-		const QString SpacingX("SpacingX");
-		const QString SpacingY("SpacingY");
-		const QString SpacingZ("SpacingZ");
-		const QString DisplayMontage("DisplayMontage");
-		const QString DisplayOutlineOnly("DisplayOutlineOnly");
-		const QString StitchingOnly("StitchingOnly");
+	const QString MontageName("MontageName");
+	const QString CellAttributeMatrixName("CellAttributeMatrixName");
+	const QString ImageDataArrayName("ImageDataArrayName");
+	const QString SelectedDataset("SelectedDataset");
+	const QString ChangeOrigin("ChangeOrigin");
+	const QString ChangeSpacing("ChangeSpacing");
+	const QString OriginX("OriginX");
+	const QString OriginY("OriginY");
+	const QString OriginZ("OriginZ");
+	const QString SpacingX("SpacingX");
+	const QString SpacingY("SpacingY");
+	const QString SpacingZ("SpacingZ");
+	const QString DisplayMontage("DisplayMontage");
+	const QString DisplayOutlineOnly("DisplayOutlineOnly");
+	const QString StitchingOnly("StitchingOnly");
   }
 }
