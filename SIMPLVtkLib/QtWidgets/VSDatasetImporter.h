@@ -49,7 +49,7 @@ public:
 
   ~VSDatasetImporter();
 
-  static Pointer New(const QString &filePath);
+  static Pointer New(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
 
   virtual QString getName() override;
 
@@ -60,11 +60,13 @@ public:
   virtual void reset() override;
 
 protected:
-  VSDatasetImporter(const QString &filePath);
+  VSDatasetImporter(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
 
 signals:
   void resultReady(VSFileNameFilter* textFilter, VSDataSetFilter* filter);
 
 private:
   QString m_FilePath;
+  VSFileNameFilter* m_TextFilter = nullptr;
+  VSDataSetFilter* m_DatasetFilter = nullptr;;
 };

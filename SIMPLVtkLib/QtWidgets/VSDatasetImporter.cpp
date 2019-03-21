@@ -43,9 +43,10 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDatasetImporter::VSDatasetImporter(const QString &filePath)
+VSDatasetImporter::VSDatasetImporter(VSFileNameFilter* textFilter, VSDataSetFilter* filter)
 : VSAbstractImporter()
-, m_FilePath(filePath)
+, m_TextFilter(textFilter)
+, m_DatasetFilter(filter)
 {
 }
 
@@ -59,9 +60,10 @@ VSDatasetImporter::~VSDatasetImporter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDatasetImporter::Pointer VSDatasetImporter::New(const QString &filePath)
+VSDatasetImporter::Pointer VSDatasetImporter::New(VSFileNameFilter* textFilter,
+  VSDataSetFilter* filter)
 {
-  VSDatasetImporter::Pointer sharedPtr(new VSDatasetImporter(filePath));
+  VSDatasetImporter::Pointer sharedPtr(new VSDatasetImporter(textFilter, filter));
   return sharedPtr;
 }
 
@@ -70,8 +72,7 @@ VSDatasetImporter::Pointer VSDatasetImporter::New(const QString &filePath)
 // -----------------------------------------------------------------------------
 QString VSDatasetImporter::getName()
 {
-  QFileInfo fi(m_FilePath);
-  return fi.fileName();
+  return m_TextFilter->getFilePath();
 }
 
 // -----------------------------------------------------------------------------
@@ -81,11 +82,13 @@ void VSDatasetImporter::execute()
 {
   setState(State::Executing);
 
-  VSFileNameFilter* textFilter = new VSFileNameFilter(m_FilePath);
-  VSDataSetFilter* filter = new VSDataSetFilter(m_FilePath, textFilter);
+  if(m_TextFilter == nullptr || m_DatasetFilter == nullptr)
+  {
+	cancel();
+  }
 
   setState(State::Finished);
-  emit resultReady(textFilter, filter);
+  emit resultReady(m_TextFilter, m_DatasetFilter);
 }
 
 // -----------------------------------------------------------------------------
