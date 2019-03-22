@@ -2705,7 +2705,10 @@ void VSFilterViewSettings::updateTexture()
 
 	texture->InterpolateOn();
 	texture->SetInputData(imageData);
-	texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+	if(m_LookupTable != nullptr)
+    {
+      texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+    }
 
 	if(m_Subsampling > 1)
 	{

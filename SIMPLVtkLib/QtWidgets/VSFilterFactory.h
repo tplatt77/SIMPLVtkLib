@@ -151,6 +151,13 @@ public:
    */
   AbstractFilter::Pointer createDataContainerReaderFilter(const QString& inputFile, DataContainerArrayProxy inputFileDCAProxy);
 
+  /**
+   * @brief Creates an Image Reader filter that reads the data from an image file and sets all necessary properties
+   * @param inputFile The image file path to read
+   * @return
+   */
+  AbstractFilter::Pointer createImageFileReaderFilter(const QString& inputFile);
+
 protected:
   /**
    * @brief Constructor

@@ -86,7 +86,7 @@ public:
    * @brief Returns the file name
    * @return
    */
-  QString getFileName();
+  QString getFileName() const;
 
   /**
    * @brief Returns the filter's name

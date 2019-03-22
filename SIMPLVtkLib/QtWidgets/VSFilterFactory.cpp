@@ -529,6 +529,60 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3_t mon
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile)
+{
+  QString filterName = "ITKImageReader";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+    AbstractFilter::Pointer itkImageReaderFilter = factory->create();
+    if(itkImageReaderFilter.get() != nullptr)
+    {
+      QVariant var;
+
+      // Set file name
+      var.setValue(inputFile);
+      if(!setFilterProperty(itkImageReaderFilter, "FileName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set data container name
+      QString dataContainerName = "ImageDataContainer";
+      var.setValue(dataContainerName);
+      if(!setFilterProperty(itkImageReaderFilter, "DataContainerName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set cell attribute matrix name
+      QString cellAttributeMatrixName = "CellData";
+      var.setValue(cellAttributeMatrixName);
+      if(!setFilterProperty(itkImageReaderFilter, "CellAttributeMatrixName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set image data array name
+      QString imageDataArrayName = "ImageData";
+      var.setValue(imageDataArrayName);
+      if(!setFilterProperty(itkImageReaderFilter, "ImageDataArrayName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      return itkImageReaderFilter;
+    }
+  }
+  
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterFactory::setFilterProperty(AbstractFilter::Pointer filter, const char* propertyName, QVariant value)
 {
   if(!filter->setProperty(propertyName, value))

@@ -134,7 +134,7 @@ QString VSFileNameFilter::getFilePath()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSFileNameFilter::getFileName()
+QString VSFileNameFilter::getFileName() const
 {
   QFileInfo fi(m_FilePath);
   return fi.fileName();
@@ -145,7 +145,7 @@ QString VSFileNameFilter::getFileName()
 // -----------------------------------------------------------------------------
 QString VSFileNameFilter::getFilterName() const
 {
-  return "File Input Filter";
+  return getFileName();
 }
 
 // -----------------------------------------------------------------------------
