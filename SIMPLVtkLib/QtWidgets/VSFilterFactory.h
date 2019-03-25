@@ -154,9 +154,10 @@ public:
   /**
    * @brief Creates an Image Reader filter that reads the data from an image file and sets all necessary properties
    * @param inputFile The image file path to read
+   * @param dcName The name of the data container
    * @return
    */
-  AbstractFilter::Pointer createImageFileReaderFilter(const QString& inputFile);
+  AbstractFilter::Pointer createImageFileReaderFilter(const QString& inputFile, const QString& dcName);
 
 protected:
   /**

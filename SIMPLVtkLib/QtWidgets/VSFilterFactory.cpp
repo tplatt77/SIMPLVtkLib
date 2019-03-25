@@ -529,7 +529,8 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3_t mon
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile)
+AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile,
+  const QString& dcName)
 {
   QString filterName = "ITKImageReader";
   FilterManager* fm = FilterManager::Instance();
@@ -550,8 +551,7 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
       }
 
       // Set data container name
-      QString dataContainerName = "ImageDataContainer";
-      var.setValue(dataContainerName);
+      var.setValue(dcName);
       if(!setFilterProperty(itkImageReaderFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
