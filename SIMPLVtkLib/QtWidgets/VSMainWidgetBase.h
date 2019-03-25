@@ -395,6 +395,12 @@ protected slots:
   virtual void reloadDataFilter(VSAbstractDataFilter* filter);
 
   /**
+   * @brief renameFilter
+   * @param filter
+   */
+  virtual void renameDataFilter(VSAbstractDataFilter* filter);
+
+  /**
    * @brief reloadFileFilter
    * @param filter
    */

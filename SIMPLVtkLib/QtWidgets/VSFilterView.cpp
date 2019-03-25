@@ -149,6 +149,13 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
         connect(reloadAction, &QAction::triggered, [=] { emit reloadFilterRequested(dataFilter); });
         menu.addAction(reloadAction);
 
+		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+		if(dcFilter != nullptr)
+		{
+		  QAction* renameAction = new QAction("Rename");
+		  connect(renameAction, &QAction::triggered, [=] { emit renameFilterRequested(dataFilter); });
+		  menu.addAction(renameAction);
+		}
         {
           QAction* separator = new QAction(this);
           separator->setSeparator(true);

@@ -44,6 +44,7 @@
 #include <QtCore/QUuid>
 #include <QtGui/QKeySequence>
 #include <QtWidgets/QShortcut>
+#include <QInputDialog>
 
 #include <QtWidgets/QMessageBox>
 
@@ -195,6 +196,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
     disconnect(m_FilterView, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
     disconnect(m_FilterView, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
     disconnect(m_FilterView, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+	disconnect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
     disconnect(m_FilterView, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
     disconnect(this, &VSMainWidgetBase::changedActiveView, m_FilterView, &VSFilterView::setViewWidget);
   }
@@ -203,6 +205,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
   connect(view, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
   connect(view, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
   connect(view, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+  connect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
   connect(view, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
   connect(this, &VSMainWidgetBase::changedActiveView, view, &VSFilterView::setViewWidget);
 
@@ -767,6 +770,32 @@ void VSMainWidgetBase::reloadDataFilter(VSAbstractDataFilter* filter)
   filters.push_back(filter);
 
   QtConcurrent::run(this, &VSMainWidgetBase::reloadFilters, filters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::renameDataFilter(VSAbstractDataFilter* filter)
+{
+  bool ok;
+  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+  if(dcFilter != nullptr)
+  {
+	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+	if(dataContainer != nullptr)
+	{
+	  VSSIMPLDataContainerValues* dcValues = dynamic_cast<VSSIMPLDataContainerValues*>(dcFilter->getValues());
+	  QString dcName = QInputDialog::getText(this, tr("Rename Filter"),
+		tr("New Data Container Name:"), QLineEdit::Normal,
+		dcFilter->getFilterName(), &ok);
+	  if(ok && !dcName.isEmpty())
+	  {
+		dcValues->getWrappedDataContainer()->m_Name = dcName;
+		dataContainer->setName(dcName);
+		dcFilter->setText(dcName);
+	  }
+	}
+  }
 }
 
 // -----------------------------------------------------------------------------

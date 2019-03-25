@@ -68,6 +68,7 @@ signals:
   void deleteFilterRequested(VSAbstractFilter* filter);
   void reloadFilterRequested(VSAbstractDataFilter* filter);
   void reloadFileFilterRequested(VSFileNameFilter* filter);
+  void renameFilterRequested(VSAbstractDataFilter* filter);
 
 public slots:
   /**
