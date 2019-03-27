@@ -271,6 +271,58 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter* filter)
+{
+  bool dream3dFileSaved = false;
+  VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+  FilterPipeline::Pointer pipeline = FilterPipeline::New();
+  DataContainerArray::Pointer dca = DataContainerArray::New();
+  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+  VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
+
+  // If it is a data container filter, get the parent filter (a pipeline)
+  if(dcFilter != nullptr)
+  {
+	pipelineFilter = dynamic_cast<VSPipelineFilter*>(dcFilter->getParentFilter());
+  }
+  if(pipelineFilter != nullptr)
+  {
+	VSAbstractFilter::FilterListType children = pipelineFilter->getChildren();
+	for(VSAbstractFilter* childFilter : children)
+	{
+	  dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+	  if(dcFilter != nullptr)
+	  {
+		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+		if(dataContainer != nullptr)
+		{
+		  dca->addDataContainer(dataContainer);
+		}
+	  }
+	}
+  }
+  else
+  {
+	return false;
+  }
+
+  AbstractFilter::Pointer dcWriter = filterFactory
+	->createDataContainerWriterFilter(outputFilePath, true, false);
+  if(dcWriter != AbstractFilter::NullPointer())
+  {
+	pipeline->pushBack(dcWriter);
+	pipeline->execute(dca);
+	if(pipeline->getErrorCondition() >= 0)
+	{
+	  return true;
+	}
+  }
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSController::saveFilter(VSAbstractFilter* filter, QJsonObject& obj)
 {
   QJsonObject rootFilterObj;

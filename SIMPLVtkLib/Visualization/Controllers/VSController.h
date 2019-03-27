@@ -95,11 +95,18 @@ public:
   bool loadSession(const QString& sessionFilePath);
 
   /**
-   * @brief Saves the image to the file at sessionFilePath
+   * @brief Saves the image to the file at imageFilePath
    * @param imageFilePath
    * @return
    */
   bool saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter);
+
+  /**
+   * @brief Saves the filter to the DREAM3D file at outputFilePath
+   * @param outputFilePath
+   * @return
+   */
+  bool saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter* filter);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers

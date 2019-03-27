@@ -152,6 +152,14 @@ public:
   AbstractFilter::Pointer createDataContainerReaderFilter(const QString& inputFile, DataContainerArrayProxy inputFileDCAProxy);
 
   /**
+   * @brief Creates a Data Container Writer filter that write the data to a DREAM3D file and sets all necessary properties
+   * @param outputFile The DREAM3D file path to write to
+   * @return
+   */
+  AbstractFilter::Pointer createDataContainerWriterFilter(const QString& outputFile,
+	bool writeXdmfFile, bool writeTimeSeriesMarkers);
+
+  /**
    * @brief Creates an Image Reader filter that reads the data from an image file and sets all necessary properties
    * @param inputFile The image file path to read
    * @param dcName The name of the data container

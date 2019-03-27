@@ -89,6 +89,49 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const QString& outputFile,
+  bool writeXdmfFile, bool writeTimeSeriesMarkers)
+{
+  QString filterName = "DataContainerWriter";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+	AbstractFilter::Pointer dataContainerWriter = factory->create();
+	if(dataContainerWriter.get() != nullptr)
+	{
+	  QVariant var;
+
+	  // Set output file
+	  var.setValue(outputFile);
+	  if(!setFilterProperty(dataContainerWriter, "OutputFile", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+
+	  // Set whether to write Xdmf file
+	  var.setValue(writeXdmfFile);
+	  if(!setFilterProperty(dataContainerWriter, "WriteXdmfFile", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+
+	  // Set whether to include Xdmf time markers
+	  var.setValue(writeTimeSeriesMarkers);
+	  if(!setFilterProperty(dataContainerWriter, "WriteTimeSeries", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+	}
+	return dataContainerWriter;
+  }
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3_t resolution, FloatVec3_t origin)
 {
   QString filterName = "SetOriginResolutionImageGeom";
