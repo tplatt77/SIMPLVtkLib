@@ -41,8 +41,12 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QUuid>
 
+#include <QtWidgets/QMessageBox>
+
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
+
+#include "SIMPLVtkLib/QtWidgets/VSFilterFactory.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
@@ -229,6 +233,39 @@ bool VSController::saveSession(const QString& sessionFilePath)
     // "Failed to open output file" error
     return false;
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter)
+{
+  bool imageSaved = false;
+  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+  if(dcFilter != nullptr)
+  {
+	VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+	FilterPipeline::Pointer pipeline = FilterPipeline::New();
+	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+	AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+	QString dcName = dataContainer->getName();
+	QString amName = am->getName();
+	QString dataArrayName = am->getAttributeArrayNames().first();
+	DataContainerArray::Pointer dca = DataContainerArray::New();
+	dca->addDataContainer(dataContainer);
+	AbstractFilter::Pointer imageWriter = filterFactory
+	  ->createImageFileWriterFilter(imageFilePath, dcName, amName, dataArrayName);
+	if(imageWriter != AbstractFilter::NullPointer())
+	{
+	  pipeline->pushBack(imageWriter);
+	  pipeline->execute(dca);
+	  if(pipeline->getErrorCondition() >= 0)
+	  {
+		imageSaved = true;
+	  }
+	}
+  }
+  return imageSaved;
 }
 
 // -----------------------------------------------------------------------------

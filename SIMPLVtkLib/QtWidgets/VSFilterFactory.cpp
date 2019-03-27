@@ -583,6 +583,53 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QString& outputFile,
+  const QString& dcName, const QString& attrMatrixName, const QString& dataArrayName)
+{
+  QString filterName = "ITKImageWriter";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+	AbstractFilter::Pointer itkImageWriterFilter = factory->create();
+	if(itkImageWriterFilter.get() != nullptr)
+	{
+	  QVariant var;
+
+	  // Set file name
+	  var.setValue(outputFile);
+	  if(!setFilterProperty(itkImageWriterFilter, "FileName", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+
+	  // Set plane [Currently default to XY (the first option in the DREAM3D GUI)]
+	  int plane = 0;
+	  var.setValue(plane);
+	  if(!setFilterProperty(itkImageWriterFilter, "Plane", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+
+	  // Set image data array name
+	  DataArrayPath imageArrayPath(dcName, attrMatrixName, dataArrayName);
+	  var.setValue(imageArrayPath);
+	  if(!setFilterProperty(itkImageWriterFilter, "ImageArrayPath", var))
+	  {
+		return AbstractFilter::NullPointer();
+	  }
+
+	  return itkImageWriterFilter;
+	}
+  }
+
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterFactory::setFilterProperty(AbstractFilter::Pointer filter, const char* propertyName, QVariant value)
 {
   if(!filter->setProperty(propertyName, value))

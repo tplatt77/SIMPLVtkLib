@@ -38,6 +38,7 @@
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "SIMPLVtkLib/Wizards/PerformMontage/DisplayTypeSelectionPage.h"
+#include "SIMPLVtkLib/Wizards/PerformMontage/SaveImageFilePage.h"
 
 
 // -----------------------------------------------------------------------------
@@ -49,6 +50,7 @@ PerformMontageWizard::PerformMontageWizard(QWidget* parent)
   setWindowTitle("Perform Montage Wizard");
 
   setPage(WizardPages::DisplayTypeSelection, new DisplayTypeSelectionPage);
+  setPage(WizardPages::SaveFilePage, new SaveImageFilePage);
 
   setStartId(WizardPages::DisplayTypeSelection);
 }

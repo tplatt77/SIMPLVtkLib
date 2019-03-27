@@ -159,6 +159,15 @@ public:
    */
   AbstractFilter::Pointer createImageFileReaderFilter(const QString& inputFile, const QString& dcName);
 
+  /**
+   * @brief Creates an Image Writer filter that writes the data from an image to a file
+   * @param outputFile The image file path to write to
+   * @param dcName The name of the data container
+   * @return
+   */
+  AbstractFilter::Pointer createImageFileWriterFilter(const QString& outputFile, const QString& dcName,
+	const QString& attrMatrixName, const QString& dataArrayName);
+
 protected:
   /**
    * @brief Constructor

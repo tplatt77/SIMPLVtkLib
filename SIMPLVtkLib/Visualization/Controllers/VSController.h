@@ -95,6 +95,13 @@ public:
   bool loadSession(const QString& sessionFilePath);
 
   /**
+   * @brief Saves the image to the file at sessionFilePath
+   * @param imageFilePath
+   * @return
+   */
+  bool saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter);
+
+  /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
    * as top-level VisualFilters
    * @param dca

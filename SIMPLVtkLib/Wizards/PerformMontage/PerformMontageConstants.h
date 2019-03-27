@@ -66,5 +66,11 @@ namespace PerformMontage
 	const QString DisplayMontage("DisplayMontage");
 	const QString DisplayOutlineOnly("DisplayOutlineOnly");
 	const QString StitchingOnly("StitchingOnly");
+	const QString SaveToFile("SaveToFile");
+	const QString OutputFilePath("OutputFilePath");
+	const QString OutputDataContainerName("OutputDataContainerName");
+	const QString OutputCellAttributeMatrixName("OutputCellAttributeMatrixName");
+	const QString OutputImageArrayName("OutputImageArrayName");
+	const QString OutputPlane("OutputPlane");
   }
 }

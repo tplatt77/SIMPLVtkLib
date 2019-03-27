@@ -47,7 +47,8 @@ class SIMPLVtkLib_EXPORT PerformMontageWizard : public AbstractMontageWizard
   public:
     enum WizardPages
     {
-      DisplayTypeSelection
+      DisplayTypeSelection,
+	  SaveFilePage
     };
 
 	enum DisplayType

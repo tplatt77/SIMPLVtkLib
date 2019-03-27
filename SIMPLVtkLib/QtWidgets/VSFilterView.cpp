@@ -155,6 +155,10 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
 		  QAction* renameAction = new QAction("Rename");
 		  connect(renameAction, &QAction::triggered, [=] { emit renameFilterRequested(dataFilter); });
 		  menu.addAction(renameAction);
+
+		  QAction* saveAction = new QAction("Save");
+		  connect(saveAction, &QAction::triggered, [=] { emit saveFilterRequested(dataFilter); });
+		  menu.addAction(saveAction);
 		}
         {
           QAction* separator = new QAction(this);

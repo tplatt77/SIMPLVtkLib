@@ -191,6 +191,20 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
   connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
+
+  connect(m_Ui->saveToFileCB, &QCheckBox::toggled, [=](bool checked)
+  {
+	if(checked)
+	{
+	  setField(PerformMontage::FieldNames::SaveToFile, true);
+	  setFinalPage(false);
+	}
+	else
+	{
+	  setField(PerformMontage::FieldNames::SaveToFile, false);
+	  setFinalPage(true);
+	}
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -294,10 +308,12 @@ bool DisplayTypeSelectionPage::isComplete() const
 // -----------------------------------------------------------------------------
 void DisplayTypeSelectionPage::registerFields()
 {
+  registerField(PerformMontage::FieldNames::SaveToFile, m_Ui->saveToFileCB);
   registerField(PerformMontage::FieldNames::MontageName, m_Ui->montageNameLE);
   registerField(PerformMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(PerformMontage::FieldNames::ImageDataArrayName, m_Ui->imageArrayNameLE);
-  registerField(PerformMontage::FieldNames::SelectedDataset, m_Ui->datasetCB);
+  registerField(PerformMontage::FieldNames::SelectedDataset, m_Ui->datasetCB,
+	"currentText", "currentTextChanged");
   registerField(PerformMontage::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
   registerField(PerformMontage::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);
   registerField(PerformMontage::FieldNames::SpacingX, m_Ui->spacingX);
@@ -305,7 +321,7 @@ void DisplayTypeSelectionPage::registerFields()
   registerField(PerformMontage::FieldNames::SpacingZ, m_Ui->spacingZ);
   registerField(PerformMontage::FieldNames::OriginX, m_Ui->originX);
   registerField(PerformMontage::FieldNames::OriginY, m_Ui->originY);
-  registerField(PerformMontage::FieldNames::OriginZ, m_Ui->originZ);
+  registerField(PerformMontage::FieldNames::OriginZ, m_Ui->originZ);  
 
   registerField(PerformMontage::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
   registerField(PerformMontage::FieldNames::DisplayOutlineOnly, m_Ui->outlineOnlyRB);
@@ -317,5 +333,12 @@ void DisplayTypeSelectionPage::registerFields()
 // -----------------------------------------------------------------------------
 int DisplayTypeSelectionPage::nextId() const
 {
+  if(m_Ui->saveToFileCB->isChecked())
+  {
+	return PerformMontageWizard::WizardPages::SaveFilePage;
+  }
+  else
+  {
 	return -1;
+  }
 }
