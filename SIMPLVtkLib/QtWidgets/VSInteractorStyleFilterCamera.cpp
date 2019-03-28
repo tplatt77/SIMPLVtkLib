@@ -1174,7 +1174,13 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
     filterViewSettingsCollection.push_back(iter->second);
     if(!isSIMPL)
     {
-      simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+	  try {
+		simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+	  }
+	  catch(const std::bad_cast& badCastException)
+	  {
+		qDebug() << badCastException.what();
+	  }
       isSIMPL = simplDataContainerFilter;
       if(isSIMPL)
       {

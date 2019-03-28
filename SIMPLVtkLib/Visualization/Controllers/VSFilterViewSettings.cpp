@@ -595,6 +595,10 @@ vtkActor* VSFilterViewSettings::getDataSetActor() const
   {
     return vtkActor::SafeDownCast(m_Actor);
   }
+  else if(ActorType::Image2D == m_ActorType && isValid())
+  {
+	return vtkActor::SafeDownCast(m_Actor);
+  }
 
   return nullptr;
 }
@@ -1236,15 +1240,16 @@ bool VSFilterViewSettings::hasSinglePointArray()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setupImageActors()
 {
-  vtkImageSliceMapper* mapper;
-  vtkImageSlice* actor;
+  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+  VTK_PTR(vtkPlaneSource) plane = VTK_PTR(vtkPlaneSource)::New();
+
+  vtkDataSetMapper* mapper;
+  vtkActor* actor;
   if(ActorType::DataSet == m_ActorType || nullptr == m_Actor)
   {
-    mapper = vtkImageSliceMapper::New();
-    mapper->SliceAtFocalPointOn();
-    mapper->SliceFacesCameraOff();
+    mapper = vtkDataSetMapper::New();
 
-    actor = vtkImageSlice::New();
+    actor = vtkActor::New();
     actor->SetMapper(mapper);
 
     setMapColors(ColorMapping::None);
@@ -1252,11 +1257,11 @@ void VSFilterViewSettings::setupImageActors()
   }
   else
   {
-    mapper = vtkImageSliceMapper::SafeDownCast(m_Mapper);
-    actor = vtkImageSlice::SafeDownCast(m_Actor);
+    mapper = vtkDataSetMapper::SafeDownCast(m_Mapper);
+    actor = vtkActor::SafeDownCast(m_Actor);
   }
-
-  mapper->SetInputConnection(m_Filter->getOutputPort());
+  
+  mapper->SetInputConnection(plane->GetOutputPort());
 
   if(ActorType::DataSet == m_ActorType && isVisible())
   {
@@ -1265,8 +1270,10 @@ void VSFilterViewSettings::setupImageActors()
 
   m_Mapper = mapper;
   m_Actor = actor;
+  m_Plane = plane;
 
   m_ActorType = ActorType::Image2D;
+  updateTexture();
   updateTransform();
 }
 
@@ -2726,7 +2733,7 @@ void VSFilterViewSettings::updateTexture()
 	vtkActor* actor = getDataSetActor();
 	if(nullptr != actor)
 	{
-		if(!getActiveArrayName().isEmpty())
+		if(!getActiveArrayName().isEmpty() || ActorType::Image2D == m_ActorType)
 		{
 			actor->SetTexture(m_Texture);
 		}

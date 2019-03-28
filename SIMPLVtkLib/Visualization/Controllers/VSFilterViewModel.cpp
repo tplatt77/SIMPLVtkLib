@@ -308,27 +308,6 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
 	  viewSettings = new VSFilterViewSettings(filter, representation, m_DisplayType);
   }
 
-  // When multiplpe images are loaded, place side by side
-  vtkImageSlice* actor = (vtkImageSlice*) viewSettings->getActor().GetPointer();
-  if (nullptr != actor && actor->GetZRange() == 0) {
-	  //qInfo() << "Image width: " << actor->GetXRange()[1];
-	  //qInfo() << "File name: " << filter->getParentFilter()->getText();
-
-	  // Get the x and y position from the image
-	  QStringList filenameSplitByDots = filter->getParentFilter()->getText().split(".");
-	  QString filenameBeforeFileExt = filenameSplitByDots[filenameSplitByDots.length() - 2];
-	  int preFileExtLength = filenameBeforeFileExt.length();
-	  int xPos = filenameBeforeFileExt.at(preFileExtLength - 1).toLatin1() - 48;
-	  int yPos = filenameBeforeFileExt.at(preFileExtLength - 2).toLatin1() - 48;
-	 //qInfo() << "X,Y: {" << x_pos << ", " << y_pos << "}";
-
-	  double imageWidth = actor->GetScale()[0];
-	  double imageHeight = actor->GetScale()[1];
-
-	  actor->SetPosition((1.01f * imageWidth) * xPos, (-1.01f * imageHeight) * yPos, 0.0f);
-	  numImages++;
-  }
-
   //connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
   //connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
 
