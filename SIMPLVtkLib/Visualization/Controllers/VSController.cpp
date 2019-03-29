@@ -279,6 +279,7 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
   DataContainerArray::Pointer dca = DataContainerArray::New();
   VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   VSPipelineFilter* pipelineFilter = dynamic_cast<VSPipelineFilter*>(filter);
+  VSFileNameFilter* filenameFilter = dynamic_cast<VSFileNameFilter*>(filter);
 
   // If it is a data container filter, get the parent filter (a pipeline)
   if(dcFilter != nullptr)
@@ -296,6 +297,25 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
 		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
 		if(dataContainer != nullptr)
 		{
+		  dca->addDataContainer(dataContainer);
+		}
+	  }
+	}
+  }
+  else if(filenameFilter != nullptr)
+  {
+	VSAbstractFilter::FilterListType children = filenameFilter->getChildren();
+	for(VSAbstractFilter* childFilter : children)
+	{
+	  dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+	  if(dcFilter != nullptr)
+	  {
+		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+		if(dataContainer != nullptr)
+		{
+		  double* pos = dcFilter->getTransform()->getLocalPosition();
+		  ImageGeom::Pointer geom = dataContainer->getGeometryAs<ImageGeom>();
+		  geom->setOrigin(pos[0], pos[1], pos[2]);
 		  dca->addDataContainer(dataContainer);
 		}
 	  }

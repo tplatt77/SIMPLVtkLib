@@ -212,6 +212,15 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry || nullptr == filter)
       {
         filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
+		DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
+		ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
+		SIMPL::Tuple3FVec originTuple = imageGeom->getOrigin();
+		double origin[3];
+		origin[0] = std::get<0>(originTuple);
+		origin[1] = std::get<1>(originTuple);
+		origin[2] = std::get<2>(originTuple);
+
+		filter->getTransform()->setLocalPosition(origin);
         m_Controller->getFilterModel()->addFilter(filter, false);
 
         // SemiReload differs from Reload in that it does not fully load new filters
