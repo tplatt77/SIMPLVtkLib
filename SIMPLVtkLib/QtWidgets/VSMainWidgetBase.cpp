@@ -747,6 +747,7 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
+  emit selectedFiltersChanged(getActiveViewWidget()->getSelectedFilters());
 }
 
 // -----------------------------------------------------------------------------

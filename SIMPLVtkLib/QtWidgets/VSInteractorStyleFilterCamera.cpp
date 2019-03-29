@@ -43,6 +43,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
@@ -1167,6 +1168,7 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
   std::map<VSAbstractFilter*, VSFilterViewSettings*> allFilterViewSettings = m_ViewWidget->getAllFilterViewSettings();
   bool isSIMPL = false;
   VSSIMPLDataContainerFilter* simplDataContainerFilter;
+  VSDataSetFilter* imageDatasetFilter;
   VSFilterViewSettings::Collection filterViewSettingsCollection;
   double distanceToPlane;
   for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
@@ -1176,13 +1178,14 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
     {
 	  try {
 		simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+		imageDatasetFilter = dynamic_cast<VSDataSetFilter*>(iter->first);
 	  }
 	  catch(const std::bad_cast& badCastException)
 	  {
 		qDebug() << badCastException.what();
 	  }
       isSIMPL = simplDataContainerFilter;
-      if(isSIMPL)
+      if(isSIMPL || imageDatasetFilter)
       {
         double position[3];
         VTK_PTR(vtkProp3D) actor = iter->second->getActor();

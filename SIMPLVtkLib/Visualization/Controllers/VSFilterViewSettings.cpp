@@ -591,15 +591,11 @@ vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper() const
 // -----------------------------------------------------------------------------
 vtkActor* VSFilterViewSettings::getDataSetActor() const
 {
-  if(ActorType::DataSet == m_ActorType && isValid())
+  if((ActorType::DataSet == m_ActorType || ActorType::Image2D == m_ActorType)
+	&& isValid())
   {
     return vtkActor::SafeDownCast(m_Actor);
   }
-  else if(ActorType::Image2D == m_ActorType && isValid())
-  {
-	return vtkActor::SafeDownCast(m_Actor);
-  }
-
   return nullptr;
 }
 

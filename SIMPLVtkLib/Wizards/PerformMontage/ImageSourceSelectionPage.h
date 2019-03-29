@@ -33,53 +33,71 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
 #pragma once
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-#include "SIMPLVtkLib/Wizards/AbstractMontageWizard.h"
-#include "SIMPLVtkLib/Wizards/ImportMontage/MontageSettings.h"
+#include <QtWidgets/QWizardPage>
 
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-class SIMPLVtkLib_EXPORT PerformMontageWizard : public AbstractMontageWizard
+#include "ui_ImageSourceSelectionPage.h"
+
+#include "PerformMontageWizard.h"
+
+class ImageSourceSelectionPage : public QWizardPage
 {
     Q_OBJECT
 
   public:
-    enum WizardPages
-    {
-      DisplayTypeSelection,
-	  ImageSourceSelection,
-	  SaveFile
-    };
+    /**
+    * @brief Constructor
+    * @param parameter The FilterParameter object that this widget represents
+    * @param filter The instance of the filter that this parameter is a part of
+    * @param parent The parent QWidget for this Widget
+    */
+    ImageSourceSelectionPage(QWidget* parent = nullptr);
 
-	enum DisplayType
-	{
-		NotSpecified,
-		Montage,
-		Outline
-	};
+    ~ImageSourceSelectionPage() override;
 
-	enum ImageSource
-	{
-	  Datasets,
-	  DataContainers
-	};
+    SIMPL_INSTANCE_PROPERTY(PerformMontageWizard::ImageSource, ImageSource)
+    Q_PROPERTY(PerformMontageWizard::ImageSource ImageSource READ getImageSource WRITE setImageSource)
 
     /**
-     * @brief PerformMontageWizard
-     * @param parent
+     * @brief Initializes some of the GUI elements with selections or other GUI related items
      */
-    PerformMontageWizard(QWidget* parent = nullptr);
+    virtual void setupGui();
 
-    ~PerformMontageWizard() override;
-	
+    /**
+     * @brief registerFields
+     */
+    void registerFields();
+
+    /**
+     * @brief isComplete
+     * @return
+     */
+    virtual bool isComplete() const override;
+
+    /**
+     * @brief nextId
+     * @return
+     */
+    int nextId() const override;
+
   private:
-	MontageSettings* m_MontageSettings = nullptr;
+    QSharedPointer<Ui::ImageSourceSelectionPage> m_Ui;
+
+    QString m_OpenDialogLastDirectory;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
+
   public:
-    PerformMontageWizard(const PerformMontageWizard&) = delete; // Copy Constructor Not Implemented
-    PerformMontageWizard(PerformMontageWizard&&) = delete;      // Move Constructor Not Implemented
-    PerformMontageWizard& operator=(const PerformMontageWizard&) = delete; // Copy Assignment Not Implemented
-    PerformMontageWizard& operator=(PerformMontageWizard&&) = delete;      // Move Assignment Not Implemented
+    ImageSourceSelectionPage(const ImageSourceSelectionPage&) = delete;  // Copy Constructor Not Implemented
+    ImageSourceSelectionPage(ImageSourceSelectionPage&&) = delete;       // Move Constructor Not Implemented
+    ImageSourceSelectionPage& operator=(const ImageSourceSelectionPage&) = delete; // Copy Assignment Not Implemented
+    ImageSourceSelectionPage& operator=(ImageSourceSelectionPage&&) = delete;      // Move Assignment Not Implemented
 };
 
-Q_DECLARE_METATYPE(PerformMontageWizard::ImageSource)

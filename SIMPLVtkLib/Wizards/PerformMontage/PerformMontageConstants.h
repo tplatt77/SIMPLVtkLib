@@ -72,5 +72,6 @@ namespace PerformMontage
 	const QString OutputCellAttributeMatrixName("OutputCellAttributeMatrixName");
 	const QString OutputImageArrayName("OutputImageArrayName");
 	const QString OutputPlane("OutputPlane");
+	const QString ImageSource("ImageSource");
   }
 }

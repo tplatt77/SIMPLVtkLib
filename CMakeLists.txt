@@ -296,6 +296,7 @@ target_include_directories(SIMPLVtkLib
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/ExecutePipeline
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/GenericMontage
                               ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/ImportMontage
+                              ${SIMPLVtkLib_SOURCE_DIR}/SIMPLVtkLib/Wizards/PerformMontage
                               ${SIMPLVtkLib_BINARY_PARENT_DIR})
 if(WIN32 AND BUILD_SHARED_LIBS)
     target_compile_definitions(SIMPLVtkLib PUBLIC "-DSIMPLVtkLib_BUILT_AS_DYNAMIC_LIB")

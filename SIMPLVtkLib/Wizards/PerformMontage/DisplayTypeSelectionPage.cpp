@@ -117,7 +117,7 @@ void DisplayTypeSelectionPage::initializePage()
 	int i = 0;
 	for(VSAbstractFilter* dataset : datasets)
 	{
-	  if(i = 0)
+	  if(i == 0)
 	  {
 		VSAbstractFilter* childFilter = dataset->getChildren().front();
 		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
@@ -335,7 +335,7 @@ int DisplayTypeSelectionPage::nextId() const
 {
   if(m_Ui->saveToFileCB->isChecked())
   {
-	return PerformMontageWizard::WizardPages::SaveFilePage;
+	return PerformMontageWizard::WizardPages::SaveFile;
   }
   else
   {

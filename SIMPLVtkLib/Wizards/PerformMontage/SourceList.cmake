@@ -1,17 +1,20 @@
 set(${PROJECT_NAME}_PerformMontage_HDRS
   ${WIZARDS_SOURCE_DIR}/PerformMontage/DisplayTypeSelectionPage.h
+  ${WIZARDS_SOURCE_DIR}/PerformMontage/ImageSourceSelectionPage.h
   ${WIZARDS_SOURCE_DIR}/PerformMontage/PerformMontageWizard.h
   ${WIZARDS_SOURCE_DIR}/PerformMontage/SaveImageFilePage.h
 )
 
 set(${PROJECT_NAME}_PerformMontage_SRCS
   ${WIZARDS_SOURCE_DIR}/PerformMontage/DisplayTypeSelectionPage.cpp
+  ${WIZARDS_SOURCE_DIR}/PerformMontage/ImageSourceSelectionPage.cpp
   ${WIZARDS_SOURCE_DIR}/PerformMontage/PerformMontageWizard.cpp
   ${WIZARDS_SOURCE_DIR}/PerformMontage/SaveImageFilePage.cpp
 )
 
 set(${PROJECT_NAME}_PerformMontage_UIS
   ${WIZARDS_SOURCE_DIR}/PerformMontage/UI_Files/DisplayTypeSelectionPage.ui
+  ${WIZARDS_SOURCE_DIR}/PerformMontage/UI_Files/ImageSourceSelectionPage.ui
   ${WIZARDS_SOURCE_DIR}/PerformMontage/UI_Files/PipelineExecutionTypeSelectionPage.ui
   ${WIZARDS_SOURCE_DIR}/PerformMontage/UI_Files/SaveImageFilePage.ui
 )
