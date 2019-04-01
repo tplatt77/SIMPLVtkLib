@@ -1436,14 +1436,14 @@ void VSFilterViewSettings::updateTransform()
     return;
   }
 
-  if(ActorType::Image2D == m_ActorType || Representation::Outline == m_Representation)
+  if(Representation::Outline == m_Representation)
   {
     VSTransform* transform = m_Filter->getTransform();
     m_Actor->SetPosition(transform->getPosition());
     m_Actor->SetOrientation(transform->getRotation());
     m_Actor->SetScale(transform->getScale());
   }
-  else if(ActorType::DataSet == m_ActorType)
+  else if(ActorType::Image2D == m_ActorType || ActorType::DataSet == m_ActorType)
   {
 	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
 	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
@@ -1451,6 +1451,11 @@ void VSFilterViewSettings::updateTransform()
 	imageData->GetBounds(bounds);
 	int extent[6];
 	imageData->GetExtent(extent);
+	// Set Zmax to 1.0f for Image2D actor types
+	if(ActorType::Image2D == m_ActorType && extent[5] == 0)
+	{
+	  extent[5] = 1.0f;
+	}
 
 	// Get transform vectors
 	VSTransform* transform = m_Filter->getTransform();
