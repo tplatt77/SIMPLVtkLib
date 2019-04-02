@@ -48,7 +48,6 @@ class SIMPLVtkLib_EXPORT PerformMontageWizard : public AbstractMontageWizard
     enum WizardPages
     {
       DisplayTypeSelection,
-	  ImageSourceSelection,
 	  SaveFile
     };
 
