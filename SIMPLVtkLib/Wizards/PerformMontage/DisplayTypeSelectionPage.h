@@ -89,7 +89,10 @@ protected slots:
   // Slots to catch signals emitted by the various ui widgets
   void changeOrigin_stateChanged(int state);
   void changeSpacing_stateChanged(int state);
-
+  void DisplayTypeSelectionPage::datasetListWidgetChanged();
+protected:
+  SIMPL_INSTANCE_PROPERTY(DatasetListInfo_t, DatasetListInfo)
+	Q_PROPERTY(DatasetListInfo_t DatasetListInfo READ getDatasetListInfo WRITE setDatasetListInfo)
   private:
     QSharedPointer<Ui::DisplayTypeSelectionPage> m_Ui;
 

@@ -79,6 +79,7 @@ DisplayTypeSelectionPage::~DisplayTypeSelectionPage()
 // -----------------------------------------------------------------------------
 void DisplayTypeSelectionPage::setupGui()
 {
+  qRegisterMetaType<DatasetListInfo_t>();
   connectSignalsSlots();
 
   m_Ui->originX->setValidator(new QDoubleValidator);
@@ -107,13 +108,14 @@ void DisplayTypeSelectionPage::setupGui()
 void DisplayTypeSelectionPage::initializePage()
 {
   // Clear each combobox
-  m_Ui->datasetCB->clear();
+  m_Ui->datasetsListWidget->clear();
 
   // Get the list of all loaded datasets
   VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(wizard()->parentWidget());
   if(baseWidget != nullptr)
   {
 	VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
+	VSAbstractFilter::FilterListType selectedDatasets = baseWidget->getActiveViewWidget()->getSelectedFilters();
 	int i = 0;
 	for(VSAbstractFilter* dataset : datasets)
 	{
@@ -129,7 +131,25 @@ void DisplayTypeSelectionPage::initializePage()
 		  m_Ui->imageArrayNameLE->setText(am->getAttributeArrayNames().first());
 		}
 	  }
-	  m_Ui->datasetCB->addItem(dataset->getFilterName(), i++);
+	  m_Ui->datasetsListWidget->addDataset(dataset);
+	  bool isSelected = false;
+	  for(VSAbstractFilter* selectedDataset : selectedDatasets)
+	  {
+		for(VSAbstractFilter* childFilter : dataset->getChildren())
+		{
+		  if(childFilter == selectedDataset || dataset == selectedDataset)
+		  {
+			m_Ui->datasetsListWidget->setSelected(i, true);
+			isSelected = true;
+			break;
+		  }
+		}
+		if(isSelected)
+		{
+		  break;
+		}
+	  }
+	  i++;
 	}
   }
 }
@@ -139,12 +159,12 @@ void DisplayTypeSelectionPage::initializePage()
 // -----------------------------------------------------------------------------
 void DisplayTypeSelectionPage::connectSignalsSlots()
 {
-  connect(m_Ui->datasetCB, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
+  connect(m_Ui->datasetsListWidget, static_cast<void (DatasetListWidget::*)()>(&DatasetListWidget::itemSelectionChanged), [=]() {
 
 	VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(wizard()->parentWidget());
 	if(baseWidget != nullptr)
 	{
-	  QString datasetName = m_Ui->datasetCB->itemText(index);
+	  QString datasetName = m_Ui->datasetsListWidget->selectedItems().front()->text();
 	  QString amName;
 	  QString daName;
 	  VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
@@ -169,6 +189,9 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
 	}
 	emit completeChanged();
   });
+
+  connect(m_Ui->datasetsListWidget, &DatasetListWidget::itemSelectionChanged,
+	this, &DisplayTypeSelectionPage::datasetListWidgetChanged);
 
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
 	bool isChecked = m_Ui->changeOriginCB->isChecked();
@@ -210,6 +233,17 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void DisplayTypeSelectionPage::datasetListWidgetChanged()
+{
+  DatasetListInfo_t datasetListInfo = m_Ui->datasetsListWidget->getDatasetListInfo();
+  setDatasetListInfo(datasetListInfo);
+
+  emit completeChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void DisplayTypeSelectionPage::changeOrigin_stateChanged(int state)
 {
   m_Ui->originX->setEnabled(state);
@@ -245,9 +279,9 @@ void DisplayTypeSelectionPage::changeSpacing_stateChanged(int state)
 bool DisplayTypeSelectionPage::isComplete() const
 {
   bool result = true;
-  if(m_Ui->datasetCB->isEnabled())
+  if(m_Ui->datasetsListWidget->isEnabled())
   {
-	if(m_Ui->datasetCB->currentIndex() < 0 || m_Ui->datasetCB->currentIndex() > m_Ui->datasetCB->maxCount() - 1)
+	if(m_Ui->datasetsListWidget->selectedItems().isEmpty())
 	{
 	  result = false;
 	}
@@ -312,8 +346,8 @@ void DisplayTypeSelectionPage::registerFields()
   registerField(PerformMontage::FieldNames::MontageName, m_Ui->montageNameLE);
   registerField(PerformMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
   registerField(PerformMontage::FieldNames::ImageDataArrayName, m_Ui->imageArrayNameLE);
-  registerField(PerformMontage::FieldNames::SelectedDataset, m_Ui->datasetCB,
-	"currentText", "currentTextChanged");
+  registerField(PerformMontage::FieldNames::SelectedDataset,
+	this, "DatasetListInfo");
   registerField(PerformMontage::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
   registerField(PerformMontage::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);
   registerField(PerformMontage::FieldNames::SpacingX, m_Ui->spacingX);
