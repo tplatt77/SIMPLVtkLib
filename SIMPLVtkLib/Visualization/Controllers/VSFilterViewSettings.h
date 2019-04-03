@@ -1016,7 +1016,7 @@ private:
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
   VTK_PTR(vtkPlaneSource) m_Plane = nullptr;
   VSLookupTableController* m_LookupTable = nullptr;
-  ScalarBarSetting m_ScalarBarSetting = ScalarBarSetting::OnSelection;
+  ScalarBarSetting m_ScalarBarSetting = ScalarBarSetting::Never;
   double m_Alpha = 1.0;
   VTK_PTR(vtkScalarBarActor) m_ScalarBarActor = nullptr;
   VTK_PTR(vtkScalarBarWidget) m_ScalarBarWidget = nullptr;
