@@ -290,7 +290,7 @@ void VSConcurrentImport::wrapDataContainer()
   while(m_ImportDataContainerOrder.size() > 0)
   {
     DataContainer::Pointer dc = m_ImportDataContainerOrder.front();
-    m_ImportDataContainerOrder.pop_front();
+    m_ImportDataContainerOrder.erase(m_ImportDataContainerOrder.begin());
     m_ImportDataContainerOrderLock.release();
 
     SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc = SIMPLVtkBridge::WrapGeometryPtr(dc);

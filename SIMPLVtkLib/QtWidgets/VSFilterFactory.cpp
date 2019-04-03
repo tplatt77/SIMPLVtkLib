@@ -41,7 +41,7 @@
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/FilterParameters/FloatVec3.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -132,7 +132,7 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3_t resolution, FloatVec3_t origin)
+AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin)
 {
   QString filterName = "SetOriginResolutionImageGeom";
   FilterManager* fm = FilterManager::Instance();
@@ -263,7 +263,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
-      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPrefix", var))
+      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -337,7 +337,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       }
 
       // Set the Data Container Prefix
-      var.setValue(dcPrefix);
+      var.setValue(DataArrayPath(dcPrefix, "" , ""));
       if(!setFilterProperty(importZeissMontageFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
@@ -383,7 +383,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         float colorWeightR = colorWeights[0];
         float colorWeightG = colorWeights[1];
         float colorWeightB = colorWeights[2];
-        FloatVec3_t colorWeights = {colorWeightR, colorWeightG, colorWeightB};
+        FloatVec3Type colorWeights = {colorWeightR, colorWeightG, colorWeightB};
         var.setValue(colorWeights);
         if(!setFilterProperty(importZeissMontageFilter, "ColorWeights", var))
         {
@@ -403,7 +403,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         float originX = origin[0];
         float originY = origin[1];
         float originZ = origin[2];
-        FloatVec3_t newOrigin = {originX, originY, originZ};
+        FloatVec3Type newOrigin = {originX, originY, originZ};
         var.setValue(newOrigin);
         if(!setFilterProperty(importZeissMontageFilter, "Origin", var))
         {
@@ -423,7 +423,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         float spacingX = spacing[0];
         float spacingY = spacing[1];
         float spacingZ = spacing[2];
-        FloatVec3_t newSpacing = {spacingX, spacingY, spacingZ};
+        FloatVec3Type newSpacing = {spacingX, spacingY, spacingZ};
         var.setValue(newSpacing);
         if(!setFilterProperty(importZeissMontageFilter, "Spacing", var))
         {
@@ -441,7 +441,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3_t montageSize, QStringList dcNames, const QString& amName, const QString& daName)
+AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName)
 {
   QString filterName = "ITKPCMTileRegistration";
   FilterManager* fm = FilterManager::Instance();
@@ -492,7 +492,7 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3_t montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap)
+AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap)
 {
   QString filterName = "ITKStitchMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -594,7 +594,7 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
       }
 
       // Set data container name
-      var.setValue(dcName);
+      var.setValue(DataArrayPath(dcName, "", ""));
       if(!setFilterProperty(itkImageReaderFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();

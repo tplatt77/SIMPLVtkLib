@@ -163,7 +163,7 @@ private:
   std::list<DcaGenericPair> m_WrappedList;
   std::list<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
 
-  QList<DataContainerShPtr> m_ImportDataContainerOrder;
+  DataContainerArray::Container m_ImportDataContainerOrder;
   QSemaphore m_ImportDataContainerOrderLock;
   QSemaphore m_UnappliedDataFilterLock;
   QSemaphore m_FilterLock;

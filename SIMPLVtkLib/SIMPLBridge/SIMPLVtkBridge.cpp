@@ -102,9 +102,9 @@ SIMPLVtkBridge::WrappedDataContainerPtrCollection SIMPLVtkBridge::WrapDataContai
     return wrappedDataContainers;
   }
 
-  QList<DataContainer::Pointer> dcs = dca->getDataContainers();
+  DataContainerArray::Container dcs = dca->getDataContainers();
 
-  for(QList<DataContainer::Pointer>::Iterator dc = dcs.begin(); dc != dcs.end(); ++dc)
+  for(DataContainerArray::Container::iterator dc = dcs.begin(); dc != dcs.end(); ++dc)
   {
     WrappedDataContainerPtr wrappedDataContainer = WrapDataContainerAsStruct((*dc));
 
@@ -142,9 +142,9 @@ SIMPLVtkBridge::WrappedDataContainerPtr SIMPLVtkBridge::WrapDataContainerAsStruc
     wrappedDcStruct->m_DataContainer = dc;
     wrappedDcStruct->m_Name = dc->getName();
 
-    DataContainer::AttributeMatrixMap_t attrMats = dc->getAttributeMatrices();
+    DataContainer::Container_t attrMats = dc->getAttributeMatrices();
 
-    for(DataContainer::AttributeMatrixMap_t::Iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
+    for(DataContainer::Container_t::iterator attrMat = attrMats.begin(); attrMat != attrMats.end(); ++attrMat)
     {
       if(!(*attrMat))
       {
@@ -470,9 +470,9 @@ void SIMPLVtkBridge::FinishWrappingDataContainerStruct(WrappedDataContainerPtr w
   VTK_PTR(vtkDataSet) dataSet = wrappedDcStruct->m_DataSet;
   wrappedDcStruct->m_CellData.clear();
   wrappedDcStruct->m_PointData.clear();
-  DataContainer::AttributeMatrixMap_t amMap = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
+  DataContainer::Container_t amMap = wrappedDcStruct->m_DataContainer->getAttributeMatrices();
 
-  for(DataContainer::AttributeMatrixMap_t::Iterator amIter = amMap.begin(); amIter != amMap.end(); ++amIter)
+  for(DataContainer::Container_t::iterator amIter = amMap.begin(); amIter != amMap.end(); ++amIter)
   {
     AttributeMatrix::Pointer attrMat = (*amIter);
 
@@ -777,11 +777,11 @@ VTK_PTR(vtkDataSet) SIMPLVtkBridge::WrapGeometry(VertexGeom::Pointer geom)
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkDataSet) SIMPLVtkBridge::WrapGeometry(ImageGeom::Pointer image)
 {
-  float res[3] = {0.0f, 0.0f, 0.0f};
-  float origin[3] = {0.0f, 0.0f, 0.0f};
+  FloatVec3Type res = {0.0f, 0.0f, 0.0f};
+  FloatVec3Type origin = {0.0f, 0.0f, 0.0f};
 
   std::tuple<size_t, size_t, size_t> dims = image->getDimensions();
-  image->getResolution(res);
+  image->getSpacing(res);
   image->getOrigin(origin);
 
   VTK_NEW(vtkImageData, vtkImage);

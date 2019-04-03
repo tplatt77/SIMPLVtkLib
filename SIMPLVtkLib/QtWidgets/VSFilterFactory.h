@@ -39,7 +39,7 @@
 #include <QtCore/QObject>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-#include "SIMPLib/FilterParameters/IntVec3.h"
+#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatVec3.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
@@ -118,7 +118,7 @@ public:
    * @param daName Common data array name in each common attribute matrix
    * @return
    */
-  AbstractFilter::Pointer createPCMTileRegistrationFilter(IntVec3_t montageSize, QStringList dcNames, const QString& amName, const QString& daName);
+  AbstractFilter::Pointer createPCMTileRegistrationFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName);
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
@@ -130,7 +130,7 @@ public:
    * @param tileOverlap Optional tile overlap value
    * @return
    */
-  AbstractFilter::Pointer createTileStitchingFilter(IntVec3_t montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap = 0.0);
+  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap = 0.0);
 
   /**
    * @brief Creates a Set Origin Resolution filter that sets the origin and resolution of a data container's image geometry
@@ -141,7 +141,7 @@ public:
    * @param origin The origin to set into the image geometry
    * @return
    */
-  AbstractFilter::Pointer createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3_t resolution, FloatVec3_t origin);
+  AbstractFilter::Pointer createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin);
 
   /**
    * @brief Creates a Data Container Reader filter that reads the data from a DREAM3D file and sets all necessary properties

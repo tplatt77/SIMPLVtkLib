@@ -375,7 +375,7 @@ QStringList ZeissListWidget::readZeissConfigFile()
 
 			// Set the Data Container Prefix
 			QString dataContainerPrefix = "DataContainer";
-			var.setValue(dataContainerPrefix);
+			var.setValue(DataArrayPath(dataContainerPrefix, "", ""));
 			if(!importZeissMontageFilter->setProperty("DataContainerName", var))
 			{
 				return fileNameList;

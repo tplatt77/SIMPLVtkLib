@@ -247,12 +247,12 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
 	VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
 	FilterPipeline::Pointer pipeline = FilterPipeline::New();
 	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-	AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+	AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
 	QString dcName = dataContainer->getName();
 	QString amName = am->getName();
 	QString dataArrayName = am->getAttributeArrayNames().first();
 	DataContainerArray::Pointer dca = DataContainerArray::New();
-	dca->addDataContainer(dataContainer);
+	dca->addOrReplaceDataContainer(dataContainer);
 	AbstractFilter::Pointer imageWriter = filterFactory
 	  ->createImageFileWriterFilter(imageFilePath, dcName, amName, dataArrayName);
 	if(imageWriter != AbstractFilter::NullPointer())
@@ -297,7 +297,7 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
 		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
 		if(dataContainer != nullptr)
 		{
-		  dca->addDataContainer(dataContainer);
+		  dca->addOrReplaceDataContainer(dataContainer);
 		}
 	  }
 	}
@@ -316,7 +316,7 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
 		  double* pos = dcFilter->getTransform()->getLocalPosition();
 		  ImageGeom::Pointer geom = dataContainer->getGeometryAs<ImageGeom>();
 		  geom->setOrigin(pos[0], pos[1], pos[2]);
-		  dca->addDataContainer(dataContainer);
+		  dca->addOrReplaceDataContainer(dataContainer);
 		}
 	  }
 	}

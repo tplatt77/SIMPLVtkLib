@@ -126,7 +126,7 @@ void DisplayTypeSelectionPage::initializePage()
 		if(dcFilter != nullptr)
 		{
 		  DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-		  AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+		  AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
 		  m_Ui->cellAttrMatrixNameLE->setText(am->getName());
 		  m_Ui->imageArrayNameLE->setText(am->getAttributeArrayNames().first());
 		}
@@ -177,7 +177,7 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
 		  if(dcFilter != nullptr)
 		  {
 			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices().first();
+			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
 			amName = am->getName();
 			daName = am->getAttributeArrayNames().first();
 			m_Ui->cellAttrMatrixNameLE->setText(amName);
