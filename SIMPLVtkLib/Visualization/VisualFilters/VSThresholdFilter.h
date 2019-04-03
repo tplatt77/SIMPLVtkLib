@@ -40,6 +40,7 @@
 #include <vtkThreshold.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -55,10 +56,6 @@
 class SIMPLVtkLib_EXPORT VSThresholdFilter : public VSAbstractFilter
 {
   Q_OBJECT
-
-  Q_PROPERTY(QString lastArrayName READ getLastArrayName NOTIFY lastArrayNameChanged)
-  Q_PROPERTY(double lastMinValue READ getLastMinValue NOTIFY lastMinValueChanged)
-  Q_PROPERTY(double lastMaxValue READ getLastMaxValue NOTIFY lastMaxValueChanged)
 
 public:
   /**
@@ -99,6 +96,18 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
+   * @brief Applies the given values to the current filter
+   * @param values
+   */
+  void applyValues(VSThresholdValues* values);
+
+  /**
    * @brief Applies a threshold over a specified array between a given min and max
    * @param arrayName
    * @param min
@@ -128,7 +137,7 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
@@ -136,43 +145,21 @@ public:
    * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
-   * @brief Returns the name of the array last used for thresholding
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
    * @return
    */
-  QString getLastArrayName();
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
 
   /**
-   * @brief Returns the last minimum value for thresholding
+   * @brief Returns the filter values associated with the filter
    * @return
    */
-  double getLastMinValue();
-
-  /**
-   * @brief Returns the last maximum value for thresholding
-   * @return
-   */
-  double getLastMaxValue();
-
-  /**
-   * @brief Sets the name of the array last used for thresholding
-   * @param lastArrayName
-   */
-  void setLastArrayName(QString lastArrayName);
-
-  /**
-   * @brief Sets the last minimum value for thresholding
-   * @param lastMinValue
-   */
-  void setLastMinValue(double lastMinValue);
-
-  /**
-   * @brief Sets the last maximum value for thresholding
-   * @param lastMaxValue
-   */
-  void setLastMaxValue(double lastMaxValue);
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Reads values from a json file into the filter
@@ -192,11 +179,6 @@ public:
    */
   static QUuid GetUuid();
 
-signals:
-  void lastArrayNameChanged();
-  void lastMinValueChanged();
-  void lastMaxValueChanged();
-
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -211,10 +193,7 @@ protected:
 
 private:
   VTK_PTR(vtkThreshold) m_ThresholdAlgorithm;
-
-  QString m_LastArrayName;
-  double m_LastMinValue = 0.0;
-  double m_LastMaxValue = 99.9;
+  VSThresholdValues* m_ThresholdValues = nullptr;
 };
 
 Q_DECLARE_METATYPE(VSThresholdFilter)

@@ -64,6 +64,8 @@ VSFileNameFilter::VSFileNameFilter(QString filePath, VSAbstractFilter* parent)
 {
   setCheckable(false);
   setEditable(false);
+
+  m_FileNameValues = new VSFileNameValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -132,7 +134,7 @@ QString VSFileNameFilter::getFilePath()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSFileNameFilter::getFileName()
+QString VSFileNameFilter::getFileName() const
 {
   QFileInfo fi(m_FilePath);
   return fi.fileName();
@@ -143,13 +145,29 @@ QString VSFileNameFilter::getFileName()
 // -----------------------------------------------------------------------------
 QString VSFileNameFilter::getFilterName() const
 {
-  return "File Input Filter";
+  return getFileName();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFileNameFilter::compatibleWithParent(VSAbstractFilter* filter)
+VSAbstractFilter::FilterType VSFileNameFilter::getFilterType() const
+{
+  return FilterType::File;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSFileNameFilter::getValues()
+{
+  return m_FileNameValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSFileNameFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {

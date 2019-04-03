@@ -36,6 +36,7 @@
 #pragma once
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameValues.h"
 
 /**
  * @class VSFileNameFilter VSFileNameFilter.h
@@ -85,13 +86,25 @@ public:
    * @brief Returns the file name
    * @return
    */
-  QString getFileName();
+  QString getFileName() const;
 
   /**
-  * @brief Returns the filter's name
-  * @return
-  */
+   * @brief Returns the filter's name
+   * @return
+   */
   QString getFilterName() const override;
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief getUuid
@@ -105,8 +118,9 @@ public:
    * @param
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
 private:
   QString m_FilePath;
+  VSFileNameValues* m_FileNameValues = nullptr;
 };

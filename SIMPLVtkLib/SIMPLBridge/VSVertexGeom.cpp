@@ -189,7 +189,7 @@ void VSVertexGeom::Allocate(vtkIdType numCells, int extSize)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdList* ptIds)
+vtkIdType VSVertexGeom::InsertNextCell(int type, const vtkIdList ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -198,7 +198,7 @@ vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdList* ptIds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
+vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -207,7 +207,7 @@ vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptId
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
+vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[])
 {
   // VertexGeometry should probably not be modified by VTK calls
   return -1;
@@ -216,7 +216,7 @@ vtkIdType VSVertexGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptId
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSVertexGeom::ReplaceCell(vtkIdType cellId, int npts, vtkIdType* pts)
+void VSVertexGeom::ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   vtkErrorMacro("Read only container.");
 }

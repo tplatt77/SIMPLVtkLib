@@ -36,6 +36,7 @@
 #pragma once
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineValues.h"
 
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -90,10 +91,22 @@ public:
   QString getPipelineName() const;
 
   /**
-  * @brief Returns the filter's name
-  * @return
-  */
+   * @brief Returns the filter's name
+   * @return
+   */
   QString getFilterName() const override;
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief getUuid
@@ -104,10 +117,10 @@ public:
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
    * @brief Imports data for all child VSSIMPLDataContainerFilter
@@ -117,4 +130,5 @@ public:
 private:
   FilterPipeline::Pointer m_FilterPipeline;
   DataContainerArray::Pointer m_Dca;
+  VSPipelineValues* m_PipelineValues = nullptr;
 };

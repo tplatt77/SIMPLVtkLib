@@ -59,7 +59,7 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns the output data type for the filter
@@ -77,6 +77,12 @@ public:
    * @return
    */
   bool isDataImported() const override;
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
 
 signals:
   void dataReloaded();

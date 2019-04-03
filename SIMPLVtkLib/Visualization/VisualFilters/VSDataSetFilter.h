@@ -42,6 +42,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -113,7 +114,7 @@ public:
    * @param
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
    * @brief Writes values to a json file from the filter
@@ -125,6 +126,12 @@ public:
    * @brief reloadData
    */
   void reloadData() override;
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief getUuid
@@ -154,6 +161,7 @@ private:
   QString m_FilePath;
   VTK_PTR(vtkDataSet) m_DataSet = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
+  VSDataSetValues* m_DataSetValues = nullptr;
   QString m_Text;
 
   /**

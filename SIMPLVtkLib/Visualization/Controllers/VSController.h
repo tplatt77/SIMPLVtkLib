@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <QtCore/QItemSelectionModel>
 #include <QtCore/QObject>
 #include <QtCore/QVector>
 
@@ -42,11 +43,17 @@
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
+#include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSConcurrentImport.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+class ExecutePipelineWizard;
+class PerformMontageWizard;
+class PipelineWorker;
+class VSDataSetFilter;
 
 /**
  * @class VSController VSController.h SIMPLVtkLib/Visualization/Controllers/VSController.h
@@ -88,6 +95,20 @@ public:
   bool loadSession(const QString& sessionFilePath);
 
   /**
+   * @brief Saves the image to the file at imageFilePath
+   * @param imageFilePath
+   * @return
+   */
+  bool saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter);
+
+  /**
+   * @brief Saves the filter to the DREAM3D file at outputFilePath
+   * @param outputFilePath
+   * @return
+   */
+  bool saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter* filter);
+
+  /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
    * as top-level VisualFilters
    * @param dca
@@ -95,11 +116,17 @@ public:
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
-  * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
-  * @param pipeline
-  * @param dca
-  */
+   * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
+   * @param pipeline
+   * @param dca
+   */
   void importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
+  /**
+   * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
+   * @param pipelines
+   */
+  void importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines);
 
   /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
@@ -131,12 +158,6 @@ public:
   void importDataContainer(DataContainer::Pointer dc);
 
   /**
-   * @brief Import data from a file
-   * @param filePath
-   */
-  void importData(const QString& filePath);
-
-  /**
    * @brief Returns the first top level text filter with the given value;
    * @param text
    * @return
@@ -165,7 +186,7 @@ public:
    * @brief Alert the VSMainWidgetBase, if available, that the given filter should be selected.
    * @param filter
    */
-  void selectFilter(VSAbstractFilter* filter);
+  //void selectFilter(VSAbstractFilter* filter);
 
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
@@ -173,9 +194,11 @@ signals:
   void filterCheckStateChanged(VSAbstractFilter* filter);
   void blockRender(bool block);
   void dataImported();
-  void filterSelected(VSAbstractFilter* filter);
+  //void filterSelected(VSAbstractFilter* filter);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
+  void importDataQueueStarted();
+  void importDataQueueFinished();
 
 private:
   VSFilterModel* m_FilterModel;

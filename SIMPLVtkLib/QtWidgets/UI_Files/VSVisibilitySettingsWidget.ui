@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>294</width>
-    <height>121</height>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,13 +53,6 @@
       <property name="spacing">
        <number>4</number>
       </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="representationLabel">
-        <property name="text">
-         <string>Representation:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="representationCombo">
         <property name="currentIndex">
@@ -92,10 +85,24 @@
         </item>
        </widget>
       </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="representationLabel">
+        <property name="text">
+         <string>Representation:</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="arrayLabel">
         <property name="text">
          <string>Array:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="colorLabel">
+        <property name="text">
+         <string>Color: </string>
         </property>
        </widget>
       </item>
@@ -126,13 +133,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="colorLabel">
-        <property name="text">
-         <string>Color: </string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="VSColorButton" name="colorBtn">
         <property name="sizePolicy">
@@ -143,6 +143,23 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Subsampling</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="subsampleSB">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
         </property>
        </widget>
       </item>

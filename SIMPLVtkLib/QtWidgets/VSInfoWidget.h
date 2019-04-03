@@ -102,11 +102,10 @@ signals:
 
 public slots:
   /**
-   * @brief Changes the filter being displayed
-   * @param filter
-   * @param filterWidget
+   * @brief Changes the filters being displayed
+   * @param filters
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
   /**
    * @brief Changes the VSViewController used for fetching VSFilterViewSettings

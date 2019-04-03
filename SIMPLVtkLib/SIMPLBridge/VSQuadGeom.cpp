@@ -199,7 +199,7 @@ void VSQuadGeom::Allocate(vtkIdType numCells, int extSize)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdList* ptIds)
+vtkIdType VSQuadGeom::InsertNextCell(int type, const vtkIdList ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -208,7 +208,7 @@ vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdList* ptIds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
+vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -217,7 +217,7 @@ vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
+vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[])
 {
   return -1;
 }
@@ -225,7 +225,7 @@ vtkIdType VSQuadGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQuadGeom::ReplaceCell(vtkIdType cellId, int npts, vtkIdType* pts)
+void VSQuadGeom::ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   vtkErrorMacro("Read only container.");
 }

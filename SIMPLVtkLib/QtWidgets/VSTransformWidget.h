@@ -37,11 +37,10 @@
 
 #include <QtWidgets/QWidget>
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTransform.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-class VSAbstractFilter;
 
 /**
  * @class VSTransformWidget VSTransformWidget.h SIMPLVtkLib/QtWidgets/VSTransformWidget.h
@@ -77,10 +76,10 @@ public:
   void setTransform(VSTransform* transform);
 
   /**
-   * @brief Sets the VSTransform from the given filter
-   * @param filter
+   * @brief Sets the VSTransform from the given filters
+   * @param filters
    */
-  void setFilter(VSAbstractFilter* filter);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
 protected slots:
   /**

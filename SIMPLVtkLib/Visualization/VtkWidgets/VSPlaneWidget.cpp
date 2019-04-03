@@ -177,15 +177,23 @@ VSPlaneWidget::~VSPlaneWidget()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::getNormals(double normals[3])
+double* VSPlaneWidget::getNormal() const
 {
-  m_UsePlane->GetNormal(normals);
+  return m_ViewPlane->GetNormal();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setNormals(double normals[3])
+void VSPlaneWidget::getNormal(double normals[3]) const
+{
+  m_ViewPlane->GetNormal(normals);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setNormal(double normals[3])
 {
   m_UsePlane->SetNormal(normals);
   m_ViewPlane->SetNormal(normals);
@@ -196,33 +204,32 @@ void VSPlaneWidget::setNormals(double normals[3])
   normalZSpinBox->setValue(normals[2]);
 
   drawPlaneOn();
-
   emit modified();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::setNormals(double x, double y, double z)
+void VSPlaneWidget::setNormal(double x, double y, double z)
 {
   double normals[3] = {x, y, z};
-  setNormals(normals);
+  setNormal(normals);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSPlaneWidget::getOrigin()
+double* VSPlaneWidget::getOrigin() const
 {
-  return m_UsePlane->GetOrigin();
+  return m_ViewPlane->GetOrigin();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSPlaneWidget::getOrigin(double origin[3])
+void VSPlaneWidget::getOrigin(double origin[3]) const
 {
-  m_UsePlane->GetOrigin(origin);
+  m_ViewPlane->GetOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -240,8 +247,39 @@ void VSPlaneWidget::setOrigin(double origin[3])
   getVSTransform()->globalizePoint(origin);
 
   drawPlaneOn();
-
   emit modified();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSPlaneWidget::getUsePlaneNormal()
+{
+  return m_UsePlane->GetNormal();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSPlaneWidget::getUsePlaneOrigin()
+{
+  return m_UsePlane->GetOrigin();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setUsePlaneOrigin(double origin[3])
+{
+  m_UsePlane->SetOrigin(origin);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSPlaneWidget::setUsePlaneNormal(double normal[3])
+{
+  m_UsePlane->SetNormal(normal);
 }
 
 // -----------------------------------------------------------------------------
@@ -346,7 +384,7 @@ void VSPlaneWidget::spinBoxValueChanged()
   normal[0] = normalXSpinBox->value();
   normal[1] = normalYSpinBox->value();
   normal[2] = normalZSpinBox->value();
-  setNormals(normal);
+  setNormal(normal);
 
   updatePlaneWidget();
   emit modified();
@@ -359,7 +397,7 @@ void VSPlaneWidget::updatePlaneWidget()
 {
   double normals[3];
   double origin[3];
-  getNormals(normals);
+  getNormal(normals);
   m_UsePlane->GetOrigin(origin);
 
   getVSTransform()->globalizeNormal(normals);
@@ -385,6 +423,28 @@ void VSPlaneWidget::updatePlaneWidget()
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::readJson(QJsonObject& json)
 {
+  QJsonObject planeObj = json["VSPlane"].toObject();
+
+  QJsonArray lastPlaneOrigin = planeObj["Use Origin"].toArray();
+  QJsonArray lastPlaneNormal = planeObj["Use Normal"].toArray();
+  QJsonArray planeOrigin = planeObj["View Origin"].toArray();
+  QJsonArray planeNormal = planeObj["View Normal"].toArray();
+  double lastOrigin[3];
+  double lastNormal[3];
+  double origin[3];
+  double normal[3];
+  for(int i = 0; i < 3; i++)
+  {
+    lastOrigin[i] = lastPlaneOrigin[i].toDouble();
+    lastNormal[i] = lastPlaneNormal[i].toDouble();
+    origin[i] = planeOrigin[i].toDouble();
+    normal[i] = planeNormal[i].toDouble();
+  }
+
+  m_UsePlane->SetNormal(lastNormal);
+  m_UsePlane->SetOrigin(lastOrigin);
+  m_ViewPlane->SetNormal(normal);
+  m_ViewPlane->SetOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
@@ -392,6 +452,25 @@ void VSPlaneWidget::readJson(QJsonObject& json)
 // -----------------------------------------------------------------------------
 void VSPlaneWidget::writeJson(const QJsonObject& json)
 {
+  QJsonObject planeObj;
+
+  QJsonArray lastPlaneOrigin;
+  QJsonArray lastPlaneNormal;
+  QJsonArray planeOrigin;
+  QJsonArray planeNormal;
+  for(int i = 0; i < 3; i++)
+  {
+    lastPlaneOrigin.append(m_UsePlane->GetOrigin()[i]);
+    lastPlaneNormal.append(m_UsePlane->GetNormal()[i]);
+    planeOrigin.append(m_ViewPlane->GetOrigin()[i]);
+    planeNormal.append(m_ViewPlane->GetNormal()[i]);
+  }
+  planeObj["Use Origin"] = lastPlaneOrigin;
+  planeObj["Use Normal"] = lastPlaneNormal;
+  planeObj["View Origin"] = planeOrigin;
+  planeObj["View Normal"] = planeNormal;
+
+  json["VSPlane"] = planeObj;
 }
 
 // -----------------------------------------------------------------------------
@@ -410,4 +489,22 @@ void VSPlaneWidget::updateGlobalSpace()
 {
   // reposition the vtkWidget
   updatePlaneWidget();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSPlaneWidget::equals(double* origin, double* normal) const
+{
+  double* currentOrigin = getOrigin();
+  double* currentNormal = getNormal();
+
+  for(int i = 0; i < 3; i++)
+  {
+    if(currentOrigin[i] != origin[i] || currentNormal[i] != normal[i])
+    {
+      return false;
+    }
+  }
+  return true;
 }

@@ -35,15 +35,17 @@
 
 #include "VSVisualizationWidget.h"
 
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
-#include <QtWidgets/QAction>
 
 #include <vtkAutoInit.h>
 #include <vtkInteractionStyleModule.h>
 VTK_MODULE_INIT(vtkRenderingOpenGL2)
 VTK_MODULE_INIT(vtkInteractionStyle)
 
+#include <QVTKInteractor.h>
 #include <vtkAxesActor.h>
 #include <vtkBMPWriter.h>
 #include <vtkCamera.h>
@@ -81,10 +83,6 @@ VSVisualizationWidget::VSVisualizationWidget(QWidget* parent, unsigned int numLa
 // -----------------------------------------------------------------------------
 void VSVisualizationWidget::setupGui()
 {
-  this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-    this, SLOT(showContextMenu(const QPoint&)));
-
   initializeRendererAndAxes();
 }
 
@@ -463,7 +461,53 @@ void VSVisualizationWidget::mousePressEvent(QMouseEvent* event)
 {
   QVTKOpenGLWidget::mousePressEvent(event);
 
+  if(event->button() == Qt::RightButton)
+  {
+    m_CheckContextMenu = true;
+  }
+  else
+  {
+    m_CheckContextMenu = false;
+  }
+
   emit mousePressed();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseReleaseEvent(event);
+
+  if(m_CheckContextMenu)
+  {
+    emit customContextMenuRequested(event->pos());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseMoveEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseMoveEvent(event);
+
+  m_CheckContextMenu = false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSVisualizationWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+  QVTKOpenGLWidget::mouseDoubleClickEvent(event);
+
+  VSInteractorStyleFilterCamera* filterCamera = dynamic_cast<VSInteractorStyleFilterCamera*>(GetInteractor()->GetInteractorStyle());
+  if(filterCamera)
+  {
+    filterCamera->OnDoubleClick();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -547,7 +591,7 @@ QAction* VSVisualizationWidget::getLinkCamerasAction()
     m_LinkCameraAction = new QAction("Link Cameras", this);
     connect(m_LinkCameraAction, SIGNAL(triggered()), this, SLOT(startLinkCameras()));
   }
-  
+
   return m_LinkCameraAction;
 }
 
@@ -566,7 +610,7 @@ VSAbstractFilter* VSVisualizationWidget::getFilterFromScreenCoords(int pos[2])
   vtkProp3D* prop = nullptr;
   VSAbstractFilter* filter = nullptr;
   std::tie(prop, filter) = style->getFilterFromScreenCoords(pos);
-  
+
   render();
   return filter;
 }

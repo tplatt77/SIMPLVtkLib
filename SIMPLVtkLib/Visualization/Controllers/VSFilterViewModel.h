@@ -39,6 +39,10 @@
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewSettings.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageWizard.h"
+
+#include <vtkActor.h>
+#include <vtkImageSlice.h>
 
 /**
  * @class VSFilterViewModel VSFilterViewModel.h SIMPLVtkLib/QtWidgets/VSFilterViewModel.h
@@ -128,6 +132,18 @@ public:
   QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   /**
+   * @brief Returns a vector of top-level filters in the model
+   * @return
+   */
+  VSAbstractFilter::FilterListType getBaseFilters() const;
+
+  /**
+   * @brief Returns a vector of all visual filters in the model
+   * @return
+   */
+  VSAbstractFilter::FilterListType getAllFilters() const;
+
+  /**
    * @brief Returns the visual filter stored at the given index
    * @param index
    * @return
@@ -139,7 +155,21 @@ public:
    * @param filter
    * @return
    */
-  QModelIndex getIndexFromFilter(VSAbstractFilter* filter);
+  QModelIndex getIndexFromFilter(VSAbstractFilter* filter) const;
+
+  /**
+   * @brief Return a collection of VSAbstractFilters based on the QModelIndexList provided
+   * @param indexes
+   * @return
+   */
+  VSAbstractFilter::FilterListType getFiltersFromIndexes(const QModelIndexList& indexes) const;
+
+  /**
+   * @brief Returns a QModelIndexList based on the provided VSAbstractFilters
+   * @param filters
+   * @return
+   */
+  QModelIndexList getIndexesFromFilters(VSAbstractFilter::FilterListType filters) const;
 
   /**
    * @brief Returns the QModelIndex for the parent of the given index
@@ -154,6 +184,12 @@ public:
    * @return
    */
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Returns the root filter item
+   * @return
+   */
+  VSRootFilter* getRootFilter() const;
 
   /**
    * @brief Returns the root index for the model
@@ -197,6 +233,20 @@ public:
    */
   Q_INVOKABLE bool setFilterCheckState(const QModelIndex& index, QVariant value);
 
+  /**
+   * @brief Returns a QModelIndexList for the VSFilterModel based on the given QModelIndexList
+   * @param incides
+   * @return
+   */
+  QModelIndexList convertIndicesToFilterModel(const QModelIndexList& indices) const;
+
+  /**
+   * @brief Returns a localized QModelIndexList based on the VSFilterModel from the given QModelIndexList
+   * @param incides
+   * @return
+   */
+  QModelIndexList convertIndicesFromFilterModel(const QModelIndexList& indices) const;
+
   //////////////////////////////
   // VSFilterViewSettings Map //
   //////////////////////////////
@@ -206,6 +256,13 @@ public:
    * @return
    */
   VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter) const;
+
+  /**
+   * @brief Returns the VSFilterViewSettings for the given filters.
+   * @param filter
+   * @return
+   */
+  VSFilterViewSettings::Collection getFilterViewSettings(VSAbstractFilter::FilterListType filters) const;
 
   /**
    * @brief Returns the VSFilterViewSettings for the given model index.
@@ -225,6 +282,12 @@ public:
    * @return
    */
   std::vector<VSFilterViewSettings*> getAllFilterViewSettings() const;
+
+  /**
+   * @brief Set the display type for visualization output
+   * @param displayType
+   */
+  void setDisplayType(ImportMontageWizard::DisplayType displayType);
 
 signals:
   void viewSettingsCreated(VSFilterViewSettings*) const;
@@ -282,6 +345,7 @@ protected:
 private:
   VSFilterModel* m_FilterModel = nullptr;
   mutable VSFilterViewSettings::Map m_FilterViewSettings;
+  ImportMontageWizard::DisplayType m_DisplayType = ImportMontageWizard::DisplayType::NotSpecified;
 };
 
 Q_DECLARE_METATYPE(VSFilterViewModel)

@@ -178,12 +178,13 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       VSSIMPLDataContainerFilter* filter = nullptr;
       // Do not fully load for LoadType::Geometry
       bool fullLoad = (m_LoadType != LoadType::Geometry);
-      
+
       // Reload existing data and search for old DataContainers that no longer exist
       if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
       {
         // Find the DataContainer filter from the parent container
-        for(VSAbstractFilter* childFilter : childFilters)
+        VSAbstractFilter::FilterListType filterList = childFilters;
+        for(VSAbstractFilter* childFilter : filterList)
         {
           if(childFilter->getFilterName() != wrappedDc->m_Name)
           {
@@ -211,6 +212,15 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry || nullptr == filter)
       {
         filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
+		DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
+		ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
+		SIMPL::Tuple3FVec originTuple = imageGeom->getOrigin();
+		double origin[3];
+		origin[0] = std::get<0>(originTuple);
+		origin[1] = std::get<1>(originTuple);
+		origin[2] = std::get<2>(originTuple);
+
+		filter->getTransform()->setLocalPosition(origin);
         m_Controller->getFilterModel()->addFilter(filter, false);
 
         // SemiReload differs from Reload in that it does not fully load new filters
@@ -241,10 +251,10 @@ void VSConcurrentImport::partialWrappingThreadFinished()
 
     // Select the last filter
     m_UnappliedDataFilterLock.acquire();
-    if(m_UnappliedDataFilters.size() > 0)
-    {
-      m_Controller->selectFilter(m_UnappliedDataFilters.back());
-    }
+    //if(m_UnappliedDataFilters.size() > 0)
+    //{
+    //  m_Controller->selectFilter(m_UnappliedDataFilters.back());
+    //}
     m_UnappliedDataFilterLock.release();
 
     m_AppliedFilterCountLock.acquire();
@@ -280,7 +290,7 @@ void VSConcurrentImport::wrapDataContainer()
   while(m_ImportDataContainerOrder.size() > 0)
   {
     DataContainer::Pointer dc = m_ImportDataContainerOrder.front();
-    m_ImportDataContainerOrder.pop_front();
+    m_ImportDataContainerOrder.erase(m_ImportDataContainerOrder.begin());
     m_ImportDataContainerOrderLock.release();
 
     SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc = SIMPLVtkBridge::WrapGeometryPtr(dc);

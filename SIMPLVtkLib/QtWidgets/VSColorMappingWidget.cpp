@@ -35,6 +35,11 @@
 
 #include "VSColorMappingWidget.h"
 
+namespace
+{
+const QString MultiOption = "---";
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -44,7 +49,7 @@ VSColorMappingWidget::VSColorMappingWidget(QWidget* parent)
 {
   m_Ui->setupUi(this);
   setupGui();
-  setFilter(nullptr, nullptr);
+  setFilters(VSAbstractFilter::FilterListType());
 }
 
 // -----------------------------------------------------------------------------
@@ -54,12 +59,12 @@ void VSColorMappingWidget::setupGui()
 {
   m_presetsDialog = new ColorPresetsDialog();
 
-   connect(m_Ui->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
-   connect(m_Ui->showScalarBarCheckBox, &QCheckBox::stateChanged, this, &VSColorMappingWidget::setScalarBarVisible);
-   connect(m_Ui->invertColorScaleBtn, &QPushButton::clicked, this, &VSColorMappingWidget::invertScalarBar);
-   connect(m_Ui->alphaSlider, &QSlider::valueChanged, this, &VSColorMappingWidget::alphaSliderMoved);
-   connect(m_Ui->selectPresetColorsBtn, &QPushButton::clicked, this, &VSColorMappingWidget::selectPresetColors);
-   connect(m_presetsDialog, &ColorPresetsDialog::applyPreset, this, &VSColorMappingWidget::loadPresetColors);
+  connect(m_Ui->mapScalarsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarsMapped(int)));
+  connect(m_Ui->showScalarBarComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setScalarBarSetting(int)));
+  connect(m_Ui->invertColorScaleBtn, &QPushButton::clicked, this, &VSColorMappingWidget::invertScalarBar);
+  connect(m_Ui->alphaSlider, &QSlider::valueChanged, this, &VSColorMappingWidget::alphaSliderMoved);
+  connect(m_Ui->selectPresetColorsBtn, &QPushButton::clicked, this, &VSColorMappingWidget::selectPresetColors);
+  connect(m_presetsDialog, &ColorPresetsDialog::applyPreset, this, &VSColorMappingWidget::loadPresetColors);
 }
 
 // -----------------------------------------------------------------------------
@@ -68,48 +73,78 @@ void VSColorMappingWidget::setupGui()
 void VSColorMappingWidget::updateViewSettingInfo()
 {
   // Clear the visualization settings if the current VSFilterViewSettings is null
-   if(nullptr == m_ViewSettings)
+  if(m_ViewSettings.size() == 0)
   {
-    m_Ui->showScalarBarCheckBox->setChecked(Qt::Unchecked);
+    removeMultiValueOption(m_Ui->showScalarBarComboBox);
+    removeMultiValueOption(m_Ui->mapScalarsComboBox);
+
+    m_Ui->showScalarBarComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ScalarBarSetting::Never));
     m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(VSFilterViewSettings::ColorMapping::None));
 
     this->setEnabled(false);
     return;
   }
 
-   this->setEnabled(true);
+  this->setEnabled(true);
 
-   m_Ui->showScalarBarCheckBox->setChecked(m_ViewSettings->isScalarBarVisible() ? Qt::Checked : Qt::Unchecked);
-   m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(m_ViewSettings->getMapColors()));
-   m_Ui->alphaSlider->setValue(m_ViewSettings->getAlpha() * 100);
+  // Block Signals
+  m_Ui->showScalarBarComboBox->blockSignals(true);
+  m_Ui->mapScalarsComboBox->blockSignals(true);
+  m_Ui->alphaSlider->blockSignals(true);
+
+  // Get Values
+  VSFilterViewSettings::ScalarBarSetting scalarBar = VSFilterViewSettings::GetScalarBarSettings(m_ViewSettings);
+  VSFilterViewSettings::ColorMapping colorMapping = VSFilterViewSettings::GetColorMapping(m_ViewSettings);
+  double alpha = VSFilterViewSettings::GetAlpha(m_ViewSettings);
+
+  // Set UI Values
+  if(VSFilterViewSettings::ScalarBarSetting::MultiValues == scalarBar)
+  {
+    addMultiValueOption(m_Ui->showScalarBarComboBox);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->showScalarBarComboBox);
+    m_Ui->showScalarBarComboBox->setCurrentIndex(static_cast<int>(scalarBar));
+  }
+
+  if(VSFilterViewSettings::ColorMapping::MultiValues == colorMapping)
+  {
+    addMultiValueOption(m_Ui->mapScalarsComboBox);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->mapScalarsComboBox);
+    m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(colorMapping));
+  }
+
+  m_Ui->alphaSlider->setValue(alpha * 100);
+
+  // Unblock Signals
+  m_Ui->showScalarBarComboBox->blockSignals(false);
+  m_Ui->mapScalarsComboBox->blockSignals(false);
+  m_Ui->alphaSlider->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget)
+void VSColorMappingWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
-  Q_UNUSED(filterWidget)
+  m_Filters = filters;
 
-  m_Filter = filter;
-
-  bool filterExists = (nullptr != filter);
+  bool filterExists = (filters.size() > 0);
   if(filterExists && m_ViewWidget)
   {
-    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filter));
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters));
   }
   else
   {
-    connectFilterViewSettings(nullptr);
+    connectFilterViewSettings(VSFilterViewSettings::Collection());
   }
 
   // Check if VSFilterSettings exist and are valid
-  VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::ActorType::Invalid;
-  if(m_ViewSettings && m_ViewSettings->isValid())
-  {
-    actorType = m_ViewSettings->getActorType();
-  }
-
+  VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::GetActorType(m_ViewSettings);
   switch(actorType)
   {
   case VSFilterViewSettings::ActorType::DataSet:
@@ -123,6 +158,7 @@ void VSColorMappingWidget::setFilter(VSAbstractFilter* filter, VSAbstractFilterW
   case VSFilterViewSettings::ActorType::Invalid:
   default:
     m_Ui->contentContainer->setVisible(false);
+    m_Ui->colorMappingContainer->setVisible(false);
     break;
   }
 
@@ -136,13 +172,13 @@ void VSColorMappingWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
   m_ViewWidget = viewWidget;
 
-  if(m_ViewWidget)
+  if(m_ViewWidget && m_Filters.size() > 0)
   {
-    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filter));
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters));
   }
   else
   {
-    connectFilterViewSettings(nullptr);
+    connectFilterViewSettings(VSFilterViewSettings::Collection());
   }
 
   updateViewSettingInfo();
@@ -151,22 +187,22 @@ void VSColorMappingWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::connectFilterViewSettings(VSFilterViewSettings* settings)
+void VSColorMappingWidget::connectFilterViewSettings(VSFilterViewSettings::Collection filterSettings)
 {
-  if(m_ViewSettings)
+  for(VSFilterViewSettings* settings : m_ViewSettings)
   {
-    disconnect(m_ViewSettings, &VSFilterViewSettings::mapColorsChanged, this, &VSColorMappingWidget::listenMapColors);
-    disconnect(m_ViewSettings, &VSFilterViewSettings::alphaChanged, this, &VSColorMappingWidget::listenAlpha);
-    disconnect(m_ViewSettings, &VSFilterViewSettings::showScalarBarChanged, this, &VSColorMappingWidget::listenScalarBar);
+    disconnect(settings, &VSFilterViewSettings::mapColorsChanged, this, &VSColorMappingWidget::listenMapColors);
+    disconnect(settings, &VSFilterViewSettings::alphaChanged, this, &VSColorMappingWidget::listenAlpha);
+    disconnect(settings, &VSFilterViewSettings::scalarBarSettingChanged, this, &VSColorMappingWidget::listenScalarBar);
   }
 
-  m_ViewSettings = settings;
+  m_ViewSettings = filterSettings;
 
-  if(m_ViewSettings)
+  for(VSFilterViewSettings* settings : m_ViewSettings)
   {
     connect(settings, &VSFilterViewSettings::mapColorsChanged, this, &VSColorMappingWidget::listenMapColors);
     connect(settings, &VSFilterViewSettings::alphaChanged, this, &VSColorMappingWidget::listenAlpha);
-    connect(settings, &VSFilterViewSettings::showScalarBarChanged, this, &VSColorMappingWidget::listenScalarBar);
+    connect(settings, &VSFilterViewSettings::scalarBarSettingChanged, this, &VSColorMappingWidget::listenScalarBar);
   }
 }
 
@@ -175,26 +211,45 @@ void VSColorMappingWidget::connectFilterViewSettings(VSFilterViewSettings* setti
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::setScalarsMapped(int colorMappingIndex)
 {
-  if(nullptr == m_ViewSettings)
+  // Do not change values when the multi-value option is selected
+  if(hasMultiValueOption(m_Ui->mapScalarsComboBox))
   {
-    return;
+    if(colorMappingIndex == 0)
+    {
+      return;
+    }
+
+    colorMappingIndex--;
   }
 
-  m_ViewSettings->setMapColors(static_cast<VSFilterViewSettings::ColorMapping>(colorMappingIndex));
+  VSFilterViewSettings::ColorMapping colorMapping = static_cast<VSFilterViewSettings::ColorMapping>(colorMappingIndex);
+  for(VSFilterViewSettings* settings : m_ViewSettings)
+  {
+    settings->setMapColors(colorMapping);
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::setScalarBarVisible(int checkState)
+void VSColorMappingWidget::setScalarBarSetting(int index)
 {
-  if(nullptr == m_ViewSettings)
+  // Do not change values when the multi-value option is selected
+  if(hasMultiValueOption(m_Ui->showScalarBarComboBox))
   {
-    return;
+    if(index == 0)
+    {
+      return;
+    }
+
+    index--;
   }
 
-  bool checked = checkState == Qt::Checked;
-  m_ViewSettings->setScalarBarVisible(checked);
+  VSFilterViewSettings::ScalarBarSetting setting = static_cast<VSFilterViewSettings::ScalarBarSetting>(index);
+  for(VSFilterViewSettings* settings : m_ViewSettings)
+  {
+    settings->setScalarBarSetting(setting);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -202,7 +257,7 @@ void VSColorMappingWidget::setScalarBarVisible(int checkState)
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::selectPresetColors()
 {
-  if(nullptr == m_ViewSettings)
+  if(m_ViewSettings.size() == 0)
   {
     return;
   }
@@ -215,12 +270,10 @@ void VSColorMappingWidget::selectPresetColors()
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::loadPresetColors(const QJsonObject& preset, const QPixmap& pixmap)
 {
-  if(nullptr == m_ViewSettings)
+  for(VSFilterViewSettings* settings : m_ViewSettings)
   {
-    return;
+    settings->loadPresetColors(preset);
   }
-
-  m_ViewSettings->loadPresetColors(preset);
 }
 
 // -----------------------------------------------------------------------------
@@ -228,12 +281,10 @@ void VSColorMappingWidget::loadPresetColors(const QJsonObject& preset, const QPi
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::invertScalarBar()
 {
-  if(nullptr == m_ViewSettings)
+  for(VSFilterViewSettings* settings : m_ViewSettings)
   {
-    return;
+    settings->invertScalarBar();
   }
-
-  m_ViewSettings->invertScalarBar();
 }
 
 // -----------------------------------------------------------------------------
@@ -241,12 +292,10 @@ void VSColorMappingWidget::invertScalarBar()
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::alphaSliderMoved(int value)
 {
-  if(nullptr == m_ViewSettings)
+  for(VSFilterViewSettings* settings : m_ViewSettings)
   {
-    return;
+    settings->setAlpha(value / 100.0);
   }
-
-  m_ViewSettings->setAlpha(value / 100.0);
 }
 
 // -----------------------------------------------------------------------------
@@ -254,9 +303,19 @@ void VSColorMappingWidget::alphaSliderMoved(int value)
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::listenMapColors(VSFilterViewSettings::ColorMapping colorMapping)
 {
-  // m_Ui->mapScalarsComboBox->blockSignals(true);
-  // m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(colorMapping));
-  // m_Ui->mapScalarsComboBox->blockSignals(false);
+  colorMapping = VSFilterViewSettings::GetColorMapping(m_ViewSettings);
+
+  m_Ui->mapScalarsComboBox->blockSignals(true);
+  if(VSFilterViewSettings::ColorMapping::MultiValues == colorMapping)
+  {
+    addMultiValueOption(m_Ui->mapScalarsComboBox);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->mapScalarsComboBox);
+    m_Ui->mapScalarsComboBox->setCurrentIndex(static_cast<int>(colorMapping));
+  }
+  m_Ui->mapScalarsComboBox->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -264,17 +323,65 @@ void VSColorMappingWidget::listenMapColors(VSFilterViewSettings::ColorMapping co
 // -----------------------------------------------------------------------------
 void VSColorMappingWidget::listenAlpha(double alpha)
 {
-  // m_Ui->alphaSlider->blockSignals(true);
-  // m_Ui->alphaSlider->setValue(alpha * 100);
-  // m_Ui->alphaSlider->blockSignals(false);
+  m_Ui->alphaSlider->blockSignals(true);
+  m_Ui->alphaSlider->setValue(alpha * 100);
+  m_Ui->alphaSlider->blockSignals(false);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSColorMappingWidget::listenScalarBar(bool show)
+void VSColorMappingWidget::listenScalarBar(const VSFilterViewSettings::ScalarBarSetting&)
 {
-  // m_Ui->showScalarBarCheckBox->blockSignals(true);
-  // m_Ui->showScalarBarCheckBox->setChecked(show);
-  // m_Ui->showScalarBarCheckBox->blockSignals(false);
+  VSFilterViewSettings::ScalarBarSetting scalarBar = VSFilterViewSettings::GetScalarBarSettings(m_ViewSettings);
+
+  m_Ui->showScalarBarComboBox->blockSignals(true);
+  if(VSFilterViewSettings::ScalarBarSetting::MultiValues == scalarBar)
+  {
+    addMultiValueOption(m_Ui->showScalarBarComboBox);
+  }
+  else
+  {
+    removeMultiValueOption(m_Ui->showScalarBarComboBox);
+    m_Ui->showScalarBarComboBox->setCurrentIndex(static_cast<int>(scalarBar));
+  }
+  m_Ui->showScalarBarComboBox->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSColorMappingWidget::hasMultiValueOption(QComboBox* comboBox) const
+{
+  return comboBox->findText(::MultiOption) != -1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSColorMappingWidget::addMultiValueOption(QComboBox* comboBox)
+{
+  if(hasMultiValueOption(comboBox))
+  {
+    // Select the Multi-Value option
+    comboBox->setCurrentIndex(comboBox->findText(::MultiOption));
+    return;
+  }
+
+  comboBox->insertItem(0, ::MultiOption);
+  comboBox->setCurrentIndex(0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSColorMappingWidget::removeMultiValueOption(QComboBox* comboBox)
+{
+  if(!hasMultiValueOption(comboBox))
+  {
+    return;
+  }
+
+  int index = comboBox->findText(::MultiOption);
+  comboBox->removeItem(index);
 }

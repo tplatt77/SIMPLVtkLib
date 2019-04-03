@@ -49,6 +49,7 @@
 #include "SIMPLVtkLib/QtWidgets/VSTransformWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilterValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -170,10 +171,25 @@ public:
   void setTransformWidget(VSTransformWidget* widget);
 
   /**
-   * @brief importFiles
-   * @param filePaths
+   * @brief importDataContainerArray
+   * @param dca
    */
-  void importFiles(QStringList filePaths);
+  bool importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca);
+
+  /**
+   * @brief importPipelineOutput
+   * @param pipeline
+   * @param dca
+   * @return
+   */
+  bool importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+
+  /**
+   * @brief importPipelineOutput
+   * @param pipelines
+   * @return
+   */
+  bool importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines);
 
   /**
    * @brief Imports or reloads the given DataContainerArray from the FilterPipeline
@@ -186,44 +202,44 @@ public slots:
   /**
    * @brief Create a clip filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createClipFilter(VSAbstractFilter* parent = nullptr);
+  void createClipFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a crop filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createCropFilter(VSAbstractFilter* parent = nullptr);
+  void createCropFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a slice filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createSliceFilter(VSAbstractFilter* parent = nullptr);
+  void createSliceFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a mask filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createMaskFilter(VSAbstractFilter* parent = nullptr);
+  void createMaskFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a threshold filter and set the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createThresholdFilter(VSAbstractFilter* parent = nullptr);
+  void createThresholdFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Create a text filter and ste the given filter as its parent.  If no filter is provided,
    * the current filter is used instead.
-   * @param parent
+   * @param parents
    */
-  void createTextFilter(VSAbstractFilter* parent = nullptr);
+  void createTextFilter(VSAbstractFilter::FilterListType parents = VSAbstractFilter::FilterListType());
 
   /**
    * @brief Renders the active view widget
@@ -241,10 +257,30 @@ public slots:
    */
   void setBlockRender(bool block);
 
+  /**
+   * @brief Selects the given filter in the active view
+   * @param filter
+   */
+  void selectFilter(VSAbstractFilter* filter);
+
+  /**
+   * @brief Selects the given filters in the active view
+   * @param filters
+   */
+  void selectFilters(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief launchHDF5SelectionDialog
+   * @param proxy
+   */
+  void launchHDF5SelectionDialog(const QString& filePath);
+
 signals:
   void changedActiveView(VSAbstractViewWidget* viewWidget);
-  void changedActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
   void proxyFromFilePathGenerated(DataContainerArrayProxy proxy, const QString& filePath);
+  void selectedFiltersChanged(VSAbstractFilter::FilterListType filters);
+  void importDataQueueStarted();
+  void importDataQueueFinished();
 
 protected:
   /**
@@ -253,10 +289,21 @@ protected:
   virtual void connectSlots();
 
   /**
+   * @brief Creates shortcuts for changing, applying, resetting, and deleting the current filter
+   */
+  void setupShortcuts();
+
+  /**
    * @brief Returns the current visual filter
    * @return
    */
-  VSAbstractFilter* getCurrentFilter();
+  VSAbstractFilter* getCurrentFilter() const;
+
+  /**
+   * @brief Returns the filter selection for the active view
+   * @return
+   */
+  VSAbstractFilter::FilterListType getCurrentSelection() const;
 
   /**
    * @brief Performs handling adding a filter and toggling parent visibility
@@ -264,6 +311,13 @@ protected:
    * @param parent
    */
   void finishAddingFilter(VSAbstractFilter* filter, VSAbstractFilter* parent);
+
+  /**
+   * @brief Returns a list of filter widgets that map to the given set of filters
+   * @param filters
+   * @return
+   */
+  // VSAbstractFilterWidget::ListType getFilterWidgets(VSAbstractFilter::FilterListType filters);
 
 protected slots:
   /**
@@ -278,10 +332,29 @@ protected slots:
   virtual void activeViewClosed();
 
   /**
-   * @brief Changes the active visual filter
+   * @brief setCurrentFilter
    * @param filter
    */
   virtual void setCurrentFilter(VSAbstractFilter* filter);
+
+  /**
+   * @brief Change the current filter selection by a step in the given direction.
+   * @param stepDirection
+   * @param addSelection
+   */
+  virtual void changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection, bool addSelection = false);
+
+  /**
+   * @brief Listens for changes to the active view's filter selection
+   * @param selection
+   */
+  virtual void listenSelectionChanged(QItemSelection selection);
+
+  /**
+   * @brief Listens for the current filter to change
+   * @param filter
+   */
+  virtual void listenCurrentFilterChanged(VSAbstractFilter* filter);
 
   /**
    * @brief Applies the current filter
@@ -294,6 +367,16 @@ protected slots:
   virtual void resetCurrentFilter();
 
   /**
+   * @brief Deletes the current filter
+   */
+  virtual void deleteCurrentFilter();
+
+  /**
+   * @brief Toggles the current filter's visibility in the active view
+   */
+  virtual void toggleCurrentFilterVisibility();
+
+  /**
    * @brief Deletes the given filter and its children from the model and
    * removes them from the view widgets
    * @param filter
@@ -301,10 +384,21 @@ protected slots:
   virtual void deleteFilter(VSAbstractFilter* filter);
 
   /**
+   * @brief Deletes all filters
+   */
+  void clearFilters();
+
+  /**
    * @brief reloadFilter
    * @param filter
    */
   virtual void reloadDataFilter(VSAbstractDataFilter* filter);
+
+  /**
+   * @brief renameFilter
+   * @param filter
+   */
+  virtual void renameDataFilter(VSAbstractDataFilter* filter);
 
   /**
    * @brief reloadFileFilter
@@ -322,7 +416,7 @@ protected slots:
    * @param viewSettings
    * @param visible
    */
-  //virtual void setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible);
+  // virtual void setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible);
 
   /**
    * @brief Adds a filter to the model and sets it as the selected filter if requested
@@ -338,12 +432,6 @@ protected slots:
   void filterRemoved(VSAbstractFilter* filter);
 
   /**
-   * @brief launchSIMPLSelectionDialog
-   * @param proxy
-   */
-  void launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString& filePath);
-
-  /**
    * @brief generateError
    * @param title
    * @param msg
@@ -352,7 +440,8 @@ protected slots:
   void generateError(const QString& title, const QString& msg, const int& code);
 
 private:
-  VSController* m_Controller;
+  VSController* m_Controller = nullptr;
+  // VSAbstractFilterWidget::ListType m_CurrentFilterWidgets;
   VSAbstractFilter* m_CurrentFilter = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
@@ -362,14 +451,8 @@ private:
   VSTransformWidget* m_TransformWidget = nullptr;
   VSAdvancedVisibilitySettingsWidget* m_AdvancedVisibilityWidget = nullptr;
 
-  QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
+  // QMap<VSAbstractFilter*, VSAbstractFilterWidget*> m_FilterToFilterWidgetMap;
 
-  /**
-   * @brief openDREAM3DFile
-   * @param filePath
-   * @param instance
-   */
-  void openDREAM3DFile(const QString& filePath);
   /**
    * @brief reloadFilters
    * @param filter

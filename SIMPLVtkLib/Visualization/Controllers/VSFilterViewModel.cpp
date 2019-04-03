@@ -36,6 +36,8 @@
 #include "VSFilterViewModel.h"
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
+#include "vtkActor.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -222,6 +224,25 @@ VSFilterViewSettings* VSFilterViewModel::getFilterViewSettings(VSAbstractFilter*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSFilterViewSettings::Collection VSFilterViewModel::getFilterViewSettings(VSAbstractFilter::FilterListType filters) const
+{
+  VSFilterViewSettings::Collection collection;
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    VSFilterViewSettings* settings = getFilterViewSettings(filter);
+    if(nullptr != settings)
+    {
+      collection.push_back(settings);
+    }
+  }
+
+  return collection;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterViewSettings* VSFilterViewModel::getFilterViewSettingsByIndex(const QModelIndex& index) const
 {
   VSAbstractFilter* targetFilter = getFilterFromIndex(index);
@@ -268,7 +289,24 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
     return m_FilterViewSettings[filter];
   }
 
-  VSFilterViewSettings* viewSettings = new VSFilterViewSettings(filter);
+  static int numImages = 0;
+  static int imageIndex = 0;
+
+  VSFilterViewSettings* viewSettings;
+  if(m_DisplayType == ImportMontageWizard::DisplayType::NotSpecified)
+  {
+	  viewSettings = new VSFilterViewSettings(filter);
+  }
+  else
+  {
+	  VSFilterViewSettings::Representation representation = VSFilterViewSettings::Representation::Outline;
+	  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide ||
+		  m_DisplayType == ImportMontageWizard::DisplayType::Montage)
+	  {
+		  representation = VSFilterViewSettings::Representation::Surface;
+	  }
+	  viewSettings = new VSFilterViewSettings(filter, representation, m_DisplayType);
+  }
 
   //connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
   //connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
@@ -320,7 +358,6 @@ void VSFilterViewModel::removeFilterViewSettings(VSAbstractFilter* filter)
   if(viewSettings)
   {
     viewSettings->setVisible(false);
-    viewSettings->setScalarBarVisible(false);
 
     emit viewSettingsRemoved(viewSettings);
     m_FilterViewSettings.erase(filter);
@@ -431,6 +468,32 @@ QModelIndex VSFilterViewModel::index(int row, int column, const QModelIndex& par
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getBaseFilters() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getBaseFilters();
+  }
+
+  return VSAbstractFilter::FilterListType();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getAllFilters() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getAllFilters();
+  }
+
+  return VSAbstractFilter::FilterListType();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSAbstractFilter* VSFilterViewModel::getFilterFromIndex(const QModelIndex& index) const
 {
   if(m_FilterModel)
@@ -444,7 +507,7 @@ VSAbstractFilter* VSFilterViewModel::getFilterFromIndex(const QModelIndex& index
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
+QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter) const
 {
   if(filter == nullptr)
   {
@@ -452,6 +515,38 @@ QModelIndex VSFilterViewModel::getIndexFromFilter(VSAbstractFilter* filter)
   }
 
   return createIndex(filter->getChildIndex(), 0, filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSFilterViewModel::getFiltersFromIndexes(const QModelIndexList& indexes) const
+{
+  VSAbstractFilter::FilterListType filterList;
+  for(QModelIndex index : indexes)
+  {
+    VSAbstractFilter* filter = getFilterFromIndex(index);
+    if(filter)
+    {
+      filterList.push_back(filter);
+    }
+  }
+
+  return filterList;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::getIndexesFromFilters(VSAbstractFilter::FilterListType filters) const
+{
+  QModelIndexList indexes;
+  for(VSAbstractFilter* filter : filters)
+  {
+    indexes.push_back(getIndexFromFilter(filter));
+  }
+
+  return indexes;
 }
 
 // -----------------------------------------------------------------------------
@@ -547,6 +642,19 @@ QModelIndex VSFilterViewModel::rootIndex() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSRootFilter* VSFilterViewModel::getRootFilter() const
+{
+  if(m_FilterModel)
+  {
+    return m_FilterModel->getRootFilter();
+  }
+
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QString VSFilterViewModel::getFilterText(const QModelIndex& index) const
 {
   if(m_FilterModel)
@@ -598,4 +706,50 @@ void VSFilterViewModel::filterVisibilityChanged()
   QVector<int> roles(Qt::CheckStateRole);
   QModelIndex index = getIndexFromFilter(viewSettings->getFilter());
   emit dataChanged(index, index, roles);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::convertIndicesToFilterModel(const QModelIndexList& indices) const
+{
+  QModelIndexList filterModelIndices;
+  for(QModelIndex localIndex : indices)
+  {
+    VSAbstractFilter* filter = getFilterFromIndex(localIndex);
+    if(filter)
+    {
+      QModelIndex targetIndex = m_FilterModel->getIndexFromFilter(filter);
+      filterModelIndices.push_back(targetIndex);
+    }
+  }
+
+  return filterModelIndices;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelIndexList& indices) const
+{
+  QModelIndexList localModelIndices;
+  for(QModelIndex filterIndex : indices)
+  {
+    VSAbstractFilter* filter = m_FilterModel->getFilterFromIndex(filterIndex);
+    if(filter)
+    {
+      QModelIndex targetIndex = this->getIndexFromFilter(filter);
+      localModelIndices.push_back(targetIndex);
+    }
+  }
+
+  return localModelIndices;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewModel::setDisplayType(ImportMontageWizard::DisplayType displayType)
+{
+	m_DisplayType = displayType;
 }

@@ -217,9 +217,16 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::setFilter(VSAbstractFilter* filter)
+void VSTransformWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
-  setTransform(filter->getTransform());
+  if(filters.size() == 0)
+  {
+    setTransform(nullptr);
+  }
+  else
+  {
+    setTransform(filters.front()->getTransform());
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +301,7 @@ void VSTransformWidget::updateTranslationLabels()
   {
     position = m_Transform->getPosition();
   }
-  
+
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(position[0]);
@@ -354,7 +361,7 @@ void VSTransformWidget::updateScaleLabels()
   {
     scale = m_Transform->getScale();
   }
-  
+
   QLocale locale = QLocale::system();
 
   QString value1 = locale.toString(scale[0]);

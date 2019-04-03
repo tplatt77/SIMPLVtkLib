@@ -200,7 +200,7 @@ void VSTriangleGeom::Allocate(vtkIdType numCells, int extSize)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdList* ptIds)
+vtkIdType VSTriangleGeom::InsertNextCell(int type, const vtkIdList ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -209,7 +209,7 @@ vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdList* ptIds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
+vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -218,7 +218,7 @@ vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* pt
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
+vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[])
 {
   // TriangleGeometry should probably not be modified by VTK calls
   // To prevent spamming errors when loading this data, do not call vtkErrorMacro
@@ -228,7 +228,7 @@ vtkIdType VSTriangleGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* pt
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTriangleGeom::ReplaceCell(vtkIdType cellId, int npts, vtkIdType* pts)
+void VSTriangleGeom::ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   vtkErrorMacro("Read only container.");
 }

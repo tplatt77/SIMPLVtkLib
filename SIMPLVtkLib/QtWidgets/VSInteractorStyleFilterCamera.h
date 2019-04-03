@@ -1,54 +1,54 @@
 /* ============================================================================
-* Copyright (c) 2009-2015 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkProp3D.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
 
 class VSAbstractViewWidget;
 
 /**
-* @class VSInteractorStyleFilterCamera VSInteractorStyleFilterCamera.h SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h
-* @brief This class handles filter selection and camera controls by extending vtkInteractorStyleTrackballCamera.
-* Filter selection is performed when the corresponding modifier key is held down.  The filter can then be 
-* dragged around to modify its transformation until the mouse or modifier key is released.
-*/
+ * @class VSInteractorStyleFilterCamera VSInteractorStyleFilterCamera.h SIMPLVtkLib/QtWidgets/VSInteractorStyleFilterCamera.h
+ * @brief This class handles filter selection and camera controls by extending vtkInteractorStyleTrackballCamera.
+ * Filter selection is performed when the corresponding modifier key is held down.  The filter can then be
+ * dragged around to modify its transformation until the mouse or modifier key is released.
+ */
 class SIMPLVtkLib_EXPORT VSInteractorStyleFilterCamera : public vtkInteractorStyleTrackballCamera
 {
 public:
@@ -58,36 +58,51 @@ public:
   using FilterProp = std::pair<vtkProp3D*, VSAbstractFilter*>;
 
   /**
-  * @brief Handles left mouse button presses
-  */
+   * @brief Handles left mouse button presses
+   */
   void OnLeftButtonDown() override;
 
   /**
-  * @brief Cancels any drag operations.
-  */
+   * @brief Cancels any drag operations.
+   */
   void OnRightButtonDown() override;
 
   /**
-  * @brief Handles mouse movements
-  */
+   * @brief Handles mouse movements
+   */
   void OnMouseMove() override;
 
   /**
-  * @brief Checks if the ActionType needs to be set
-  */
+   * @brief Checks if the ActionType needs to be set
+   */
   void OnKeyDown() override;
 
   /**
-  * @brief Sets the VSAbstractViewWidget for selecting filters from
-  * @param viewWidget
-  */
+   * @brief Performs any necessary actions when the mouse is double clicked
+   */
+  void OnDoubleClick();
+  
+  /**
+   * @brief Performs any necessary actions when the mouse wheel is scrolled backward
+   */
+  void OnMouseWheelForward() override;
+
+  /**
+   * @brief Performs any necessary actions when the mouse wheel is scrolled backward
+   */
+  void OnMouseWheelBackward() override;
+
+  /**
+   * @brief Sets the VSAbstractViewWidget for selecting filters from
+   * @param viewWidget
+   */
   void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
-  * @brief Returns the visualization filter and vtkProp3D rendered at the given screen coordinates
-  * @param pos
-  * @return
-  */
+   * @brief Returns the visualization filter and vtkProp3D rendered at the given screen coordinates
+   * @param pos
+   * @return
+   */
   FilterProp getFilterFromScreenCoords(int pos[2]);
 
 protected:
@@ -96,13 +111,22 @@ protected:
     None = 0,
     Translate,
     Rotate,
-    Scale
+    Scale,
+	ResetTransform
+  };
+
+  enum class Axis
+  {
+    None = 0,
+	X,
+	Y,
+	Z
   };
 
   /**
-  * @brief Returns the ActionType for the interactor style
-  * @return
-  */
+   * @brief Returns the ActionType for the interactor style
+   * @return
+   */
   ActionType getActionType();
 
   /**
@@ -110,6 +134,18 @@ protected:
    * @param type
    */
   void setActionType(ActionType type);
+
+  /**
+   * @brief Returns the Axis for the interactor style
+   * @return
+   */
+  Axis getAxis();
+
+  /**
+   * @brief Sets the Axis for the interactor style
+   * @param axis
+   */
+  void setAxis(Axis axis);
 
   /**
    * @brief Ends the current action
@@ -134,15 +170,17 @@ protected:
   void addSelection(VSAbstractFilter* filter, vtkProp3D* prop);
 
   /**
+   * @brief Sets the filter and prop as the current selection
+   * @param filter
+   * @param prop
+   */
+  void setSelection(VSAbstractFilter* filter, vtkProp3D* prop);
+
+  /**
    * @brief Removes the filter from the current selection
    * @param filter
    */
   void removeSelection(VSAbstractFilter* filter);
-
-  /**
-   * @brief Clears the current selection
-   */
-  void clearSelection();
 
   /**
    * @brief Toggles the filter into or out of the current selection
@@ -160,77 +198,108 @@ protected:
   bool selectionIncludes(VSAbstractFilter* filter);
 
   /**
-  * @brief Releases the selected filter
-  */
+   * @brief Returns the list of VSAbstactFilters selected
+   * @return
+   */
+  VSAbstractFilter::FilterListType getFilterSelection() const;
+
+  /**
+   * @brief Releases the selected filter
+   */
   void releaseFilter();
 
   /**
-  * @brief Moves the selected filter
-  */
+   * @brief Moves the selected filter
+   */
   void translateFilter();
 
   /**
-  * @brief Begins a drag movement
-  */
+   * @brief Begins a drag movement
+   */
   void beginTranslation();
 
   /**
-  * @brief Cancels a drag movement
-  */
+   * @brief Cancels a drag movement
+   */
   void cancelTranslation();
 
   /**
-  * @brief Rotates the selected filter based on the camera angle
-  */
+   * @brief Rotates the selected filter based on the camera angle
+   */
   void rotateFilter();
 
   /**
-  * @brief Sets the initial rotation values
-  */
+   * @brief Sets the initial rotation values
+   */
   void beginRotation();
 
   /**
-  * @brief Cancels the filter rotation
-  */
+   * @brief Cancels the filter rotation
+   */
   void cancelRotation();
 
   /**
-  * @brief Scales the selected filter based on mouse movements
-  */
+   * @brief Scales the selected filter based on mouse movements
+   */
   void scaleFilter();
 
   /**
-  * @brief Sets the initial rotation values
-  */
+   * @brief Sets the initial rotation values
+   */
   void beginScaling();
 
   /**
-  * @brief Resets the selected filter's scaling to the initial value.
-  */
+   * @brief Resets the selected filter's scaling to the initial value.
+   */
   void cancelScaling();
 
   /**
-  * @brief Returns true if the CTRL key is down.  Returns false otherwise.
-  * @return
-  */
+   * @brief Resets the transform of the selected filter
+   */
+  void resetTransform();
+
+  /**
+   * @brief Undo the transform of the selected filter
+   */
+  void undoTransform();
+
+  /**
+   * @brief Redo the transform of the selected filter
+   */
+  void redoTransform();
+
+  /**
+   * @brief Selects all the filters
+   */
+  void selectAllFilters();
+
+  /**
+   * @brief Deselects all the filters
+   */
+  void deselectAllFilters();
+
+  /**
+   * @brief Returns true if the CTRL key is down.  Returns false otherwise.
+   * @return
+   */
   bool ctrlKey();
 
   /**
-  * @brief Returns true if the Alt key is down.  Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the Alt key is down.  Returns false otherwise.
+   * @return
+   */
   bool altKey();
 
   /**
-  * @brief Returns true if the Shift key is down.  Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the Shift key is down.  Returns false otherwise.
+   * @return
+   */
   bool shiftKey();
 
   /**
-  * @brief Returns true if the required drag filter key is down.  Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the required drag filter key is down.  Returns false otherwise.
+   * @return
+   */
   bool dragFilterKey();
 
   /**
@@ -238,12 +307,20 @@ protected:
    */
   void updateLinkedRenderWindows();
 
+  /**
+   * @brief Determine the amount of subsampling to perform, if any
+   */
+  void determineSubsampling();
+
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;
-  std::list<VSAbstractFilter*> m_Selection;
-  int m_MousePress = 0;
   ActionType m_ActionType = ActionType::None;
+  Axis m_ActionAxis = Axis::None;
+  bool m_CustomTransform = false;
+  QString m_CustomTransformAmount;
+  std::map<VSAbstractFilter*, VSTransform*> m_PreviousTransforms;
+  std::map<VSAbstractFilter*, VSTransform*> m_LastUndoneTransforms;
   // Position
   double* m_InitialPosition;
   double m_Translation[3];
@@ -255,7 +332,6 @@ private:
   double* m_InitialCenter;
   double m_LastDistance;
   double m_ScaleAmt = 1.0;
-  
 
   VSAbstractViewWidget* m_ViewWidget = nullptr;
 };

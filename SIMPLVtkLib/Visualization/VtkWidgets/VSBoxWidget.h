@@ -143,19 +143,37 @@ public:
    * @brief Gets the box scale
    * @param scale
    */
-  void getScale(double scale[3]);
+  void getScale(double scale[3]) const;
 
   /**
    * @brief Gets the box rotation
    * @param rotation
    */
-  void getRotation(double rotation[3]);
+  void getRotation(double rotation[3]) const;
 
   /**
    * @brief Gets the box translation
    * @param translation
    */
-  void getTranslation(double translation[3]);
+  void getTranslation(double translation[3]) const;
+
+  /**
+   * @brief Gets the box scale
+   * @param scale
+   */
+  void getViewScale(double scale[3]) const;
+
+  /**
+   * @brief Gets the box rotation
+   * @param rotation
+   */
+  void getViewRotation(double rotation[3]) const;
+
+  /**
+   * @brief Gets the box translation
+   * @param translation
+   */
+  void getViewTranslation(double translation[3]) const;
 
   /**
    * @brief Updates the box widget
@@ -167,6 +185,26 @@ public:
    * @param interactor
    */
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
+
+  /**
+  * @brief Returns true if the translation, rotation, and scale are consistent with current values.
+  * Returns false otherwise.
+  * @param translation
+  * @param rotation
+  * @param scale
+  * @return
+  */
+  bool equals(double* translation, double* rotation, double* scale) const;
+
+  /**
+  * @brief Returns true if the translation, rotation, and scale are consistent with current values.
+  * Returns false otherwise.
+  * @param translation
+  * @param rotation
+  * @param scale
+  * @return
+  */
+  bool equals(std::vector<double> translation, std::vector<double> rotation, std::vector<double> scale) const;
 
   /**
    * @brief Reads values from a json file into the widget

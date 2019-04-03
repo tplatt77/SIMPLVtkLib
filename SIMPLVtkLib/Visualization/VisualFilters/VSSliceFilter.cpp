@@ -52,29 +52,20 @@ VSSliceFilter::VSSliceFilter(VSAbstractFilter* parent)
   m_SliceAlgorithm = nullptr;
   setParentFilter(parent);
 
-  m_LastOrigin[0] = 0.0;
-  m_LastOrigin[1] = 0.0;
-  m_LastOrigin[2] = 0.0;
-
-  m_LastNormal[0] = 1.0;
-  m_LastNormal[1] = 0.0;
-  m_LastNormal[2] = 0.0;
+  m_SliceValues = new VSSliceValues(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSSliceFilter::VSSliceFilter(const VSSliceFilter& copy)
-  : VSAbstractFilter()
+: VSAbstractFilter()
 {
   m_SliceAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastOrigin[i] = copy.m_LastOrigin[i];
-    m_LastNormal[i] = copy.m_LastNormal[i];
-  }
+  m_SliceValues = new VSSliceValues(*(copy.m_SliceValues));
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -83,21 +74,8 @@ VSSliceFilter::VSSliceFilter(const VSSliceFilter& copy)
 VSSliceFilter* VSSliceFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSSliceFilter* filter = new VSSliceFilter(parent);
-
-  QJsonArray lastOrigin = json["Last Origin"].toArray();
-  double origin[3];
-  origin[0] = lastOrigin.at(0).toDouble();
-  origin[1] = lastOrigin.at(1).toDouble();
-  origin[2] = lastOrigin.at(2).toDouble();
-  filter->setLastOrigin(origin);
-
-  QJsonArray lastNormal = json["Last Normal"].toArray();
-  double normals[3];
-  normals[0] = lastNormal.at(0).toDouble();
-  normals[1] = lastNormal.at(1).toDouble();
-  normals[2] = lastNormal.at(2).toDouble();
-  filter->setLastNormal(normals);
-
+  filter->m_SliceValues->readJson(json);
+  
   filter->setInitialized(true);
   filter->readTransformJson(json);
 
@@ -133,6 +111,25 @@ QString VSSliceFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSSliceFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSSliceFilter::applyValues(VSSliceValues* values)
+{
+  if(values)
+  {
+    apply(values->getOrigin(), values->getNormal());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSSliceFilter::apply(double origin[3], double normal[3])
 {
   if(nullptr == m_SliceAlgorithm)
@@ -141,11 +138,8 @@ void VSSliceFilter::apply(double origin[3], double normal[3])
   }
 
   // Save the applied values for resetting Plane-Type widgets
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastOrigin[i] = origin[i];
-    m_LastNormal[i] = normal[i];
-  }
+  m_SliceValues->setLastOrigin(origin);
+  m_SliceValues->setLastNormal(normal);
 
   VTK_NEW(vtkPlane, planeWidget);
   planeWidget->SetOrigin(origin);
@@ -155,8 +149,6 @@ void VSSliceFilter::apply(double origin[3], double normal[3])
   m_SliceAlgorithm->Update();
 
   emit updatedOutputPort(this);
-  emit lastOriginChanged();
-  emit lastNormalChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -188,6 +180,7 @@ void VSSliceFilter::apply(std::vector<double> originVector, std::vector<double> 
 // -----------------------------------------------------------------------------
 void VSSliceFilter::readJson(QJsonObject& json)
 {
+  m_SliceValues->readJson(json);
 }
 
 // -----------------------------------------------------------------------------
@@ -196,18 +189,7 @@ void VSSliceFilter::readJson(QJsonObject& json)
 void VSSliceFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
-
-  QJsonArray lastOrigin;
-  lastOrigin.append(m_LastOrigin[0]);
-  lastOrigin.append(m_LastOrigin[1]);
-  lastOrigin.append(m_LastOrigin[2]);
-  json["Last Origin"] = lastOrigin;
-
-  QJsonArray lastNormal;
-  lastNormal.append(m_LastNormal[0]);
-  lastNormal.append(m_LastNormal[1]);
-  lastNormal.append(m_LastNormal[2]);
-  json["Last Normal"] = lastNormal;
+  m_SliceValues->writeJson(json);
 
   json["Uuid"] = GetUuid().toString();
 }
@@ -287,7 +269,7 @@ VSAbstractFilter::dataType_t VSSliceFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSSliceFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -295,14 +277,14 @@ VSAbstractFilter::dataType_t VSSliceFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSSliceFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSSliceFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
     return false;
   }
 
-  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
   {
     return true;
   }
@@ -313,67 +295,28 @@ bool VSSliceFilter::compatibleWithParent(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double* VSSliceFilter::getLastOrigin()
+bool VSSliceFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
 {
-  return m_LastOrigin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double* VSSliceFilter::getLastNormal()
-{
-  return m_LastNormal;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::setLastOrigin(double* origin)
-{
-  m_LastOrigin[0] = origin[0];
-  m_LastOrigin[1] = origin[1];
-  m_LastOrigin[2] = origin[2];
-
-  emit lastOriginChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSSliceFilter::setLastNormal(double* normal)
-{
-  m_LastNormal[0] = normal[0];
-  m_LastNormal[1] = normal[1];
-  m_LastNormal[2] = normal[2];
-
-  emit lastNormalChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::vector<double> VSSliceFilter::getLastOriginVector()
-{
-  std::vector<double> origin(3);
-  for(int i = 0; i < 3; i++)
+  if(filters.size() == 0)
   {
-    origin[i] = m_LastOrigin[i];
+    return false;
   }
 
-  return origin;
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<double> VSSliceFilter::getLastNormalVector()
+VSAbstractFilterValues* VSSliceFilter::getValues()
 {
-  std::vector<double> normal(3);
-  for(int i = 0; i < 3; i++)
-  {
-    normal[i] = m_LastNormal[i];
-  }
-
-  return normal;
+  return m_SliceValues;
 }

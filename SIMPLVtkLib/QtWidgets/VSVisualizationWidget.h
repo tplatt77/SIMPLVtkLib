@@ -90,9 +90,9 @@ public:
   VTK_PTR(vtkRenderer) getRenderer();
 
   /**
-  * @brief Sets the renderer's vtkInteractorStyle
-  * @param style
-  */
+   * @brief Sets the renderer's vtkInteractorStyle
+   * @param style
+   */
   void setInteractorStyle(vtkInteractorStyle* style);
 
   /**
@@ -102,16 +102,16 @@ public:
   LinkedRenderWindowType getLinkedRenderWindows();
 
   /**
-  * @brief Returns the QAction for linking this widget's camera with another.
-  * @return
-  */
+   * @brief Returns the QAction for linking this widget's camera with another.
+   * @return
+   */
   QAction* getLinkCamerasAction();
 
   /**
-  * @brief Returns the visualization filter found at the given screen coordinates
-  * @param pos
-  * @return
-  */
+   * @brief Returns the visualization filter found at the given screen coordinates
+   * @param pos
+   * @return
+   */
   VSAbstractFilter* getFilterFromScreenCoords(int pos[2]);
 
   /**
@@ -196,7 +196,25 @@ protected:
    * @brief Overrides the mousePressEvent
    * @param event
    */
-  virtual void mousePressEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Overrides the mouseReleaseEvent
+   * @param event
+   */
+  void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Overrides the mouseMoveEvent
+   * @param event
+   */
+  void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * @brief Overrides the mouseDoubleClickEvent
+   * @param event
+   */
+  void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 
   /**
    * @brief Check if linking cameras
@@ -205,8 +223,8 @@ protected:
   virtual void focusInEvent(QFocusEvent* event) override;
 
   /**
-  * @brief Links the rendering camera with the given visualization widget.
-  */
+   * @brief Links the rendering camera with the given visualization widget.
+   */
   void linkCameraWith(VSVisualizationWidget* widget);
 
 protected slots:
@@ -219,6 +237,7 @@ private:
   LinkedRenderWindowType m_LinkedRenderWindows;
   QAction* m_LinkCameraAction = nullptr;
   bool m_OwnContextMenu = true;
+  bool m_CheckContextMenu = false;
 
   unsigned int m_NumRenderLayers;
 

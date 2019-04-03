@@ -74,16 +74,22 @@ public:
   virtual ~VSPlaneWidget();
 
   /**
+   * @brief Returns the current normal
+   * @return
+   */
+  double* getNormal() const;
+
+  /**
    * @brief Copies the normals into the double array passed in
    * @param normals
    */
-  void getNormals(double normals[3]);
+  void getNormal(double normals[3]) const;
 
   /**
    * @brief Sets the normals to the given value
    * @param normals
    */
-  void setNormals(double normals[3]);
+  void setNormal(double normals[3]);
 
   /**
    * @brief Sets the normals to match the given values
@@ -91,25 +97,49 @@ public:
    * @param y
    * @param z
    */
-  void setNormals(double x, double y, double z);
+  void setNormal(double x, double y, double z);
 
   /**
    * @brief Returns the origin from the m_UsePlane
    * @return
    */
-  double* getOrigin();
+  double* getOrigin() const;
 
   /**
    * @brief Copies the origin from the m_UsePlane into the double array passed in
    * @param origin
    */
-  void getOrigin(double origin[3]);
+  void getOrigin(double origin[3]) const;
 
   /**
    * @brief Sets the origin to the given value
    * @param origin
    */
   void setOrigin(double origin[3]);
+
+  /**
+   * @brief Returns the Use plane's normal
+   * @return
+   */
+  double* getUsePlaneNormal();
+
+  /**
+   * @brief Returns the Use plane's origin
+   * @return
+   */
+  double* getUsePlaneOrigin();
+
+  /**
+   * @brief Updates the use plane with the given origin
+   * @param origin
+   */
+  void setUsePlaneOrigin(double origin[3]);
+
+  /**
+   * @brief Updates the use plane with the given normal
+   * @param normal
+   */
+  void setUsePlaneNormal(double normal[3]);
 
   /**
    * @brief Sets the vtkRenderWindowInteractor for the filter widget
@@ -147,6 +177,15 @@ public:
    * @brief Updates the VTK plane
    */
   void updatePlaneWidget();
+
+  /**
+   * @brief Returns true if the given origin and normal are consistent with current values.
+   * Returns false otherwise.
+   * @param origin
+   * @param normal
+   * @return
+   */
+  bool equals(double* origin, double* normal) const;
 
   /**
    * @brief Reads values from a json file into the widget

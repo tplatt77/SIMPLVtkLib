@@ -42,41 +42,51 @@
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
 
-#include "ui_VSMainWidget2.h"
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-class VSMainWidget2::vsInternals : public Ui::VSMainWidget2
-{
-public:
-  vsInternals()
-  {
-  }
-};
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSMainWidget2::VSMainWidget2(QWidget* parent)
 : VSMainWidgetBase(parent)
-, m_Internals(new vsInternals())
+, m_Ui(new Ui::VSMainWidget2)
+, m_VisualizationFiltersUi(new Ui::VisualizationFilterWidgets)
+, m_VisibilityContainerUi(new Ui::VisibilitySettingsContainer)
 {
-  m_Internals->setupUi(this);
+  m_Ui->setupUi(this);
 
-  VSAbstractViewWidget* viewWidget = m_Internals->viewWidget;
+  VSAbstractViewWidget* viewWidget = m_Ui->viewWidget;
   viewWidget->setController(getController());
   connectViewWidget(viewWidget);
   setActiveView(viewWidget);
 
-  // Set the VSFilterView and VSInfoWidget
-  setFilterView(m_Internals->filterView);
-  setInfoWidget(m_Internals->infoWidget);
-  showFilterView(false);
-
   createFilterMenu();
+  
+  // Create Visualization Widgets
+  QWidget* visualizationFilters = new QWidget(this);
+  m_VisualizationFiltersUi->setupUi(visualizationFilters);
+  QWidget* visibilityContainer = new QWidget(this);
+  m_VisibilityContainerUi->setupUi(visibilityContainer);
+
+  // Set pop-up widgets
+  m_Ui->visualizationFiltersOverlayBtn->setTarget(m_Ui->viewContainer);
+  m_Ui->visualizationSettingsOverlayBtn->setTarget(m_Ui->viewContainer);
+  m_Ui->visualizationFiltersOverlayBtn->setSource(visualizationFilters);
+  m_Ui->visualizationSettingsOverlayBtn->setSource(visibilityContainer);
+
+  m_Ui->visualizationFiltersOverlayBtn->setSide(SVOverlayWidgetButton::TargetSide::Left);
+  m_Ui->visualizationSettingsOverlayBtn->setSide(SVOverlayWidgetButton::TargetSide::Bottom);
+  m_Ui->visualizationFiltersOverlayBtn->addOverlappingButton(m_Ui->visualizationSettingsOverlayBtn);
+  m_Ui->visualizationSettingsOverlayBtn->addOverlappingButton(m_Ui->visualizationFiltersOverlayBtn);
+
+  setFilterView(m_VisualizationFiltersUi->visualFilterView);
+  setFilterSettingsWidget(m_VisualizationFiltersUi->vsFilterWidget);
+  setVisibilitySettingsWidget(m_VisibilityContainerUi->visibilityWidget);
+  setColorMappingWidget(m_VisibilityContainerUi->colorMappingWidget);
+  setAdvancedVisibilityWidget(m_VisibilityContainerUi->advVisibilityWidget);
+  setTransformWidget(m_VisibilityContainerUi->transformWidget);
+
   connectSlots();
   setCurrentFilter(nullptr);
+  updateOverlayButtons();
 }
 
 // -----------------------------------------------------------------------------
@@ -85,32 +95,28 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
 void VSMainWidget2::connectSlots()
 {
   // Filter Slots
-  connect(m_Internals->clipBtn, SIGNAL(clicked()), m_ActionAddClip, SLOT(trigger()));
-  connect(m_Internals->sliceBtn, SIGNAL(clicked()), m_ActionAddSlice, SLOT(trigger()));
-  connect(m_Internals->thresholdBtn, SIGNAL(clicked()), m_ActionAddThreshold, SLOT(trigger()));
+  connect(m_Ui->clipBtn, SIGNAL(clicked()), m_ActionAddClip, SLOT(trigger()));
+  connect(m_Ui->sliceBtn, SIGNAL(clicked()), m_ActionAddSlice, SLOT(trigger()));
+  connect(m_Ui->thresholdBtn, SIGNAL(clicked()), m_ActionAddThreshold, SLOT(trigger()));
 
   // Camera Slots
-  connect(m_Internals->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
-  connect(m_Internals->cameraYpBtn, SIGNAL(clicked()), this, SLOT(activeCameraYPlus()));
-  connect(m_Internals->cameraZpBtn, SIGNAL(clicked()), this, SLOT(activeCameraZPlus()));
-  connect(m_Internals->cameraXmBtn, SIGNAL(clicked()), this, SLOT(activeCameraXMinus()));
-  connect(m_Internals->cameraYmBtn, SIGNAL(clicked()), this, SLOT(activeCameraYMinus()));
-  connect(m_Internals->cameraZmBtn, SIGNAL(clicked()), this, SLOT(activeCameraZMinus()));
+  connect(m_Ui->cameraXpBtn, SIGNAL(clicked()), this, SLOT(activeCameraXPlus()));
+  connect(m_Ui->cameraYpBtn, SIGNAL(clicked()), this, SLOT(activeCameraYPlus()));
+  connect(m_Ui->cameraZpBtn, SIGNAL(clicked()), this, SLOT(activeCameraZPlus()));
+  connect(m_Ui->cameraXmBtn, SIGNAL(clicked()), this, SLOT(activeCameraXMinus()));
+  connect(m_Ui->cameraYmBtn, SIGNAL(clicked()), this, SLOT(activeCameraYMinus()));
+  connect(m_Ui->cameraZmBtn, SIGNAL(clicked()), this, SLOT(activeCameraZMinus()));
 
-  connect(getController(), &VSController::filterAdded, this, [=] { renderAll(); });
+  connect(getController(), &VSController::filterAdded, this, &VSMainWidget2::listenFilterAdded);
+  connect(getController(), &VSController::filterRemoved, this, &VSMainWidget2::listenFilterRemoved);
   connect(getController(), &VSController::dataImported, this, [=] { resetCamera(); });
   connect(getController(), SIGNAL(applyingDataFilters(int)), this, SLOT(importNumFilters(int)));
   connect(getController(), SIGNAL(dataFilterApplied(int)), this, SLOT(importedFilterNum(int)));
 
-  connect(m_Internals->toggleFiltersButton, &QPushButton::toggled, [=](bool checked) { showFilterView(checked); });
-}
+  connect(m_VisualizationFiltersUi->clearFiltersBtn, &QPushButton::clicked, this, &VSMainWidget2::clearFilters);
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidget2::showFilterView(bool visible)
-{
-  m_Internals->filterSplitter->setVisible(visible);
+  connect(this, &VSMainWidget2::selectedFiltersChanged, this, &VSMainWidget2::listenFiltersChanged);
+  connect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
 }
 
 // -----------------------------------------------------------------------------
@@ -147,26 +153,34 @@ void VSMainWidget2::resetCamera()
 // -----------------------------------------------------------------------------
 void VSMainWidget2::setActiveView(VSAbstractViewWidget* viewWidget)
 {
+  disconnect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
   VSMainWidgetBase::setActiveView(viewWidget);
+  connect(getActiveViewWidget(), &VSViewWidget::currentFilterUpdated, this, &VSMainWidget2::updateFilterButtons);
 
   if(getActiveViewWidget() != nullptr)
   {
-    m_Internals->cameraXmBtn->setEnabled(true);
-    m_Internals->cameraXpBtn->setEnabled(true);
-    m_Internals->cameraYmBtn->setEnabled(true);
-    m_Internals->cameraYpBtn->setEnabled(true);
-    m_Internals->cameraZmBtn->setEnabled(true);
-    m_Internals->cameraZpBtn->setEnabled(true);
+    m_Ui->cameraXmBtn->setEnabled(true);
+    m_Ui->cameraXpBtn->setEnabled(true);
+    m_Ui->cameraYmBtn->setEnabled(true);
+    m_Ui->cameraYpBtn->setEnabled(true);
+    m_Ui->cameraZmBtn->setEnabled(true);
+    m_Ui->cameraZpBtn->setEnabled(true);
+
+    setVisualizationSettings(viewWidget->getFilterViewSettings(getCurrentSelection()));
   }
   else
   {
-    m_Internals->cameraXmBtn->setDisabled(true);
-    m_Internals->cameraXpBtn->setDisabled(true);
-    m_Internals->cameraYmBtn->setDisabled(true);
-    m_Internals->cameraYpBtn->setDisabled(true);
-    m_Internals->cameraZmBtn->setDisabled(true);
-    m_Internals->cameraZpBtn->setDisabled(true);
+    m_Ui->cameraXmBtn->setDisabled(true);
+    m_Ui->cameraXpBtn->setDisabled(true);
+    m_Ui->cameraYmBtn->setDisabled(true);
+    m_Ui->cameraYpBtn->setDisabled(true);
+    m_Ui->cameraZmBtn->setDisabled(true);
+    m_Ui->cameraZpBtn->setDisabled(true);
+
+    setVisualizationSettings(VSFilterViewSettings::Collection());
   }
+
+  updateOverlayButtons();
 }
 
 // -----------------------------------------------------------------------------
@@ -175,34 +189,297 @@ void VSMainWidget2::setActiveView(VSAbstractViewWidget* viewWidget)
 void VSMainWidget2::setCurrentFilter(VSAbstractFilter* filter)
 {
   VSMainWidgetBase::setCurrentFilter(filter);
+  updateOverlayButtons();
 
   // Check if each Filter Type can be added
   // Clip Filter
-  bool enableClip = VSClipFilter::compatibleWithParent(filter);
-  m_Internals->clipBtn->setEnabled(enableClip);
+  bool enableClip = VSClipFilter::CompatibleWithParent(filter);
+  m_Ui->clipBtn->setEnabled(enableClip);
   m_ActionAddClip->setEnabled(enableClip);
 
   // Slice
-  bool enableSlice = VSSliceFilter::compatibleWithParent(filter);
-  m_Internals->sliceBtn->setEnabled(enableSlice);
+  bool enableSlice = VSSliceFilter::CompatibleWithParent(filter);
+  m_Ui->sliceBtn->setEnabled(enableSlice);
   m_ActionAddSlice->setEnabled(enableSlice);
 
   // Crop Filter
-  bool enableCrop = VSCropFilter::compatibleWithParent(filter);
+  bool enableCrop = VSCropFilter::CompatibleWithParent(filter);
   m_ActionAddCrop->setEnabled(enableCrop);
 
   // Mask
-  bool enableMask = VSMaskFilter::compatibleWithParent(filter);
+  bool enableMask = VSMaskFilter::CompatibleWithParent(filter);
   m_ActionAddMask->setEnabled(enableMask);
 
   // Threshold
-  bool enableThreshold = VSThresholdFilter::compatibleWithParent(filter);
-  m_Internals->thresholdBtn->setEnabled(enableThreshold);
+  bool enableThreshold = VSThresholdFilter::CompatibleWithParent(filter);
+  m_Ui->thresholdBtn->setEnabled(enableThreshold);
   m_ActionAddThreshold->setEnabled(enableThreshold);
 
   // Text
-  bool enableText = VSTextFilter::compatibleWithParent(filter);
+  bool enableText = VSTextFilter::CompatibleWithParent(filter);
   m_ActionAddText->setEnabled(enableText);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFiltersChanged(VSAbstractFilter::FilterListType filtersSelected)
+{
+  if(filtersSelected.size() == 0)
+  {
+    setVisualizationSettings(VSFilterViewSettings::Collection());
+    getViewSettingsOverlayButton()->disable();
+  }
+  else
+  {
+    VSFilterViewSettings::Collection viewSettings = getActiveViewWidget()->getFilterViewSettings(filtersSelected);
+    setVisualizationSettings(viewSettings);
+    getViewSettingsOverlayButton()->enable();
+  }
+
+  updateFilterButtons();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterAdded(VSAbstractFilter* filter, bool currentFilter)
+{
+  if(dynamic_cast<VSPipelineFilter*>(filter) || dynamic_cast<VSFileNameFilter*>(filter))
+  {
+    m_Ui->visualizationFiltersOverlayBtn->setChecked(true);
+  }
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::listenFilterRemoved(VSAbstractFilter* filter)
+{
+  updateOverlayButtons();
+  renderAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::updateFilterButtons()
+{
+  VSAbstractFilter::FilterListType filtersSelected = getCurrentSelection();
+  
+  // Clip Filter
+  bool enableClip = VSClipFilter::CompatibleWithParents(filtersSelected);
+  m_Ui->clipBtn->setEnabled(enableClip);
+  m_ActionAddClip->setEnabled(enableClip);
+
+  // Slice
+  bool enableSlice = VSSliceFilter::CompatibleWithParents(filtersSelected);
+  m_Ui->sliceBtn->setEnabled(enableSlice);
+  m_ActionAddSlice->setEnabled(enableSlice);
+
+  // Crop Filter
+  bool enableCrop = VSCropFilter::CompatibleWithParents(filtersSelected);
+  m_ActionAddCrop->setEnabled(enableCrop);
+
+  // Mask
+  bool enableMask = VSMaskFilter::CompatibleWithParents(filtersSelected);
+  m_ActionAddMask->setEnabled(enableMask);
+
+  // Threshold
+  bool enableThreshold = VSThresholdFilter::CompatibleWithParents(filtersSelected);
+  m_Ui->thresholdBtn->setEnabled(enableThreshold);
+  m_ActionAddThreshold->setEnabled(enableThreshold);
+
+  // Text
+  bool enableText = VSTextFilter::CompatibleWithParents(filtersSelected);
+  m_ActionAddText->setEnabled(enableText);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::updateOverlayButtons()
+{
+  bool hasFilters = (getController()->getFilterModel()->getBaseFilters().size() != 0);
+  if(!hasFilters)
+  {
+    getFilterListOverlayButton()->disable();
+    getViewSettingsOverlayButton()->disable();
+  }
+  else
+  {
+    getFilterListOverlayButton()->enable();
+
+    // Handle ViewSettings
+    if(getActiveViewWidget())
+    {
+      bool hasSelection = getActiveViewWidget()->getSelectedFilters().size() != 0;
+      if(hasSelection)
+      {
+        getViewSettingsOverlayButton()->enable();
+      }
+      else
+      {
+        getViewSettingsOverlayButton()->disable();
+      }
+    }
+  }
+
+  QStyle* filterListStyle = getFilterListOverlayButton()->style();
+  filterListStyle->unpolish(getFilterListOverlayButton());
+  filterListStyle->polish(getFilterListOverlayButton());
+
+  QStyle* viewSettingsStyle = getViewSettingsOverlayButton()->style();
+  filterListStyle->unpolish(getViewSettingsOverlayButton());
+  filterListStyle->polish(getViewSettingsOverlayButton());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::updateFilterLabel()
+{
+  if(m_VisualizationViewSettings.size() == 0)
+  {
+    m_Ui->filterLabel->setText("No Filter Selected");
+    return;
+  }
+
+  QString filterText;
+  if(m_VisualizationViewSettings.size() > 1)
+  {
+    filterText = "Multiple Filters Selected";
+  }
+
+  // VSFilterViewSettings found
+  if(m_VisualizationViewSettings.size() == 1)
+  {
+    VSAbstractFilter* filter = m_VisualizationViewSettings.front()->getFilter();
+    filterText = filter->getFilterName();
+    switch(filter->getFilterType())
+    {
+    case VSAbstractFilter::FilterType::File:
+      filterText += " File";
+      break;
+    case VSAbstractFilter::FilterType::Filter:
+      filterText += " Filter";
+      break;
+    case VSAbstractFilter::FilterType::Pipeline:
+      filterText += " Pipeline";
+      break;
+    default:
+      break;
+    }
+  }
+  
+  // Check array and component names
+  QString arrayComponentText;
+  if(VSFilterViewSettings::HasValidSettings(m_VisualizationViewSettings))
+  {
+    arrayComponentText = VSFilterViewSettings::GetActiveComponentName(m_VisualizationViewSettings);
+  }
+
+  if(arrayComponentText.isEmpty())
+  {
+    m_Ui->filterLabel->setText(filterText);
+  }
+  else
+  {
+    m_Ui->filterLabel->setText(filterText + " | " + arrayComponentText);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::setVisualizationSettings(VSFilterViewSettings::Collection viewSettings)
+{
+  for(VSFilterViewSettings* settings : m_VisualizationViewSettings)
+  {
+    disconnect(settings, &VSFilterViewSettings::visibilityChanged, this, &VSMainWidget2::vsVisibilityChanged);
+    disconnect(settings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSMainWidget2::vsArrayChanged);
+    disconnect(settings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSMainWidget2::vsArrayChanged);
+  }
+
+  if(viewSettings.size() > 1)
+  {
+    m_Ui->filterLabel->setText("Multiple Filters Selected");
+  }
+  else
+  {
+    QString filterText = "No Filter Selected";
+
+    // If only one filter is selected, check the filter type
+    if(viewSettings.size() == 1)
+    {
+      filterText = viewSettings.front()->getFilterName();
+      switch(viewSettings.front()->getFilter()->getFilterType())
+      {
+      case VSAbstractFilter::FilterType::File:
+        filterText += " File";
+        break;
+      case VSAbstractFilter::FilterType::Filter:
+        filterText += " Filter";
+        break;
+      case VSAbstractFilter::FilterType::Pipeline:
+        filterText += " Pipeline";
+        break;
+      default:
+        break;
+      }
+    }
+
+    m_Ui->filterLabel->setText(filterText);
+  }
+
+  m_VisualizationViewSettings = viewSettings;
+  
+  for(VSFilterViewSettings* settings : m_VisualizationViewSettings)
+  {
+    connect(settings, &VSFilterViewSettings::visibilityChanged, this, &VSMainWidget2::vsVisibilityChanged);
+    connect(settings, &VSFilterViewSettings::activeArrayNameChanged, this, &VSMainWidget2::vsArrayChanged);
+    connect(settings, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSMainWidget2::vsArrayChanged);
+  }
+
+  // bool validSettings = VSFilterViewSettings::HasValidSettings(viewSettings);
+  m_Ui->visualizationSettingsOverlayBtn->setEnabled(viewSettings.size() > 0);
+
+  vsVisibilityChanged();
+  vsArrayChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::vsVisibilityChanged()
+{
+  m_Ui->visualizationSettingsOverlayBtn->setEnabled(m_VisualizationViewSettings.size() > 0);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::vsArrayChanged()
+{
+  updateFilterLabel();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::showVisualizationFilters()
+{
+  m_Ui->visualizationFiltersOverlayBtn->setChecked(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::showVisibilitySettings()
+{
+  m_Ui->visualizationSettingsOverlayBtn->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -335,14 +612,14 @@ void VSMainWidget2::importNumFilters(int max)
 {
   if(max == 0)
   {
-    m_Internals->progressBar->setMaximum(1);
+    m_Ui->progressBar->setMaximum(1);
   }
   else
   {
-    m_Internals->progressBar->setMaximum(max);
+    m_Ui->progressBar->setMaximum(max);
   }
 
-  m_Internals->progressBar->reset();
+  m_Ui->progressBar->reset();
 }
 
 // -----------------------------------------------------------------------------
@@ -350,13 +627,38 @@ void VSMainWidget2::importNumFilters(int max)
 // -----------------------------------------------------------------------------
 void VSMainWidget2::importedFilterNum(int value)
 {
-  int maxValue = m_Internals->progressBar->maximum();
+  int maxValue = m_Ui->progressBar->maximum();
   if(value == maxValue)
   {
-    m_Internals->progressBar->setValue(0);
+    m_Ui->progressBar->setValue(0);
   }
   else
   {
-    m_Internals->progressBar->setValue(value);
+    m_Ui->progressBar->setValue(value);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SVOverlayWidgetButton* VSMainWidget2::getFilterListOverlayButton() const
+{
+  return m_Ui->visualizationFiltersOverlayBtn;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SVOverlayWidgetButton* VSMainWidget2::getViewSettingsOverlayButton() const
+{
+  return m_Ui->visualizationSettingsOverlayBtn;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidget2::addOverlayButton(SVOverlayWidgetButton* overlayButton)
+{
+  m_Ui->visualizationFiltersOverlayBtn->addOverlappingButton(overlayButton);
+  m_Ui->visualizationSettingsOverlayBtn->addOverlappingButton(overlayButton);
 }

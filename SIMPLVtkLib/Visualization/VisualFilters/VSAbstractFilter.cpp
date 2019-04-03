@@ -47,8 +47,8 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/SIMPLBridge/VSVertexGeom.h"
-#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
+#include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VtkWidgets/VSAbstractWidget.h"
 
@@ -170,9 +170,65 @@ int VSAbstractFilter::getChildIndex() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractFilter::getPrevSibling() const
+{
+  VSAbstractFilter* parentFilter = getParentFilter();
+  if(nullptr == parentFilter)
+  {
+    return nullptr;
+  }
+
+  int siblingCount = parentFilter->getChildCount();
+  if(siblingCount == 1)
+  {
+    return nullptr;
+  }
+
+  int index = getChildIndex();
+  if(index == 0)
+  {
+    return parentFilter->getChild(siblingCount - 1);
+  }
+  else
+  {
+    return parentFilter->getChild(index - 1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractFilter::getNextSibling() const
+{
+  VSAbstractFilter* parentFilter = getParentFilter();
+  if(nullptr == parentFilter)
+  {
+    return nullptr;
+  }
+
+  int siblingCount = parentFilter->getChildCount();
+  if(siblingCount == 1)
+  {
+    return nullptr;
+  }
+
+  int index = getChildIndex();
+  if(index == siblingCount - 1)
+  {
+    return parentFilter->getChild(0);
+  }
+  else
+  {
+    return parentFilter->getChild(index + 1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSAbstractFilter::addChild(VSAbstractFilter* child)
 {
-  connect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)), Qt::UniqueConnection);
+  connect(this, &VSAbstractFilter::updatedOutputPort, child, &VSAbstractFilter::connectToOutput, Qt::UniqueConnection);
 
   // Avoid crashing when adding children from multiple threads
   m_ChildLock.acquire();
@@ -193,7 +249,7 @@ void VSAbstractFilter::removeChild(VSAbstractFilter* child)
 {
   int row = getIndexOfChild(child);
 
-  disconnect(this, SIGNAL(updatedOutputPort(VSAbstractFilter*)), child, SLOT(connectToOutput(VSAbstractFilter*)));
+  disconnect(this, &VSAbstractFilter::updatedOutputPort, child, &VSAbstractFilter::connectToOutput);
   m_ChildLock.acquire();
   VSFilterModel* model = getModel();
   if(model)
@@ -244,18 +300,15 @@ int VSAbstractFilter::getIndexOfChild(const VSAbstractFilter* childFilter) const
     return -1;
   }
 
-  m_ChildLock.acquire();
   int i = 0;
-  for(auto iter = m_Children.begin(); iter != m_Children.end(); iter++)
+  for(auto iter = m_Children.cbegin(); iter != m_Children.cend(); iter++)
   {
     if(childFilter == (*iter))
     {
-      m_ChildLock.release();
       return i;
     }
     i++;
   }
-  m_ChildLock.release();
 
   return -1;
 }
@@ -332,6 +385,10 @@ QStringList VSAbstractFilter::getArrayNames()
   QStringList arrayNames;
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(getDataSetFilter())
+  {
+    dataSet = getDataSetFilter()->getOutput();
+  }
   if(dataSet)
   {
     if(isPointData())
@@ -363,6 +420,10 @@ QStringList VSAbstractFilter::getScalarNames()
   QStringList arrayNames;
 
   VTK_PTR(vtkDataSet) dataSet = getOutput();
+  if(getDataSetFilter())
+  {
+    dataSet = getDataSetFilter()->getOutput();
+  }
   if(dataSet)
   {
     if(isPointData())
@@ -618,7 +679,7 @@ VSAbstractFilter::dataType_t VSAbstractFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSAbstractFilter::compatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
+bool VSAbstractFilter::CompatibleInput(VSAbstractFilter::dataType_t inputType, VSAbstractFilter::dataType_t requiredType)
 {
   if(inputType == INVALID_DATA)
   {
@@ -768,6 +829,10 @@ void VSAbstractFilter::createTransformFilter()
   }
 
   m_TransformFilter->SetInputConnection(getOutputPort());
+  if(getOutputPort())
+  {
+    m_TransformFilter->Update();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -805,16 +870,16 @@ void VSAbstractFilter::updateTransformFilter()
 // -----------------------------------------------------------------------------
 double* VSAbstractFilter::getTransformBounds()
 {
-  if(nullptr == m_TransformFilter || nullptr == getParentFilter())
+  if(nullptr == m_TransformFilter)
   {
     return getBounds();
   }
 
-  vtkTransformFilter* trans = vtkTransformFilter::New();
-  trans->SetInputConnection(getParentFilter()->getOutputPort());
+  VTK_PTR(vtkTransformFilter) trans = VTK_PTR(vtkTransformFilter)::New();
+  trans->SetInputConnection(getOutputPort());
   trans->SetTransform(getTransform()->getGlobalTransform());
+  trans->ReleaseDataFlagOn();
   trans->Update();
-
   return trans->GetOutput()->GetBounds();
 }
 
@@ -890,7 +955,7 @@ VSFilterModel* VSAbstractFilter::getModel() const
   {
     return getParentFilter()->getModel();
   }
-  
+
   return nullptr;
 }
 
@@ -946,6 +1011,21 @@ void VSAbstractFilter::setCheckable(bool checkable)
   {
     m_Flags &= ~Qt::ItemIsUserCheckable;
     setChecked(false);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractFilter::setSelectable(bool selectable)
+{
+  if(selectable)
+  {
+    m_Flags |= Qt::ItemIsSelectable;
+  }
+  else
+  {
+    m_Flags &= ~Qt::ItemIsSelectable;
   }
 }
 
@@ -1025,4 +1105,64 @@ QFont VSAbstractFilter::font() const
 void VSAbstractFilter::setFont(QFont font)
 {
   m_Font = font;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::HasSameDataFilter(VSAbstractFilter::FilterListType filters)
+{
+  if(filters.size() <= 1)
+  {
+    return true;
+  }
+
+  const VSAbstractDataFilter* dataFilter = filters.front()->getDataSetFilter();
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter->getDataSetFilter() != dataFilter)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::SameFilterType(VSAbstractFilter::FilterListType filters)
+{
+  bool valueSet = false;
+  QString filterName;
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(!valueSet)
+    {
+      filterName = filter->getFilterName();
+    }
+    else if(filter->getFilterName().compare(filterName) != 0)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSAbstractFilter::HasPointData(VSAbstractFilter::FilterListType filters)
+{
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter->isPointData())
+    {
+      return true;
+    }
+  }
+
+  return false;
 }

@@ -39,11 +39,17 @@
 
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilterValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 #include "ui_VSFilterSettingsWidget.h"
 
+/**
+ * @class VSFilterSettingsWidget VSFilterSettingsWidget.h
+ * SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.h
+ * @brief This class handles the filter tree and filter widget for VSMainWidgetBase
+ */
 class SIMPLVtkLib_EXPORT VSFilterSettingsWidget : public QWidget
 {
   Q_OBJECT
@@ -52,16 +58,27 @@ public:
   VSFilterSettingsWidget(QWidget* parent = nullptr);
   virtual ~VSFilterSettingsWidget() = default;
 
+  /**
+   * @brief Returns the current filter
+   * @return
+   */
+  VSAbstractFilter* getCurrentFilter() const;
+
 signals:
   void filterDeleted(VSAbstractFilter* filter);
 
 public slots:
   /**
    * @brief Changes the filter being displayed
-   * @param filter
-   * @param filterWidget
+   * @param filters
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Changes the VSViewController used for fetching VSFilterViewSettings
+   * @param viewController
+   */
+  void setViewWidget(VSAbstractViewWidget* viewWidget);
 
   /**
    * @brief Applies the active filter with the current widget values.
@@ -92,6 +109,7 @@ protected:
 
 private:
   QSharedPointer<Ui::VSFilterSettingsWidget> m_Ui;
-  VSAbstractFilter* m_Filter = nullptr;
-  VSAbstractFilterWidget* m_FilterWidget = nullptr;
+  VSAbstractFilter::FilterListType m_Filters;
+  VSAbstractViewWidget* m_ViewWidget = nullptr;
+  QWidget* m_FilterWidget = nullptr;
 };

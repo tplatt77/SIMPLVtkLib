@@ -37,13 +37,13 @@
 
 #include <vector>
 
+#include <QtCore/QItemSelectionModel>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QSplitter>
 
 #include "SIMPLVtkLib/QtWidgets/VSVisualizationWidget.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSController.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSAbstractFilterWidget.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -58,6 +58,20 @@ class SIMPLVtkLib_EXPORT VSAbstractViewWidget : public QFrame
 
 public:
   Q_PROPERTY(bool Active READ isActive WRITE setActive)
+  enum class SelectionType : unsigned char
+  {
+    Current,
+    AddSelection,
+    RemoveSelection
+  };
+
+  enum class FilterStepChange : unsigned char
+  {
+    Parent,
+    Child,
+    PrevSibling,
+    NextSibling
+  };
 
   /**
    * @brief Deconstructor
@@ -65,22 +79,16 @@ public:
   virtual ~VSAbstractViewWidget() = default;
 
   /**
-   * @brief Returns a pointer to the active VSFilterViewSettings
-   * @return
-   */
-  VSFilterViewSettings* getActiveFilterSettings() const;
-
-  /**
-   * @brief Sets the active VSFilterViewSettings
-   * @param settings
-   */
-  virtual void setActiveFilterSettings(VSFilterViewSettings* settings);
-
-  /**
    * @brief Returns the VSFilterViewSettings for the given filter.
    * @param filter
    */
   VSFilterViewSettings* getFilterViewSettings(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns the VSFilterViewSettings for the given filters.
+   * @param filter
+   */
+  VSFilterViewSettings::Collection getFilterViewSettings(VSAbstractFilter::FilterListType filter);
 
   /**
    * @brief Returns the container of VSFilterViewSettings
@@ -105,6 +113,12 @@ public:
    * @return
    */
   VSFilterViewModel* getFilterViewModel() const;
+
+  /**
+   * @brief Returns the QItemSelectionModel for the view
+   * @return
+   */
+  QItemSelectionModel* getSelectionModel() const;
 
   /**
    * @brief Returns true if the view is active.  Returns false otherwise.
@@ -151,7 +165,24 @@ public:
    */
   virtual VSFilterViewSettings* getFilterViewSettingsAtMousePos(const QPoint& point) = 0;
 
+  /**
+   * @brief Returns the context menu for the given filter
+   * @param filter
+   * @return
+   */
   virtual QMenu* getContextMenu(VSAbstractFilter* filter) = 0;
+
+  /**
+   * @brief Returns a list of the selected filters
+   * @return
+   */
+  VSAbstractFilter::FilterListType getSelectedFilters() const;
+
+  /**
+   * @brief Returns the current filter
+   * @return
+   */
+  VSAbstractFilter* getCurrentFilter() const;
 
 signals:
   void viewWidgetClosed();
@@ -167,6 +198,9 @@ signals:
   void applyCurrentFilter();
   void resetCurrentFilter();
   void controllerChanged(VSController*);
+  void currentFilterChanged(VSAbstractFilter*);
+  void selectionChanged(QItemSelection);
+  void currentFilterUpdated();
 
 public slots:
   /**
@@ -208,8 +242,21 @@ public slots:
   /**
    * @brief Select the given filter
    * @param filter
+   * @param selectionType
    */
-  void selectFilter(VSAbstractFilter* filter);
+  void selectFilter(VSAbstractFilter* filter, SelectionType selectionType = SelectionType::Current);
+
+  /**
+   * @brief Select the given filters
+   * @param filter
+   */
+  void selectFilters(VSAbstractFilter::FilterListType filters);
+
+  /**
+   * @brief Change the filter selected by a single step in the given direction
+   * @param stepDirection
+   */
+  void changeFilterSelected(FilterStepChange stepDirection, bool addSelection = false);
 
 protected slots:
   /**
@@ -230,30 +277,6 @@ protected slots:
    * @param newProp
    */
   void swapActors(vtkProp3D* oldProp, vtkProp3D* newProp);
-
-  /**
-   * @brief Change the active filter's array name
-   * @param name
-   */
-  void changeFilterArrayName(QString name);
-
-  /**
-   * @brief Change the active filter's component index
-   * @param index
-   */
-  void changeFilterComponentIndex(int index);
-
-  /**
-   * @brief Change the active filter's color map setting
-   * @param mapColorState
-   */
-  void changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState);
-
-  /**
-   * @brief Change the active filter's scalar bar visibility
-   * @param showScalarBar
-   */
-  void changeFilterShowScalarBar(bool showScalarBar);
 
   /**
    * @brief Active array changed for filter
@@ -321,13 +344,19 @@ protected:
    */
   void removeViewSettings(VSFilterViewSettings* viewSettings);
 
+  /**
+   * @brief changeFilterVisibility
+   * @param settings
+   * @param visibility
+   */
   void changeFilterVisibility(VSFilterViewSettings* settings, const bool& visibility);
-  void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
-   * @brief Clears the filters from the view widget
+   * @brief changeScalarBarVisibility
+   * @param settings
+   * @param visibility
    */
-  // void clearFilters();
+  void changeScalarBarVisibility(VSFilterViewSettings* settings, const bool& visibility);
 
   /**
    * @brief Copies the VSFilterViewModel
@@ -336,18 +365,34 @@ protected:
   void copyFilters(const VSFilterViewModel& filterViewModel);
 
   /**
+   * @brief Copies the filter selection from another VSAbstractViewWidget
+   * @param other
+   */
+  void copySelection(const VSAbstractViewWidget& other);
+
+  /**
+   * @brief Creates a QItemSelection from the provided QModelIndexList
+   * @param indexList
+   * @return
+   */
+  QItemSelection createSelection(const QModelIndexList& indexList) const;
+
+  /**
    * @brief Check the visibility of a filter and scalar bar through VSFilterViewSettings
+   * @param settings
    */
   void checkFilterViewSetting(VSFilterViewSettings* setting);
 
   /**
    * @brief Returns a QSplitter with this widget and a clone of it
+   * @param orientation
    * @return
    */
   virtual QSplitter* splitWidget(Qt::Orientation orientation);
 
   /**
    * @brief Returns true if the widget is closable.  Returns false otherwise.
+   * @return
    */
   virtual bool isClosable();
 
@@ -363,15 +408,50 @@ protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
 
   /**
-   * @brief Handle key press events including applying or resetting the active filter
-   * @param event
+   * @brief emits the currentFilterChanged signal when the current index changes
+   * @param current
+   * @param previous
    */
-  void keyPressEvent(QKeyEvent* event) override;
+  void listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous);
+
+  /**
+   * @brief Applies local selection changes to the VSController's selection model
+   * @param selected
+   * @param deselected
+   */
+  void localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
+  /**
+   * @brief Selects the current filter's parent.  If the current filter is not set, 
+   * select the first base filter in the model.
+   * @param addSelection
+   */
+  void selectFilterParent(bool addSelection);
+
+  /**
+   * @brief Selects the current filter's first child.  If the current filter is not set,
+   * select the last base filter in the model.
+   * @param addSelection
+   */
+  void selectFilterChild(bool addSelection);
+
+  /**
+   * @brief Selects the previous item in the current filter's list of siblings.
+   * @param addSelection
+   */
+  void selectFilterPrevSibling(bool addSelection);
+
+  /**
+   * @brief Selects the next item in the current filter's list of siblings.
+   * @param addSelection
+   */
+  void selectFilterNextSibling(bool addSelection);
 
 private:
+  QMetaObject::Connection m_CurrentFilterConnection;
   VSFilterViewSettings* m_ActiveFilterSettings = nullptr;
-  // VSFilterViewSettings::Map m_FilterViewSettings;
   VSFilterViewModel* m_FilterViewModel = nullptr;
+  QItemSelectionModel* m_SelectionModel = nullptr;
   VSController* m_Controller = nullptr;
   bool m_BlockRender = false;
   bool m_Active = false;

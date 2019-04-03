@@ -195,7 +195,7 @@ void VSTetrahedralGeom::Allocate(vtkIdType numCells, int extSize)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdList* ptIds)
+vtkIdType VSTetrahedralGeom::InsertNextCell(int type, const vtkIdList ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -204,7 +204,7 @@ vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdList* ptIds)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds)
+vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -213,7 +213,7 @@ vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType* ptIds, vtkIdType nfaces, vtkIdType* faces)
+vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces, const vtkIdType faces[])
 {
   return -1;
 }
@@ -221,7 +221,7 @@ vtkIdType VSTetrahedralGeom::InsertNextCell(int type, vtkIdType npts, vtkIdType*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTetrahedralGeom::ReplaceCell(vtkIdType cellId, int npts, vtkIdType* pts)
+void VSTetrahedralGeom::ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   vtkErrorMacro("Read only container.");
 }

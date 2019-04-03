@@ -61,7 +61,9 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 , m_FilterPipeline(pipeline)
 {
   setCheckable(false);
-  //setEditable(false);
+  // setEditable(false);
+
+  m_PipelineValues = new VSPipelineValues(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -70,9 +72,8 @@ VSPipelineFilter::VSPipelineFilter(FilterPipeline::Pointer pipeline, VSAbstractF
 VSPipelineFilter* VSPipelineFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   QJsonObject pipelineObj = json["Pipeline"].toObject();
-
   FilterPipeline::Pointer pipeline = FilterPipeline::FromJson(pipelineObj);
-  
+
   // Check error conditions
   pipeline->preflightPipeline();
   if(pipeline->getErrorCondition() < 0)
@@ -143,7 +144,7 @@ QString VSPipelineFilter::getFilterName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSPipelineFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSPipelineFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -168,4 +169,20 @@ void VSPipelineFilter::apply()
       childCast->apply();
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSPipelineFilter::getFilterType() const
+{
+  return FilterType::Pipeline;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterValues* VSPipelineFilter::getValues()
+{
+  return m_PipelineValues;
 }

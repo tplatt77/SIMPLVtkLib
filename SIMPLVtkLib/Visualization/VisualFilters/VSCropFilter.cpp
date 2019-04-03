@@ -54,29 +54,19 @@ VSCropFilter::VSCropFilter(VSAbstractFilter* parent)
   m_CropAlgorithm = nullptr;
   setParentFilter(parent);
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastVoi[i] = 0;
-    m_LastVoi[i + 3] = 0;
-    m_LastSampleRate[i] = 1;
-  }
+  m_CropValues = new VSCropValues(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSCropFilter::VSCropFilter(const VSCropFilter& copy)
-  : VSAbstractFilter()
+: VSAbstractFilter()
 {
   m_CropAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
 
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastVoi[i] = copy.m_LastVoi[i];
-    m_LastVoi[i + 3] = copy.m_LastVoi[i + 3];
-    m_LastSampleRate[i] = copy.m_LastSampleRate[i];
-  }
+  m_CropValues = new VSCropValues(*(copy.m_CropValues));
 }
 
 // -----------------------------------------------------------------------------
@@ -85,25 +75,7 @@ VSCropFilter::VSCropFilter(const VSCropFilter& copy)
 VSCropFilter* VSCropFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSCropFilter* filter = new VSCropFilter(parent);
-
-  QJsonArray voiArray = json["Last VOI"].toArray();
-  int lastVOI[6];
-  lastVOI[0] = voiArray.at(0).toInt();
-  lastVOI[1] = voiArray.at(1).toInt();
-  lastVOI[2] = voiArray.at(2).toInt();
-  lastVOI[3] = voiArray.at(3).toInt();
-  lastVOI[4] = voiArray.at(4).toInt();
-  lastVOI[5] = voiArray.at(5).toInt();
-  filter->setVOI(lastVOI);
-
-  QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
-  int lastSampleRate[3];
-  lastSampleRate[0] = sampleRateArray.at(0).toInt();
-  lastSampleRate[1] = sampleRateArray.at(1).toInt();
-  lastSampleRate[2] = sampleRateArray.at(2).toInt();
-  filter->setSampleRate(lastSampleRate);
-
-  filter->setInitialized(true);
+  filter->m_CropValues->loadJson(json);
   filter->readTransformJson(json);
 
   return filter;
@@ -124,6 +96,17 @@ void VSCropFilter::createFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSCropFilter::applyValues(VSCropValues* values)
+{
+  if(values)
+  {
+    apply(values->getVOI(), values->getSampleRate());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSCropFilter::apply(int voi[6], int sampleRate[3])
 {
   if(nullptr == m_CropAlgorithm)
@@ -136,19 +119,10 @@ void VSCropFilter::apply(int voi[6], int sampleRate[3])
   m_CropAlgorithm->SetSampleRate(sampleRate);
   m_CropAlgorithm->Update();
 
-  for(int i = 0; i < 6; i++)
-  {
-    m_LastVoi[i] = voi[i];
-  }
-
-  for(int i = 0; i < 3; i++)
-  {
-    m_LastSampleRate[i] = sampleRate[i];
-  }
+  m_CropValues->setLastVOI(voi);
+  m_CropValues->setLastSampleRate(sampleRate);
 
   emit updatedOutputPort(this);
-  emit voiChanged();
-  emit sampleRateChanged();
 }
 
 // -----------------------------------------------------------------------------
@@ -174,7 +148,7 @@ void VSCropFilter::apply(std::vector<int> voiVector, std::vector<int> sampleRate
   {
     sampleRate[i] = sampleRateVector[i];
   }
-  
+
   apply(voi, sampleRate);
 }
 
@@ -184,21 +158,7 @@ void VSCropFilter::apply(std::vector<int> voiVector, std::vector<int> sampleRate
 void VSCropFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
-
-  QJsonArray lastVOI;
-  lastVOI.append(m_LastVoi[0]);
-  lastVOI.append(m_LastVoi[1]);
-  lastVOI.append(m_LastVoi[2]);
-  lastVOI.append(m_LastVoi[3]);
-  lastVOI.append(m_LastVoi[4]);
-  lastVOI.append(m_LastVoi[5]);
-  json["Last VOI"] = lastVOI;
-
-  QJsonArray lastSampleRate;
-  lastSampleRate.append(m_LastSampleRate[0]);
-  lastSampleRate.append(m_LastSampleRate[1]);
-  lastSampleRate.append(m_LastSampleRate[2]);
-  json["Last Sample Rate"] = lastSampleRate;
+  m_CropValues->writeJson(json);
 
   json["Uuid"] = GetUuid().toString();
 }
@@ -225,6 +185,14 @@ QString VSCropFilter::getFilterName() const
 QString VSCropFilter::getToolTip() const
 {
   return "Crop Filter";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSCropFilter::getFilterType() const
+{
+  return FilterType::Filter;
 }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +262,7 @@ VSAbstractFilter::dataType_t VSCropFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSCropFilter::GetRequiredInputType()
 {
   return IMAGE_DATA;
 }
@@ -302,14 +270,14 @@ VSAbstractFilter::dataType_t VSCropFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSCropFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSCropFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
     return false;
   }
 
-  if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+  if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
   {
     return true;
   }
@@ -320,70 +288,28 @@ bool VSCropFilter::compatibleWithParent(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int* VSCropFilter::getVOI()
+bool VSCropFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
 {
-  return m_LastVoi;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int* VSCropFilter::getSampleRate()
-{
-  return m_LastSampleRate;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::setVOI(int* voi)
-{
-  m_LastVoi[0] = voi[0];
-  m_LastVoi[1] = voi[1];
-  m_LastVoi[2] = voi[2];
-  m_LastVoi[3] = voi[3];
-  m_LastVoi[4] = voi[4];
-  m_LastVoi[5] = voi[5];
-
-  emit voiChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSCropFilter::setSampleRate(int* sampleRate)
-{
-  m_LastSampleRate[0] = sampleRate[0];
-  m_LastSampleRate[1] = sampleRate[1];
-  m_LastSampleRate[2] = sampleRate[2];
-
-  emit sampleRateChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::vector<int> VSCropFilter::getVolumeOfInterestVector()
-{
-  std::vector<int> voi(6);
-  for(int i = 0; i < 6; i++)
+  if(filters.size() == 0)
   {
-    voi[i] = m_LastVoi[i];
+    return false;
   }
 
-  return voi;
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<int> VSCropFilter::getSampleRateVector()
+VSAbstractFilterValues* VSCropFilter::getValues()
 {
-  std::vector<int> sampleRate(3);
-  for(int i = 0; i < 3; i++)
-  {
-    sampleRate[i] = m_LastSampleRate[i];
-  }
-
-  return sampleRate;
+  return m_CropValues;
 }

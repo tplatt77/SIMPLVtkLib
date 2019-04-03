@@ -44,6 +44,12 @@
 
 #include "ui_VSAdvancedVisibilitySettingsWidget.h"
 
+/**
+ * @class VSAdvancedVisibilitySettingsWidget VSAdvancedVisibilitySettingsWidget.h
+ * SIMPLVtkLib/QtWidgets/VSAdvancedVisibilitySettingsWidget.h
+ * @brief This class handles miscellaneous visibility options for a filter or filters
+ * in VSMainWidgetBase that do not fall under other categories
+ */
 class SIMPLVtkLib_EXPORT VSAdvancedVisibilitySettingsWidget : public QWidget
 {
   Q_OBJECT
@@ -51,12 +57,12 @@ class SIMPLVtkLib_EXPORT VSAdvancedVisibilitySettingsWidget : public QWidget
 public:
   VSAdvancedVisibilitySettingsWidget(QWidget* parent = nullptr);
   virtual ~VSAdvancedVisibilitySettingsWidget() = default;
+
   /**
-   * @brief Changes the filter being displayed
-   * @param filter
-   * @param filterWidget
+   * @brief Changes the filters being displayed
+   * @param filters
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
   /**
    * @brief Changes the VSViewController used for fetching VSFilterViewSettings
@@ -82,24 +88,24 @@ protected slots:
    * @param checkState
    */
   void setAxesGridVisible(int checkState);
-  
+
   /**
    * @brief Listens for the active VSFilterViewSettings point size to change
    * @param size
    */
-  void listenPointSize(int size);
+  void listenPointSize(int size = 1);
 
   /**
    * @brief Listens for the active VSFilterViewSettings render point spheres setting to change
    * @param renderAsSpheres
    */
-  void listenPointSphere(bool renderAsSpheres);
+  void listenPointSphere(bool renderAsSpheres = false);
 
   /**
    * @brief Listens for the active VSFilterViewSettings axes grid visibility to change
    * @param show
    */
-  void listenAxesGridVisible(double show);
+  void listenAxesGridVisible(double show = false);
 
 protected:
   /**
@@ -131,11 +137,11 @@ protected:
    * @brief Connects to the given VSFilterViewSettings to take advantage of its signals and slots
    * @param settings
    */
-  void connectFilterViewSettings(VSFilterViewSettings* settings);
+  void connectFilterViewSettings(VSFilterViewSettings::Collection settings);
 
 private:
   QSharedPointer<Ui::VSAdvancedVisibilitySettingsWidget> m_Ui;
-  VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractFilter::FilterListType m_Filters;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
-  VSFilterViewSettings* m_ViewSettings = nullptr;
+  VSFilterViewSettings::Collection m_ViewSettings;
 };

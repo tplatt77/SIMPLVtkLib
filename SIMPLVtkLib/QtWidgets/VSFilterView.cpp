@@ -37,15 +37,16 @@
 
 #include <QtWidgets/QMenu>
 
+#include "SIMPLVtkLib/QtWidgets/VSFilterViewDelegate.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterViewModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 
- // -----------------------------------------------------------------------------
- //
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSFilterView::VSFilterView(QWidget* parent)
-  : QTreeView(parent)
+: QTreeView(parent)
 {
   connectSlots();
   setupGui();
@@ -59,6 +60,8 @@ void VSFilterView::setupGui()
   setHeaderHidden(true);
   setSelectionMode(QAbstractItemView::SingleSelection);
   setContextMenuPolicy(Qt::CustomContextMenu);
+
+  setItemDelegate(new VSFilterViewDelegate(this));
 }
 
 // -----------------------------------------------------------------------------
@@ -68,8 +71,7 @@ void VSFilterView::insertFilter(VSAbstractFilter* filter, bool currentFilter)
 {
   Q_UNUSED(currentFilter)
 
-    VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
-
+  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
   QModelIndex index = filterModel->getIndexFromFilter(filter);
   expand(index);
 }
@@ -84,10 +86,6 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
   {
     disconnect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
   }
-  if(selectionModel())
-  {
-    disconnect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
-  }
 
   m_ViewWidget = viewWidget;
 
@@ -99,56 +97,12 @@ void VSFilterView::setViewWidget(VSAbstractViewWidget* viewWidget)
 
   setModel(viewWidget->getFilterViewModel());
   setRootIndex(viewWidget->getFilterViewModel()->rootIndex());
+  setSelectionModel(viewWidget->getSelectionModel());
+  expandAll();
 
   // Connect to the new view controller
   connect(m_ViewWidget->getController(), &VSController::filterAdded, this, &VSFilterView::insertFilter);
-  connect(selectionModel(), &QItemSelectionModel::currentChanged, this, &VSFilterView::setCurrentItem);
   connect(m_ViewWidget->getFilterViewModel(), &VSFilterViewModel::rootChanged, [=] { setRootIndex(m_ViewWidget->getFilterViewModel()->rootIndex()); });
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::setActiveFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* widget)
-{
-  VSFilterViewModel* filterModel = dynamic_cast<VSFilterViewModel*>(model());
-  if(nullptr == filterModel)
-  {
-    return;
-  }
-  if(nullptr == selectionModel())
-  {
-    return;
-  }
-  if(nullptr == filter)
-  {
-    selectionModel()->clear();
-    return;
-  }
-
-  QModelIndex currentIndex = selectionModel()->currentIndex();
-  QModelIndex newIndex = filterModel->getIndexFromFilter(filter);
-
-  // Do not update the selection if there is no change
-  if(newIndex != currentIndex)
-  {
-    QFlags<QItemSelectionModel::SelectionFlag> flags = QItemSelectionModel::ClearAndSelect;
-    selectionModel()->setCurrentIndex(newIndex, flags);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterView::setCurrentItem(const QModelIndex& current, const QModelIndex& previous)
-{
-  VSAbstractFilter* filter = getFilterFromIndex(current);
-  if(nullptr == filter)
-  {
-    return;
-  }
-
-  emit filterClicked(filter);
 }
 
 // -----------------------------------------------------------------------------
@@ -195,6 +149,17 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
         connect(reloadAction, &QAction::triggered, [=] { emit reloadFilterRequested(dataFilter); });
         menu.addAction(reloadAction);
 
+		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+		if(dcFilter != nullptr)
+		{
+		  QAction* renameAction = new QAction("Rename");
+		  connect(renameAction, &QAction::triggered, [=] { emit renameFilterRequested(dataFilter); });
+		  menu.addAction(renameAction);
+
+		  QAction* saveAction = new QAction("Save");
+		  connect(saveAction, &QAction::triggered, [=] { emit saveFilterRequested(dataFilter); });
+		  menu.addAction(saveAction);
+		}
         {
           QAction* separator = new QAction(this);
           separator->setSeparator(true);

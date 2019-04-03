@@ -38,18 +38,21 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMenu>
 
-#include "SVWidgetsLib/Widgets/PopUpWidget.h"
-
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
-
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+
+#include "ui_VSMainWidget2.h"
+#include "ui_VisualizationFilterWidgets.h"
+#include "ui_VisibilitySettingsContainer.h"
 
 /**
  * @class VSMainWidget2 VSMainWidget2.h SIMPLVtkLib/QtWidgets/VSMainWidget2.h
  * @brief This class works as SIMPLVtkLib's main widget that displays information
  * relating to the stored VSController. It subclasses from VSMainWidgetBase for
  * most of its implementation but is provided with a UI file for formatting the
- * widget.  This widget includes its own VSInfoWidget and VSFilterView
+ * widget.  This widget includes its own information and filter view widgets
+ * accessible through PopUpWidgets available through the buttons at the bottom
+ * of the widget
  */
 class SIMPLVtkLib_EXPORT VSMainWidget2 : public VSMainWidgetBase
 {
@@ -73,6 +76,24 @@ public:
    */
   QMenu* getFilterMenu();
 
+  /**
+   * @brief Returns the SVOverlayWidgetButton controlling the filter list
+   * @return
+   */
+  SVOverlayWidgetButton* getFilterListOverlayButton() const;
+
+  /**
+   * @brief Returns the SVOverlayWidgetButton controlling the view settings
+   * @return
+   */
+  SVOverlayWidgetButton* getViewSettingsOverlayButton() const;
+
+  /**
+   * @brief Adds an SVOverlayWidgetButton as overlapping the visualization overlay widgets
+   * @param overlayButton
+   */
+  void addOverlayButton(SVOverlayWidgetButton* overlayButton);
+
 protected:
   /**
    * @brief Connect Qt signals and slots
@@ -85,10 +106,24 @@ protected:
   virtual void createFilterMenu();
 
   /**
-   * @brief Sets the visibility of the VSFilterView and VSInfoWidget as a popup
-   * @param visible
+   * @brief showVisualizationFilters
    */
-  void showFilterView(bool visible);
+  void showVisualizationFilters();
+
+  /**
+   * @brief showVisibilitySettings
+   */
+  void showVisibilitySettings();
+
+  /**
+   * @brief Updates the filter label based on the current array and component
+   */
+  void updateFilterLabel();
+
+  /**
+   * @brief Updates the enabled and check state for overlay buttons based on the number of filters as well as active filter selection.
+   */
+  void updateOverlayButtons();
 
 protected slots:
   /**
@@ -102,6 +137,47 @@ protected slots:
    * @param filter
    */
   void setCurrentFilter(VSAbstractFilter* filter) override;
+
+  /**
+   * @brief Handle cases where the selected filters were changed
+   * @param filtersSelected
+   */
+  void listenFiltersChanged(VSAbstractFilter::FilterListType filtersSelected);
+
+  /**
+   * @brief Handle cases where a filter is added to the visualization pipeline
+   * @param filter
+   * @param currentFilter
+   */
+  void listenFilterAdded(VSAbstractFilter* filter, bool currentFilter);
+
+  /**
+   * @brief Handle cases where a filter is removed from the visualization pipeline
+   * @param filter
+   */
+  void listenFilterRemoved(VSAbstractFilter* filter);
+
+  /**
+   * @brief Updates the enable states for Create Filter buttons based on the current selection
+   */
+  void updateFilterButtons();
+
+  /**
+   * @brief Sets the visualization settings to use for the bottom bar.  If multiple filters are used, none are connected
+   * @param viewSettings
+   * @param multipleFilters
+   */
+  void setVisualizationSettings(VSFilterViewSettings::Collection viewSettings);
+
+  /**
+   * @brief Handles changes in VSFilterViewSettings visibility
+   */
+  void vsVisibilityChanged();
+
+  /**
+   * @brief Handles changes in VSFilterViewSettings active array and component
+   */
+  void vsArrayChanged();
 
   /**
    * @brief Sets the active view camera position to the X+ axis
@@ -158,8 +234,9 @@ protected slots:
   void importedFilterNum(int value);
 
 private:
-  class vsInternals;
-  vsInternals* m_Internals;
+  QSharedPointer<Ui::VSMainWidget2> m_Ui = nullptr;
+  QSharedPointer<Ui::VisualizationFilterWidgets> m_VisualizationFiltersUi = nullptr;
+  QSharedPointer<Ui::VisibilitySettingsContainer> m_VisibilityContainerUi = nullptr;
 
   QMenu* m_FilterMenu = nullptr;
   QAction* m_ActionAddText = nullptr;
@@ -168,4 +245,6 @@ private:
   QAction* m_ActionAddSlice = nullptr;
   QAction* m_ActionAddMask = nullptr;
   QAction* m_ActionAddThreshold = nullptr;
+
+  VSFilterViewSettings::Collection m_VisualizationViewSettings;
 };

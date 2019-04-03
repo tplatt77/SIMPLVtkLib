@@ -43,6 +43,7 @@
 #include <vtkPlane.h>
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceValues.h"
 
 /**
  * @class VSSliceFilter VSSliceFilter.h
@@ -54,9 +55,6 @@
 class SIMPLVtkLib_EXPORT VSSliceFilter : public VSAbstractFilter
 {
   Q_OBJECT
-
-  Q_PROPERTY(std::vector<double> lastOrigin READ getLastOriginVector NOTIFY lastOriginChanged)
-  Q_PROPERTY(std::vector<double> lastNormal READ getLastNormalVector NOTIFY lastNormalChanged)
 
 public:
   /**
@@ -97,6 +95,18 @@ public:
   virtual QString getToolTip() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
+   * @brief Applies the current filter with the given values
+   * @param values
+   */
+  void applyValues(VSSliceValues* values);
+
+  /**
    * @brief Applies the updated values to the algorithm and updates the output
    * @param origin
    * @param normals
@@ -132,53 +142,29 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
-   * @brief Returns the origin of the last applied slice
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
    * @return
    */
-  double* getLastOrigin();
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
 
   /**
-   * @brief Returns the normal of the last applied slice
+   * @brief Returns the filter values associated with the filter
    * @return
    */
-  double* getLastNormal();
-
-  /**
-   * @brief Sets the origin of the last applied slice
-   * @param origin
-   * @return
-   */
-  void setLastOrigin(double* origin);
-
-  /**
-   * @brief Sets the normal of the last applied slice
-   * @param normal
-   * @return
-   */
-  void setLastNormal(double* normal);
-
-  /**
-   * @brief Returns a vector of the last applied slice origin
-   * @return
-   */
-  std::vector<double> getLastOriginVector();
-
-  /**
-   * @brief Returns a vector of the last applied slice normal
-   * @return
-   */
-  std::vector<double> getLastNormalVector();
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Reads values from a json file into the filter
@@ -198,10 +184,6 @@ public:
    */
   static QUuid GetUuid();
 
-signals:
-  void lastOriginChanged();
-  void lastNormalChanged();
-
 protected:
   /**
    * @brief Initializes the algorithm and connects it to the vtkMapper
@@ -216,9 +198,7 @@ protected:
 
 private:
   VTK_PTR(vtkCutter) m_SliceAlgorithm;
-
-  double m_LastOrigin[3];
-  double m_LastNormal[3];
+  VSSliceValues* m_SliceValues = nullptr;
 };
 
 Q_DECLARE_METATYPE(VSSliceFilter)

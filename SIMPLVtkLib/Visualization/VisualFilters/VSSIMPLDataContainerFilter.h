@@ -44,6 +44,7 @@
 
 #include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -119,7 +120,7 @@ public:
    * @brief Returns the WrappedDataContainerPtr used by the filter
    * @return
    */
-  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer();
+  SIMPLVtkBridge::WrappedDataContainerPtr getWrappedDataContainer() const;
 
   /**
    * @brief Sets the WrappedDataContainerPtr used by the filter
@@ -151,10 +152,16 @@ public:
   void reloadData(DataContainer::Pointer dc);
 
   /**
-  * @brief Returns true if the data has been fully wrapped and loaded into a vtkDataSet. Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the data has been fully wrapped and loaded into a vtkDataSet. Returns false otherwise.
+   * @return
+   */
   bool dataFullyLoaded();
+
+  /**
+   * @brief Returns the filter values associated with the filter
+   * @return
+   */
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Returns true if this filter type can be added as a child of
@@ -162,7 +169,13 @@ public:
    * @param
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
+
+  /**
+   * @brief Returns the bounds from the vtkTransformFilter
+   * @return
+   */
+  double* getTransformBounds() override;
 
 public slots:
   /**
@@ -172,8 +185,8 @@ public slots:
   void apply();
 
   /**
-  * @brief This slot is called when a data container is finished being wrapped on a separate thread
-  */
+   * @brief This slot is called when a data container is finished being wrapped on a separate thread
+   */
   void reloadWrappingFinished();
 
 signals:
@@ -186,10 +199,9 @@ protected:
   void createFilter() override;
 
 private:
-  SIMPLVtkBridge::WrappedDataContainerPtr m_WrappedDataContainer = nullptr;
   VTK_PTR(vtkTrivialProducer) m_TrivialProducer = nullptr;
   QFutureWatcher<void> m_WrappingWatcher;
   QSemaphore m_ApplyLock;
   bool m_WrappingTransform = false;
-  bool m_FullyWrapped = false;
+  VSSIMPLDataContainerValues* m_DCValues = nullptr;
 };

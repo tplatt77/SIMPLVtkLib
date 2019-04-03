@@ -79,9 +79,9 @@ VSViewWidget::VSViewWidget(const VSViewWidget& other)
   m_Internals->visualizationWidget->setInteractorStyle(m_InteractorStyle);
   m_InteractorStyle->setViewWidget(this);
 
-  
   copyFilters(*other.getFilterViewModel());
   getVisualizationWidget()->copy(other.getVisualizationWidget());
+  copySelection(other);
 
   setupGui();
 }
@@ -380,7 +380,7 @@ void VSViewWidget::showAllFilters()
   VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
   for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
   {
-    (*iter).second->setVisible(true);
+    (*iter).second->setScalarBarSetting(VSFilterViewSettings::ScalarBarSetting::Always);
   }
 }
 
@@ -393,7 +393,17 @@ void VSViewWidget::showOnlyScalarBar(VSFilterViewSettings* settings)
   for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
   {
     VSFilterViewSettings* iterSettings = (*iter).second;
-    (*iter).second->setScalarBarVisible(iterSettings == settings);
+    VSFilterViewSettings::ScalarBarSetting scalarBarSetting;
+    if(iterSettings == settings)
+    {
+      scalarBarSetting = VSFilterViewSettings::ScalarBarSetting::Always;
+    }
+    else
+    {
+      scalarBarSetting = VSFilterViewSettings::ScalarBarSetting::Never;
+    }
+
+    (*iter).second->setScalarBarSetting(scalarBarSetting);
   }
 }
 
@@ -405,6 +415,6 @@ void VSViewWidget::hideAllScalarBars()
   VSFilterViewSettings::Map settingsMap = getAllFilterViewSettings();
   for(auto iter = settingsMap.begin(); iter != settingsMap.end(); iter++)
   {
-    (*iter).second->setScalarBarVisible(false);
+    (*iter).second->setScalarBarSetting(VSFilterViewSettings::ScalarBarSetting::Never);
   }
 }

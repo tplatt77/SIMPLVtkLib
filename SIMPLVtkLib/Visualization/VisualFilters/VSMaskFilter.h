@@ -40,6 +40,7 @@
 #include <vtkThreshold.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskValues.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -87,10 +88,22 @@ public:
   QString getFilterName() const override;
 
   /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
    * @brief Returns the tooltip to use for the filter
    * @return
    */
   virtual QString getToolTip() const override;
+
+  /**
+   * @brief Applies the mask filter with the given values
+   * @param values
+   */
+  void applyValues(VSMaskValues* values);
 
   /**
    * @brief Applies the mask filter on the specified array
@@ -120,27 +133,29 @@ public:
    * @brief Returns the required input data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
-   * @brief Returns the name of the array last applied as a mask
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
    * @return
    */
-  QString getLastArrayName();
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
 
   /**
-   * @brief Sets the name of the array last applied as a mask
+   * @brief Returns the filter values associated with the filter
    * @return
    */
-  void setLastArrayName(QString lastArrayName);
+  VSAbstractFilterValues* getValues() override;
 
   /**
    * @brief Reads values from a json file into the filter
@@ -174,8 +189,7 @@ protected:
 
 private:
   VTK_PTR(vtkThreshold) m_MaskAlgorithm;
-
-  QString m_LastArrayName;
+  VSMaskValues* m_MaskValues = nullptr;
 };
 
 Q_DECLARE_METATYPE(VSMaskFilter)

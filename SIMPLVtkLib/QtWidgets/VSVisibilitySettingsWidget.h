@@ -44,6 +44,12 @@
 
 #include "ui_VSVisibilitySettingsWidget.h"
 
+/**
+ * @class VSVisibilitySettingsWidget VSVisibilitySettingsWidget.h
+ * SIMPLVtkLib/QtWidgets/VSVisibilitySettingsWidget
+ * @brief This class handles the visibility settings for VSMainWidgetBase, mainly
+ * covering the Representation, DataArray, and Component for a given filter or filters.
+ */
 class SIMPLVtkLib_EXPORT VSVisibilitySettingsWidget : public QWidget
 {
   Q_OBJECT
@@ -55,10 +61,10 @@ public:
 public slots:
   /**
    * @brief Changes the filter being displayed
-   * @param filter
+   * @param filters
    * @param filterWidget
    */
-  void setFilter(VSAbstractFilter* filter, VSAbstractFilterWidget* filterWidget);
+  void setFilters(VSAbstractFilter::FilterListType filters);
 
   /**
    * @brief Changes the VSViewController used for fetching VSFilterViewSettings
@@ -71,19 +77,19 @@ protected slots:
    * @brief Sets the actorRepresentation for the current filter
    * @param index
    */
-  void setRepresentationIndex(int index);
+  void representationComboChanged(int index);
 
   /**
    * @brief Handles the active array combo box being changed
    * @param index
    */
-  void updateActiveArrayName(QString name);
+  void arrayNameComboChanged(const QString& name);
 
   /**
    * @brief Handles the active component combo box being changed
    * @param index
    */
-  void updateActiveComponentIndex(int index);
+  void arrayComponentComboChanged(int index);
 
   /**
    * @brief Slot for handling changes in the VSColorButton used for selecting the VSFilterViewSetting's solid color
@@ -113,6 +119,12 @@ protected slots:
    * @brief Listens for the active VSFilterViewSettings solid color to change
    */
   void listenSolidColor();
+  
+  /**
+   * @brief Handles the subsampling spin box being changed
+   * @param value
+   */
+  void subsampleValueChanged(int value);
 
 protected:
   /**
@@ -133,7 +145,7 @@ protected:
    * @brief Connects to the given VSFilterViewSettings to take advantage of its signals and slots
    * @param settings
    */
-  void connectFilterViewSettings(VSFilterViewSettings* settings);
+  void connectFilterViewSettings(VSFilterViewSettings::Collection settings);
 
   /**
    * @brief Updates the active array combo box
@@ -141,9 +153,34 @@ protected:
    */
   void setComboArrayName(QString arrayName);
 
+  /**
+   * @brief Updates the active component combo box based on the given array name
+   * @param arrayName
+   */
+  void updateComponentComboBox(QString arrayName);
+
+  /**
+   * @brief Returns true if the combo box has an option for multiple values.  Returns false otherwise.
+   * @param comboBox
+   * @return
+   */
+  bool hasMultiValueOption(QComboBox* comboBox) const;
+
+  /**
+   * @brief Adds a multi-value option to the given QComboBox if it does not have one already
+   * @param comboBox
+   */
+  void addMultiValueOption(QComboBox* comboBox);
+
+  /**
+   * @brief Removes the multi-value option from the given QComboBox
+   * @param comboBox
+   */
+  void removeMultiValueOption(QComboBox* comboBox);
+
 private:
   QSharedPointer<Ui::VSVisibilitySettingsWidget> m_Ui;
-  VSAbstractFilter* m_Filter = nullptr;
+  VSAbstractFilter::FilterListType m_Filters;
   VSAbstractViewWidget* m_ViewWidget = nullptr;
-  VSFilterViewSettings* m_ViewSettings = nullptr;
+  VSFilterViewSettings::Collection m_ViewSettings;
 };

@@ -43,6 +43,9 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkImageData.h>
+#include <vtkTransformFilter.h>
+#include <vtkPointSet.h>
+#include <vtkExtractVOI.h>
 
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
@@ -57,10 +60,12 @@
 // -----------------------------------------------------------------------------
 VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDataContainer, VSAbstractFilter* parent)
 : VSAbstractDataFilter()
-, m_WrappedDataContainer(wrappedDataContainer)
 , m_WrappingWatcher(this)
 , m_ApplyLock(1)
 {
+  m_DCValues = new VSSIMPLDataContainerValues(this);
+  m_DCValues->setWrappedDataContainer(wrappedDataContainer);
+
   createFilter();
   setParentFilter(parent);
 
@@ -72,17 +77,19 @@ VSSIMPLDataContainerFilter::VSSIMPLDataContainerFilter(SIMPLVtkBridge::WrappedDa
 // -----------------------------------------------------------------------------
 VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
 {
-  if(m_WrappedDataContainer)
+  if(m_DCValues->getWrappedDataContainer())
   {
-    size_t count = m_WrappedDataContainer->m_CellData.size();
+    size_t count = m_DCValues->getWrappedDataContainer()->m_CellData.size();
     for(size_t i = 0; i < count; i++)
     {
-      m_WrappedDataContainer->m_CellData[i]->m_SIMPLArray = nullptr;
-      m_WrappedDataContainer->m_CellData[i]->m_VtkArray = nullptr;
+      m_DCValues->getWrappedDataContainer()->m_CellData[i]->m_SIMPLArray = nullptr;
+      m_DCValues->getWrappedDataContainer()->m_CellData[i]->m_VtkArray = nullptr;
     }
-    m_WrappedDataContainer->m_CellData.clear();
-    m_WrappedDataContainer = nullptr;
+    m_DCValues->getWrappedDataContainer()->m_CellData.clear();
+    m_DCValues->getWrappedDataContainer() = nullptr;
   }
+
+  delete m_DCValues;
 }
 
 // -----------------------------------------------------------------------------
@@ -90,7 +97,7 @@ VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
 // -----------------------------------------------------------------------------
 double* VSSIMPLDataContainerFilter::getBounds() const
 {
-  return m_WrappedDataContainer->m_DataSet->GetBounds();
+  return m_DCValues->getWrappedDataContainer()->m_DataSet->GetBounds();
 }
 
 // -----------------------------------------------------------------------------
@@ -113,12 +120,12 @@ vtkAlgorithmOutput* VSSIMPLDataContainerFilter::getOutputPort()
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkDataSet) VSSIMPLDataContainerFilter::getOutput() const
 {
-  if(nullptr == m_WrappedDataContainer)
+  if(nullptr == m_DCValues->getWrappedDataContainer())
   {
     return nullptr;
   }
 
-  return m_WrappedDataContainer->m_DataSet;
+  return m_DCValues->getWrappedDataContainer()->m_DataSet;
 }
 
 // -----------------------------------------------------------------------------
@@ -135,34 +142,36 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString& fi
   {
     int err = 0;
     DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(nullptr, err);
-    for(QMap<QString, DataContainerProxy>::iterator dcIter = proxy.dataContainers.begin(); dcIter != proxy.dataContainers.end(); dcIter++)
+	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+    for(QMap<QString, DataContainerProxy>::iterator dcIter = dataContainers.begin(); dcIter != dataContainers.end(); dcIter++)
     {
       if(dcIter.key() == dcName)
       {
         DataContainerProxy dcProxy = dcIter.value();
-        dcProxy.flag = Qt::Checked;
+		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+        dcProxy.setFlag(Qt::Checked);
 
-        for(QMap<QString, AttributeMatrixProxy>::iterator amIter = dcProxy.attributeMatricies.begin(); amIter != dcProxy.attributeMatricies.end(); amIter++)
+        for(QMap<QString, AttributeMatrixProxy>::iterator amIter = attributeMatricies.begin(); amIter != attributeMatricies.end(); amIter++)
         {
           AttributeMatrixProxy amProxy = amIter.value();
 
-          if(amProxy.amType == AttributeMatrix::Type::Cell)
+          if(amProxy.getAMType() == AttributeMatrix::Type::Cell)
           {
-            amProxy.flag = Qt::Checked;
+            amProxy.setFlag(Qt::Checked);
           }
-
-          for(QMap<QString, DataArrayProxy>::iterator daIter = amProxy.dataArrays.begin(); daIter != amProxy.dataArrays.end(); daIter++)
+		  QMap<QString, DataArrayProxy> dataArrays = amProxy.getDataArrays();
+          for(QMap<QString, DataArrayProxy>::iterator daIter = dataArrays.begin(); daIter != dataArrays.end(); daIter++)
           {
             DataArrayProxy daProxy = daIter.value();
-            daProxy.flag = Qt::Checked;
+            daProxy.setFlag(Qt::Checked);
 
-            amProxy.dataArrays[daProxy.name] = daProxy;
+            dataArrays[daProxy.getName()] = daProxy;
           }
 
-          dcProxy.attributeMatricies[amProxy.name] = amProxy;
+          attributeMatricies[amProxy.getName()] = amProxy;
         }
 
-        proxy.dataContainers[dcProxy.name] = dcProxy;
+        dataContainers[dcProxy.getName()] = dcProxy;
 
         DataContainerArray::Pointer dca = reader.readSIMPLDataUsingProxy(proxy, false);
         DataContainerShPtr dc = dca->getDataContainer(dcName);
@@ -210,10 +219,10 @@ void VSSIMPLDataContainerFilter::createFilter()
 {
   connect(&m_WrappingWatcher, SIGNAL(finished()), this, SLOT(reloadWrappingFinished()));
 
-  getTransform()->setLocalPosition(m_WrappedDataContainer->m_Origin);
+  getTransform()->setLocalPosition(m_DCValues->getWrappedDataContainer()->m_Origin);
   updateTransformFilter();
 
-  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
   dataSet->ComputeBounds();
 
   vtkCellData* cellData = dataSet->GetCellData();
@@ -238,7 +247,7 @@ void VSSIMPLDataContainerFilter::createFilter()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadData()
 {
-  QString dcName = m_WrappedDataContainer->m_Name;
+  QString dcName = m_DCValues->getWrappedDataContainer()->m_Name;
 
   VSAbstractFilter* parentFilter = getParentFilter();
   VSFileNameFilter* fileFilter = dynamic_cast<VSFileNameFilter*>(parentFilter);
@@ -256,24 +265,25 @@ void VSSIMPLDataContainerFilter::reloadData()
     {
       int err = 0;
       DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
-      QStringList dcNames = dcaProxy.dataContainers.keys();
+	  QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
+      QStringList dcNames = dataContainers.keys();
       if(dcNames.contains(dcName))
       {
-        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
-        if(dcProxy.dcType != static_cast<unsigned int>(IGeometry::Type::Unknown))
+        DataContainerProxy dcProxy = dataContainers.value(dcName);
+        if(dcProxy.getDCType() != static_cast<unsigned int>(IGeometry::Type::Unknown))
         {
-          QString dcName = m_WrappedDataContainer->m_Name;
-          DataContainerProxy dcProxy = dcaProxy.dataContainers.value(dcName);
+          QString dcName = m_DCValues->getWrappedDataContainer()->m_Name;
+          DataContainerProxy dcProxy = dataContainers.value(dcName);
 
           AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
           DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
           DataArrayProxy::CompDimsVector compDimsVector;
 
           dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
-          dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+          dataContainers[dcProxy.getName()] = dcProxy;
 
           DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
-          DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+          DataContainer::Pointer dc = dca->getDataContainer(m_DCValues->getWrappedDataContainer()->m_Name);
 
           m_WrappingWatcher.setFuture(QtConcurrent::run(this, &VSSIMPLDataContainerFilter::reloadData, dc));
         }
@@ -305,7 +315,7 @@ void VSSIMPLDataContainerFilter::reloadData()
       return;
     }
 
-    DataContainer::Pointer dc = dca->getDataContainer(m_WrappedDataContainer->m_Name);
+    DataContainer::Pointer dc = dca->getDataContainer(m_DCValues->getWrappedDataContainer()->m_Name);
     if(nullptr == dc)
     {
       QString ss = QObject::tr("Data Container '%1' could not be reloaded because it no longer exists in the underlying pipeline '%2'.").arg(dcName).arg(pipelineFilter->getPipelineName());
@@ -342,7 +352,7 @@ void VSSIMPLDataContainerFilter::reloadData()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadData(DataContainer::Pointer dc)
 {
-  m_WrappedDataContainer = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
+  m_DCValues->setWrappedDataContainer(SIMPLVtkBridge::WrapDataContainerAsStruct(dc));
 }
 
 // -----------------------------------------------------------------------------
@@ -350,7 +360,7 @@ void VSSIMPLDataContainerFilter::reloadData(DataContainer::Pointer dc)
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 {
-  VTK_PTR(vtkDataSet) dataSet = m_WrappedDataContainer->m_DataSet;
+  VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
   dataSet->ComputeBounds();
 
   vtkCellData* cellData = dataSet->GetCellData();
@@ -375,7 +385,7 @@ void VSSIMPLDataContainerFilter::reloadWrappingFinished()
 // -----------------------------------------------------------------------------
 QString VSSIMPLDataContainerFilter::getFilterName() const
 {
-  return m_WrappedDataContainer->m_Name;
+  return m_DCValues->getWrappedDataContainer()->m_Name;
 }
 
 // -----------------------------------------------------------------------------
@@ -383,7 +393,7 @@ QString VSSIMPLDataContainerFilter::getFilterName() const
 // -----------------------------------------------------------------------------
 QString VSSIMPLDataContainerFilter::getToolTip() const
 {
-  return m_WrappedDataContainer->m_Name;
+  return m_DCValues->getWrappedDataContainer()->m_Name;
 }
 
 // -----------------------------------------------------------------------------
@@ -409,10 +419,13 @@ bool VSSIMPLDataContainerFilter::finishWrapping()
   // Do not lock the main thread trying to apply a filter that is already being applied.
   if(m_ApplyLock.tryAcquire())
   {
-    SIMPLVtkBridge::FinishWrappingDataContainerStruct(m_WrappedDataContainer);
-    m_FullyWrapped = true;
-
+    SIMPLVtkBridge::FinishWrappingDataContainerStruct(m_DCValues->getWrappedDataContainer());
+    m_DCValues->setFullyWrapped(true);
+    VTK_PTR(vtkDataSet) dataSet = m_DCValues->getWrappedDataContainer()->m_DataSet;
+    m_TrivialProducer->SetOutput(dataSet);
     emit finishedWrapping();
+    emit arrayNamesChanged();
+    emit updatedOutputPort(this);
     return true;
   }
 
@@ -424,15 +437,23 @@ bool VSSIMPLDataContainerFilter::finishWrapping()
 // -----------------------------------------------------------------------------
 bool VSSIMPLDataContainerFilter::dataFullyLoaded()
 {
-  return m_FullyWrapped;
+  return m_DCValues->isFullyWrapped();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer()
+VSAbstractFilterValues* VSSIMPLDataContainerFilter::getValues()
 {
-  return m_WrappedDataContainer;
+  return m_DCValues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDataContainer() const
+{
+  return m_DCValues->getWrappedDataContainer();
 }
 
 // -----------------------------------------------------------------------------
@@ -440,14 +461,13 @@ SIMPLVtkBridge::WrappedDataContainerPtr VSSIMPLDataContainerFilter::getWrappedDa
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerFilter::setWrappedDataContainer(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc)
 {
-  m_WrappedDataContainer = wrappedDc;
-  m_FullyWrapped = false;
+  m_DCValues->setWrappedDataContainer(wrappedDc);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSSIMPLDataContainerFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSSIMPLDataContainerFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -464,4 +484,32 @@ bool VSSIMPLDataContainerFilter::compatibleWithParent(VSAbstractFilter* filter)
   }
 
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+double* VSSIMPLDataContainerFilter::getTransformBounds()
+{
+	if(nullptr == getTransformFilter())
+	{
+		return getBounds();
+	}
+	VTK_PTR(vtkDataSet) outputData = getOutput();
+	VTK_PTR(vtkImageData) imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+	// Subsample the image to reduce amount of data stored in transform filter
+	VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
+	int* inputDims = imageData->GetDimensions();
+	subsample->SetInputData(imageData);
+	subsample->SetSampleRate(20, 20, 20);
+	subsample->ReleaseDataFlagOn();
+	subsample->Update();
+
+	VTK_PTR(vtkTransformFilter) trans = getTransformFilter();
+	trans->SetInputConnection(subsample->GetOutputPort());
+	trans->SetTransform(getTransform()->getGlobalTransform());
+	trans->ReleaseDataFlagOn();
+	trans->Update();
+	return trans->GetOutput()->GetBounds();
 }

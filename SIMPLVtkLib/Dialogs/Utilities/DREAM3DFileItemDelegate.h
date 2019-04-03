@@ -55,7 +55,10 @@ protected:
   void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE;
   void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE;
 
-private:
+public:
   DREAM3DFileItemDelegate(const DREAM3DFileItemDelegate&) = delete; // Copy Constructor Not Implemented
-  void operator=(const DREAM3DFileItemDelegate&) = delete;          // Operator '=' Not Implemented
+    DREAM3DFileItemDelegate(DREAM3DFileItemDelegate&&) = delete; // Move Constructor Not Implemented
+    DREAM3DFileItemDelegate& operator=(const DREAM3DFileItemDelegate&) = delete; // Copy Assignment Not Implemented
+    DREAM3DFileItemDelegate& operator=(DREAM3DFileItemDelegate&&) = delete; // Move Assignment Not Implemented
+
 };

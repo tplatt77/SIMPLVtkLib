@@ -47,5 +47,7 @@
     <file>icons/pqPickCenter@2x.png</file>
     <file>icons/pqShowAxis.png</file>
     <file>icons/pqShowAxis@2x.png</file>
+
+    <file>gifs/loading.gif</file>
   </qresource>
 </RCC>

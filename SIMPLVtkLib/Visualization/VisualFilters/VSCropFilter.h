@@ -45,6 +45,8 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSCropValues.h"
+
 /**
  * @class VSCropFilter VSCropFilter.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h
@@ -58,9 +60,6 @@ class SIMPLVtkLib_EXPORT VSCropFilter : public VSAbstractFilter
 {
   Q_OBJECT
 
-  Q_PROPERTY(std::vector<int> voi READ getVolumeOfInterestVector NOTIFY voiChanged)
-  Q_PROPERTY(std::vector<int> sampleRate READ getSampleRateVector NOTIFY sampleRateChanged)
-
 public:
   /**
    * @brief Constructor
@@ -69,9 +68,9 @@ public:
   VSCropFilter(VSAbstractFilter* parent = nullptr);
 
   /**
-  * @brief Copy constructor
-  * @param copy
-  */
+   * @brief Copy constructor
+   * @param copy
+   */
   VSCropFilter(const VSCropFilter& copy);
 
   /**
@@ -97,6 +96,18 @@ public:
    * @return
    */
   virtual QString getToolTip() const override;
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  FilterType getFilterType() const override;
+
+  /**
+   * @brief Applies the given values to the filter
+   * @param values
+   */
+  void applyValues(VSCropValues* values);
 
   /**
    * @brief Applies the crop filter with the given volume of interest and sample rate
@@ -134,52 +145,30 @@ public:
    * @brief Returns the required incoming data type
    * @return
    */
-  static dataType_t getRequiredInputType();
+  static dataType_t GetRequiredInputType();
 
   /**
    * @brief Returns true if this filter type can be added as a child of
    * the given filter.  Returns false otherwise.
-   * @param
+   * @param filter
    * @return
    */
-  static bool compatibleWithParent(VSAbstractFilter* filter);
+  static bool CompatibleWithParent(VSAbstractFilter* filter);
 
   /**
-   * @brief Return the VOI last applied to the filter
+   * @brief Returns true if this filter type can be added as a child of
+   * the given filters.  Returns false otherwise.
+   * @param filters
    * @return
    */
-  int* getVOI();
+  static bool CompatibleWithParents(VSAbstractFilter::FilterListType filters);
 
   /**
-   * @brief Return the sample rate last applied to the filter
+   * @brief Returns the filter values associated with the filter
    * @return
    */
-  int* getSampleRate();
-
-  /**
-   * @brief Set the VOI last applied to the filter
-   * @param voi
-   */
-  void setVOI(int* voi);
-
-  /**
-   * @brief Set the sample rate last applied to the filter
-   * @param sampleRate
-   */
-  void setSampleRate(int* sampleRate);
-
-  /**
-   * @brief Returns a vector with the volume of interest
-   * @return
-   */
-  std::vector<int> getVolumeOfInterestVector();
-
-  /**
-   * @brief Returns a vector with the sample rate
-   * @return
-   */
-  std::vector<int> getSampleRateVector();
-
+  VSAbstractFilterValues* getValues() override;
+  
   /**
    * @brief Writes values to a json file from the filter
    * @param json
@@ -191,10 +180,6 @@ public:
    * @return
    */
   static QUuid GetUuid();
-
-signals:
-  void voiChanged();
-  void sampleRateChanged();
 
 protected:
   /**
@@ -210,9 +195,7 @@ protected:
 
 private:
   VTK_PTR(vtkExtractVOI) m_CropAlgorithm;
-
-  int m_LastVoi[6];
-  int m_LastSampleRate[3];
+  VSCropValues* m_CropValues = nullptr;
 };
 
 Q_DECLARE_METATYPE(VSCropFilter)

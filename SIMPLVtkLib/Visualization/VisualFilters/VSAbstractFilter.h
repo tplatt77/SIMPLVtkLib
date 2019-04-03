@@ -64,6 +64,7 @@
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
+class VSAbstractFilterValues;
 class VSAbstractDataFilter;
 class VSFilterModel;
 
@@ -99,6 +100,15 @@ public:
     INVALID_DATA
   };
 
+  enum class FilterType : unsigned char
+  {
+    Placeholder = 0,
+    Filter,
+    Data,
+    File,
+    Pipeline
+  };
+
   using FilterListType = std::list<VSAbstractFilter*>;
 
   SIMPL_INSTANCE_PROPERTY(QJsonObject, LoadingObject)
@@ -121,9 +131,9 @@ public:
   Qt::ItemFlags flags() const;
 
   /**
-  * @brief Returns true if the filter is checkable. Returns false otherwise.
-  * @return
-  */
+   * @brief Returns true if the filter is checkable. Returns false otherwise.
+   * @return
+   */
   bool isCheckable() const;
 
   /**
@@ -149,6 +159,18 @@ public:
    * @return
    */
   int getChildIndex() const;
+
+  /**
+   * @brief Returns the previous sibling from its parent's list of children
+   * @return
+   */
+  VSAbstractFilter* getPrevSibling() const;
+
+  /**
+   * @brief Returns the next sibling from its parent's list of children
+   * @return
+   */
+  VSAbstractFilter* getNextSibling() const;
 
   /**
    * @brief Returns the highest-level ancestor
@@ -223,9 +245,9 @@ public:
   QStringList getArrayNames();
 
   /**
-  * @brief Returns a list of scalar array names
-  * @return
-  */
+   * @brief Returns a list of scalar array names
+   * @return
+   */
   QStringList getScalarNames();
 
   /**
@@ -313,7 +335,7 @@ public:
    * @param requiredType
    * @return
    */
-  static bool compatibleInput(dataType_t inputType, dataType_t requiredType);
+  static bool CompatibleInput(dataType_t inputType, dataType_t requiredType);
 
   /**
    * @brief Returns a pointer to the object's transform
@@ -338,6 +360,12 @@ public:
    * @return
    */
   QModelIndex getIndex();
+
+  /**
+   * @brief Convenience method for determining what the filter does
+   * @return
+   */
+  virtual FilterType getFilterType() const = 0;
 
   /**
    * @brief Returns the CheckState for the filter
@@ -386,6 +414,15 @@ public:
    * @param font
    */
   void setFont(QFont font);
+
+  virtual VSAbstractFilterValues* getValues() = 0;
+
+  //////////////////
+  // Filter Lists //
+  //////////////////
+  static bool HasSameDataFilter(VSAbstractFilter::FilterListType filters);
+  static bool SameFilterType(VSAbstractFilter::FilterListType filters);
+  static bool HasPointData(VSAbstractFilter::FilterListType filters);
 
 signals:
   void updatedOutputPort(VSAbstractFilter* filter);
@@ -495,15 +532,21 @@ protected:
   void setCheckable(bool checkable);
 
   /**
+   * @brief Sets whether or not the filter is selectable
+   * @param selectable
+   */
+  void setSelectable(bool selectable);
+
+  /**
    * @brief Returns true if the item is editable. Returns false otherwise.
    * @return
    */
   bool isEditable() const;
 
   /**
-  * @brief Sets the ItemIsEditable flag for the filter.
-  * @param editable
-  */
+   * @brief Sets the ItemIsEditable flag for the filter.
+   * @param editable
+   */
   void setEditable(bool editable);
 
 private:

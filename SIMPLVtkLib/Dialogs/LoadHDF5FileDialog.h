@@ -41,7 +41,7 @@
 
 class DataContainerArrayProxy;
 
-class LoadHDF5FileDialog : public QDialog, public Ui::LoadHDF5FileDialog
+class LoadHDF5FileDialog : public QDialog
 {
   Q_OBJECT
 
@@ -56,15 +56,21 @@ public:
   DataContainerArrayProxy getDataStructureProxy();
 
   /**
-   * @brief setProxy
-   * @param proxy
+   * @brief setHDF5FilePath
+   * @param filePath
    */
-  void setProxy(DataContainerArrayProxy proxy);
+  void setHDF5FilePath(const QString &filePath);
 
 protected:
   void setupGui();
 
 private:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&); // Copy Constructor Not Implemented
-  void operator=(const LoadHDF5FileDialog&);     // Operator '=' Not Implemented
+  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
+
+public:
+  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
+    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
+    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
+    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
+
 };

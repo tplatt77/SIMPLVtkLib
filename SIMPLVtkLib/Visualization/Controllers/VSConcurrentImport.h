@@ -89,10 +89,10 @@ public:
   void addDataContainerArray(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   /**
-  * @brief Add a DataContainerArray with the given pipeline filter to the list of items to import
-  * @param pipelineFilter
-  * @param dca
-  */
+   * @brief Add a DataContainerArray with the given pipeline filter to the list of items to import
+   * @param pipelineFilter
+   * @param dca
+   */
   void addDataContainerArray(VSPipelineFilter* pipelineFilter, DataContainerArray::Pointer dca);
 
   /**
@@ -163,7 +163,7 @@ private:
   std::list<DcaGenericPair> m_WrappedList;
   std::list<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
 
-  QList<DataContainerShPtr> m_ImportDataContainerOrder;
+  DataContainerArray::Container m_ImportDataContainerOrder;
   QSemaphore m_ImportDataContainerOrderLock;
   QSemaphore m_UnappliedDataFilterLock;
   QSemaphore m_FilterLock;

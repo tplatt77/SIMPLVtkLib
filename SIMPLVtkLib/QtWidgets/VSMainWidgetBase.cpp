@@ -42,32 +42,34 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QThread>
 #include <QtCore/QUuid>
+#include <QtGui/QKeySequence>
+#include <QtWidgets/QShortcut>
+#include <QInputDialog>
 
 #include <QtWidgets/QMessageBox>
 
+#include <QVTKInteractor.h>
+
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 #include "SIMPLVtkLib/Dialogs/LoadHDF5FileDialog.h"
 
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSClipFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSCropFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSDataSetFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSMaskFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSParentFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSIMPLDataContainerFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSSliceFilterWidget.h"
-#include "SIMPLVtkLib/Visualization/VisualFilterWidgets/VSThresholdFilterWidget.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSClipFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSCropFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSMaskFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSliceFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSThresholdFilter.h"
+#include "SIMPLVtkLib/Wizards/ExecutePipeline/ExecutePipelineConstants.h"
+#include "SIMPLVtkLib/Wizards/ImportMontage/ImportMontageConstants.h"
+#include "SIMPLVtkLib/Wizards/PerformMontage/PerformMontageConstants.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -77,6 +79,7 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 , m_Controller(new VSController())
 {
   connectSlots();
+  setupShortcuts();
 }
 
 // -----------------------------------------------------------------------------
@@ -84,12 +87,61 @@ VSMainWidgetBase::VSMainWidgetBase(QWidget* parent)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::connectSlots()
 {
-  connect(m_Controller, SIGNAL(filterAdded(VSAbstractFilter*, bool)), this, SLOT(filterAdded(VSAbstractFilter*, bool)));
-  connect(m_Controller, SIGNAL(filterRemoved(VSAbstractFilter*)), this, SLOT(filterRemoved(VSAbstractFilter*)));
-  connect(m_Controller, SIGNAL(blockRender(bool)), this, SLOT(setBlockRender(bool)));
-  connect(m_Controller, SIGNAL(filterSelected(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
+  // Signals from VSController should be on the main thread, so Qt5 connections should be safe
+  connect(m_Controller, &VSController::filterAdded, this, &VSMainWidgetBase::filterAdded);
+  connect(m_Controller, &VSController::filterRemoved, this, &VSMainWidgetBase::filterRemoved);
+  connect(m_Controller, &VSController::blockRender, this, &VSMainWidgetBase::setBlockRender);
+  connect(m_Controller, &VSController::importDataQueueStarted, this, &VSMainWidgetBase::importDataQueueStarted);
+  connect(m_Controller, &VSController::importDataQueueFinished, this, &VSMainWidgetBase::importDataQueueFinished);
+}
 
-  connect(this, SIGNAL(proxyFromFilePathGenerated(DataContainerArrayProxy, const QString&)), this, SLOT(launchSIMPLSelectionDialog(DataContainerArrayProxy, const QString&)));
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setupShortcuts()
+{
+  QShortcut* filterUpShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Up), this);
+  QShortcut* filterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Down), this);
+  QShortcut* filterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Left), this);
+  QShortcut* filterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Right), this);
+  filterUpShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterDownShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterLeftShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  filterRightShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+  connect(filterUpShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Parent); });
+  connect(filterDownShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Child); });
+  connect(filterLeftShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::PrevSibling); });
+  connect(filterRightShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::NextSibling); });
+
+  QShortcut* addFilterUpShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Up), this);
+  QShortcut* addFilterDownShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Down), this);
+  QShortcut* addFilterLeftShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Left), this);
+  QShortcut* addFilterRightShortcut = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Right), this);
+  addFilterUpShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterDownShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterLeftShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  addFilterRightShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+  connect(addFilterUpShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Parent, true); });
+  connect(addFilterDownShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::Child, true); });
+  connect(addFilterLeftShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::PrevSibling, true); });
+  connect(addFilterRightShortcut, &QShortcut::activated, [=] { changeFilterSelected(VSAbstractViewWidget::FilterStepChange::NextSibling, true); });
+
+  QShortcut* applyFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+  QShortcut* resetFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  QShortcut* deleteFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+  applyFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  resetFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  deleteFilterShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+  connect(applyFilterShortcut, &QShortcut::activated, [=] { applyCurrentFilter(); });
+  connect(resetFilterShortcut, &QShortcut::activated, [=] { resetCurrentFilter(); });
+  connect(deleteFilterShortcut, &QShortcut::activated, [=] { deleteCurrentFilter(); });
+
+  QShortcut* toggleVisibleShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), this);
+  toggleVisibleShortcut->setContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+  connect(toggleVisibleShortcut, &QShortcut::activated, [=] { toggleCurrentFilterVisibility(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -141,21 +193,21 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
 {
   if(m_FilterView)
   {
-    disconnect(m_FilterView, SIGNAL(filterClicked(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(deleteFilterRequested(VSAbstractFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)));
-    disconnect(m_FilterView, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+    disconnect(m_FilterView, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+    disconnect(m_FilterView, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+	disconnect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
+    disconnect(m_FilterView, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+    disconnect(this, &VSMainWidgetBase::changedActiveView, m_FilterView, &VSFilterView::setViewWidget);
   }
 
   m_FilterView = view;
-  connect(view, SIGNAL(deleteFilterRequested(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
-  connect(view, SIGNAL(reloadFilterRequested(VSAbstractDataFilter*)), this, SLOT(reloadDataFilter(VSAbstractDataFilter*)));
-  connect(view, SIGNAL(reloadFileFilterRequested(VSFileNameFilter*)), this, SLOT(reloadFileFilter(VSFileNameFilter*)));
-  connect(view, SIGNAL(filterClicked(VSAbstractFilter*)), this, SLOT(setCurrentFilter(VSAbstractFilter*)));
-  connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), view, SLOT(setViewWidget(VSAbstractViewWidget*)));
-  connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), view, SLOT(setActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
+  connect(view, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
+  connect(view, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
+  connect(view, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
+  connect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
+  connect(view, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
+  connect(this, &VSMainWidgetBase::changedActiveView, view, &VSFilterView::setViewWidget);
 
   view->setViewWidget(m_ActiveViewWidget);
 }
@@ -207,21 +259,19 @@ void VSMainWidgetBase::setFilterSettingsWidget(VSFilterSettingsWidget* widget)
 {
   if(m_FilterSettingsWidget)
   {
-    disconnect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    disconnect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_FilterSettingsWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    disconnect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_FilterSettingsWidget, &VSFilterSettingsWidget::setFilters);
+    disconnect(m_FilterSettingsWidget, &VSFilterSettingsWidget::filterDeleted, this, &VSMainWidgetBase::deleteFilter);
   }
 
   m_FilterSettingsWidget = widget;
 
   if(m_FilterSettingsWidget)
   {
-    connect(this, SIGNAL(changedActiveFilter(VSAbstractFilter*, VSAbstractFilterWidget*)), m_FilterSettingsWidget, SLOT(setFilter(VSAbstractFilter*, VSAbstractFilterWidget*)));
-    connect(this, SIGNAL(changedActiveView(VSAbstractViewWidget*)), m_FilterSettingsWidget, SLOT(setViewWidget(VSAbstractViewWidget*)));
-    connect(m_FilterSettingsWidget, SIGNAL(filterDeleted(VSAbstractFilter*)), this, SLOT(deleteFilter(VSAbstractFilter*)));
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_FilterSettingsWidget, &VSFilterSettingsWidget::setFilters);
+    connect(m_FilterSettingsWidget, &VSFilterSettingsWidget::filterDeleted, this, &VSMainWidgetBase::deleteFilter);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_FilterSettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_FilterSettingsWidget->setFilters(getCurrentSelection());
+    m_FilterSettingsWidget->setViewWidget(getActiveViewWidget());
   }
 }
 
@@ -232,7 +282,7 @@ void VSMainWidgetBase::setVisibilitySettingsWidget(VSVisibilitySettingsWidget* w
 {
   if(m_VisibilitySettingsWidget)
   {
-    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilters);
     disconnect(this, &VSMainWidgetBase::changedActiveView, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setViewWidget);
   }
 
@@ -240,11 +290,10 @@ void VSMainWidgetBase::setVisibilitySettingsWidget(VSVisibilitySettingsWidget* w
 
   if(m_VisibilitySettingsWidget)
   {
-    connect(this, &VSMainWidgetBase::changedActiveFilter, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilter);
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setFilters);
     connect(this, &VSMainWidgetBase::changedActiveView, m_VisibilitySettingsWidget, &VSVisibilitySettingsWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_VisibilitySettingsWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_VisibilitySettingsWidget->setFilters(getCurrentSelection());
     m_VisibilitySettingsWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -256,7 +305,7 @@ void VSMainWidgetBase::setColorMappingWidget(VSColorMappingWidget* widget)
 {
   if(m_ColorMappingWidget)
   {
-    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_ColorMappingWidget, &VSColorMappingWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_ColorMappingWidget, &VSColorMappingWidget::setFilters);
     disconnect(this, &VSMainWidgetBase::changedActiveView, m_ColorMappingWidget, &VSColorMappingWidget::setViewWidget);
   }
 
@@ -264,11 +313,10 @@ void VSMainWidgetBase::setColorMappingWidget(VSColorMappingWidget* widget)
 
   if(m_ColorMappingWidget)
   {
-    connect(this, &VSMainWidgetBase::changedActiveFilter, m_ColorMappingWidget, &VSColorMappingWidget::setFilter);
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_ColorMappingWidget, &VSColorMappingWidget::setFilters);
     connect(this, &VSMainWidgetBase::changedActiveView, m_ColorMappingWidget, &VSColorMappingWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_ColorMappingWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_ColorMappingWidget->setFilters(getCurrentSelection());
     m_ColorMappingWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -280,7 +328,7 @@ void VSMainWidgetBase::setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsW
 {
   if(m_AdvancedVisibilityWidget)
   {
-    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilters);
     disconnect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
   }
 
@@ -288,11 +336,10 @@ void VSMainWidgetBase::setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsW
 
   if(m_ColorMappingWidget)
   {
-    connect(this, &VSMainWidgetBase::changedActiveFilter, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilter);
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilters);
     connect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
 
-    VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-    m_AdvancedVisibilityWidget->setFilter(m_CurrentFilter, filterWidget);
+    m_AdvancedVisibilityWidget->setFilters(getCurrentSelection());
     m_AdvancedVisibilityWidget->setViewWidget(getActiveViewWidget());
   }
 }
@@ -304,18 +351,18 @@ void VSMainWidgetBase::setTransformWidget(VSTransformWidget* widget)
 {
   if(m_TransformWidget)
   {
-    disconnect(this, &VSMainWidgetBase::changedActiveFilter, m_TransformWidget, &VSTransformWidget::setFilter);
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_TransformWidget, &VSTransformWidget::setFilters);
   }
 
   m_TransformWidget = widget;
 
   if(m_TransformWidget)
   {
-    connect(this, &VSMainWidgetBase::changedActiveFilter, m_TransformWidget, &VSTransformWidget::setFilter);
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_TransformWidget, &VSTransformWidget::setFilters);
 
-    if(m_CurrentFilter)
+    if(getCurrentFilter())
     {
-      m_TransformWidget->setTransform(m_CurrentFilter->getTransform());
+      m_TransformWidget->setTransform(getCurrentFilter()->getTransform());
     }
   }
 }
@@ -337,7 +384,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
+VSAbstractFilter* VSMainWidgetBase::getCurrentFilter() const
 {
   return m_CurrentFilter;
 }
@@ -345,9 +392,44 @@ VSAbstractFilter* VSMainWidgetBase::getCurrentFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSMainWidgetBase::getCurrentSelection() const
+{
+  if(m_ActiveViewWidget)
+  {
+    return m_ActiveViewWidget->getSelectedFilters();
+  }
+
+  return VSAbstractFilter::FilterListType();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::selectFilter(VSAbstractFilter* filter)
+{
+  if(m_ActiveViewWidget)
+  {
+    m_ActiveViewWidget->selectFilter(filter);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::selectFilters(VSAbstractFilter::FilterListType filters)
+{
+  if(m_ActiveViewWidget)
+  {
+    m_ActiveViewWidget->selectFilters(filters);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 {
-  QVTKInteractor* interactor = nullptr;
+  vtkRenderWindowInteractor* interactor = nullptr;
   VSAbstractViewWidget* activeViewWidget = getActiveViewWidget();
   if(activeViewWidget != nullptr)
   {
@@ -358,56 +440,9 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
     }
   }
 
-  VSAbstractFilterWidget* fw = nullptr;
-  if(dynamic_cast<VSClipFilter*>(filter) != nullptr)
-  {
-    VSClipFilter* vsFilter = dynamic_cast<VSClipFilter*>(filter);
-    fw = new VSClipFilterWidget(vsFilter, interactor, this);
-  }
-  else if(dynamic_cast<VSCropFilter*>(filter) != nullptr)
-  {
-    VSCropFilter* vsFilter = dynamic_cast<VSCropFilter*>(filter);
-    fw = new VSCropFilterWidget(vsFilter, interactor, this);
-  }
-  else if(dynamic_cast<VSMaskFilter*>(filter) != nullptr)
-  {
-    VSMaskFilter* vsFilter = dynamic_cast<VSMaskFilter*>(filter);
-    fw = new VSMaskFilterWidget(vsFilter, interactor, this);
-  }
-  else if(dynamic_cast<VSSIMPLDataContainerFilter*>(filter) != nullptr)
-  {
-    VSSIMPLDataContainerFilter* vsFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
-    fw = new VSSIMPLDataContainerFilterWidget(vsFilter, this);
-  }
-  else if(dynamic_cast<VSDataSetFilter*>(filter) != nullptr)
-  {
-    VSDataSetFilter* vsFilter = dynamic_cast<VSDataSetFilter*>(filter);
-    fw = new VSDataSetFilterWidget(vsFilter, this);
-  }
-  else if(dynamic_cast<VSSliceFilter*>(filter) != nullptr)
-  {
-    VSSliceFilter* vsFilter = dynamic_cast<VSSliceFilter*>(filter);
-    fw = new VSSliceFilterWidget(vsFilter, interactor, this);
-  }
-  else if(dynamic_cast<VSThresholdFilter*>(filter) != nullptr)
-  {
-    VSThresholdFilter* vsFilter = dynamic_cast<VSThresholdFilter*>(filter);
-    fw = new VSThresholdFilterWidget(vsFilter, interactor, this);
-  }
-  else if(dynamic_cast<VSFileNameFilter*>(filter) != nullptr || dynamic_cast<VSPipelineFilter*>(filter) != nullptr)
-  {
-    VSTextFilter* vsFilter = dynamic_cast<VSTextFilter*>(filter);
-    fw = new VSParentFilterWidget(vsFilter, this);
-  }
-
-  if(fw != nullptr)
-  {
-    m_FilterToFilterWidgetMap.insert(filter, fw);
-  }
-
   if(currentFilter == true)
   {
-    setCurrentFilter(filter);
+    selectFilter(filter);
   }
 }
 
@@ -416,135 +451,15 @@ void VSMainWidgetBase::filterAdded(VSAbstractFilter* filter, bool currentFilter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::filterRemoved(VSAbstractFilter* filter)
 {
-  VSAbstractFilterWidget* fw = m_FilterToFilterWidgetMap.value(filter);
-  delete fw;
-
-  m_FilterToFilterWidgetMap.remove(filter);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::importFiles(QStringList filePaths)
-{
-  for(int i = 0; i < filePaths.size(); i++)
-  {
-    QString filePath = filePaths[i];
-
-    QMimeDatabase db;
-
-    QMimeType mimeType = db.mimeTypeForFile(filePath, QMimeDatabase::MatchContent);
-    QString mimeName = mimeType.name();
-
-    QFileInfo fi(filePath);
-    QString ext = fi.completeSuffix().toLower();
-    if(ext == "dream3d")
-    {
-      openDREAM3DFile(filePath);
-    }
-    else if(mimeType.inherits("image/png") || mimeType.inherits("image/tiff") || mimeType.inherits("image/jpeg") || mimeType.inherits("image/bmp"))
-    {
-      m_Controller->importData(filePath);
-    }
-    else if(ext == "vtk" || ext == "vti" || ext == "vtp" || ext == "vtr" || ext == "vts" || ext == "vtu")
-    {
-      m_Controller->importData(filePath);
-    }
-    else if(ext == "stl")
-    {
-      m_Controller->importData(filePath);
-    }
-    else
-    {
-      QMessageBox::critical(this, "Invalid File Type",
-                            tr("IMF Viewer failed to open the file because the file extension, '.%1', is not supported by the "
-                               "application.")
-                                .arg(ext),
-                            QMessageBox::StandardButton::Ok);
-      continue;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
-{
-  m_Controller->importPipelineOutput(pipeline, dca);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::openDREAM3DFile(const QString& filePath)
-{
-  QFileInfo fi(filePath);
-
-  SIMPLH5DataReader reader;
-  connect(&reader, SIGNAL(errorGenerated(const QString&, const QString&, const int&)), this, SLOT(generateError(const QString&, const QString&, const int&)));
-
-  bool success = reader.openFile(filePath);
-  if(success)
-  {
-    int err = 0;
-    SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
-    DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
-    if(proxy.dataContainers.isEmpty())
-    {
-      return;
-    }
-
-    QStringList dcNames = proxy.dataContainers.keys();
-    for(int i = 0; i < dcNames.size(); i++)
-    {
-      QString dcName = dcNames[i];
-      DataContainerProxy dcProxy = proxy.dataContainers[dcName];
-
-      // We want only data containers with geometries displayed
-      if(dcProxy.dcType == static_cast<unsigned int>(DataContainer::Type::Unknown))
-      {
-        proxy.dataContainers.remove(dcName);
-      }
-      else
-      {
-        QStringList amNames = dcProxy.attributeMatricies.keys();
-        for(int j = 0; j < amNames.size(); j++)
-        {
-          QString amName = amNames[j];
-          AttributeMatrixProxy amProxy = dcProxy.attributeMatricies[amName];
-
-          // We want only cell attribute matrices displayed
-          if(amProxy.amType != AttributeMatrix::Type::Cell)
-          {
-            dcProxy.attributeMatricies.remove(amName);
-            proxy.dataContainers[dcName] = dcProxy;
-          }
-        }
-      }
-    }
-
-    if(proxy.dataContainers.size() <= 0)
-    {
-      QMessageBox::critical(this, "Invalid Data",
-                            tr("IMF Viewer failed to open file '%1' because the file does not "
-                               "contain any data containers with a supported geometry.")
-                                .arg(fi.fileName()),
-                            QMessageBox::StandardButton::Ok);
-      return;
-    }
-
-    emit proxyFromFilePathGenerated(proxy, filePath);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy, const QString& filePath)
+void VSMainWidgetBase::launchHDF5SelectionDialog(const QString& filePath)
 {
   QSharedPointer<LoadHDF5FileDialog> dialog = QSharedPointer<LoadHDF5FileDialog>(new LoadHDF5FileDialog());
-  dialog->setProxy(proxy);
+  dialog->setHDF5FilePath(filePath);
   int ret = dialog->exec();
 
   if(ret == QDialog::Accepted)
@@ -562,10 +477,44 @@ void VSMainWidgetBase::launchSIMPLSelectionDialog(DataContainerArrayProxy proxy,
       {
         return;
       }
-
       m_Controller->importDataContainerArray(filePath, dca);
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca)
+{
+  m_Controller->importDataContainerArray(filePath, dca);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  m_Controller->importPipelineOutput(pipeline, dca);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool VSMainWidgetBase::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
+{
+	m_Controller->importPipelineOutput(pipelines);
+	return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::importFilterPipeline(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+{
+  m_Controller->importPipelineOutput(pipeline, dca);
 }
 
 // -----------------------------------------------------------------------------
@@ -593,7 +542,6 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(false);
 
     disconnect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    //disconnect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     disconnect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     disconnect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
   }
@@ -606,39 +554,22 @@ void VSMainWidgetBase::setActiveView(VSAbstractViewWidget* viewWidget)
     m_ActiveViewWidget->setActive(true);
 
     connect(m_ActiveViewWidget, SIGNAL(viewWidgetClosed()), this, SLOT(activeViewClosed()));
-    //connect(m_ActiveViewWidget, SIGNAL(visibilityChanged(VSFilterViewSettings*, bool)), this, SLOT(setFilterVisibility(VSFilterViewSettings*, bool)));
     connect(m_ActiveViewWidget, SIGNAL(applyCurrentFilter()), this, SLOT(applyCurrentFilter()));
     connect(m_ActiveViewWidget, SIGNAL(resetCurrentFilter()), this, SLOT(resetCurrentFilter()));
+    connect(m_ActiveViewWidget, &VSAbstractViewWidget::currentFilterChanged, this, &VSMainWidgetBase::listenCurrentFilterChanged);
+    connect(m_ActiveViewWidget, &VSAbstractViewWidget::selectionChanged, this, &VSMainWidgetBase::listenSelectionChanged);
 
-    // Update filter check states to match the current view widget
-    //getController()->getFilterModel()->updateModelForView(viewWidget->getAllFilterViewSettings());
-
-    VSAbstractFilterWidget* fw;
-    foreach(fw, m_FilterToFilterWidgetMap.values())
-    {
-      fw->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
-    }
+    listenCurrentFilterChanged(m_ActiveViewWidget->getCurrentFilter());
+    emit selectedFiltersChanged(m_ActiveViewWidget->getSelectedFilters());
+  }
+  else
+  {
+    listenCurrentFilterChanged(nullptr);
+    emit selectedFiltersChanged(VSAbstractFilter::FilterListType());
   }
 
   emit changedActiveView(viewWidget);
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-//void VSMainWidgetBase::setFilterVisibility(VSFilterViewSettings* viewSettings, bool visible)
-//{
-//  if(false == (viewSettings && viewSettings->getFilter()))
-//  {
-//    return;
-//  }
-//  if(nullptr == m_ActiveViewWidget)
-//  {
-//    return;
-//  }
-//
-//  viewSettings->getFilter()->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
-//}
 
 // -----------------------------------------------------------------------------
 //
@@ -648,26 +579,90 @@ void VSMainWidgetBase::activeViewClosed()
   setActiveView(nullptr);
 }
 
+#if 0
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilterWidget::ListType VSMainWidgetBase::getFilterWidgets(VSAbstractFilter::FilterListType filters)
+{
+  VSAbstractFilterWidget::ListType filterWidgets;
+  for(VSAbstractFilter* filter : filters)
+  {
+    VSAbstractFilterWidget* widget = m_FilterToFilterWidgetMap.value(filter);
+    if(nullptr != widget)
+    {
+      filterWidgets.push_back(widget);
+    }
+  }
+
+  return filterWidgets;
+}
+#endif
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 {
-  VSAbstractFilterWidget* filterWidget = m_FilterToFilterWidgetMap.value(m_CurrentFilter);
-  if(filterWidget)
+  if(m_ActiveViewWidget)
   {
-    filterWidget->setRenderingEnabled(false);
+    m_ActiveViewWidget->selectFilter(filter);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::changeFilterSelected(VSAbstractViewWidget::FilterStepChange stepDirection, bool addSelection)
+{
+  if(m_ActiveViewWidget)
+  {
+    m_ActiveViewWidget->changeFilterSelected(stepDirection, addSelection);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::listenSelectionChanged(QItemSelection selection)
+{
+  if(nullptr == m_ActiveViewWidget)
+  {
+    return;
+  }
+
+  VSAbstractFilter::FilterListType filters = m_ActiveViewWidget->getSelectedFilters();
+  if(getCurrentFilter())
+  {
+    getCurrentFilter()->getValues()->setSelection(filters);
+  }
+
+  emit selectedFiltersChanged(filters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::listenCurrentFilterChanged(VSAbstractFilter* filter)
+{
+  if(m_Controller->getFilterModel()->getRootFilter() == filter)
+  {
+    filter = nullptr;
+  }
+
+  if(m_CurrentFilter)
+  {
+    m_CurrentFilter->getValues()->setRenderingEnabled(false);
   }
 
   m_CurrentFilter = filter;
-  filterWidget = m_FilterToFilterWidgetMap.value(filter);
 
-  if(filterWidget)
+  if(m_CurrentFilter)
   {
-    filterWidget->setRenderingEnabled(true);
+    m_CurrentFilter->getValues()->setSelection(getCurrentSelection());
+    m_CurrentFilter->getValues()->setInteractor(getActiveViewWidget()->getVisualizationWidget()->GetInteractor());
+    m_CurrentFilter->getValues()->setRenderingEnabled(true);
   }
-
-  emit changedActiveFilter(m_CurrentFilter, filterWidget);
 }
 
 // -----------------------------------------------------------------------------
@@ -675,9 +670,9 @@ void VSMainWidgetBase::setCurrentFilter(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::applyCurrentFilter()
 {
-  if(m_FilterSettingsWidget)
+  if(getCurrentFilter())
   {
-    m_FilterSettingsWidget->applyFilter();
+    getCurrentFilter()->getValues()->applyValues();
   }
 }
 
@@ -686,9 +681,32 @@ void VSMainWidgetBase::applyCurrentFilter()
 // -----------------------------------------------------------------------------
 void VSMainWidgetBase::resetCurrentFilter()
 {
-  if(m_FilterSettingsWidget)
+  if(getCurrentFilter())
   {
-    m_FilterSettingsWidget->resetFilter();
+    getCurrentFilter()->getValues()->resetValues();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::deleteCurrentFilter()
+{
+  if(getCurrentFilter())
+  {
+    getCurrentFilter()->deleteFilter();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::toggleCurrentFilterVisibility()
+{
+  if(getActiveViewWidget() && getActiveViewWidget()->getFilterViewSettings(getCurrentFilter()))
+  {
+    VSFilterViewSettings* viewSettings = getActiveViewWidget()->getFilterViewSettings(getCurrentFilter());
+    viewSettings->setVisible(!viewSettings->isVisible());
   }
 }
 
@@ -708,7 +726,6 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     VSFilterViewSettings* viewSettings = widget->getFilterViewSettings(filter);
     bool visible = viewSettings->isVisible();
     viewSettings->setVisible(false);
-    viewSettings->setScalarBarVisible(false);
 
     VSFilterViewSettings* parentSettings = widget->getFilterViewSettings(filter->getParentFilter());
     if(parentSettings)
@@ -724,12 +741,25 @@ void VSMainWidgetBase::deleteFilter(VSAbstractFilter* filter)
     deleteFilter(child);
   }
 
-  if(m_CurrentFilter == filter)
+  if(getCurrentFilter() == filter)
   {
-    setCurrentFilter(filter->getParentFilter());
+    selectFilter(filter->getParentFilter());
   }
 
   m_Controller->getFilterModel()->removeFilter(filter);
+  emit selectedFiltersChanged(getActiveViewWidget()->getSelectedFilters());
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::clearFilters()
+{
+  VSAbstractFilter::FilterListType filters = getController()->getFilterModel()->getBaseFilters();
+  for(VSAbstractFilter* filter : filters)
+  {
+    deleteFilter(filter);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -741,6 +771,32 @@ void VSMainWidgetBase::reloadDataFilter(VSAbstractDataFilter* filter)
   filters.push_back(filter);
 
   QtConcurrent::run(this, &VSMainWidgetBase::reloadFilters, filters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::renameDataFilter(VSAbstractDataFilter* filter)
+{
+  bool ok;
+  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+  if(dcFilter != nullptr)
+  {
+	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+	if(dataContainer != nullptr)
+	{
+	  VSSIMPLDataContainerValues* dcValues = dynamic_cast<VSSIMPLDataContainerValues*>(dcFilter->getValues());
+	  QString dcName = QInputDialog::getText(this, tr("Rename Filter"),
+		tr("New Data Container Name:"), QLineEdit::Normal,
+		dcFilter->getFilterName(), &ok);
+	  if(ok && !dcName.isEmpty())
+	  {
+		dcValues->getWrappedDataContainer()->m_Name = dcName;
+		dataContainer->setName(dcName);
+		dcFilter->setText(dcName);
+	  }
+	}
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -796,15 +852,15 @@ void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
       for(size_t i = 0; i < filters.size(); i++)
       {
         VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
-
-        DataContainerProxy dcProxy = dcaProxy.dataContainers.value(validFilter->getFilterName());
+		QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
+        DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
 
         AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
         DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
         DataArrayProxy::CompDimsVector compDimsVector;
 
         dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
-        dcaProxy.dataContainers[dcProxy.name] = dcProxy;
+        dataContainers[dcProxy.getName()] = dcProxy;
       }
 
       DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
@@ -820,103 +876,145 @@ void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createClipFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createClipFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSClipFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSClipFilter* filter = new VSClipFilter(parent);
-    finishAddingFilter(filter, parent);
+    if(parent && VSClipFilter::CompatibleWithParent(parent))
+    {
+      VSClipFilter* filter = new VSClipFilter(parent);
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createCropFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createCropFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSCropFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSCropFilter* filter = new VSCropFilter(parent);
-    finishAddingFilter(filter, parent);
+    if(parent && VSCropFilter::CompatibleWithParent(parent))
+    {
+      VSCropFilter* filter = new VSCropFilter(parent);
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createSliceFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createSliceFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSSliceFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSSliceFilter* filter = new VSSliceFilter(parent);
-    finishAddingFilter(filter, parent);
+    if(parent && VSSliceFilter::CompatibleWithParent(parent))
+    {
+      VSSliceFilter* filter = new VSSliceFilter(parent);
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createMaskFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createMaskFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSMaskFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSMaskFilter* filter = new VSMaskFilter(parent);
-    finishAddingFilter(filter, parent);
+    if(parent && VSMaskFilter::CompatibleWithParent(parent))
+    {
+      VSMaskFilter* filter = new VSMaskFilter(parent);
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createThresholdFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSThresholdFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSThresholdFilter* filter = new VSThresholdFilter(parent);
-    finishAddingFilter(filter, parent);
+    if(parent && VSThresholdFilter::CompatibleWithParent(parent))
+    {
+      VSThresholdFilter* filter = new VSThresholdFilter(parent);
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMainWidgetBase::createTextFilter(VSAbstractFilter* parent)
+void VSMainWidgetBase::createTextFilter(VSAbstractFilter::FilterListType parents)
 {
-  if(nullptr == parent)
+  if(parents.size() == 0)
   {
-    parent = m_CurrentFilter;
+    parents = getCurrentSelection();
   }
 
-  if(parent && VSTextFilter::compatibleWithParent(parent))
+  VSAbstractFilter::FilterListType createdFilters;
+  for(VSAbstractFilter* parent : parents)
   {
-    VSTextFilter* filter = new VSTextFilter(parent, "Text", "Tool Tip");
-    finishAddingFilter(filter, parent);
+    if(parent && VSTextFilter::CompatibleWithParent(parent))
+    {
+      VSTextFilter* filter = new VSTextFilter(parent, "Text", "Tool Tip");
+      finishAddingFilter(filter, parent);
+      createdFilters.push_back(filter);
+    }
   }
+
+  selectFilters(createdFilters);
 }
 
 // -----------------------------------------------------------------------------

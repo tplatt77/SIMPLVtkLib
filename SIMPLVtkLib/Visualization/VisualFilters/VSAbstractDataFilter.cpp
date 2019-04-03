@@ -46,7 +46,7 @@ VSAbstractDataFilter::VSAbstractDataFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSAbstractDataFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSAbstractDataFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -98,4 +98,12 @@ void VSAbstractDataFilter::reloadData()
 bool VSAbstractDataFilter::isDataImported() const
 {
   return m_DataImported;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSAbstractDataFilter::getFilterType() const
+{
+  return FilterType::Data;
 }

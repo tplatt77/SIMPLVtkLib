@@ -40,6 +40,13 @@
 #include <QtWidgets/QStyle>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSRootFilter.h"
+
+namespace
+{
+QItemSelectionModel::SelectionFlags mergeFlags = QItemSelectionModel::Select;
+QItemSelectionModel::SelectionFlags selectFlags = QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current;
+} // namespace
 
 // -----------------------------------------------------------------------------
 //
@@ -58,7 +65,6 @@ VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 , m_Controller(other.m_Controller)
 {
   setupModel();
-  //copyModel(*other.m_FilterViewModel);
 }
 
 // -----------------------------------------------------------------------------
@@ -67,8 +73,14 @@ VSAbstractViewWidget::VSAbstractViewWidget(const VSAbstractViewWidget& other)
 void VSAbstractViewWidget::setupModel()
 {
   m_FilterViewModel = new VSFilterViewModel(this);
+  m_SelectionModel = new QItemSelectionModel(m_FilterViewModel);
+
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsCreated, this, &VSAbstractViewWidget::addViewSettings);
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsRemoved, this, &VSAbstractViewWidget::removeViewSettings);
+
+  connect(m_SelectionModel, &QItemSelectionModel::currentChanged, this, &VSAbstractViewWidget::listenCurrentIndexChanged);
+  connect(m_SelectionModel, &QItemSelectionModel::selectionChanged, this, &VSAbstractViewWidget::localSelectionChanged);
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -77,9 +89,13 @@ void VSAbstractViewWidget::setupModel()
 void VSAbstractViewWidget::copyModel(const VSFilterViewModel& other)
 {
   m_FilterViewModel = new VSFilterViewModel(other);
+  m_SelectionModel = new QItemSelectionModel(m_FilterViewModel);
 
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsCreated, this, &VSAbstractViewWidget::addViewSettings);
   connect(m_FilterViewModel, &VSFilterViewModel::viewSettingsRemoved, this, &VSAbstractViewWidget::removeViewSettings);
+
+  connect(m_SelectionModel, &QItemSelectionModel::currentChanged, this, &VSAbstractViewWidget::listenCurrentIndexChanged);
+  connect(m_SelectionModel, &QItemSelectionModel::selectionChanged, this, &VSAbstractViewWidget::localSelectionChanged);
 }
 
 // -----------------------------------------------------------------------------
@@ -112,8 +128,6 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
   if(viewSettings)
   {
     changeFilterVisibility(viewSettings, false);
-    //changeScalarBarVisibility(viewSettings, false);
-    viewSettings->setScalarBarVisible(false);
     checkFilterViewSetting(viewSettings);
   }
 }
@@ -123,7 +137,7 @@ void VSAbstractViewWidget::removeViewSettings(VSFilterViewSettings* viewSettings
 // -----------------------------------------------------------------------------
 void VSAbstractViewWidget::copyFilters(const VSFilterViewModel& filterViewModel)
 {
-  //clearFilters();
+  // clearFilters();
   m_FilterViewModel->deepCopy(filterViewModel);
 
   std::vector<VSFilterViewSettings*> filterViewSettings = m_FilterViewModel->getAllFilterViewSettings();
@@ -131,6 +145,34 @@ void VSAbstractViewWidget::copyFilters(const VSFilterViewModel& filterViewModel)
   {
     addViewSettings(viewSettings);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::copySelection(const VSAbstractViewWidget& other)
+{
+  getSelectionModel()->blockSignals(true);
+  QModelIndexList selection = other.getSelectionModel()->selectedIndexes();
+  VSAbstractFilter::FilterListType selectedFilters = other.getFilterViewModel()->getFiltersFromIndexes(selection);
+  QModelIndexList indexList = getFilterViewModel()->getIndexesFromFilters(selectedFilters);
+  getSelectionModel()->select(createSelection(indexList), ::selectFlags);
+  getSelectionModel()->blockSignals(false);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QItemSelection VSAbstractViewWidget::createSelection(const QModelIndexList& indexList) const
+{
+  QItemSelection selection;
+  for(QModelIndex index : indexList)
+  {
+    QItemSelection temp(index, index);
+    selection.merge(temp, QItemSelectionModel::Select);
+  }
+
+  return selection;
 }
 
 #if 0
@@ -178,22 +220,6 @@ void VSAbstractViewWidget::checkFilterViewSetting(VSFilterViewSettings* setting)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings* VSAbstractViewWidget::getActiveFilterSettings() const
-{
-  return m_ActiveFilterSettings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::setActiveFilterSettings(VSFilterViewSettings* settings)
-{
-  m_ActiveFilterSettings = settings;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 VSFilterViewSettings* VSAbstractViewWidget::getFilterViewSettings(VSAbstractFilter* filter)
 {
   if(nullptr == m_FilterViewModel)
@@ -202,6 +228,19 @@ VSFilterViewSettings* VSAbstractViewWidget::getFilterViewSettings(VSAbstractFilt
   }
 
   return m_FilterViewModel->getFilterViewSettings(filter);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSFilterViewSettings::Collection VSAbstractViewWidget::getFilterViewSettings(VSAbstractFilter::FilterListType filters)
+{
+  if(nullptr == m_FilterViewModel)
+  {
+    return VSFilterViewSettings::Collection();
+  }
+
+  return m_FilterViewModel->getFilterViewSettings(filters);
 }
 
 // -----------------------------------------------------------------------------
@@ -408,50 +447,6 @@ void VSAbstractViewWidget::setFilterShowScalarBar(const bool& showScalarBar)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterArrayName(QString name)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveArrayName(name);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterComponentIndex(int index)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setActiveComponentIndex(index);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterMapColors(VSFilterViewSettings::ColorMapping mapColorState)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setMapColors(mapColorState);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::changeFilterShowScalarBar(bool showScalarBar)
-{
-  if(m_ActiveFilterSettings)
-  {
-    m_ActiveFilterSettings->setScalarBarVisible(showScalarBar);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSAbstractViewWidget::mousePressed()
 {
   emit markActive(this);
@@ -463,23 +458,6 @@ void VSAbstractViewWidget::mousePressed()
 void VSAbstractViewWidget::mousePressEvent(QMouseEvent* event)
 {
   mousePressed();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSAbstractViewWidget::keyPressEvent(QKeyEvent* event)
-{
-  QFrame::keyPressEvent(event);
-
-  if(event->key() == Qt::Key::Key_Return)
-  {
-    emit applyCurrentFilter();
-  }
-  else if(event->key() == Qt::Key::Key_Escape)
-  {
-    emit resetCurrentFilter();
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -747,6 +725,14 @@ VSFilterViewModel* VSAbstractViewWidget::getFilterViewModel() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QItemSelectionModel* VSAbstractViewWidget::getSelectionModel() const
+{
+  return m_SelectionModel;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSAbstractViewWidget::isActive()
 {
   return m_Active;
@@ -825,7 +811,230 @@ VSAbstractFilter* VSAbstractViewWidget::getFilterFromProp(vtkProp3D* prop)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter)
+void VSAbstractViewWidget::selectFilter(VSAbstractFilter* filter, SelectionType selectionType)
 {
-  m_Controller->selectFilter(filter);
+  QModelIndex filterIndex = m_FilterViewModel->getIndexFromFilter(filter);
+  QItemSelectionModel::SelectionFlags selectionFlag;
+  switch(selectionType)
+  {
+  case SelectionType::Current:
+    selectionFlag = ::selectFlags;
+    m_SelectionModel->setCurrentIndex(filterIndex, selectionFlag);
+    return;
+    break;
+  case SelectionType::AddSelection:
+    selectionFlag = ::mergeFlags;
+    m_SelectionModel->setCurrentIndex(filterIndex, selectionFlag);
+    break;
+  case SelectionType::RemoveSelection:
+    selectionFlag = QItemSelectionModel::Deselect;
+    break;
+  }
+
+  m_SelectionModel->select(filterIndex, selectionFlag);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilters(VSAbstractFilter::FilterListType filters)
+{
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(filter == *filters.begin())
+    {
+      selectFilter(filter, SelectionType::Current);
+    }
+    else
+    {
+      selectFilter(filter, SelectionType::AddSelection);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+  emit currentFilterChanged(getCurrentFilter());
+  m_CurrentFilterConnection = connect(getCurrentFilter(), &VSAbstractFilter::updatedOutputPort, [=] {
+    emit currentFilterUpdated();
+  });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+  QItemSelection selection;
+  QModelIndexList filterIndicesSelected = m_FilterViewModel->convertIndicesToFilterModel(selected.indexes());
+  for(QModelIndex index : filterIndicesSelected)
+  {
+    QItemSelection temp(index, index);
+    selection.merge(temp, ::mergeFlags);
+  }
+
+  // Selected indices
+  QModelIndexList selectedIndices = selected.indexes();
+  for(QModelIndex index : selectedIndices)
+  {
+    VSFilterViewSettings* settings = m_FilterViewModel->getFilterViewSettingsByIndex(index);
+    settings->setIsSelected(true);
+  }
+
+  // Deselected indices
+  QModelIndexList deselectedIndices = deselected.indexes();
+  for(QModelIndex index : deselectedIndices)
+  {
+    VSFilterViewSettings* settings = m_FilterViewModel->getFilterViewSettingsByIndex(index);
+    settings->setIsSelected(false);
+  }
+
+  emit selectionChanged(selection);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSAbstractViewWidget::getSelectedFilters() const
+{
+  QModelIndexList selection = m_SelectionModel->selectedIndexes();
+  return m_FilterViewModel->getFiltersFromIndexes(selection);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter* VSAbstractViewWidget::getCurrentFilter() const
+{
+#if 1
+  QModelIndex currentIndex = m_SelectionModel->currentIndex();
+  return m_FilterViewModel->getFilterFromIndex(currentIndex);
+#else
+  VSAbstractFilter::FilterListType selectedFilters = getSelectedFilters();
+  if(selectedFilters.size() > 0)
+  {
+    return selectedFilters.front();
+  }
+
+  return nullptr;
+#endif
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::changeFilterSelected(FilterStepChange stepDirection, bool addSelection)
+{
+  switch(stepDirection)
+  {
+  case FilterStepChange::Parent:
+    selectFilterParent(addSelection);
+    break;
+  case FilterStepChange::Child:
+    selectFilterChild(addSelection);
+    break;
+  case FilterStepChange::PrevSibling:
+    selectFilterPrevSibling(addSelection);
+    break;
+  case FilterStepChange::NextSibling:
+    selectFilterNextSibling(addSelection);
+    break;
+  default:
+    break;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilterParent(bool addSelection)
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
+  if(nullptr == currentFilter)
+  {
+    // Select the first base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.front(), selectionType);
+    }
+  }
+  else if(currentFilter->getParentFilter() != m_FilterViewModel->getRootFilter())
+  {
+    // Select the parent filter
+    selectFilter(currentFilter->getParentFilter(), selectionType);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilterChild(bool addSelection)
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
+  if(nullptr == currentFilter)
+  {
+    // Select the last base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.back(), selectionType);
+    }
+  }
+  else if(currentFilter->getChildCount() > 0)
+  {
+    // Select the first child filter
+    selectFilter(currentFilter->getChild(0), selectionType);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilterPrevSibling(bool addSelection)
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
+  if(nullptr == currentFilter)
+  {
+    // Select the first base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.front(), selectionType);
+    }
+  }
+  else if(currentFilter->getPrevSibling())
+  {
+    // Select the previous sibling filter
+    selectFilter(currentFilter->getPrevSibling(), selectionType);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSAbstractViewWidget::selectFilterNextSibling(bool addSelection)
+{
+  VSAbstractFilter* currentFilter = getCurrentFilter();
+  SelectionType selectionType = addSelection ? SelectionType::AddSelection : SelectionType::Current;
+  if(nullptr == currentFilter)
+  {
+    // Select the last base filter if no selection exists
+    VSAbstractFilter::FilterListType baseFilters = m_FilterViewModel->getBaseFilters();
+    if(baseFilters.size() > 0)
+    {
+      selectFilter(baseFilters.back(), selectionType);
+    }
+  }
+  else if(currentFilter->getNextSibling())
+  {
+    // Select the next sibling filter
+    selectFilter(currentFilter->getNextSibling(), selectionType);
+  }
 }

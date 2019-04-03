@@ -50,17 +50,20 @@ VSMaskFilter::VSMaskFilter(VSAbstractFilter* parent)
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(parent);
+
+  m_MaskValues = new VSMaskValues(this);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 VSMaskFilter::VSMaskFilter(const VSMaskFilter& copy)
-  : VSAbstractFilter()
-  , m_LastArrayName(copy.m_LastArrayName)
+: VSAbstractFilter()
 {
   m_MaskAlgorithm = nullptr;
   setParentFilter(copy.getParentFilter());
+
+  m_MaskValues = new VSMaskValues(*(copy.m_MaskValues));
 }
 
 // -----------------------------------------------------------------------------
@@ -70,7 +73,7 @@ VSMaskFilter* VSMaskFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSMaskFilter* filter = new VSMaskFilter(parent);
 
-  filter->setLastArrayName(json["Last Array Name"].toString());
+  filter->m_MaskValues->setLastArrayName(json["Last Array Name"].toString());
 
   filter->setInitialized(true);
   filter->readTransformJson(json);
@@ -107,6 +110,25 @@ QString VSMaskFilter::getToolTip() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSAbstractFilter::FilterType VSMaskFilter::getFilterType() const
+{
+  return FilterType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMaskFilter::applyValues(VSMaskValues* values)
+{
+  if(values)
+  {
+    apply(values->getMaskName());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSMaskFilter::apply(QString name)
 {
   if(nullptr == m_MaskAlgorithm)
@@ -115,7 +137,7 @@ void VSMaskFilter::apply(QString name)
   }
 
   // Save the applied values for resetting Mask-Type widgets
-  m_LastArrayName = name;
+  m_MaskValues->setLastArrayName(name);
 
   m_MaskAlgorithm->ThresholdByUpper(1.0);
   m_MaskAlgorithm->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, qPrintable(name));
@@ -129,7 +151,7 @@ void VSMaskFilter::apply(QString name)
 // -----------------------------------------------------------------------------
 void VSMaskFilter::readJson(QJsonObject& json)
 {
-  m_LastArrayName = json["Last Array Name"].toString();
+  m_MaskValues->loadJson(json);
 }
 
 // -----------------------------------------------------------------------------
@@ -138,8 +160,8 @@ void VSMaskFilter::readJson(QJsonObject& json)
 void VSMaskFilter::writeJson(QJsonObject& json)
 {
   VSAbstractFilter::writeJson(json);
+  m_MaskValues->writeJson(json);
 
-  json["Last Array Name"] = m_LastArrayName;
   json["Uuid"] = GetUuid().toString();
 }
 
@@ -218,7 +240,7 @@ VSAbstractFilter::dataType_t VSMaskFilter::getOutputType() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
+VSAbstractFilter::dataType_t VSMaskFilter::GetRequiredInputType()
 {
   return ANY_DATA_SET;
 }
@@ -226,7 +248,7 @@ VSAbstractFilter::dataType_t VSMaskFilter::getRequiredInputType()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
+bool VSMaskFilter::CompatibleWithParent(VSAbstractFilter* filter)
 {
   if(nullptr == filter)
   {
@@ -237,7 +259,7 @@ bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
   vtkDataSet* output = filter->getOutput();
   if(output && output->GetCellData() && output->GetCellData()->GetScalars())
   {
-    if(compatibleInput(filter->getOutputType(), getRequiredInputType()))
+    if(CompatibleInput(filter->getOutputType(), GetRequiredInputType()))
     {
       return true;
     }
@@ -249,15 +271,28 @@ bool VSMaskFilter::compatibleWithParent(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSMaskFilter::getLastArrayName()
+bool VSMaskFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
 {
-  return m_LastArrayName;
+  if(filters.size() == 0)
+  {
+    return false;
+  }
+
+  for(VSAbstractFilter* filter : filters)
+  {
+    if(false == CompatibleWithParent(filter))
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMaskFilter::setLastArrayName(QString lastArrayName)
+VSAbstractFilterValues* VSMaskFilter::getValues()
 {
-  m_LastArrayName = lastArrayName;
+  return m_MaskValues;
 }
