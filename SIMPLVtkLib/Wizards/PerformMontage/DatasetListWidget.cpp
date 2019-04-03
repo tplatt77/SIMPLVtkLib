@@ -75,6 +75,7 @@ void DatasetListWidget::setupGui()
   connectSignalsSlots();
 
   m_Ui->errorMessage->setVisible(false);
+  m_Ui->datasetListView->setSelectionMode(QAbstractItemView::MultiSelection);
 }
 
 // -----------------------------------------------------------------------------
