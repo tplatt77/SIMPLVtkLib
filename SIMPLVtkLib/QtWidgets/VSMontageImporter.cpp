@@ -87,18 +87,18 @@ VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeli
 // -----------------------------------------------------------------------------
 void VSMontageImporter::processPipelineMessage(const PipelineMessage& pipelineMsg)
 {
-  /*if(pipelineMsg.getType() == PipelineMessage::MessageType::StatusMessage)
+  if(pipelineMsg.getType() == PipelineMessage::MessageType::StatusMessage)
   {
     QString str = pipelineMsg.generateStatusString();
-    notifyStatusMessage(str);
+    emit notifyStatusMessage(str);
   }
   else if (pipelineMsg.getType() == PipelineMessage::MessageType::Error)
   {
-    notifyErrorMessage(pipelineMsg.generateErrorString(), pipelineMsg.getCode());
+    emit notifyErrorMessage(pipelineMsg.generateErrorString(), pipelineMsg.getCode());
   }
-  else */if (pipelineMsg.getType() == PipelineMessage::MessageType::ProgressValue)
+  else if(pipelineMsg.getType() == PipelineMessage::MessageType::ProgressValue)
   {
-    notifyProgressMessage(this, pipelineMsg.getProgressValue());
+    emit notifyProgressMessage(this, pipelineMsg.getProgressValue());
   }
 }
 

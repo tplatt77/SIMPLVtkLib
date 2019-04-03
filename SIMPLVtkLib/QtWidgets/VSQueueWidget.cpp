@@ -78,6 +78,7 @@ void VSQueueWidget::setupGui()
 
   m_Ui->statusLabel->hide();
   m_Ui->progressLabel->hide();
+  m_Ui->progressText->hide();
 }
 
 // -----------------------------------------------------------------------------
@@ -195,6 +196,7 @@ void VSQueueWidget::setIdleState()
   m_Ui->clearBtn->setEnabled(model->rowCount() > 0);
   m_Ui->statusLabel->hide();
   m_Ui->progressLabel->hide();
+  m_Ui->progressText->hide();
   m_Ui->progressBar->setValue(0);
 }
 
@@ -208,6 +210,7 @@ void VSQueueWidget::setExecutingState()
   m_Ui->clearBtn->setDisabled(true);
   m_Ui->statusLabel->show();
   m_Ui->progressLabel->show();
+  m_Ui->progressText->show();
 }
 
 // -----------------------------------------------------------------------------
@@ -226,7 +229,7 @@ void VSQueueWidget::setCancelingState()
 // -----------------------------------------------------------------------------
 void VSQueueWidget::handleStatusMessage(const QString &msg)
 {
-//  emit notifyStatusMessage(msg);
+  m_Ui->progressText->setText(msg);
 }
 
 // -----------------------------------------------------------------------------
