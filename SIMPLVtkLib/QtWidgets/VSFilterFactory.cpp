@@ -146,7 +146,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
       QVariant var;
 
       // Set the data container name
-      var.setValue(dcName);
+      var.setValue(DataArrayPath(dcName, "", ""));
       if(!setFilterProperty(setOriginResolutionFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
@@ -161,7 +161,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 
       // Set the spacing
       var.setValue(resolution);
-      if(!setFilterProperty(setOriginResolutionFilter, "Resolution", var))
+      if(!setFilterProperty(setOriginResolutionFilter, "Spacing", var))
       {
         return AbstractFilter::NullPointer();
       }
