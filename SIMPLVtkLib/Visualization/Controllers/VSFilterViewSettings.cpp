@@ -1377,6 +1377,18 @@ void VSFilterViewSettings::setupDataSetActors()
 
   m_ActorType = ActorType::DataSet;
 
+  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+  double spacing[3];
+  imageData->GetSpacing(spacing);
+
+  // Get transform vectors
+  VSTransform* transform = m_Filter->getTransform();
+
+  double scaling[3] = {spacing[0], spacing[1], spacing[2]};
+
+  transform->setLocalScale(scaling);
+
   // Save the initial transform
   VSTransform* defaultTransform = getDefaultTransform();
   defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
