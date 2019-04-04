@@ -804,11 +804,6 @@ public slots:
   void updateTransform();
 
   /**
-   * @brief Sets up the side by side transform
-   */
-  void sideBySideTransform();
-
-  /**
    * @brief Handles updated input to show textured quads
    * @param filter
    */

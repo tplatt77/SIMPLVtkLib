@@ -1376,10 +1376,7 @@ void VSFilterViewSettings::setupDataSetActors()
   m_Plane = plane;
 
   m_ActorType = ActorType::DataSet;
-  if(m_DisplayType == ImportMontageWizard::DisplayType::SideBySide)
-  {
-	sideBySideTransform();
-  }
+
   // Save the initial transform
   VSTransform* defaultTransform = getDefaultTransform();
   defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
@@ -2654,45 +2651,6 @@ double VSFilterViewSettings::GetSubsampling(VSFilterViewSettings::Collection col
 	return 1.0;
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSFilterViewSettings::sideBySideTransform()
-{		
-  if(false == (m_Filter && m_Filter->getTransform() && m_Actor) ||
-	m_DisplayType != ImportMontageWizard::DisplayType::SideBySide)
-  {
-	return;
-  }
-  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
-  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-  double bounds[6];
-  imageData->GetBounds(bounds);
-  int extent[6];
-  imageData->GetExtent(extent);
-
-  // Get transform vectors
-  VSTransform* transform = m_Filter->getTransform();
-  double* transformPosition = transform->getPosition();
-
-  // Move images to respective row, col pair
-  QString dataContainerName = dynamic_cast<VSSIMPLDataContainerFilter*>(m_Filter)
-	->getWrappedDataContainer()->m_DataContainer->getName();
-  int indexOfUnderscore = dataContainerName.lastIndexOf("_");
-  QString rowCol = dataContainerName.right(dataContainerName.size()
-	- indexOfUnderscore - 1);
-  rowCol = rowCol.right(rowCol.size() - 1);     // Remove 'r'
-  QStringList rowCol_Split = rowCol.split("c"); // Split by 'c'
-  int row = rowCol_Split[0].toInt();
-  int col = rowCol_Split[1].toInt();
-
-  double imageWidth = extent[1];
-  double imageHeight = extent[3];
-  double newPosition[3] = { transformPosition[0] + col * imageWidth,
-	  transformPosition[1] + row * imageHeight,
-	  0.0 };
-  transform->setLocalPosition(newPosition);
-}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
