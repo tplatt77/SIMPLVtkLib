@@ -112,6 +112,8 @@ void VSAbstractViewWidget::addViewSettings(VSFilterViewSettings* viewSettings)
   connect(viewSettings, &VSFilterViewSettings::requiresRender, this, &VSAbstractViewWidget::renderView);
   connect(viewSettings, &VSFilterViewSettings::actorsUpdated, this, &VSAbstractViewWidget::updateScene);
 
+  getVisualizationWidget()->getRenderer()->AddViewProp(viewSettings->getTransformText());
+
   checkFilterViewSetting(viewSettings);
 
   if(dynamic_cast<VSAbstractDataFilter*>(viewSettings->getFilter()) && getVisualizationWidget())

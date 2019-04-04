@@ -644,6 +644,14 @@ VTK_PTR(vtkCubeAxesActor) VSFilterViewSettings::getCubeAxesActor()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VTK_PTR(vtkTextActor) VSFilterViewSettings::getTransformText()
+{
+  return m_TransformText;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSFilterViewSettings::show()
 {
   setVisible(true);
@@ -1170,6 +1178,8 @@ void VSFilterViewSettings::setupActors(bool outline)
 
   setupCubeAxesActor();
 
+  setupTransformText();
+
   //if(outline)
   //{
   //  setRepresentation(Representation::Outline);
@@ -1415,6 +1425,34 @@ void VSFilterViewSettings::setupCubeAxesActor()
   {
     m_CubeAxesActor->SetBounds(m_Filter->getBounds());
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::setupTransformText()
+{
+  if(nullptr == m_TransformText)
+  {
+	m_TransformText = VTK_PTR(vtkTextActor)::New();
+  }
+  updateTransformText("No transform");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::updateTransformText(QString transformText)
+{
+  if(nullptr == m_TransformText)
+  {
+	setupTransformText();
+  }
+  
+  m_TransformText->SetInput(transformText.toStdString().c_str());
+  m_TransformText->SetPosition2(10, 40);
+  m_TransformText->GetTextProperty()->SetFontSize(24);
+  m_TransformText->GetTextProperty()->SetColor(0.0, 1.0, 0.0);
 }
 
 // -----------------------------------------------------------------------------
@@ -2356,6 +2394,21 @@ void VSFilterViewSettings::SetSubsampling(VSFilterViewSettings::Collection colle
 			settings->setSubsampling(value);
 		}
 	}
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSFilterViewSettings::UpdateTransformText(VSFilterViewSettings::Collection collection,
+  QString transformText)
+{
+  for(VSFilterViewSettings* settings : collection)
+  {
+	if(settings->isVisible())
+	{
+	  settings->updateTransformText(transformText);
+	}
+  }
 }
 
 // -----------------------------------------------------------------------------

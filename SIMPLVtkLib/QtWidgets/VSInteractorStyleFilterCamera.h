@@ -312,6 +312,11 @@ protected:
    */
   void determineSubsampling();
 
+  /**
+   * @brief Update the active transform text
+   */
+  void updateTransformText();
+
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;
   vtkProp3D* m_ActiveProp = nullptr;
