@@ -427,6 +427,7 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
 	m_CustomTransformAmount.clear();
 	setAxis(Axis::None);
   }
+  updateTransformText();
 }
 
 // -----------------------------------------------------------------------------
@@ -1150,6 +1151,91 @@ void VSInteractorStyleFilterCamera::deselectAllFilters()
   {
     removeSelection(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::updateTransformText()
+{
+  QString transformText;
+
+  // Add action type
+  switch(m_ActionType)
+  {
+  case ActionType::Translate:
+	transformText.append("Translating");
+	break;
+  case ActionType::Rotate:
+	transformText.append("Rotating");
+	break;
+  case ActionType::Scale:
+	transformText.append("Scaling");
+	break;
+  case ActionType::ResetTransform:
+  case ActionType::None:
+	break;
+  }
+
+  // Add axis
+  switch(m_ActionAxis)
+  {
+  case Axis::X:
+	if(m_ActionType == ActionType::Rotate)
+	{
+	  transformText.append(" about the X axis ");
+	}
+	else
+	{
+	  transformText.append(" along the X axis ");
+	}
+	break;
+  case Axis::Y:
+	if(m_ActionType == ActionType::Rotate)
+	{
+	  transformText.append(" about the Y axis ");
+	}
+	else
+	{
+	  transformText.append(" along the Y axis ");
+	}
+	break;
+  case Axis::Z:
+	if(m_ActionType == ActionType::Rotate)
+	{
+	  transformText.append(" about the Z axis ");
+	}
+	else
+	{
+	  transformText.append(" along the Z axis ");
+	}
+	break;
+  }
+
+  // Add custom transform amount (if any)
+  if(m_ActionAxis != Axis::None && !m_CustomTransformAmount.isEmpty())
+  {
+	transformText.append(m_CustomTransformAmount);
+	if(m_ActionType == ActionType::Rotate)
+	{
+	  transformText.append(" degrees");
+	}
+	else
+	{
+	  transformText.append(" units");
+	}
+  }
+  std::map<VSAbstractFilter*, VSFilterViewSettings*> allFilterViewSettings = m_ViewWidget->getAllFilterViewSettings();
+
+  VSFilterViewSettings::Collection filterViewSettingsCollection;
+  VSFilterViewSettings::Collection filterViewSettingsCollectionWithText;
+  filterViewSettingsCollectionWithText.push_back(allFilterViewSettings.begin()->second);
+  for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
+  {
+	filterViewSettingsCollection.push_back(iter->second);
+  }
+  VSFilterViewSettings::UpdateTransformText(filterViewSettingsCollection, "");
+  VSFilterViewSettings::UpdateTransformText(filterViewSettingsCollectionWithText, transformText);
 }
 
 // -----------------------------------------------------------------------------
