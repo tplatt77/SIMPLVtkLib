@@ -1229,7 +1229,15 @@ void VSInteractorStyleFilterCamera::updateTransformText()
 
   VSFilterViewSettings::Collection filterViewSettingsCollection;
   VSFilterViewSettings::Collection filterViewSettingsCollectionWithText;
-  filterViewSettingsCollectionWithText.push_back(allFilterViewSettings.begin()->second);
+  VSAbstractFilter* firstFilter = allFilterViewSettings.begin()->first;
+  if(dynamic_cast<VSFileNameFilter*>(firstFilter))
+  {
+	filterViewSettingsCollectionWithText.push_back(allFilterViewSettings[firstFilter->getChildren().front()]);
+  }
+  else
+  {
+	filterViewSettingsCollectionWithText.push_back(allFilterViewSettings.begin()->second);
+  }
   for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
   {
 	filterViewSettingsCollection.push_back(iter->second);
