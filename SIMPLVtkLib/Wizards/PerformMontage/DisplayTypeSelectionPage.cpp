@@ -42,9 +42,17 @@
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
-#include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
+#include <QtWidgets/QFileSystemModel>
+#include <QtWidgets/QCompleter>
+#include <QtWidgets/QFileDialog>
 
+#include "SIMPLib/Utilities/SIMPLDataPathValidator.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
+
+#include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
+#include "SVWidgetsLib/QtSupport/QtSFileCompleter.h"
+#include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
+#include "SVWidgetsLib/QtSupport/QtSDisclosableWidget.h"
 
 #include "SIMPLVtkLib/QtWidgets/VSMainWidgetBase.h"
 
@@ -52,6 +60,9 @@
 #include "PerformMontage/PerformMontageWizard.h"
 
 #include "PerformMontageWizard.h"
+
+// Initialize private static member variable
+QString DisplayTypeSelectionPage::m_OpenDialogLastDirectory = "";
 
 // -----------------------------------------------------------------------------
 //
@@ -81,25 +92,9 @@ void DisplayTypeSelectionPage::setupGui()
 {
   qRegisterMetaType<DatasetListInfo_t>();
   connectSignalsSlots();
-
-  m_Ui->originX->setValidator(new QDoubleValidator);
-  m_Ui->originY->setValidator(new QDoubleValidator);
-  m_Ui->originZ->setValidator(new QDoubleValidator);
   m_Ui->spacingX->setValidator(new QDoubleValidator);
   m_Ui->spacingY->setValidator(new QDoubleValidator);
   m_Ui->spacingZ->setValidator(new QDoubleValidator);
-
-  // Store the advancedGridLayout inside the QtSDisclosableWidget
-  QtSDisclosableWidget* advancedGB = new QtSDisclosableWidget(this);
-  advancedGB->setTitle("Advanced");
-  QLayout* advancedGridLayout = m_Ui->advancedGridLayout;
-  advancedGridLayout->setParent(nullptr);
-  advancedGB->setContentLayout(advancedGridLayout);
-
-  m_Ui->gridLayout->addWidget(advancedGB, 5, 0, 1, 4);
-
-  // Set the default radio button selection
-  m_Ui->displayMontageRB->setChecked(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -119,18 +114,6 @@ void DisplayTypeSelectionPage::initializePage()
 	int i = 0;
 	for(VSAbstractFilter* dataset : datasets)
 	{
-	  if(i == 0)
-	  {
-		VSAbstractFilter* childFilter = dataset->getChildren().front();
-		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-		if(dcFilter != nullptr)
-		{
-		  DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-		  AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
-		  m_Ui->cellAttrMatrixNameLE->setText(am->getName());
-		  m_Ui->imageArrayNameLE->setText(am->getAttributeArrayNames().first());
-		}
-	  }
 	  m_Ui->datasetsListWidget->addDataset(dataset);
 	  bool isSelected = false;
 	  for(VSAbstractFilter* selectedDataset : selectedDatasets)
@@ -160,49 +143,11 @@ void DisplayTypeSelectionPage::initializePage()
 void DisplayTypeSelectionPage::connectSignalsSlots()
 {
   connect(m_Ui->datasetsListWidget, static_cast<void (DatasetListWidget::*)()>(&DatasetListWidget::itemSelectionChanged), [=]() {
-
-	VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(wizard()->parentWidget());
-	if(baseWidget != nullptr)
-	{
-	  QString datasetName = m_Ui->datasetsListWidget->selectedItems().front()->text();
-	  QString amName;
-	  QString daName;
-	  VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
-	  for(VSAbstractFilter* dataset : datasets)
-	  {
-		if(datasetName == dataset->getFilterName())
-		{
-		  VSAbstractFilter* childFilter = dataset->getChildren().front();
-		  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-		  if(dcFilter != nullptr)
-		  {
-			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
-			amName = am->getName();
-			daName = am->getAttributeArrayNames().first();
-			m_Ui->cellAttrMatrixNameLE->setText(amName);
-			m_Ui->imageArrayNameLE->setText(daName);
-		  }
-		  break;
-		}
-	  }
-	}
 	emit completeChanged();
   });
 
   connect(m_Ui->datasetsListWidget, &DatasetListWidget::itemSelectionChanged,
 	this, &DisplayTypeSelectionPage::datasetListWidgetChanged);
-
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
-	bool isChecked = m_Ui->changeOriginCB->isChecked();
-	m_Ui->originX->setEnabled(isChecked);
-	m_Ui->originY->setEnabled(isChecked);
-	m_Ui->originZ->setEnabled(isChecked);
-  });
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &DisplayTypeSelectionPage::changeOrigin_stateChanged);
-  connect(m_Ui->originX, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->originY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
-  connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
 	bool isChecked = m_Ui->changeSpacingCB->isChecked();
@@ -215,19 +160,73 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { emit completeChanged(); });
   connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { emit completeChanged(); });
 
+  connect(m_Ui->selectButton, &QPushButton::clicked, this, &DisplayTypeSelectionPage::selectBtn_clicked);
+
+  QtSFileCompleter* com = new QtSFileCompleter(this, true);
+  m_Ui->dataFileLE->setCompleter(com);
+  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &DisplayTypeSelectionPage::dataFile_textChanged);
+  connect(m_Ui->dataFileLE, &QLineEdit::textChanged, this, &DisplayTypeSelectionPage::dataFile_textChanged);
+
   connect(m_Ui->saveToFileCB, &QCheckBox::toggled, [=](bool checked)
   {
-	if(checked)
-	{
-	  setField(PerformMontage::FieldNames::SaveToFile, true);
-	  setFinalPage(false);
-	}
-	else
-	{
-	  setField(PerformMontage::FieldNames::SaveToFile, false);
-	  setFinalPage(true);
-	}
+	m_Ui->dataFileLE->setEnabled(checked);
+	m_Ui->selectButton->setEnabled(checked);
   });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DisplayTypeSelectionPage::selectBtn_clicked()
+{
+  QString filter = tr("Image File (*.png *.tiff *.jpeg *.bmp);;All Files (*.*)");
+  QString title = "Save as Image file";
+
+  QString outputFile = QFileDialog::getSaveFileName(this, title,
+	getInputDirectory(), filter);
+
+  if(!outputFile.isNull())
+  {
+	m_Ui->dataFileLE->blockSignals(true);
+	m_Ui->dataFileLE->setText(QDir::toNativeSeparators(outputFile));
+	dataFile_textChanged(m_Ui->dataFileLE->text());
+	setOpenDialogLastFilePath(outputFile);
+	m_Ui->dataFileLE->blockSignals(false);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DisplayTypeSelectionPage::dataFile_textChanged(const QString& text)
+{
+  Q_UNUSED(text)
+
+	SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
+  QString outputPath = validator->convertToAbsolutePath(text);
+
+  emit completeChanged();
+  emit dataFileChanged(text);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DisplayTypeSelectionPage::setInputDirectory(QString val)
+{
+  m_Ui->dataFileLE->setText(val);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString DisplayTypeSelectionPage::getInputDirectory()
+{
+  if(m_Ui->dataFileLE->text().isEmpty())
+  {
+	return QDir::homePath();
+  }
+  return m_Ui->dataFileLE->text();
 }
 
 // -----------------------------------------------------------------------------
@@ -239,22 +238,6 @@ void DisplayTypeSelectionPage::datasetListWidgetChanged()
   setDatasetListInfo(datasetListInfo);
 
   emit completeChanged();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void DisplayTypeSelectionPage::changeOrigin_stateChanged(int state)
-{
-  m_Ui->originX->setEnabled(state);
-  m_Ui->originY->setEnabled(state);
-  m_Ui->originZ->setEnabled(state);
-  if(state == false)
-  {
-	m_Ui->originX->setText("0");
-	m_Ui->originY->setText("0");
-	m_Ui->originZ->setText("0");
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -287,30 +270,6 @@ bool DisplayTypeSelectionPage::isComplete() const
 	}
   }
 
-  if(m_Ui->originX->isEnabled())
-  {
-	if(m_Ui->originX->text().isEmpty())
-	{
-	  result = false;
-	}
-  }
-
-  if(m_Ui->originY->isEnabled())
-  {
-	if(m_Ui->originY->text().isEmpty())
-	{
-	  result = false;
-	}
-  }
-
-  if(m_Ui->originZ->isEnabled())
-  {
-	if(m_Ui->originZ->text().isEmpty())
-	{
-	  result = false;
-	}
-  }
-
   if(m_Ui->spacingX->isEnabled())
   {
 	if(m_Ui->spacingX->text().isEmpty())
@@ -334,6 +293,15 @@ bool DisplayTypeSelectionPage::isComplete() const
 	  result = false;
 	}
   }
+
+  if(m_Ui->dataFileLE->isEnabled())
+  {
+	if(m_Ui->dataFileLE->text().isEmpty())
+	{
+	  result = false;
+	}
+  }
+
   return result;
 }
 
@@ -344,22 +312,15 @@ void DisplayTypeSelectionPage::registerFields()
 {
   registerField(PerformMontage::FieldNames::SaveToFile, m_Ui->saveToFileCB);
   registerField(PerformMontage::FieldNames::MontageName, m_Ui->montageNameLE);
-  registerField(PerformMontage::FieldNames::CellAttributeMatrixName, m_Ui->cellAttrMatrixNameLE);
-  registerField(PerformMontage::FieldNames::ImageDataArrayName, m_Ui->imageArrayNameLE);
   registerField(PerformMontage::FieldNames::SelectedDataset,
 	this, "DatasetListInfo");
-  registerField(PerformMontage::FieldNames::ChangeOrigin, m_Ui->changeOriginCB);
   registerField(PerformMontage::FieldNames::ChangeSpacing, m_Ui->changeSpacingCB);
   registerField(PerformMontage::FieldNames::SpacingX, m_Ui->spacingX);
   registerField(PerformMontage::FieldNames::SpacingY, m_Ui->spacingY);
-  registerField(PerformMontage::FieldNames::SpacingZ, m_Ui->spacingZ);
-  registerField(PerformMontage::FieldNames::OriginX, m_Ui->originX);
-  registerField(PerformMontage::FieldNames::OriginY, m_Ui->originY);
-  registerField(PerformMontage::FieldNames::OriginZ, m_Ui->originZ);  
+  registerField(PerformMontage::FieldNames::SpacingZ, m_Ui->spacingZ); 
 
-  registerField(PerformMontage::FieldNames::DisplayMontage, m_Ui->displayMontageRB);
-  registerField(PerformMontage::FieldNames::DisplayOutlineOnly, m_Ui->outlineOnlyRB);
   registerField(PerformMontage::FieldNames::StitchingOnly, m_Ui->stitchingOnlyCB);
+  registerField(PerformMontage::FieldNames::OutputFilePath, m_Ui->dataFileLE);
 }
 
 // -----------------------------------------------------------------------------
@@ -367,12 +328,5 @@ void DisplayTypeSelectionPage::registerFields()
 // -----------------------------------------------------------------------------
 int DisplayTypeSelectionPage::nextId() const
 {
-  if(m_Ui->saveToFileCB->isChecked())
-  {
-	return PerformMontageWizard::WizardPages::SaveFile;
-  }
-  else
-  {
-	return -1;
-  }
+  return -1;
 }
