@@ -1436,7 +1436,6 @@ void VSFilterViewSettings::setupTransformText()
   {
 	m_TransformText = VTK_PTR(vtkTextActor)::New();
   }
-  updateTransformText("No transform");
 }
 
 // -----------------------------------------------------------------------------
@@ -1446,13 +1445,14 @@ void VSFilterViewSettings::updateTransformText(QString transformText)
 {
   if(nullptr == m_TransformText)
   {
-	setupTransformText();
+	return;
   }
   
   m_TransformText->SetInput(transformText.toStdString().c_str());
   m_TransformText->SetPosition2(10, 40);
   m_TransformText->GetTextProperty()->SetFontSize(24);
   m_TransformText->GetTextProperty()->SetColor(0.0, 1.0, 0.0);
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
