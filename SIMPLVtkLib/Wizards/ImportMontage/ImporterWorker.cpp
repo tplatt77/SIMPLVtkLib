@@ -46,8 +46,8 @@
 //
 // -----------------------------------------------------------------------------
 ImporterWorker::ImporterWorker()
-: m_ImportSem(1)
-, m_QueueModel(nullptr)
+: m_QueueModel(nullptr)
+, m_ImportSem(1)
 {
 
 }

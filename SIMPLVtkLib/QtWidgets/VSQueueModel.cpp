@@ -357,16 +357,12 @@ bool VSQueueModel::setData(const QModelIndex& index, const QVariant& value, int 
     VSAbstractImporter::Pointer oldImporter = item->getImporter();
     if (oldImporter)
     {
-      disconnect(oldImporter.get(), &VSAbstractImporter::notifyStatusMessage, this, &VSQueueModel::notifyStatusMessage);
-      disconnect(oldImporter.get(), &VSAbstractImporter::notifyErrorMessage, this, &VSQueueModel::notifyErrorMessage);
-      disconnect(oldImporter.get(), &VSAbstractImporter::notifyProgressMessage, this, &VSQueueModel::notifyProgressUpdate);
+      disconnect(oldImporter.get(), &VSAbstractImporter::notifyMessage, 0, 0);
     }
 
     VSAbstractImporter::Pointer importer = value.value<VSAbstractImporter::Pointer>();
     connect(importer.get(), &VSAbstractImporter::stateChanged, this, &VSQueueModel::importerStateChanged);
-    connect(importer.get(), &VSAbstractImporter::notifyStatusMessage, this, &VSQueueModel::notifyStatusMessage);
-    connect(importer.get(), &VSAbstractImporter::notifyErrorMessage, this, &VSQueueModel::notifyErrorMessage);
-    connect(importer.get(), &VSAbstractImporter::notifyProgressMessage, this, &VSQueueModel::notifyProgressUpdate);
+    connect(importer.get(), &VSAbstractImporter::notifyMessage, [=] (const AbstractMessage::Pointer& msg) { emit notifyImporterMessage(importer, msg); });
     item->setImporter(importer);
   }
   else if(role == Qt::ToolTipRole)

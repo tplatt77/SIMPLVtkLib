@@ -70,7 +70,7 @@ protected slots:
    * @brief processPipelineMessage
    * @param pipelineMsg
    */
-  void processPipelineMessage(const PipelineMessage& pipelineMsg);
+  void processPipelineMessage(const AbstractMessage::Pointer& pipelineMsg);
 
 signals:
   void resultReady(FilterPipeline::Pointer pipeline, int err);

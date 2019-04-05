@@ -55,6 +55,8 @@ class SIMPLVtkLib_EXPORT VSQueueWidget : public QWidget
 public:
   SIMPL_SHARED_POINTERS(VSQueueWidget)
 
+  friend class ImporterMessageHandler;
+
   /**
    * @brief Constructor
    * @param parent
@@ -131,15 +133,12 @@ protected slots:
    */
   void handleQueueStateChanged(VSQueueModel::QueueState queueState);
 
-  void handleStatusMessage(const QString &msg);
-  void handleErrorMessage(const QString &msg, int code);
-
   /**
-   * @brief handleProgressUpdate
+   * @brief processImporterMessage
    * @param importer
-   * @param progress
+   * @param msg
    */
-  void handleProgressUpdate(VSAbstractImporter* importer, int progress);
+  void processImporterMessage(const VSAbstractImporter::Pointer& importer, const AbstractMessage::Pointer& msg);
 
 signals:
   void notifyStatusMessage(const QString &msg);

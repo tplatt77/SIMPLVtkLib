@@ -115,9 +115,7 @@ class SIMPLVtkLib_EXPORT VSQueueModel : public QAbstractItemModel
     void importerStateChanged(VSAbstractImporter* importer, VSAbstractImporter::State state);
     void queueStateChanged(VSQueueModel::QueueState queueState);
     void queueFinished();
-    void notifyStatusMessage(const QString &msg);
-    void notifyErrorMessage(const QString &msg, int code);
-    void notifyProgressUpdate(VSAbstractImporter* importer, int progress);
+    void notifyImporterMessage(const VSAbstractImporter::Pointer& importer, const AbstractMessage::Pointer& msg);
 
   private:
     static VSQueueModel* self;

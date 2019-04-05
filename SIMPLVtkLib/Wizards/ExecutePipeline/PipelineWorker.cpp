@@ -65,7 +65,7 @@ void PipelineWorker::process()
 {
   int err = 0;
   m_Pipeline->execute(m_DataContainerArray);
-  err = m_Pipeline->getErrorCondition();
+  err = m_Pipeline->getErrorCode();
   emit resultReady(m_Pipeline, err);
   emit finished();
 }

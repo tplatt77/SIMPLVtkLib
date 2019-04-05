@@ -259,7 +259,7 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
 	{
 	  pipeline->pushBack(imageWriter);
 	  pipeline->execute(dca);
-	  if(pipeline->getErrorCondition() >= 0)
+	  if(pipeline->getErrorCode() >= 0)
 	  {
 		imageSaved = true;
 	  }
@@ -332,7 +332,7 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
   {
 	pipeline->pushBack(dcWriter);
 	pipeline->execute(dca);
-	if(pipeline->getErrorCondition() >= 0)
+	if(pipeline->getErrorCode() >= 0)
 	{
 	  return true;
 	}
