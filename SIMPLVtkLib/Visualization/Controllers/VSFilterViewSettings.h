@@ -52,7 +52,6 @@
 #include <vtkScalarBarActor.h>
 #include <vtkScalarBarWidget.h>
 #include <vtkTexture.h>
-#include <vtkTextActor.h>
 #include <vtkPlaneSource.h>
 
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
@@ -325,12 +324,6 @@ public:
    * @return
    */
   VTK_PTR(vtkCubeAxesActor) getCubeAxesActor();
-
-  /**
-   * @brief Returns the vtkTextActor used for showing the current transform action
-   * @return
-   */
-  VTK_PTR(vtkTextActor) getTransformText();
 
   /**
    * @brief Returns the color used when no scalar data exists as a double*
@@ -701,12 +694,6 @@ public:
    */
   static double GetSubsampling(VSFilterViewSettings::Collection collection);
 
-  /**
-   * @brief Updates the transform text for current transform action
-   * @param collection
-   * @param transformText
-   */
-  static void UpdateTransformText(VSFilterViewSettings::Collection collection, QString transformText);
 
 public slots:
   /**
@@ -882,7 +869,6 @@ protected:
   /**
    * @brief Updates the vtkTextActor for displaying the current transform action
    * @param transformText
-   */
   void updateTransformText(QString transformText);
 
   /**
@@ -1032,7 +1018,6 @@ private:
   VTK_PTR(vtkProp3D) m_Actor = nullptr;
   VTK_PTR(vtkProp3D) m_OutlineActor = nullptr;
   VTK_PTR(vtkTexture) m_Texture = nullptr;
-  VTK_PTR(vtkTextActor) m_TransformText = nullptr;
   VTK_PTR(vtkOutlineFilter) m_OutlineFilter = nullptr;
   VTK_PTR(vtkPlaneSource) m_Plane = nullptr;
   VSLookupTableController* m_LookupTable = nullptr;

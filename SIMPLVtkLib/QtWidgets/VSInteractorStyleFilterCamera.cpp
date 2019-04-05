@@ -45,6 +45,7 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSViewWidget.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
 vtkStandardNewMacro(VSInteractorStyleFilterCamera);
@@ -1178,38 +1179,41 @@ void VSInteractorStyleFilterCamera::updateTransformText()
   }
 
   // Add axis
-  switch(m_ActionAxis)
+  if (m_ActionType != ActionType::None && m_ActionType != ActionType::ResetTransform)
   {
-  case Axis::X:
-	if(m_ActionType == ActionType::Rotate)
-	{
-	  transformText.append(" about the X axis ");
-	}
-	else
-	{
-	  transformText.append(" along the X axis ");
-	}
-	break;
-  case Axis::Y:
-	if(m_ActionType == ActionType::Rotate)
-	{
-	  transformText.append(" about the Y axis ");
-	}
-	else
-	{
-	  transformText.append(" along the Y axis ");
-	}
-	break;
-  case Axis::Z:
-	if(m_ActionType == ActionType::Rotate)
-	{
-	  transformText.append(" about the Z axis ");
-	}
-	else
-	{
-	  transformText.append(" along the Z axis ");
-	}
-	break;
+    switch(m_ActionAxis)
+    {
+    case Axis::X:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the X axis ");
+      }
+      else
+      {
+        transformText.append(" along the X axis ");
+      }
+      break;
+    case Axis::Y:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the Y axis ");
+      }
+      else
+      {
+        transformText.append(" along the Y axis ");
+      }
+      break;
+    case Axis::Z:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the Z axis ");
+      }
+      else
+      {
+        transformText.append(" along the Z axis ");
+      }
+      break;
+    }
   }
 
   // Add custom transform amount (if any)
@@ -1225,17 +1229,8 @@ void VSInteractorStyleFilterCamera::updateTransformText()
 	  transformText.append(" units");
 	}
   }
-  std::map<VSAbstractFilter*, VSFilterViewSettings*> allFilterViewSettings = m_ViewWidget->getAllFilterViewSettings();
-
-  VSFilterViewSettings::Collection filterViewSettingsCollection;
-  VSFilterViewSettings::Collection filterViewSettingsCollectionWithText;
-  filterViewSettingsCollectionWithText.push_back(allFilterViewSettings.begin()->second);
-  for(auto iter = allFilterViewSettings.begin(); iter != allFilterViewSettings.end(); iter++)
-  {
-	filterViewSettingsCollection.push_back(iter->second);
-  }
-  VSFilterViewSettings::UpdateTransformText(filterViewSettingsCollection, "");
-  VSFilterViewSettings::UpdateTransformText(filterViewSettingsCollectionWithText, transformText);
+  VSViewWidget* viewWidget = dynamic_cast<VSViewWidget*>(m_ViewWidget);
+  viewWidget->updateTransformText(transformText);
 }
 
 // -----------------------------------------------------------------------------
