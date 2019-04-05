@@ -247,10 +247,18 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
 	VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
 	FilterPipeline::Pointer pipeline = FilterPipeline::New();
 	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-	AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
-	QString dcName = dataContainer->getName();
-	QString amName = am->getName();
-	QString dataArrayName = am->getAttributeArrayNames().first();
+  DataContainer::Container_t attributeMatricies = dataContainer->getAttributeMatrices();
+  QString dcName = dataContainer->getName();
+  QString amName;
+  QString dataArrayName;
+  for (AttributeMatrix::Pointer am : attributeMatricies)
+  {
+    if (am->getType() == AttributeMatrix::Type::Cell)
+    {
+      amName = am->getName();
+      dataArrayName = am->getAttributeArrayNames().first();
+    }
+  }
 	DataContainerArray::Pointer dca = DataContainerArray::New();
 	dca->addOrReplaceDataContainer(dataContainer);
 	AbstractFilter::Pointer imageWriter = filterFactory
