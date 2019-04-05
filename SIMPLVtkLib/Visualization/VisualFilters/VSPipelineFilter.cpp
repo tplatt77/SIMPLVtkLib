@@ -76,7 +76,7 @@ VSPipelineFilter* VSPipelineFilter::Create(QJsonObject& json, VSAbstractFilter* 
 
   // Check error conditions
   pipeline->preflightPipeline();
-  if(pipeline->getErrorCondition() < 0)
+  if(pipeline->getErrorCode() < 0)
   {
     // The file doesn't exist, so have the user give the new location of the file
     QMessageBox::warning(nullptr, "Filter Creation Warning", tr("The pipeline '%1' is used by a filter but contains errors.").arg(fetchPipelineName(pipeline)));

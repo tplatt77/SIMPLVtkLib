@@ -38,6 +38,7 @@
 #include <QtCore/QObject>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "SIMPLib/Messages/AbstractMessage.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -89,9 +90,7 @@ public:
 
 signals:
   void stateChanged(VSAbstractImporter* importer, VSAbstractImporter::State state);
-  void notifyProgressMessage(VSAbstractImporter* importer, int progress);
-  void notifyErrorMessage(const QString &msg, int code);
-  void notifyStatusMessage(const QString &msg);
+  void notifyMessage(const AbstractMessage::Pointer& msg);
 
 protected:
   VSAbstractImporter();

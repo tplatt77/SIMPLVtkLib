@@ -85,21 +85,9 @@ VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeli
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSMontageImporter::processPipelineMessage(const PipelineMessage& pipelineMsg)
+void VSMontageImporter::processPipelineMessage(const AbstractMessage::Pointer& pipelineMsg)
 {
-  if(pipelineMsg.getType() == PipelineMessage::MessageType::StatusMessage)
-  {
-    QString str = pipelineMsg.generateStatusString();
-    emit notifyStatusMessage(str);
-  }
-  else if (pipelineMsg.getType() == PipelineMessage::MessageType::Error)
-  {
-    emit notifyErrorMessage(pipelineMsg.generateErrorString(), pipelineMsg.getCode());
-  }
-  else if(pipelineMsg.getType() == PipelineMessage::MessageType::ProgressValue)
-  {
-    emit notifyProgressMessage(this, pipelineMsg.getProgressValue());
-  }
+  emit notifyMessage(pipelineMsg);
 }
 
 // -----------------------------------------------------------------------------
@@ -125,7 +113,7 @@ void VSMontageImporter::execute()
 	m_Pipeline->execute();
   }
 
-  int err = m_Pipeline->getErrorCondition();
+  int err = m_Pipeline->getErrorCode();
 
 //  qInfo() << "Pipeline err condition: " << err;
 //  // For now, quit after an error condition

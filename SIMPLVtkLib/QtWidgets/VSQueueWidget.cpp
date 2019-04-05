@@ -42,6 +42,87 @@
 #include "QtWidgets/VSQueueItem.h"
 #include "QtWidgets/VSQueueItemDelegate.h"
 
+#include "SIMPLib/Messages/AbstractMessageHandler.h"
+#include "SIMPLib/Messages/FilterErrorMessage.h"
+#include "SIMPLib/Messages/FilterWarningMessage.h"
+#include "SIMPLib/Messages/FilterStatusMessage.h"
+#include "SIMPLib/Messages/FilterProgressMessage.h"
+#include "SIMPLib/Messages/PipelineProgressMessage.h"
+
+/**
+ * @brief This message handler is used by VSMontageImporter to process filter messages
+ */
+class ImporterMessageHandler : public AbstractMessageHandler
+{
+public:
+  explicit ImporterMessageHandler(VSAbstractImporter* importer, VSQueueWidget* queueWidget)
+  : m_Importer(importer)
+  , m_QueueWidget(queueWidget)
+  {
+  }
+
+  /**
+   * @brief Re-emits error messages received from filters
+   */
+  void processMessage(const FilterErrorMessage* msg) const override
+  {
+    //  emit notifyErrorMessage(msg, code);
+  }
+
+  /**
+   * @brief Re-emits error messages received from filters
+   */
+  void processMessage(const FilterWarningMessage* msg) const override
+  {
+    //  emit notifyWarningMessage(msg, code);
+  }
+
+  /**
+   * @brief Re-emits status messages received from filters
+   */
+  void processMessage(const FilterStatusMessage* msg) const override
+  {
+    QString str = msg->generateMessageString();
+    m_QueueWidget->m_Ui->progressText->setText(str);
+  }
+
+  /**
+   * @brief Re-emits progress messages received from filters
+   */
+  void processMessage(const FilterProgressMessage* msg) const override
+  {
+    m_QueueWidget->m_Ui->progressBar->setValue(msg->getProgressValue());
+    m_QueueWidget->m_Ui->progressLabel->setText(QObject::tr("%1%").arg(msg->getProgressValue()));
+
+    QString name = m_Importer->getName();
+    QString importText = QObject::tr("Importing '%1'").arg(name);
+    m_QueueWidget->m_Ui->statusLabel->setText(importText);
+    importText.append(QObject::tr(": %1%").arg(msg->getProgressValue()));
+
+    emit m_QueueWidget->notifyStatusMessage(importText);
+  }
+
+  /**
+   * @brief Re-emits progress messages received from the pipeline
+   */
+  void processMessage(const PipelineProgressMessage* msg) const override
+  {
+    m_QueueWidget->m_Ui->progressBar->setValue(msg->getProgressValue());
+    m_QueueWidget->m_Ui->progressLabel->setText(QObject::tr("%1%").arg(msg->getProgressValue()));
+
+    QString name = m_Importer->getName();
+    QString importText = QObject::tr("Importing '%1'").arg(name);
+    m_QueueWidget->m_Ui->statusLabel->setText(importText);
+    importText.append(QObject::tr(": %1%").arg(msg->getProgressValue()));
+
+    emit m_QueueWidget->notifyStatusMessage(importText);
+  }
+
+private:
+  VSAbstractImporter* m_Importer = nullptr;
+  VSQueueWidget* m_QueueWidget = nullptr;
+};
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -227,34 +308,10 @@ void VSQueueWidget::setCancelingState()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueWidget::handleStatusMessage(const QString &msg)
+void VSQueueWidget::processImporterMessage(const VSAbstractImporter::Pointer& importer, const AbstractMessage::Pointer& msg)
 {
-  m_Ui->progressText->setText(msg);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQueueWidget::handleErrorMessage(const QString &msg, int code)
-{
-//  emit notifyErrorMessage(msg, code);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSQueueWidget::handleProgressUpdate(VSAbstractImporter* importer, int progress)
-{
-  m_Ui->progressBar->setValue(progress);
-  m_Ui->progressLabel->setText(tr("%1%").arg(progress));
-
-  QString name = importer->getName();
-  QString importText = tr("Importing '%1'").arg(name);
-  m_Ui->statusLabel->setText(importText);
-
-  importText.append(tr(": %1%").arg(progress));
-
-  emit notifyStatusMessage(importText);
+  ImporterMessageHandler msgHandler(importer.get(), this);
+  msg->visit(&msgHandler);
 }
 
 // -----------------------------------------------------------------------------
@@ -296,8 +353,6 @@ void VSQueueWidget::setQueueModel(VSQueueModel* queueModel)
 
   m_Ui->queueListView->setModel(queueModel);
   connect(queueModel, &VSQueueModel::queueStateChanged, this, &VSQueueWidget::handleQueueStateChanged);
-  connect(queueModel, &VSQueueModel::notifyStatusMessage, this, &VSQueueWidget::handleStatusMessage);
-  connect(queueModel, &VSQueueModel::notifyErrorMessage, this, &VSQueueWidget::handleErrorMessage);
-  connect(queueModel, &VSQueueModel::notifyProgressUpdate, this, &VSQueueWidget::handleProgressUpdate);
+  connect(queueModel, &VSQueueModel::notifyImporterMessage, this, &VSQueueWidget::processImporterMessage);
   connect(queueModel, &VSQueueModel::queueFinished, [=] { emit notifyStatusMessage(""); });
 }
