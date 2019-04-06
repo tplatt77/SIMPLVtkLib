@@ -316,8 +316,6 @@ protected:
    * @brief Update the active transform text
    */
   void updateTransformText();
-signals:
-  void transformTextChanged(QString transformText);
 
 private:
   VSAbstractFilter* m_ActiveFilter = nullptr;

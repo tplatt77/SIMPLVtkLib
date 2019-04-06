@@ -862,16 +862,6 @@ protected:
   void setupCubeAxesActor();
 
   /**
-   * @brief Creates a vtkTextActor for displaying the current transform action
-   */
-  void setupTransformText();
-
-  /**
-   * @brief Updates the vtkTextActor for displaying the current transform action
-   * @param transformText
-  void updateTransformText(QString transformText);
-
-  /**
    * @brief Creates and initializes QActions
    */
   void setupActions();
