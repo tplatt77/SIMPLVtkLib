@@ -171,7 +171,7 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   {
     setActionType(ActionType::Scale);
   }
-  else if(keyDown == "Escape")
+  else if(keyDown == "Escape" && shiftKey())
   {
     cancelAction();
   }
@@ -520,6 +520,7 @@ void VSInteractorStyleFilterCamera::grabFilter()
   {
     setSelection(filter, prop);
   }
+  updateTransformText();
 }
 
 // -----------------------------------------------------------------------------
@@ -683,6 +684,7 @@ void VSInteractorStyleFilterCamera::cancelAction()
   }
 
   m_ActionType = ActionType::None;
+  m_ActionAxis = Axis::None;
 }
 
 // -----------------------------------------------------------------------------
@@ -1179,6 +1181,7 @@ void VSInteractorStyleFilterCamera::updateTransformText()
   }
 
   // Add axis
+  bool axisSelected = false;
   if (m_ActionType != ActionType::None && m_ActionType != ActionType::ResetTransform)
   {
     switch(m_ActionAxis)
@@ -1192,33 +1195,53 @@ void VSInteractorStyleFilterCamera::updateTransformText()
       {
         transformText.append(" along the X axis ");
       }
+	  axisSelected = true;
       break;
     case Axis::Y:
       if(m_ActionType == ActionType::Rotate)
       {
-        transformText.append(" about the Y axis ");
+        transformText.append(" about the Y axis");
       }
       else
       {
-        transformText.append(" along the Y axis ");
+        transformText.append(" along the Y axis");
       }
+	  axisSelected = true;
       break;
     case Axis::Z:
       if(m_ActionType == ActionType::Rotate)
       {
-        transformText.append(" about the Z axis ");
+        transformText.append(" about the Z axis");
       }
       else
       {
-        transformText.append(" along the Z axis ");
+        transformText.append(" along the Z axis");
       }
+	  axisSelected = true;
       break;
     }
-  }
 
-  // Add custom transform amount (if any)
-  if(m_ActionAxis != Axis::None && !m_CustomTransformAmount.isEmpty())
+	if(m_CustomTransformAmount.isEmpty())
+	{
+	  if(axisSelected)
+	  {
+		transformText.append("\n(Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
+	  }
+	  else
+	  {
+		transformText.append("\n(Press X, Y, or Z to snap transform to axis | Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
+	  }
+	  transformText.append(" \n(Use numerical keys to enter units/degrees for transform (- for negative values and . for precision)");
+	}
+  }
+  else
   {
+	transformText.append("Press T to Translate, R to Rotate or S to Scale. Press Alt-Z to reset the transform");
+  }
+  // Add custom transform amount (if any)
+  if(!m_CustomTransformAmount.isEmpty())
+  {
+	transformText.append(" ");
 	transformText.append(m_CustomTransformAmount);
 	if(m_ActionType == ActionType::Rotate)
 	{
@@ -1228,6 +1251,7 @@ void VSInteractorStyleFilterCamera::updateTransformText()
 	{
 	  transformText.append(" units");
 	}
+	transformText.append("\n(Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
   }
   VSViewWidget* viewWidget = dynamic_cast<VSViewWidget*>(m_ViewWidget);
   viewWidget->updateTransformText(transformText);
