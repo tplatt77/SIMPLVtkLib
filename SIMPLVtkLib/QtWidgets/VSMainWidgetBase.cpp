@@ -334,7 +334,7 @@ void VSMainWidgetBase::setAdvancedVisibilityWidget(VSAdvancedVisibilitySettingsW
 
   m_AdvancedVisibilityWidget = widget;
 
-  if(m_ColorMappingWidget)
+  if(m_AdvancedVisibilityWidget)
   {
     connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setFilters);
     connect(this, &VSMainWidgetBase::changedActiveView, m_AdvancedVisibilityWidget, &VSAdvancedVisibilitySettingsWidget::setViewWidget);
@@ -378,6 +378,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
     setVisibilitySettingsWidget(infoWidget->getVisibilitySettingsWidget());
     setColorMappingWidget(infoWidget->getColorMappingWidget());
     setTransformWidget(infoWidget->getTransformWidget());
+	setAdvancedVisibilityWidget(infoWidget->getAdvancedVisibilitySettingsWidget());
   }
 }
 
