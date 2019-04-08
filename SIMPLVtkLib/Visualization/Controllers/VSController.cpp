@@ -244,34 +244,33 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
   VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   if(dcFilter != nullptr)
   {
-	VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
-	FilterPipeline::Pointer pipeline = FilterPipeline::New();
-	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-  DataContainer::Container_t attributeMatricies = dataContainer->getAttributeMatrices();
-  QString dcName = dataContainer->getName();
-  QString amName;
-  QString dataArrayName;
-  for (AttributeMatrix::Pointer am : attributeMatricies)
-  {
-    if (am->getType() == AttributeMatrix::Type::Cell)
+    VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
+    FilterPipeline::Pointer pipeline = FilterPipeline::New();
+    DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+    DataContainer::Container_t attributeMatricies = dataContainer->getAttributeMatrices();
+    QString dcName = dataContainer->getName();
+    QString amName;
+    QString dataArrayName;
+    for(AttributeMatrix::Pointer am : attributeMatricies)
     {
-      amName = am->getName();
-      dataArrayName = am->getAttributeArrayNames().first();
+      if(am->getType() == AttributeMatrix::Type::Cell)
+      {
+        amName = am->getName();
+        dataArrayName = am->getAttributeArrayNames().first();
+      }
     }
-  }
-	DataContainerArray::Pointer dca = DataContainerArray::New();
-	dca->addOrReplaceDataContainer(dataContainer);
-	AbstractFilter::Pointer imageWriter = filterFactory
-	  ->createImageFileWriterFilter(imageFilePath, dcName, amName, dataArrayName);
-	if(imageWriter != AbstractFilter::NullPointer())
-	{
-	  pipeline->pushBack(imageWriter);
-	  pipeline->execute(dca);
-	  if(pipeline->getErrorCode() >= 0)
-	  {
-		imageSaved = true;
-	  }
-	}
+    DataContainerArray::Pointer dca = DataContainerArray::New();
+    dca->addOrReplaceDataContainer(dataContainer);
+    AbstractFilter::Pointer imageWriter = filterFactory->createImageFileWriterFilter(imageFilePath, dcName, amName, dataArrayName);
+    if(imageWriter != AbstractFilter::NullPointer())
+    {
+      pipeline->pushBack(imageWriter);
+      pipeline->execute(dca);
+      if(pipeline->getErrorCode() >= 0)
+      {
+        imageSaved = true;
+      }
+    }
   }
   return imageSaved;
 }
