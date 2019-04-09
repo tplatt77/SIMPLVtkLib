@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2017 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -35,44 +35,68 @@
 
 #pragma once
 
-#include <QtWidgets/QDialog>
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QDir>
+#include <QtCore/QSemaphore>
 
+#include "MontageSettings.h"
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include "SIMPLib/FilterParameters/FileListInfoFilterParameter.h"
 
-#include "ui_LoadHDF5FileDialog.h"
+class VSRootFilter;
 
-class DataContainerArrayProxy;
-
-class SIMPLVtkLib_EXPORT LoadHDF5FileDialog : public QDialog
+/**
+ * @class TileConfigFileGenerator TileConfigFileGenerator.h
+ * @brief This class handles the tile configuration file generation
+ */
+class SIMPLVtkLib_EXPORT TileConfigFileGenerator : public QObject
 {
   Q_OBJECT
 
 public:
-  LoadHDF5FileDialog(QWidget* parent = 0);
-  ~LoadHDF5FileDialog();
+  /**
+   * @brief Constructor
+   * @param parent
+   */
+  TileConfigFileGenerator();
 
   /**
-   * @brief getLoadProxy
+   * @brief Constructor
+   * @param parent
+   */
+  TileConfigFileGenerator(FileListInfo_t fileListInfo, MontageSettings::MontageType montageType, MontageSettings::MontageOrder montageOrder, int gridSizeX, int gridSizeY, double tileOverlap,
+                          QString outputFilename);
+
+  /**
+   * @brief Copy constructor
+   * @param model
+   */
+  TileConfigFileGenerator(const TileConfigFileGenerator& model);
+
+  /**
+   * @brief Deconstructor
+   */
+  virtual ~TileConfigFileGenerator() = default;
+
+  /**
+   * @brief Returns the QObject parent since the parent() method is overloaded
    * @return
    */
-  DataContainerArrayProxy getDataStructureProxy();
+  QObject* parentObject() const;
 
   /**
-   * @brief setHDF5FilePath
-   * @param filePath
+   * @brief
    */
-  void setHDF5FilePath(const QString &filePath);
-
-protected:
-  void setupGui();
+  void buildTileConfigFile() const;
 
 private:
-  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
-
-public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
-
+  int m_gridSizeX;
+  int m_gridSizeY;
+  double m_tileOverlap;
+  FileListInfo_t m_fileListInfo;
+  MontageSettings::MontageType m_montageType;
+  MontageSettings::MontageOrder m_montageOrder;
+  QString m_outputFilename;
 };
+
+Q_DECLARE_METATYPE(TileConfigFileGenerator)

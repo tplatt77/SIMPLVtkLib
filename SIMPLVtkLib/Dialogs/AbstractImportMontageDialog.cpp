@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -33,46 +33,33 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "AbstractImportMontageDialog.h"
 
-#include <QtWidgets/QDialog>
-
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
-
-#include "ui_LoadHDF5FileDialog.h"
-
-class DataContainerArrayProxy;
-
-class SIMPLVtkLib_EXPORT LoadHDF5FileDialog : public QDialog
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const char* AbstractImportMontageDialog::InvalidOKButtonException::what() const noexcept
 {
-  Q_OBJECT
+  return "AbstractImportMontageDialog: Attempted to get the OK button pointer and failed.";
+}
 
-public:
-  LoadHDF5FileDialog(QWidget* parent = 0);
-  ~LoadHDF5FileDialog();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+AbstractImportMontageDialog::AbstractImportMontageDialog(QWidget* parent)
+: QDialog(parent)
+{
+}
 
-  /**
-   * @brief getLoadProxy
-   * @return
-   */
-  DataContainerArrayProxy getDataStructureProxy();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+AbstractImportMontageDialog::~AbstractImportMontageDialog() = default;
 
-  /**
-   * @brief setHDF5FilePath
-   * @param filePath
-   */
-  void setHDF5FilePath(const QString &filePath);
-
-protected:
-  void setupGui();
-
-private:
-  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
-
-public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
-
-};
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void AbstractImportMontageDialog::setDisplayType(AbstractImportMontageDialog::DisplayType displayType)
+{
+  m_DisplayType = displayType;
+}

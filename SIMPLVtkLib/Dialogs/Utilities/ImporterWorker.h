@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -35,44 +35,47 @@
 
 #pragma once
 
-#include <QtWidgets/QDialog>
+#include <qthread.h>
 
-#include "SIMPLVtkLib/SIMPLVtkLib.h"
+#include <QtCore/QPersistentModelIndex>
+#include <QtCore/QSemaphore>
 
-#include "ui_LoadHDF5FileDialog.h"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-class DataContainerArrayProxy;
+#include "QtWidgets/VSAbstractImporter.h"
 
-class SIMPLVtkLib_EXPORT LoadHDF5FileDialog : public QDialog
+class VSQueueModel;
+
+class SIMPLVtkLib_EXPORT ImporterWorker : public QObject
 {
   Q_OBJECT
 
 public:
-  LoadHDF5FileDialog(QWidget* parent = 0);
-  ~LoadHDF5FileDialog();
+  ImporterWorker();
+  ~ImporterWorker();
 
-  /**
-   * @brief getLoadProxy
-   * @return
-   */
-  DataContainerArrayProxy getDataStructureProxy();
+  SIMPL_GET_PROPERTY(VSQueueModel*, QueueModel)
+  SIMPL_GET_PROPERTY(bool, Cancelled)
 
-  /**
-   * @brief setHDF5FilePath
-   * @param filePath
-   */
-  void setHDF5FilePath(const QString &filePath);
+  void setQueueModel(VSQueueModel* queueModel);
 
-protected:
-  void setupGui();
+public slots:
+  void cancelWorker();
+
+signals:
+  void finished();
+  void error(QString err);
+
+public slots:
+  void process();
 
 private:
-  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
+  VSQueueModel* m_QueueModel = nullptr;
+  bool m_Cancelled = false;
+  VSAbstractImporter::Pointer m_CurrentImporter;
+  QPersistentModelIndex m_CurrentIndex;
 
-public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
+  typedef std::vector<VSAbstractImporter::Pointer> ExecutionQueue;
 
+  QSemaphore m_ImportSem;
 };

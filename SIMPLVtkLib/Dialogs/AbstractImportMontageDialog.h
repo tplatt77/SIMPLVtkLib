@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -37,42 +37,61 @@
 
 #include <QtWidgets/QDialog>
 
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
-#include "ui_LoadHDF5FileDialog.h"
-
-class DataContainerArrayProxy;
-
-class SIMPLVtkLib_EXPORT LoadHDF5FileDialog : public QDialog
+class SIMPLVtkLib_EXPORT AbstractImportMontageDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  LoadHDF5FileDialog(QWidget* parent = 0);
-  ~LoadHDF5FileDialog();
+  SIMPL_SHARED_POINTERS(AbstractImportMontageDialog)
+
+  ~AbstractImportMontageDialog() override;
+
+  enum DisplayType
+  {
+    Outline,
+    SideBySide,
+    Montage,
+    NotSpecified
+  };
+
+  SIMPL_GET_PROPERTY(AbstractImportMontageDialog::DisplayType, DisplayType)
+
+  class InvalidOKButtonException : public std::exception
+  {
+    const char* what() const noexcept;
+  };
 
   /**
-   * @brief getLoadProxy
+   * @brief checkComplete
    * @return
    */
-  DataContainerArrayProxy getDataStructureProxy();
-
-  /**
-   * @brief setHDF5FilePath
-   * @param filePath
-   */
-  void setHDF5FilePath(const QString &filePath);
+  virtual void checkComplete() const = 0;
 
 protected:
-  void setupGui();
+  /**
+   * @brief Constructor
+   * @param parameter The FilterParameter object that this widget represents
+   * @param filter The instance of the filter that this parameter is a part of
+   * @param parent The parent QWidget for this Widget
+   */
+  AbstractImportMontageDialog(QWidget* parent = nullptr);
+
+  /**
+   * @brief setDisplayType
+   * @param displayType
+   */
+  void setDisplayType(AbstractImportMontageDialog::DisplayType displayType);
 
 private:
-  QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
+  DisplayType m_DisplayType = DisplayType::NotSpecified;
 
 public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
-
+  AbstractImportMontageDialog(const AbstractImportMontageDialog&) = delete;            // Copy Constructor Not Implemented
+  AbstractImportMontageDialog(AbstractImportMontageDialog&&) = delete;                 // Move Constructor Not Implemented
+  AbstractImportMontageDialog& operator=(const AbstractImportMontageDialog&) = delete; // Copy Assignment Not Implemented
+  AbstractImportMontageDialog& operator=(AbstractImportMontageDialog&&) = delete;      // Move Assignment Not Implemented
 };

@@ -80,12 +80,11 @@ VSFilterViewSettings::VSFilterViewSettings()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation,
-  ImportMontageWizard::DisplayType displayType)
-  : QObject(nullptr)
-  , m_ShowFilter(true),
-  m_DisplayType(displayType),
-  m_Representation(representation)
+VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representation representation, AbstractImportMontageDialog::DisplayType displayType)
+: QObject(nullptr)
+, m_ShowFilter(true)
+, m_DisplayType(displayType)
+, m_Representation(representation)
 {
   SetupStaticIcons();
 
@@ -2735,7 +2734,7 @@ void VSFilterViewSettings::inputUpdated(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSFilterViewSettings::setDisplayType(ImportMontageWizard::DisplayType displayType)
+void VSFilterViewSettings::setDisplayType(AbstractImportMontageDialog::DisplayType displayType)
 {
   m_DisplayType = displayType;
 }
@@ -2743,7 +2742,7 @@ void VSFilterViewSettings::setDisplayType(ImportMontageWizard::DisplayType displ
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportMontageWizard::DisplayType VSFilterViewSettings::getDisplayType()
+AbstractImportMontageDialog::DisplayType VSFilterViewSettings::getDisplayType()
 {
   return m_DisplayType;
 }
