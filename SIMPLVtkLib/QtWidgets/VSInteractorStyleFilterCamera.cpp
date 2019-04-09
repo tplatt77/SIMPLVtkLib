@@ -1179,23 +1179,23 @@ void VSInteractorStyleFilterCamera::updateTransformText()
   switch(m_ActionType)
   {
   case ActionType::Translate:
-	transformText.append("Translating");
-	break;
+    transformText.append("Translating");
+    break;
   case ActionType::Rotate:
-	transformText.append("Rotating");
-	break;
+    transformText.append("Rotating");
+    break;
   case ActionType::Scale:
-	transformText.append("Scaling");
-	break;
+    transformText.append("Scaling");
+    break;
   case ActionType::ResetTransform:
   case ActionType::None:
-	break;
+    break;
   }
 
   // Add axis
-  bool axisSelected = false;
-  if (m_ActionType != ActionType::None && m_ActionType != ActionType::ResetTransform)
+  if(m_ActionType != ActionType::None && m_ActionType != ActionType::ResetTransform)
   {
+    bool axisSelected = true;
     switch(m_ActionAxis)
     {
     case Axis::X:
@@ -1207,7 +1207,6 @@ void VSInteractorStyleFilterCamera::updateTransformText()
       {
         transformText.append(" along the X axis ");
       }
-	  axisSelected = true;
       break;
     case Axis::Y:
       if(m_ActionType == ActionType::Rotate)
@@ -1218,7 +1217,6 @@ void VSInteractorStyleFilterCamera::updateTransformText()
       {
         transformText.append(" along the Y axis");
       }
-	  axisSelected = true;
       break;
     case Axis::Z:
       if(m_ActionType == ActionType::Rotate)
@@ -1229,43 +1227,45 @@ void VSInteractorStyleFilterCamera::updateTransformText()
       {
         transformText.append(" along the Z axis");
       }
-	  axisSelected = true;
+      break;
+    case Axis::None:
+      axisSelected = false;
       break;
     }
 
-	if(m_CustomTransformAmount.isEmpty())
-	{
-	  if(axisSelected)
-	  {
-		transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
-		transformText.append("\nPress Esc to cancel axis selection");
-	  }
-	  else
-	  {
-		transformText.append("\nPress X, Y, or Z to snap transform to axis | Press Space to save changes | Press Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
-	  }
-	  transformText.append(" \nUse numerical keys to enter units/degrees for transform (- for negative values and . for precision");
-	}
+    if(m_CustomTransformAmount.isEmpty())
+    {
+      if(axisSelected)
+      {
+        transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+        transformText.append("\nPress Esc to cancel axis selection");
+      }
+      else
+      {
+        transformText.append("\nPress X, Y, or Z to snap transform to axis | Press Space to save changes | Press Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+      }
+      transformText.append(" \nUse numerical keys to enter units/degrees for transform (- for negative values and . for precision");
+    }
   }
   else
   {
-	transformText.append("Press T to Translate, R to Rotate or S to Scale. Press Alt-Z to reset the transform");
+    transformText.append("Press T to Translate, R to Rotate or S to Scale. Press Alt-Z to reset the transform");
   }
   // Add custom transform amount (if any)
   if(!m_CustomTransformAmount.isEmpty())
   {
-	transformText.append(" ");
-	transformText.append(m_CustomTransformAmount);
-	if(m_ActionType == ActionType::Rotate)
-	{
-	  transformText.append(" degrees");
-	}
-	else
-	{
-	  transformText.append(" units");
-	}
-	transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
-	transformText.append("\nPress Esc to cancel numerical entry");
+    transformText.append(" ");
+    transformText.append(m_CustomTransformAmount);
+    if(m_ActionType == ActionType::Rotate)
+    {
+      transformText.append(" degrees");
+    }
+    else
+    {
+      transformText.append(" units");
+    }
+    transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+    transformText.append("\nPress Esc to cancel numerical entry");
   }
   VSViewWidget* viewWidget = dynamic_cast<VSViewWidget*>(m_ViewWidget);
   viewWidget->updateTransformText(transformText);
