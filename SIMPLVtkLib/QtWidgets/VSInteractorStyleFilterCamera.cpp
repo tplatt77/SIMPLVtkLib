@@ -171,9 +171,21 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   {
     setActionType(ActionType::Scale);
   }
-  else if(keyDown == "Escape" && shiftKey())
+  else if(keyDown == "Escape")
   {
-    cancelAction();
+	if(shiftKey() || (m_ActionAxis == Axis::None && m_ActionType != ActionType::None && !m_CustomTransform))
+	{
+	  cancelAction();
+	}
+	if(m_CustomTransform)
+	{
+	  m_CustomTransform = false;
+	  m_CustomTransformAmount.clear();
+	}
+	else if(m_ActionAxis != Axis::None)
+	{
+	  m_ActionAxis = Axis::None;
+	}
   }
   else if(keyDown == "a")
   {
@@ -1225,13 +1237,14 @@ void VSInteractorStyleFilterCamera::updateTransformText()
 	{
 	  if(axisSelected)
 	  {
-		transformText.append("\n(Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
+		transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+		transformText.append("\nPress Esc to cancel axis selection");
 	  }
 	  else
 	  {
-		transformText.append("\n(Press X, Y, or Z to snap transform to axis | Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
+		transformText.append("\nPress X, Y, or Z to snap transform to axis | Press Space to save changes | Press Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
 	  }
-	  transformText.append(" \n(Use numerical keys to enter units/degrees for transform (- for negative values and . for precision)");
+	  transformText.append(" \nUse numerical keys to enter units/degrees for transform (- for negative values and . for precision");
 	}
   }
   else
@@ -1251,7 +1264,8 @@ void VSInteractorStyleFilterCamera::updateTransformText()
 	{
 	  transformText.append(" units");
 	}
-	transformText.append("\n(Press Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform)");
+	transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+	transformText.append("\nPress Esc to cancel numerical entry");
   }
   VSViewWidget* viewWidget = dynamic_cast<VSViewWidget*>(m_ViewWidget);
   viewWidget->updateTransformText(transformText);
