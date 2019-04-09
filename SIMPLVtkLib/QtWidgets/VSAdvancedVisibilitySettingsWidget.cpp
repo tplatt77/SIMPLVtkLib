@@ -58,7 +58,11 @@ void VSAdvancedVisibilitySettingsWidget::setupGui()
   pointSizeValidator->setBottom(1);
   m_Ui->pointSizeEdit->setValidator(pointSizeValidator);
 
-  m_Ui->viewAxesGridCheckBox->
+  // Hide Axes Grid and Annotations label and line
+  m_Ui->viewAxesGridCheckBox->setVisible(false);
+  m_Ui->annotationLabel->setVisible(false);
+  m_Ui->line_2->setVisible(false);
+  m_Ui->annotationWidget->setVisible(false);
 
   connect(m_Ui->pointSizeEdit, &QLineEdit::textChanged, this, &VSAdvancedVisibilitySettingsWidget::updatePointSize);
   connect(m_Ui->pointSphereCheckBox, &QCheckBox::stateChanged, this, &VSAdvancedVisibilitySettingsWidget::updateRenderPointSpheres);
