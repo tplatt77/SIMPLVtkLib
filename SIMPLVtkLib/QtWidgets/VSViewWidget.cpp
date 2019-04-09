@@ -418,3 +418,11 @@ void VSViewWidget::hideAllScalarBars()
     (*iter).second->setScalarBarSetting(VSFilterViewSettings::ScalarBarSetting::Never);
   }
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSViewWidget::updateTransformText(QString transformText)
+{
+  m_Internals->transformTextLabel->setText(transformText);
+}

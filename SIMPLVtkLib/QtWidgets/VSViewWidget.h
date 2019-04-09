@@ -120,6 +120,12 @@ public:
    */
   QMenu* getContextMenu(VSAbstractFilter* filter);
 
+  /**
+   * @brief Update the transform text
+   * @param transformText
+   */
+  void updateTransformText(QString transformText);
+
 protected:
   /**
    * @brief Performs initial setup work for the GUI

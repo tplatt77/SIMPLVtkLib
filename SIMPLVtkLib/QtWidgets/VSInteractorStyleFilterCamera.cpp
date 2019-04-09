@@ -45,6 +45,7 @@
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSViewWidget.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
 
 vtkStandardNewMacro(VSInteractorStyleFilterCamera);
@@ -172,7 +173,19 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   }
   else if(keyDown == "Escape")
   {
-    cancelAction();
+	if(shiftKey() || (m_ActionAxis == Axis::None && m_ActionType != ActionType::None && !m_CustomTransform))
+	{
+	  cancelAction();
+	}
+	if(m_CustomTransform)
+	{
+	  m_CustomTransform = false;
+	  m_CustomTransformAmount.clear();
+	}
+	else if(m_ActionAxis != Axis::None)
+	{
+	  m_ActionAxis = Axis::None;
+	}
   }
   else if(keyDown == "a")
   {
@@ -427,6 +440,7 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
 	m_CustomTransformAmount.clear();
 	setAxis(Axis::None);
   }
+  updateTransformText();
 }
 
 // -----------------------------------------------------------------------------
@@ -518,6 +532,7 @@ void VSInteractorStyleFilterCamera::grabFilter()
   {
     setSelection(filter, prop);
   }
+  updateTransformText();
 }
 
 // -----------------------------------------------------------------------------
@@ -681,6 +696,7 @@ void VSInteractorStyleFilterCamera::cancelAction()
   }
 
   m_ActionType = ActionType::None;
+  m_ActionAxis = Axis::None;
 }
 
 // -----------------------------------------------------------------------------
@@ -1150,6 +1166,109 @@ void VSInteractorStyleFilterCamera::deselectAllFilters()
   {
     removeSelection(filter);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSInteractorStyleFilterCamera::updateTransformText()
+{
+  QString transformText;
+
+  // Add action type
+  switch(m_ActionType)
+  {
+  case ActionType::Translate:
+    transformText.append("Translating");
+    break;
+  case ActionType::Rotate:
+    transformText.append("Rotating");
+    break;
+  case ActionType::Scale:
+    transformText.append("Scaling");
+    break;
+  case ActionType::ResetTransform:
+  case ActionType::None:
+    break;
+  }
+
+  // Add axis
+  if(m_ActionType != ActionType::None && m_ActionType != ActionType::ResetTransform)
+  {
+    bool axisSelected = true;
+    switch(m_ActionAxis)
+    {
+    case Axis::X:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the X axis ");
+      }
+      else
+      {
+        transformText.append(" along the X axis ");
+      }
+      break;
+    case Axis::Y:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the Y axis");
+      }
+      else
+      {
+        transformText.append(" along the Y axis");
+      }
+      break;
+    case Axis::Z:
+      if(m_ActionType == ActionType::Rotate)
+      {
+        transformText.append(" about the Z axis");
+      }
+      else
+      {
+        transformText.append(" along the Z axis");
+      }
+      break;
+    case Axis::None:
+      axisSelected = false;
+      break;
+    }
+
+    if(m_CustomTransformAmount.isEmpty())
+    {
+      if(axisSelected)
+      {
+        transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+        transformText.append("\nPress Esc to cancel axis selection");
+      }
+      else
+      {
+        transformText.append("\nPress X, Y, or Z to snap transform to axis | Press Space to save changes | Press Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+      }
+      transformText.append(" \nUse numerical keys to enter units/degrees for transform (- for negative values and . for precision");
+    }
+  }
+  else
+  {
+    transformText.append("Press T to Translate, R to Rotate or S to Scale. Press Alt-Z to reset the transform");
+  }
+  // Add custom transform amount (if any)
+  if(!m_CustomTransformAmount.isEmpty())
+  {
+    transformText.append(" ");
+    transformText.append(m_CustomTransformAmount);
+    if(m_ActionType == ActionType::Rotate)
+    {
+      transformText.append(" degrees");
+    }
+    else
+    {
+      transformText.append(" units");
+    }
+    transformText.append("\nPress Space to save changes | Press Shift-Esc to Cancel | Press Ctrl-Z to undo or Alt-Z to reset the transform");
+    transformText.append("\nPress Esc to cancel numerical entry");
+  }
+  VSViewWidget* viewWidget = dynamic_cast<VSViewWidget*>(m_ViewWidget);
+  viewWidget->updateTransformText(transformText);
 }
 
 // -----------------------------------------------------------------------------
