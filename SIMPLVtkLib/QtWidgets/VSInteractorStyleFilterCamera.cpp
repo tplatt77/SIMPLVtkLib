@@ -1303,7 +1303,7 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
 	  {
 		qDebug() << badCastException.what();
 	  }
-      isSIMPL = simplDataContainerFilter;
+      isSIMPL = simplDataContainerFilter && iter->second->isFlat();
       if(isSIMPL || imageDatasetFilter)
       {
         double position[3];
