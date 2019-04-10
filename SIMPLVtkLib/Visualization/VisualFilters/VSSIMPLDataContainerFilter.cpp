@@ -491,36 +491,36 @@ bool VSSIMPLDataContainerFilter::CompatibleWithParent(VSAbstractFilter* filter)
 // -----------------------------------------------------------------------------
 double* VSSIMPLDataContainerFilter::getTransformBounds()
 {
-	if(nullptr == getTransformFilter())
-	{
-		return getBounds();
-	}
-	VTK_PTR(vtkDataSet) outputData = getOutput();
-	VTK_PTR(vtkImageData) imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+  if(nullptr == getTransformFilter())
+  {
+    return getBounds();
+  }
+  VTK_PTR(vtkDataSet) outputData = getOutput();
+  VTK_PTR(vtkImageData) imageData = dynamic_cast<vtkImageData*>(outputData.Get());
 
-	double* bounds = imageData->GetBounds();
-	if(!(bounds[4] == 0 && (bounds[5] == 0 || bounds[5] == 1)))
-	{
-	  VTK_PTR(vtkTransformFilter) trans = VTK_PTR(vtkTransformFilter)::New();
-	  trans->SetInputConnection(getOutputPort());
-	  trans->SetTransform(getTransform()->getGlobalTransform());
-	  trans->ReleaseDataFlagOn();
-	  trans->Update();
-	  return trans->GetOutput()->GetBounds();
-	}
+  double* bounds = imageData->GetBounds();
+  if(!(bounds[4] == 0 && (bounds[5] == 0 || bounds[5] == 1)))
+  {
+    VTK_PTR(vtkTransformFilter) trans = VTK_PTR(vtkTransformFilter)::New();
+    trans->SetInputConnection(getOutputPort());
+    trans->SetTransform(getTransform()->getGlobalTransform());
+    trans->ReleaseDataFlagOn();
+    trans->Update();
+    return trans->GetOutput()->GetBounds();
+  }
 
-	// Subsample the image to reduce amount of data stored in transform filter
-	VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
-	int* inputDims = imageData->GetDimensions();
-	subsample->SetInputData(imageData);
-	subsample->SetSampleRate(20, 20, 20);
-	subsample->ReleaseDataFlagOn();
-	subsample->Update();
+  // Subsample the image to reduce amount of data stored in transform filter
+  VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
+  int* inputDims = imageData->GetDimensions();
+  subsample->SetInputData(imageData);
+  subsample->SetSampleRate(20, 20, 20);
+  subsample->ReleaseDataFlagOn();
+  subsample->Update();
 
-	VTK_PTR(vtkTransformFilter) trans = getTransformFilter();
-	trans->SetInputConnection(subsample->GetOutputPort());
-	trans->SetTransform(getTransform()->getGlobalTransform());
-	trans->ReleaseDataFlagOn();
-	trans->Update();
-	return trans->GetOutput()->GetBounds();
+  VTK_PTR(vtkTransformFilter) trans = getTransformFilter();
+  trans->SetInputConnection(subsample->GetOutputPort());
+  trans->SetTransform(getTransform()->getGlobalTransform());
+  trans->ReleaseDataFlagOn();
+  trans->Update();
+  return trans->GetOutput()->GetBounds();
 }

@@ -546,24 +546,23 @@ void VSFilterViewSettings::setIsSelected(bool selected)
   vtkActor* actor = getDataSetActor();
   if(nullptr == actor)
   {
-	return;
+    return;
   }
   if(selected && isFlatImage())
   {
-	actor->GetProperty()->EdgeVisibilityOn();
-	actor->GetProperty()->SetEdgeColor(0.0, 1.0, 0.0);
+    actor->GetProperty()->EdgeVisibilityOn();
+    actor->GetProperty()->SetEdgeColor(0.0, 1.0, 0.0);
   }
   else
   {
-	if(m_Representation != Representation::SurfaceWithEdges ||
-	  m_Representation != Representation::Outline)
-	{
-	  actor->GetProperty()->EdgeVisibilityOff();
-	}
-	if(isFlatImage())
-	{
-	  actor->GetProperty()->SetEdgeColor(1.0, 1.0, 1.0);
-	}
+    if(m_Representation != Representation::SurfaceWithEdges || m_Representation != Representation::Outline)
+    {
+      actor->GetProperty()->EdgeVisibilityOff();
+    }
+    if(isFlatImage())
+    {
+      actor->GetProperty()->SetEdgeColor(1.0, 1.0, 1.0);
+    }
   }
 }
 
@@ -1187,35 +1186,35 @@ bool VSFilterViewSettings::isFlatImage()
   VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
   if(nullptr == outputData)
   {
-	return false;
+    return false;
   }
 
   if(m_Filter->getOutputType() != VSAbstractFilter::dataType_t::IMAGE_DATA)
   {
-	return false;
+    return false;
   }
 
   vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
   if(nullptr == imageData)
   {
-	return false;
+    return false;
   }
 
   // Check dimensions
   int* dims = imageData->GetDimensions();
   for(int i = 0; i < 3; i++)
   {
-	if(dims[i] <= 1)
-	{
-	  return true;
-	}
+    if(dims[i] <= 1)
+    {
+      return true;
+    }
   }
 
   // Check bounds of image data
   double* bounds = imageData->GetBounds();
   if(bounds[4] == 0 && (bounds[5] == 0 || bounds[5] == 1))
   {
-	return true;
+    return true;
   }
 
   return false;
@@ -1333,7 +1332,7 @@ void VSFilterViewSettings::setupDataSetActors()
 
   if(!isFlatImage())
   {
-	mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
+    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
   }
   else if(getRepresentation() == Representation::Outline)
   {
@@ -1341,7 +1340,7 @@ void VSFilterViewSettings::setupDataSetActors()
   }
   else
   {
-	mapper->SetInputConnection(plane->GetOutputPort());
+    mapper->SetInputConnection(plane->GetOutputPort());
   }
   actor->SetMapper(mapper);
 
@@ -1383,7 +1382,6 @@ void VSFilterViewSettings::setupDataSetActors()
     emit swappingActors(m_Actor.Get(), actor);
   }
 
-
   m_Mapper = mapper;
   m_Actor = actor;
   m_Plane = plane;
@@ -1391,23 +1389,23 @@ void VSFilterViewSettings::setupDataSetActors()
   m_ActorType = ActorType::DataSet;
   if(isFlatImage())
   {
-	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
 
-	double spacing[3];
-	imageData->GetSpacing(spacing);
+    double spacing[3];
+    imageData->GetSpacing(spacing);
 
-	// Get transform vectors
-	VSTransform* transform = m_Filter->getTransform();
+    // Get transform vectors
+    VSTransform* transform = m_Filter->getTransform();
 
-	double scaling[3] = { spacing[0], spacing[1], spacing[2] };
+    double scaling[3] = {spacing[0], spacing[1], spacing[2]};
 
-	transform->setLocalScale(scaling);
+    transform->setLocalScale(scaling);
 
-	// Save the initial transform
-	VSTransform* defaultTransform = getDefaultTransform();
-	defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
-	defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
-	defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
+    // Save the initial transform
+    VSTransform* defaultTransform = getDefaultTransform();
+    defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
+    defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
+    defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
   }
   updateTransform();
 }
@@ -1735,15 +1733,15 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
   }
   else
   {
-	if(isFlatImage())
-	{
-	  getDataSetMapper()->SetInputConnection(m_Plane->GetOutputPort());
-	  updateTexture();
-	}
-	else
-	{
-	  getDataSetMapper()->SetInputConnection(m_DataSetFilter->GetOutputPort());
-	}
+    if(isFlatImage())
+    {
+      getDataSetMapper()->SetInputConnection(m_Plane->GetOutputPort());
+      updateTexture();
+    }
+    else
+    {
+      getDataSetMapper()->SetInputConnection(m_DataSetFilter->GetOutputPort());
+    }
 
     if(type == Representation::SurfaceWithEdges)
     {
@@ -2700,46 +2698,45 @@ void VSFilterViewSettings::updateTexture()
 {
   if(!isFlatImage())
   {
-	return;
+    return;
   }
-	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
-	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
 
-	VTK_PTR(vtkTexture) texture = VTK_PTR(vtkTexture)::New();
+  VTK_PTR(vtkTexture) texture = VTK_PTR(vtkTexture)::New();
 
-	texture->InterpolateOn();
-	texture->SetInputData(imageData);
-	if(m_LookupTable != nullptr)
+  texture->InterpolateOn();
+  texture->SetInputData(imageData);
+  if(m_LookupTable != nullptr)
+  {
+    texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+  }
+
+  if(m_Subsampling > 1)
+  {
+    VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
+    int* inputDims = imageData->GetDimensions();
+    subsample->SetInputData(imageData);
+    subsample->SetSampleRate(m_Subsampling, m_Subsampling, m_Subsampling);
+    subsample->Update();
+
+    vtkImageData* extracted = subsample->GetOutput();
+    texture->SetInputData(extracted);
+  }
+
+  m_Texture = texture;
+  vtkActor* actor = getDataSetActor();
+  if(nullptr != actor)
+  {
+    if(!getActiveArrayName().isEmpty() || ActorType::Image2D == m_ActorType)
     {
-      texture->SetLookupTable(m_LookupTable->getColorTransferFunction());
+      actor->SetTexture(m_Texture);
     }
-
-	if(m_Subsampling > 1)
-	{
-		VTK_PTR(vtkExtractVOI) subsample = VTK_PTR(vtkExtractVOI)::New();
-		int* inputDims = imageData->GetDimensions();
-		subsample->SetInputData(imageData);
-		subsample->SetSampleRate(m_Subsampling, m_Subsampling, m_Subsampling);
-		subsample->Update();
-
-		vtkImageData* extracted = subsample->GetOutput();
-		texture->SetInputData(extracted);
-	}
-
-	m_Texture = texture;
-	vtkActor* actor = getDataSetActor();
-	if(nullptr != actor)
-	{
-		if(!getActiveArrayName().isEmpty() || ActorType::Image2D == m_ActorType)
-		{
-			actor->SetTexture(m_Texture);
-		}
-		else
-		{
-			actor->GetProperty()->RemoveAllTextures();
-		}
-	}
-	
+    else
+    {
+      actor->GetProperty()->RemoveAllTextures();
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
