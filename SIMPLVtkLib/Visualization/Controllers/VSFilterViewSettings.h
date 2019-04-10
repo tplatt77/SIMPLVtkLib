@@ -471,6 +471,11 @@ public:
   VSTransform* getDefaultTransform();
 
   /**
+   * @brief Gets whether image is flat
+   */
+  bool isFlat();
+
+  /**
    * @brief Returns the QIcon used for solid colors
    * @return
    */
