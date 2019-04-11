@@ -219,6 +219,14 @@ VSFilterSettingsWidget* VSMainWidgetBase::getFilterSettingsWidget() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+VSDatasetInfoWidget* VSMainWidgetBase::getDatasetInfoWidget() const
+{
+  return m_DatasetInfoWidget;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSVisibilitySettingsWidget* VSMainWidgetBase::getVisibilitySettingsWidget() const
 {
   return m_VisibilitySettingsWidget;
@@ -268,6 +276,24 @@ void VSMainWidgetBase::setFilterSettingsWidget(VSFilterSettingsWidget* widget)
 
     m_FilterSettingsWidget->setFilters(getCurrentSelection());
     m_FilterSettingsWidget->setViewWidget(getActiveViewWidget());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSMainWidgetBase::setDatasetInfoWidget(VSDatasetInfoWidget* widget)
+{
+  if(m_DatasetInfoWidget)
+  {
+    disconnect(this, &VSMainWidgetBase::selectedFiltersChanged, m_DatasetInfoWidget, &VSDatasetInfoWidget::setFilters);
+  }
+
+  m_DatasetInfoWidget = widget;
+
+  if(m_DatasetInfoWidget)
+  {
+    connect(this, &VSMainWidgetBase::selectedFiltersChanged, m_DatasetInfoWidget, &VSDatasetInfoWidget::setFilters);
   }
 }
 

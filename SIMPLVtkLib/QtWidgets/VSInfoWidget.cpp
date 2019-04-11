@@ -88,6 +88,7 @@ void VSInfoWidget::setFilters(VSAbstractFilter::FilterListType filters)
   m_Ui->visibilityWidget->setFilters(filters);
   m_Ui->colorMappingWidget->setFilters(filters);
   m_Ui->advVisibilityWidget->setFilters(filters);
+  m_Ui->datasetInfoWidget->setFilters(filters);
 
   if(filters.size() > 0)
   {
@@ -107,6 +108,14 @@ void VSInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
   m_Ui->visibilityWidget->setViewWidget(viewWidget);
   m_Ui->colorMappingWidget->setViewWidget(viewWidget);
   m_Ui->advVisibilityWidget->setViewWidget(viewWidget);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSDatasetInfoWidget* VSInfoWidget::getDatasetInfoWidget() const
+{
+  return m_Ui->datasetInfoWidget;
 }
 
 // -----------------------------------------------------------------------------
