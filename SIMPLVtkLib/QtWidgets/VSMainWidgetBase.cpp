@@ -396,6 +396,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
 {
   if(infoWidget)
   {
+    setDatasetInfoWidget(infoWidget->getDatasetInfoWidget());
     setFilterSettingsWidget(infoWidget->getFilterSettingsWidget());
     setVisibilitySettingsWidget(infoWidget->getVisibilitySettingsWidget());
     setColorMappingWidget(infoWidget->getColorMappingWidget());

@@ -127,7 +127,7 @@ void VSDatasetInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 // -----------------------------------------------------------------------------
 void VSDatasetInfoWidget::updateDatasetInfo()
 {
-  if(m_ViewSettings.size() > 0)
+  if(m_Filters.size() > 0)
   {
 
     // Get the dataset info
@@ -135,32 +135,35 @@ void VSDatasetInfoWidget::updateDatasetInfo()
     VTK_PTR(vtkDataSet) outputData = filter->getOutput();
     filter->getOutput();
     vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-    double* origin = imageData->GetOrigin();
-    int* extent = imageData->GetExtent();
-    double* bounds = imageData->GetBounds();
+    if(imageData != nullptr)
+    {
+      double* origin = imageData->GetOrigin();
+      int* extent = imageData->GetExtent();
+      double* bounds = imageData->GetBounds();
 
-    // Display the dataset info
-    QString value;
-    value = origin[0];
-    m_Ui->originXValue->setText(value);
-    value = origin[1];
-    m_Ui->originYValue->setText(value);
-    value = origin[2];
-    m_Ui->originZValue->setText(value);
+      // Display the dataset info
+      QString value;
+      value = QString::number(origin[0]);
+      m_Ui->originXValue->setText(value);
+      value = QString::number(origin[1]);
+      m_Ui->originYValue->setText(value);
+      value = QString::number(origin[2]);
+      m_Ui->originZValue->setText(value);
 
-    value = extent[0];
-    m_Ui->extentXValue->setText(value);
-    value = extent[1];
-    m_Ui->extentYValue->setText(value);
-    value = extent[2];
-    m_Ui->extentZValue->setText(value);
+      value = QString::number(extent[0]) + " to " + QString::number(extent[1]);
+      m_Ui->extentXValue->setText(value);
+      value = QString::number(extent[2]) + " to " + QString::number(extent[3]);
+      m_Ui->extentYValue->setText(value);
+      value = QString::number(extent[4]) + " to " + QString::number(extent[5]);
+      m_Ui->extentZValue->setText(value);
 
-    value = bounds[0];
-    m_Ui->boundsXValue->setText(value);
-    value = bounds[1];
-    m_Ui->boundsYValue->setText(value);
-    value = bounds[2];
-    m_Ui->boundsZValue->setText(value);
+      value = QString::number(bounds[0]) + " to " + QString::number(bounds[1]);
+      m_Ui->boundsXValue->setText(value);
+      value = QString::number(bounds[2]) + " to " + QString::number(bounds[3]);
+      m_Ui->boundsYValue->setText(value);
+      value = QString::number(bounds[4]) + " to " + QString::number(bounds[5]);
+      m_Ui->boundsZValue->setText(value);
+    }
   }
 }
 
