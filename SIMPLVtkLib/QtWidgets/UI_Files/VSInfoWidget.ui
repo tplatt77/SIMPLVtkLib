@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="settingsTab">
       <attribute name="title">
@@ -84,11 +84,8 @@
            <item row="0" column="0">
             <widget class="VSFilterSettingsWidget" name="filterWidget" native="true"/>
            </item>
-           <item row="3" column="0">
-            <widget class="VSTransformWidget" name="transformWidget" native="true"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="VSColorMappingWidget" name="colorMappingWidget" native="true"/>
+           <item row="1" column="0">
+            <widget class="VSVisibilitySettingsWidget" name="visibilityWidget" native="true"/>
            </item>
            <item row="4" column="0">
             <widget class="VSAdvancedVisibilitySettingsWidget" name="advVisibilityWidget" native="true">
@@ -97,8 +94,11 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="VSVisibilitySettingsWidget" name="visibilityWidget" native="true"/>
+           <item row="3" column="0">
+            <widget class="VSTransformWidget" name="transformWidget" native="true"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="VSColorMappingWidget" name="colorMappingWidget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -125,12 +125,18 @@
             <height>446</height>
            </rect>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <widget class="VSDatasetInfoWidget" name="datasetInfoWidget" native="true">
            <property name="geometry">
             <rect>
-             <x>-1</x>
-             <y>-3</y>
-             <width>331</width>
+             <x>0</x>
+             <y>0</y>
+             <width>321</width>
              <height>441</height>
             </rect>
            </property>
@@ -178,7 +184,7 @@
   <customwidget>
    <class>VSDatasetInfoWidget</class>
    <extends>QWidget</extends>
-   <header>VSDatasetInfoWidget.h</header>
+   <header location="global">VSDatasetInfoWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
