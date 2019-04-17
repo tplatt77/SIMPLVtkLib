@@ -1212,7 +1212,7 @@ bool VSFilterViewSettings::isFlatImage()
 
   // Check bounds of image data
   double* bounds = imageData->GetBounds();
-  if(bounds[4] == 0 && (bounds[5] == 0 || bounds[5] == 1))
+  if(abs(bounds[5] - bounds[4]) <= 1)
   {
     return true;
   }
