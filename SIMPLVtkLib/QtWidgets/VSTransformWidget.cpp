@@ -152,16 +152,40 @@ void VSTransformWidget::setTransform(VSTransform* transform)
 
     // local
     double* localPos = transform->getLocalPosition();
+    double* originPosition = transform->getOriginPosition();
+    if(originPosition != nullptr)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        localPos[i] -= originPosition[i];
+      }
+    }
     m_Internals->posXEdit->setText(QString::number(localPos[0]));
     m_Internals->posYEdit->setText(QString::number(localPos[1]));
     m_Internals->posZEdit->setText(QString::number(localPos[2]));
 
     double* localRot = transform->getLocalRotation();
+    double* originRotation = transform->getOriginRotation();
+    if(originRotation != nullptr)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        localRot[i] -= originRotation[i];
+      }
+    }
     m_Internals->rotXEdit->setText(QString::number(localRot[0]));
     m_Internals->rotYEdit->setText(QString::number(localRot[1]));
     m_Internals->rotZEdit->setText(QString::number(localRot[2]));
 
     double* localScale = transform->getLocalScale();
+    double* originScale = transform->getOriginScale();
+    if(originScale != nullptr)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        localScale[i] /= originScale[i];
+      }
+    }
     m_Internals->scaleXEdit->setText(QString::number(localScale[0]));
     m_Internals->scaleYEdit->setText(QString::number(localScale[1]));
     m_Internals->scaleZEdit->setText(QString::number(localScale[2]));
@@ -225,6 +249,7 @@ void VSTransformWidget::setFilters(VSAbstractFilter::FilterListType filters)
   }
   else
   {
+    m_SelectedFilters = filters;
     setTransform(filters.front()->getTransform());
   }
 }
@@ -240,11 +265,15 @@ void VSTransformWidget::translationEditChanged()
   }
 
   double position[3];
-  position[0] = m_Internals->posXEdit->text().toDouble();
-  position[1] = m_Internals->posYEdit->text().toDouble();
-  position[2] = m_Internals->posZEdit->text().toDouble();
 
-  m_Transform->setLocalPosition(position);
+  for(VSAbstractFilter* filter : m_SelectedFilters)
+  {
+    double* originPosition = filter->getTransform()->getOriginPosition();
+    position[0] = m_Internals->posXEdit->text().toDouble() + originPosition[0];
+    position[1] = m_Internals->posYEdit->text().toDouble() + originPosition[1];
+    position[2] = m_Internals->posZEdit->text().toDouble() + originPosition[2];
+    filter->getTransform()->setLocalPosition(position);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -258,11 +287,15 @@ void VSTransformWidget::rotationEditChanged()
   }
 
   double rotation[3];
-  rotation[0] = m_Internals->rotXEdit->text().toDouble();
-  rotation[1] = m_Internals->rotYEdit->text().toDouble();
-  rotation[2] = m_Internals->rotZEdit->text().toDouble();
 
-  m_Transform->setLocalRotation(rotation);
+  for(VSAbstractFilter* filter : m_SelectedFilters)
+  {
+    double* originRotation = filter->getTransform()->getOriginRotation();
+    rotation[0] = m_Internals->rotXEdit->text().toDouble() + originRotation[0];
+    rotation[1] = m_Internals->rotYEdit->text().toDouble() + originRotation[1];
+    rotation[2] = m_Internals->rotZEdit->text().toDouble() + originRotation[2];
+    filter->getTransform()->setLocalRotation(rotation);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -276,11 +309,15 @@ void VSTransformWidget::scaleEditChanged()
   }
 
   double scale[3];
-  scale[0] = m_Internals->scaleXEdit->text().toDouble();
-  scale[1] = m_Internals->scaleYEdit->text().toDouble();
-  scale[2] = m_Internals->scaleZEdit->text().toDouble();
 
-  m_Transform->setLocalScale(scale);
+  for(VSAbstractFilter* filter : m_SelectedFilters)
+  {
+    double* originScale = filter->getTransform()->getOriginScale();
+    scale[0] = m_Internals->scaleXEdit->text().toDouble() * originScale[0];
+    scale[1] = m_Internals->scaleYEdit->text().toDouble() * originScale[1];
+    scale[2] = m_Internals->scaleZEdit->text().toDouble() * originScale[2];
+    filter->getTransform()->setLocalScale(scale);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -379,6 +416,7 @@ void VSTransformWidget::updateScaleLabels()
 void VSTransformWidget::updateLocalTranslation()
 {
   double* position;
+  double* origin;
   if(nullptr == m_Transform)
   {
     position = new double[3];
@@ -390,6 +428,11 @@ void VSTransformWidget::updateLocalTranslation()
   else
   {
     position = m_Transform->getLocalPosition();
+    double* origin = m_Transform->getOriginPosition();
+    for(int i = 0; i < 3; i++)
+    {
+      position[i] -= origin[i];
+    }
   }
 
   m_Internals->posXEdit->setText(QString::number(position[0]));
@@ -443,4 +486,12 @@ void VSTransformWidget::updateLocalScale()
   m_Internals->scaleXEdit->setText(QString::number(scale[0]));
   m_Internals->scaleYEdit->setText(QString::number(scale[1]));
   m_Internals->scaleZEdit->setText(QString::number(scale[2]));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+VSAbstractFilter::FilterListType VSTransformWidget::getFilters()
+{
+  return m_SelectedFilters;
 }
