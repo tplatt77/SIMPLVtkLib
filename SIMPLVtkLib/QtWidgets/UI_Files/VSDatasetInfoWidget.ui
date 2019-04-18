@@ -29,44 +29,85 @@
    <property name="spacing">
     <number>4</number>
    </property>
-   <item row="5" column="0">
-    <widget class="QLabel" name="originZLabel">
-     <property name="text">
-      <string>Z:</string>
+   <item row="22" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="originXLabel">
+   <item row="19" column="0">
+    <widget class="QLabel" name="spacingXLabel">
      <property name="text">
       <string>X:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="originYLabel">
+   <item row="20" column="0">
+    <widget class="QLabel" name="spacingYLabel">
      <property name="text">
       <string>Y:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="originLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="21" column="0">
+    <widget class="QLabel" name="spacingZLabel">
+     <property name="text">
+      <string>Z:</string>
      </property>
+    </widget>
+   </item>
+   <item row="21" column="1">
+    <widget class="QLabel" name="spacingZValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="1">
+    <widget class="QLabel" name="spacingYValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="label_3">
      <property name="font">
       <font>
-       <pointsize>8</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Origin</string>
+      <string>Spacing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="1">
+    <widget class="QLabel" name="spacingXValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="extentZLabel">
+     <property name="text">
+      <string>Z Extent</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QLabel" name="extentZValue">
+     <property name="text">
+      <string>NA</string>
      </property>
     </widget>
    </item>
@@ -83,10 +124,58 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="originZValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="extentXValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="originXLabel">
+     <property name="text">
+      <string>X:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="originZLabel">
+     <property name="text">
+      <string>Z:</string>
+     </property>
+    </widget>
+   </item>
    <item row="15" column="0">
     <widget class="QLabel" name="boundsYLabel">
      <property name="text">
       <string>Y Range:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="originYLabel">
+     <property name="text">
+      <string>Y:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLabel" name="originYValue">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>NA</string>
      </property>
     </widget>
    </item>
@@ -110,17 +199,17 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="boundsXLabel">
-     <property name="text">
-      <string>X Range:</string>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0">
     <widget class="QLabel" name="extentXLabel">
      <property name="text">
       <string>X Extent:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="boundsXLabel">
+     <property name="text">
+      <string>X Range:</string>
      </property>
     </widget>
    </item>
@@ -131,35 +220,22 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="extentZLabel">
-     <property name="text">
-      <string>Z Extent</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLabel" name="originYValue">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="9" column="1">
+    <widget class="QLabel" name="extentYValue">
      <property name="text">
       <string>NA</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="originXValue">
+   <item row="14" column="1">
+    <widget class="QLabel" name="boundsXValue">
      <property name="text">
       <string>NA</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="originZValue">
+   <item row="16" column="1">
+    <widget class="QLabel" name="boundsZValue">
      <property name="text">
       <string>NA</string>
      </property>
@@ -178,48 +254,6 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QLabel" name="extentXValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QLabel" name="extentYValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QLabel" name="extentZValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
-    <widget class="QLabel" name="boundsXValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="1">
-    <widget class="QLabel" name="boundsYValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="1">
-    <widget class="QLabel" name="boundsZValue">
-     <property name="text">
-      <string>NA</string>
-     </property>
-    </widget>
-   </item>
    <item row="13" column="0" colspan="2">
     <widget class="Line" name="line_3">
      <property name="sizePolicy">
@@ -235,6 +269,53 @@
    </item>
    <item row="7" column="0" colspan="2">
     <widget class="Line" name="line_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1">
+    <widget class="QLabel" name="boundsYValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="originLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Origin</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="originXValue">
+     <property name="text">
+      <string>NA</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="2">
+    <widget class="Line" name="line_5">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>

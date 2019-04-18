@@ -140,6 +140,7 @@ void VSDatasetInfoWidget::updateDatasetInfo()
       double* origin = imageData->GetOrigin();
       int* extent = imageData->GetExtent();
       double* bounds = imageData->GetBounds();
+      double* spacing = imageData->GetSpacing();
 
       // Display the dataset info
       QString value;
@@ -150,19 +151,32 @@ void VSDatasetInfoWidget::updateDatasetInfo()
       value = QString::number(origin[2]);
       m_Ui->originZValue->setText(value);
 
-      value = QString::number(extent[0]) + " to " + QString::number(extent[1]);
+      int dimension = extent[1] - extent[0] + 1;
+      value = QString::number(extent[0]) + " to " + QString::number(extent[1]) + " (dimension: " + QString::number(dimension) + ")";
       m_Ui->extentXValue->setText(value);
-      value = QString::number(extent[2]) + " to " + QString::number(extent[3]);
+      dimension = extent[3] - extent[2] + 1;
+      value = QString::number(extent[2]) + " to " + QString::number(extent[3]) + " (dimension: " + QString::number(dimension) + ")";
       m_Ui->extentYValue->setText(value);
-      value = QString::number(extent[4]) + " to " + QString::number(extent[5]);
+      dimension = extent[5] - extent[4] + 1;
+      value = QString::number(extent[4]) + " to " + QString::number(extent[5]) + " (dimension: " + QString::number(dimension) + ")";
       m_Ui->extentZValue->setText(value);
 
-      value = QString::number(bounds[0]) + " to " + QString::number(bounds[1]);
+      double delta = bounds[1] - bounds[0];
+      value = QString::number(bounds[0]) + " to " + QString::number(bounds[1]) + " (delta: " + QString::number(delta) + ")";
       m_Ui->boundsXValue->setText(value);
-      value = QString::number(bounds[2]) + " to " + QString::number(bounds[3]);
+      delta = bounds[3] - bounds[2];
+      value = QString::number(bounds[2]) + " to " + QString::number(bounds[3]) + " (delta: " + QString::number(delta) + ")";
       m_Ui->boundsYValue->setText(value);
-      value = QString::number(bounds[4]) + " to " + QString::number(bounds[5]);
+      delta = bounds[5] - bounds[4];
+      value = QString::number(bounds[4]) + " to " + QString::number(bounds[5]) + " (delta: " + QString::number(delta) + ")";
       m_Ui->boundsZValue->setText(value);
+
+      value = QString::number(spacing[0]);
+      m_Ui->spacingXValue->setText(value);
+      value = QString::number(spacing[1]);
+      m_Ui->spacingYValue->setText(value);
+      value = QString::number(spacing[2]);
+      m_Ui->spacingZValue->setText(value);
     }
   }
 }
