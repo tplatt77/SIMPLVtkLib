@@ -93,17 +93,14 @@ void VSTransformWidget::setupGui()
   connect(m_Internals->scaleYEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
   connect(m_Internals->scaleZEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
 
-  connect(m_Internals->resetTransformBtn, &QPushButton::clicked, this, [=] 
-  {
+  connect(m_Internals->resetTransformBtn, &QPushButton::clicked, this, [=] {
     if(m_Transform == nullptr)
     {
       return;
     }
-    double resetPos[3] = { 0.0, 0.0, 0.0 };
-    double resetRot[3] = { 0.0, 0.0, 0.0 };
-    double resetScale[3] = { 1.0, 1.0, 1.0 };
-    // TODO - Get the original position/rotation/scale and set transform to those
-    // Note: That will require code from PR#42
+    double* resetPos = m_Transform->getOriginPosition();
+    double* resetRot = m_Transform->getOriginRotation();
+    double* resetScale = m_Transform->getOriginScale();
     m_Transform->setLocalPosition(resetPos);
     m_Transform->setLocalRotation(resetRot);
     m_Transform->setLocalScale(resetScale);

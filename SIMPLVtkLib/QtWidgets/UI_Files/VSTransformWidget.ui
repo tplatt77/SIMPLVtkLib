@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>326</width>
+    <width>329</width>
     <height>226</height>
    </rect>
   </property>
@@ -467,6 +467,12 @@
    </item>
    <item row="5" column="0">
     <widget class="QPushButton" name="resetTransformBtn">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Reset</string>
      </property>
