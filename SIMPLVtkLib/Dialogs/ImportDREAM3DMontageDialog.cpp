@@ -111,6 +111,8 @@ void ImportDREAM3DMontageDialog::setupGui()
   m_Ui->spacingY->setValidator(new QDoubleValidator);
   m_Ui->spacingZ->setValidator(new QDoubleValidator);
 
+  setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
+
   checkComplete();
 }
 

@@ -1332,13 +1332,13 @@ void VSFilterViewSettings::setupDataSetActors()
 
   updateTexture();
 
-  if(!isFlatImage())
-  {
-    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
-  }
-  else if(getRepresentation() == Representation::Outline)
+  if(getRepresentation() == Representation::Outline)
   {
     mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
+  }
+  else if(!isFlatImage())
+  {
+    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
   }
   else
   {
@@ -1460,14 +1460,7 @@ void VSFilterViewSettings::updateTransform()
     return;
   }
 
-  if(Representation::Outline == m_Representation)
-  {
-    VSTransform* transform = m_Filter->getTransform();
-    m_Actor->SetPosition(transform->getPosition());
-    m_Actor->SetOrientation(transform->getRotation());
-    m_Actor->SetScale(transform->getScale());
-  }
-  else if(ActorType::Image2D == m_ActorType || ActorType::DataSet == m_ActorType)
+  if(ActorType::Image2D == m_ActorType || ActorType::DataSet == m_ActorType)
   {
 	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
 	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
