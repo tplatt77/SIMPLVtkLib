@@ -183,6 +183,13 @@ public:
    */
   double* getTransformBounds() override;
 
+  /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  QString getInfoString(SIMPL::InfoStringFormat format) const override;
+
 public slots:
   /**
    * @brief Wrap the entire DataContainer

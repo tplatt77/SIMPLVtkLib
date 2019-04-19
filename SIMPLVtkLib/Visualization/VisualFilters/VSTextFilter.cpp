@@ -252,3 +252,11 @@ VSAbstractFilter::FilterType VSTextFilter::getFilterType() const
 {
   return FilterType::Placeholder;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSTextFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

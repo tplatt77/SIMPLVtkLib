@@ -186,3 +186,11 @@ VSAbstractFilterValues* VSPipelineFilter::getValues()
 {
   return m_PipelineValues;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSPipelineFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

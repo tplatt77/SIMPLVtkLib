@@ -117,3 +117,11 @@ VSAbstractFilter::FilterType VSRootFilter::getFilterType() const
 {
   return FilterType::Placeholder;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSRootFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

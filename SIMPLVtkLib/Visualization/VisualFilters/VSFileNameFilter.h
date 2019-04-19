@@ -120,6 +120,13 @@ public:
    */
   static bool CompatibleWithParent(VSAbstractFilter* filter);
 
+  /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  QString getInfoString(SIMPL::InfoStringFormat format) const override;
+
 private:
   QString m_FilePath;
   VSFileNameValues* m_FileNameValues = nullptr;

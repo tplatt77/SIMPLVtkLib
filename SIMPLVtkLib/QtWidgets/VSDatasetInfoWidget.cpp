@@ -131,91 +131,12 @@ void VSDatasetInfoWidget::updateDatasetInfo()
   {
     // Get the dataset info
     VSAbstractFilter* filter = m_Filters.front();
-    VTK_PTR(vtkDataSet) outputData = filter->getOutput();
-    filter->getOutput();
-    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-    if(imageData != nullptr)
-    {
-      double* origin = imageData->GetOrigin();
-      int* extent = imageData->GetExtent();
-      double* bounds = imageData->GetBounds();
-      double* spacing = imageData->GetSpacing();
-
-      // Display the dataset info
-      QString value;
-      value = QString::number(origin[0]);
-      m_Ui->originXValue->setText(value);
-      value = QString::number(origin[1]);
-      m_Ui->originYValue->setText(value);
-      value = QString::number(origin[2]);
-      m_Ui->originZValue->setText(value);
-
-      int dimension = extent[1] - extent[0];
-      if (dimension <= 1)
-      {
-        value = "-";
-      }
-      else
-      {
-        value = QString::number(extent[0]) + " to " + QString::number(extent[1] - 1) + " (dimension: " + QString::number(dimension) + ")";
-      }
-      m_Ui->extentXValue->setText(value);
-      dimension = extent[3] - extent[2];
-      if(dimension <= 1)
-      {
-        value = "-";
-      }
-      else
-      {
-        value = QString::number(extent[2]) + " to " + QString::number(extent[3] - 1) + " (dimension: " + QString::number(dimension) + ")";
-      }
-      m_Ui->extentYValue->setText(value);
-      dimension = extent[5] - extent[4];
-      if(dimension <= 1)
-      {
-        value = "-";
-      }
-      else
-      {
-        value = QString::number(extent[4]) + " to " + QString::number(extent[5] - 1) + " (dimension: " + QString::number(dimension) + ")";
-      }
-      m_Ui->extentZValue->setText(value);
-
-      double delta = bounds[1] - bounds[0];
-      value = QString::number(bounds[0]) + " to " + QString::number(bounds[1]) + " (delta: " + QString::number(delta) + ")";
-      m_Ui->boundsXValue->setText(value);
-      delta = bounds[3] - bounds[2];
-      value = QString::number(bounds[2]) + " to " + QString::number(bounds[3]) + " (delta: " + QString::number(delta) + ")";
-      m_Ui->boundsYValue->setText(value);
-      delta = bounds[5] - bounds[4];
-      value = QString::number(bounds[4]) + " to " + QString::number(bounds[5]) + " (delta: " + QString::number(delta) + ")";
-      m_Ui->boundsZValue->setText(value);
-
-      value = QString::number(spacing[0]);
-      m_Ui->spacingXValue->setText(value);
-      value = QString::number(spacing[1]);
-      m_Ui->spacingYValue->setText(value);
-      value = QString::number(spacing[2]);
-      m_Ui->spacingZValue->setText(value);
-    }
+    QString infoString = filter->getInfoString(SIMPL::InfoStringFormat::HtmlFormat);
+    m_Ui->infoLabel->setText(infoString);
   }
   else
   {
-    m_Ui->originXValue->setText("NA");
-    m_Ui->originYValue->setText("NA");
-    m_Ui->originZValue->setText("NA");
-
-    m_Ui->extentXValue->setText("NA");
-    m_Ui->extentYValue->setText("NA");
-    m_Ui->extentZValue->setText("NA");
-
-    m_Ui->boundsXValue->setText("NA");
-    m_Ui->boundsYValue->setText("NA");
-    m_Ui->boundsZValue->setText("NA");
-
-    m_Ui->spacingXValue->setText("NA");
-    m_Ui->spacingYValue->setText("NA");
-    m_Ui->spacingZValue->setText("NA");
+    m_Ui->infoLabel->setText("");
   }
 }
 

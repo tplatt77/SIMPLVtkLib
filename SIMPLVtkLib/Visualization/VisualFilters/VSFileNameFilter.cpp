@@ -176,3 +176,11 @@ bool VSFileNameFilter::CompatibleWithParent(VSAbstractFilter* filter)
 
   return false;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSFileNameFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

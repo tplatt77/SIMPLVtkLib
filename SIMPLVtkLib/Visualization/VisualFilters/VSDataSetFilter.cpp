@@ -443,3 +443,11 @@ bool VSDataSetFilter::CompatibleWithParent(VSAbstractFilter* filter)
 
   return false;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSDataSetFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

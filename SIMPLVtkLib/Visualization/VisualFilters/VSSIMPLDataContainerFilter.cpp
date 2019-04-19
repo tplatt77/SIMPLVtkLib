@@ -551,3 +551,14 @@ double* VSSIMPLDataContainerFilter::getTransformBounds()
   trans->Update();
   return trans->GetOutput()->GetBounds();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSSIMPLDataContainerFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  SIMPLVtkBridge::WrappedDataContainerPtr dcPtr = m_DCValues->getWrappedDataContainer();
+  DataContainer::Pointer dc = dcPtr->m_DataContainer;
+  IGeometry::Pointer geom = dc->getGeometry();
+  return geom->getInfoString(format);
+}

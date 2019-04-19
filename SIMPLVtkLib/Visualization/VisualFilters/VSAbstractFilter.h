@@ -205,6 +205,13 @@ public:
   int getIndexOfChild(const VSAbstractFilter* child) const;
 
   /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  virtual QString getInfoString(SIMPL::InfoStringFormat format) const = 0;
+
+  /**
    * @brief Returns a vector of all descendant filters
    * @return
    */
