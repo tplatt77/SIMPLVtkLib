@@ -129,7 +129,6 @@ void VSDatasetInfoWidget::updateDatasetInfo()
 {
   if(m_Filters.size() > 0)
   {
-
     // Get the dataset info
     VSAbstractFilter* filter = m_Filters.front();
     VTK_PTR(vtkDataSet) outputData = filter->getOutput();
@@ -151,14 +150,35 @@ void VSDatasetInfoWidget::updateDatasetInfo()
       value = QString::number(origin[2]);
       m_Ui->originZValue->setText(value);
 
-      int dimension = extent[1] - extent[0] + 1;
-      value = QString::number(extent[0]) + " to " + QString::number(extent[1]) + " (dimension: " + QString::number(dimension) + ")";
+      int dimension = extent[1] - extent[0];
+      if (dimension <= 1)
+      {
+        value = "-";
+      }
+      else
+      {
+        value = QString::number(extent[0]) + " to " + QString::number(extent[1] - 1) + " (dimension: " + QString::number(dimension) + ")";
+      }
       m_Ui->extentXValue->setText(value);
-      dimension = extent[3] - extent[2] + 1;
-      value = QString::number(extent[2]) + " to " + QString::number(extent[3]) + " (dimension: " + QString::number(dimension) + ")";
+      dimension = extent[3] - extent[2];
+      if(dimension <= 1)
+      {
+        value = "-";
+      }
+      else
+      {
+        value = QString::number(extent[2]) + " to " + QString::number(extent[3] - 1) + " (dimension: " + QString::number(dimension) + ")";
+      }
       m_Ui->extentYValue->setText(value);
-      dimension = extent[5] - extent[4] + 1;
-      value = QString::number(extent[4]) + " to " + QString::number(extent[5]) + " (dimension: " + QString::number(dimension) + ")";
+      dimension = extent[5] - extent[4];
+      if(dimension <= 1)
+      {
+        value = "-";
+      }
+      else
+      {
+        value = QString::number(extent[4]) + " to " + QString::number(extent[5] - 1) + " (dimension: " + QString::number(dimension) + ")";
+      }
       m_Ui->extentZValue->setText(value);
 
       double delta = bounds[1] - bounds[0];
@@ -178,6 +198,24 @@ void VSDatasetInfoWidget::updateDatasetInfo()
       value = QString::number(spacing[2]);
       m_Ui->spacingZValue->setText(value);
     }
+  }
+  else
+  {
+    m_Ui->originXValue->setText("NA");
+    m_Ui->originYValue->setText("NA");
+    m_Ui->originZValue->setText("NA");
+
+    m_Ui->extentXValue->setText("NA");
+    m_Ui->extentYValue->setText("NA");
+    m_Ui->extentZValue->setText("NA");
+
+    m_Ui->boundsXValue->setText("NA");
+    m_Ui->boundsYValue->setText("NA");
+    m_Ui->boundsZValue->setText("NA");
+
+    m_Ui->spacingXValue->setText("NA");
+    m_Ui->spacingYValue->setText("NA");
+    m_Ui->spacingZValue->setText("NA");
   }
 }
 
