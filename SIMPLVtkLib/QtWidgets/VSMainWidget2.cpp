@@ -619,7 +619,7 @@ void VSMainWidget2::importNumFilters(int max)
     m_Ui->progressBar->setMaximum(max);
   }
 
-  m_Ui->progressBar->reset();
+  m_Ui->progressBar->setValue(0);
 }
 
 // -----------------------------------------------------------------------------

@@ -222,7 +222,6 @@ void VSConcurrentImport::partialWrappingThreadFinished()
 
 		filter->getTransform()->setLocalPosition(origin);
 		filter->getTransform()->setOriginPosition(origin);
-        m_Controller->getFilterModel()->addFilter(filter, false);
 
         // SemiReload differs from Reload in that it does not fully load new filters
         if(m_LoadType == LoadType::SemiReload)
@@ -332,6 +331,8 @@ void VSConcurrentImport::applyDataFilters()
     {
       filter->reloadWrappingFinished();
     }
+
+    m_Controller->getFilterModel()->addFilter(filter, false);
 
     // Lock semaphore before the while statement is checked again
     m_UnappliedDataFilterLock.acquire();

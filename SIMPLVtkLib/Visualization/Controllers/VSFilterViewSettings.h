@@ -885,18 +885,18 @@ protected:
   vtkActor* getDataSetActor() const;
 
   /**
-   * @brief Returns the vtkImageSliceMapper if the ActorType is Image2D and the settings are valid.
+   * @brief Returns the vtkDataSetMapper if the ActorType is Image2D and the settings are valid.
    * Returns nullptr otherwise.
    * @return
    */
-  vtkImageSliceMapper* getImageMapper() const;
+  vtkDataSetMapper* getImageMapper() const;
 
   /**
-   * @brief Returns the vtkImageSlice if the ActorType is Image2D and the settings are valid.
+   * @brief Returns the vtkActor if the ActorType is Image2D and the settings are valid.
    * Returns nullptr otherwise.
    * @return
    */
-  vtkImageSlice* getImageSliceActor() const;
+  vtkActor* getImageActor() const;
 
   /**
    * @brief Returns true if data set is a 2D image.  Returns false otherwise.

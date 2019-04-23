@@ -605,11 +605,11 @@ vtkActor* VSFilterViewSettings::getDataSetActor() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkImageSliceMapper* VSFilterViewSettings::getImageMapper() const
+vtkDataSetMapper* VSFilterViewSettings::getImageMapper() const
 {
   if(ActorType::Image2D == m_ActorType && isValid())
   {
-    return dynamic_cast<vtkImageSliceMapper*>(m_Mapper.Get());
+    return dynamic_cast<vtkDataSetMapper*>(m_Mapper.Get());
   }
 
   return nullptr;
@@ -618,11 +618,11 @@ vtkImageSliceMapper* VSFilterViewSettings::getImageMapper() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-vtkImageSlice* VSFilterViewSettings::getImageSliceActor() const
+vtkActor* VSFilterViewSettings::getImageActor() const
 {
   if(ActorType::Image2D == m_ActorType && isValid())
   {
-    return dynamic_cast<vtkImageSlice*>(m_Actor.Get());
+    return dynamic_cast<vtkActor*>(m_Actor.Get());
   }
 
   return nullptr;
@@ -1035,13 +1035,13 @@ void VSFilterViewSettings::updateDataSetAlpha()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::updateImageAlpha()
 {
-  vtkImageSlice* actor = getImageSliceActor();
+  vtkActor* actor = getImageActor();
   if(nullptr == actor)
   {
     return;
   }
 
-  vtkImageProperty* property = actor->GetProperty();
+  vtkProperty* property = actor->GetProperty();
   property->SetOpacity(m_Alpha);
   actor->SetProperty(property);
 }
@@ -1152,23 +1152,18 @@ void VSFilterViewSettings::setupActors(bool outline)
     return;
   }
 
-  if(isFlatImage() && hasSinglePointArray())
+  if(isFlatImage())
   {
     setupImageActors();
+    setScalarBarSetting(ScalarBarSetting::Never);
   }
   else
   {
     setupDataSetActors();
 
-    if(isFlatImage())
-    {
-      setScalarBarSetting(ScalarBarSetting::Never);
-    }
-    else
-    {
-      // Refresh ScalarBarSetting
-      setScalarBarSetting(m_ScalarBarSetting);
-    }
+    // Refresh ScalarBarSetting
+    setScalarBarSetting(m_ScalarBarSetting);
+
   }
 
   setupCubeAxesActor();
@@ -1210,13 +1205,6 @@ bool VSFilterViewSettings::isFlatImage()
     {
       return true;
     }
-  }
-
-  // Check bounds of image data
-  double* bounds = imageData->GetBounds();
-  if(bounds[4] == 0 && (bounds[5] == 0 || bounds[5] == 1))
-  {
-    return true;
   }
 
   return false;
@@ -1278,6 +1266,24 @@ void VSFilterViewSettings::setupImageActors()
   m_Actor = actor;
   m_Plane = plane;
 
+  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+  double spacing[3];
+  imageData->GetSpacing(spacing);
+
+  // Get transform vectors
+  VSTransform* transform = m_Filter->getTransform();
+
+  double scaling[3] = {spacing[0], spacing[1], spacing[2]};
+
+  transform->setLocalScale(scaling);
+
+  // Save the initial transform
+  VSTransform* defaultTransform = getDefaultTransform();
+  defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
+  defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
+  defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
+
   m_ActorType = ActorType::Image2D;
   updateTexture();
   updateTransform();
@@ -1336,13 +1342,9 @@ void VSFilterViewSettings::setupDataSetActors()
   {
     mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
   }
-  else if(!isFlatImage())
-  {
-    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
-  }
   else
   {
-    mapper->SetInputConnection(plane->GetOutputPort());
+    mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
   }
   actor->SetMapper(mapper);
 
@@ -1389,26 +1391,7 @@ void VSFilterViewSettings::setupDataSetActors()
   m_Plane = plane;
 
   m_ActorType = ActorType::DataSet;
-  if(isFlatImage())
-  {
-    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
 
-    double spacing[3];
-    imageData->GetSpacing(spacing);
-
-    // Get transform vectors
-    VSTransform* transform = m_Filter->getTransform();
-
-    double scaling[3] = {spacing[0], spacing[1], spacing[2]};
-
-    transform->setLocalScale(scaling);
-
-    // Save the initial transform
-    VSTransform* defaultTransform = getDefaultTransform();
-    defaultTransform->setLocalPosition(m_Filter->getTransform()->getLocalPosition());
-    defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
-    defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
-  }
   updateTransform();
 }
 

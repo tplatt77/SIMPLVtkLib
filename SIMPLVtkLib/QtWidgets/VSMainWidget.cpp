@@ -327,7 +327,7 @@ void VSMainWidget::importNumFilters(int max)
     m_Internals->progressBar->setMaximum(max);
   }
 
-  m_Internals->progressBar->reset();
+  m_Internals->progressBar->setValue(0);
 }
 
 // -----------------------------------------------------------------------------
