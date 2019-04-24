@@ -95,6 +95,43 @@ VSSIMPLDataContainerFilter::~VSSIMPLDataContainerFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSSIMPLDataContainerFilter::isFlatImage()
+{
+  // Check dimensions
+  SIMPLVtkBridge::WrappedDataContainerPtr wrappedDC = m_DCValues->getWrappedDataContainer();
+  if (nullptr == wrappedDC)
+  {
+    return false;
+  }
+
+  DataContainer::Pointer dc = wrappedDC->m_DataContainer;
+  if (nullptr == dc)
+  {
+    return false;
+  }
+
+  ImageGeom::Pointer imageGeom = dc->getGeometryAs<ImageGeom>();
+  if (nullptr == imageGeom)
+  {
+    return false;
+  }
+
+  SIMPL::Tuple3SVec dims = imageGeom->getDimensions();
+  int xDim = std::get<0>(dims);
+  int yDim = std::get<1>(dims);
+  int zDim = std::get<2>(dims);
+
+  if(xDim <= 1 || yDim <= 1 || zDim <= 1)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 double* VSSIMPLDataContainerFilter::getBounds() const
 {
   return m_DCValues->getWrappedDataContainer()->m_DataSet->GetBounds();

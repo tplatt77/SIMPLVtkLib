@@ -109,6 +109,15 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool VSDataSetFilter::isFlatImage()
+{
+  // This can be changed later so that we can implement texturing and other 2D image related features on this filter
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 VSDataSetFilter* VSDataSetFilter::Create(const QString& filePath, QJsonObject& json, VSAbstractFilter* parent)
 {
   VSDataSetFilter* filter = new VSDataSetFilter(filePath, parent);

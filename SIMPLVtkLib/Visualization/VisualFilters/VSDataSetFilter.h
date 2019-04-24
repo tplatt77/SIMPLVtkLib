@@ -79,6 +79,12 @@ public:
   static VSDataSetFilter* Create(const QString& filePath, QJsonObject& json, VSAbstractFilter* parent = nullptr);
 
   /**
+   * @brief Returns true if data set is a 2D image.  Returns false otherwise.
+   * @return
+   */
+  bool isFlatImage() override;
+
+  /**
    * @brief Returns the bounds of the vtkDataSet
    * @return
    */

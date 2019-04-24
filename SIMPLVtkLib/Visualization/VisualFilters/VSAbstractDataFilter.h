@@ -84,6 +84,12 @@ public:
    */
   FilterType getFilterType() const override;
 
+  /**
+   * @brief Returns true if data set is a 2D image.  Returns false otherwise.
+   * @return
+   */
+  virtual bool isFlatImage() = 0;
+
 signals:
   void dataReloaded();
   void filterReloaded(VSAbstractFilter* filter);

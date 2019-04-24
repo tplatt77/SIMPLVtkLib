@@ -1180,31 +1180,10 @@ void VSFilterViewSettings::setupActors(bool outline)
 // -----------------------------------------------------------------------------
 bool VSFilterViewSettings::isFlatImage()
 {
-  VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
-  if(nullptr == outputData)
+  VSAbstractDataFilter* dataFilter = dynamic_cast<VSAbstractDataFilter*>(m_Filter);
+  if(dataFilter)
   {
-    return false;
-  }
-
-  if(m_Filter->getOutputType() != VSAbstractFilter::dataType_t::IMAGE_DATA)
-  {
-    return false;
-  }
-
-  vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-  if(nullptr == imageData)
-  {
-    return false;
-  }
-
-  // Check dimensions
-  int* dims = imageData->GetDimensions();
-  for(int i = 0; i < 3; i++)
-  {
-    if(dims[i] <= 1)
-    {
-      return true;
-    }
+    return dataFilter->isFlatImage();
   }
 
   return false;
