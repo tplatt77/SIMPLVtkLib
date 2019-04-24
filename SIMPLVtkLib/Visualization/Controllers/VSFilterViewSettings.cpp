@@ -1784,6 +1784,27 @@ void VSFilterViewSettings::checkDataType()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::reloadedData()
 {
+  if(isFlatImage())
+  {
+    VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+    int* currentDims = imageData->GetDimensions();
+    int newDims[3];
+    for(int i = 0; i < 3; i++)
+    {
+      if(currentDims[i] > 1)
+      {
+        newDims[i] = currentDims[i] - 1;
+      }
+      else
+      {
+        newDims[i] = currentDims[i];
+      }
+    }
+
+    imageData->SetDimensions(newDims);
+  }
   setupActors(false);
   emit actorsUpdated();
   emit dataLoaded();
