@@ -1803,7 +1803,8 @@ void VSFilterViewSettings::reloadedData()
       }
     }
 
-    imageData->SetDimensions(newDims);
+    int extent[6] = {0, newDims[0], 0, newDims[1], 0, newDims[2] - 1};
+    imageData->SetExtent(extent);
   }
   setupActors(false);
   emit actorsUpdated();
