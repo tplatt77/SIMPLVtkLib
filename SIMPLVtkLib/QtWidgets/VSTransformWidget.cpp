@@ -92,6 +92,19 @@ void VSTransformWidget::setupGui()
   connect(m_Internals->scaleXEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
   connect(m_Internals->scaleYEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
   connect(m_Internals->scaleZEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
+
+  connect(m_Internals->resetTransformBtn, &QPushButton::clicked, this, [=] {
+    for(VSAbstractFilter* filter : m_SelectedFilters)
+    {
+      VSTransform* transform = filter->getTransform();
+      double* resetPos = transform->getOriginPosition();
+      double* resetRot = transform->getOriginRotation();
+      double* resetScale = transform->getOriginScale();
+      transform->setLocalPosition(resetPos);
+      transform->setLocalRotation(resetRot);
+      transform->setLocalScale(resetScale);
+    }
+  });
 }
 
 // -----------------------------------------------------------------------------
