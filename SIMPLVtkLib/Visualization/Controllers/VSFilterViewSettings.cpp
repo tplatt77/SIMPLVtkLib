@@ -566,6 +566,8 @@ void VSFilterViewSettings::setIsSelected(bool selected)
     }
     actor->SetPosition(actor->GetPosition()[0], actor->GetPosition()[1], actor->GetPosition()[2] - 1.0);
   }
+
+  emit requiresRender();
 }
 
 // -----------------------------------------------------------------------------
