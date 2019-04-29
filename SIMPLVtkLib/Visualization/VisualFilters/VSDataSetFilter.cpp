@@ -111,8 +111,21 @@ VTK_PTR(vtkDataSet) VSDataSetFilter::getOutput() const
 // -----------------------------------------------------------------------------
 bool VSDataSetFilter::isFlatImage()
 {
-  // This can be changed later so that we can implement texturing and other 2D image related features on this filter
-  return false;
+  QFileInfo fi(m_FilePath);
+  QString ext = fi.completeSuffix().toLower();
+
+  QMimeDatabase db;
+  QMimeType mimeType = db.mimeTypeForFile(m_FilePath, QMimeDatabase::MatchContent);
+  QString mimeName = mimeType.name();
+
+  if(mimeType.name().startsWith("image/"))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 // -----------------------------------------------------------------------------
