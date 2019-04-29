@@ -159,6 +159,13 @@ public:
    */
   VSAbstractFilterValues* getValues() override;
 
+  /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  QString getInfoString(SIMPL::InfoStringFormat format) const override;
+
 protected:
   /**
    * @brief createFilter() not required by VSTextFilter

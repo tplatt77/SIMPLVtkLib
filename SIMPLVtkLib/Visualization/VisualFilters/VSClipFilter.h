@@ -227,6 +227,13 @@ public:
    */
   static QUuid GetUuid();
 
+  /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  QString getInfoString(SIMPL::InfoStringFormat format) const override;
+
 signals:
   void clipTypeChanged();
 

@@ -43,6 +43,7 @@
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSAdvancedVisibilitySettingsWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSColorMappingWidget.h"
+#include "SIMPLVtkLib/QtWidgets/VSDatasetInfoWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSFilterView.h"
 #include "SIMPLVtkLib/QtWidgets/VSInfoWidget.h"
@@ -111,6 +112,12 @@ public:
   void setInfoWidget(VSInfoWidget* infoWidget);
 
   /**
+   * @brief Returns the VSDatasetInfoWidget
+   * @return
+   */
+  VSDatasetInfoWidget* getDatasetInfoWidget() const;
+
+  /**
    * @brief Returns the VSFilterSettingsWidget
    * @return
    */
@@ -139,6 +146,12 @@ public:
    * @return
    */
   VSTransformWidget* getTransformWidget() const;
+
+  /**
+   * @brief Sets the VSDatasetInfoWidget
+   * @param widget
+   */
+   void setDatasetInfoWidget(VSDatasetInfoWidget* widget);
 
   /**
    * @brief Sets the VSFilterSettingsWidget
@@ -444,6 +457,7 @@ private:
   // VSAbstractFilterWidget::ListType m_CurrentFilterWidgets;
   VSAbstractFilter* m_CurrentFilter = nullptr;
   VSAbstractViewWidget* m_ActiveViewWidget = nullptr;
+  VSDatasetInfoWidget* m_DatasetInfoWidget = nullptr;
   VSFilterView* m_FilterView = nullptr;
   VSFilterSettingsWidget* m_FilterSettingsWidget = nullptr;
   VSVisibilitySettingsWidget* m_VisibilitySettingsWidget = nullptr;

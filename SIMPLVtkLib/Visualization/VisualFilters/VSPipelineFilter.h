@@ -127,6 +127,13 @@ public:
    */
   void apply();
 
+  /**
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the filter.
+   */
+  QString getInfoString(SIMPL::InfoStringFormat format) const override;
+
 private:
   FilterPipeline::Pointer m_FilterPipeline;
   DataContainerArray::Pointer m_Dca;

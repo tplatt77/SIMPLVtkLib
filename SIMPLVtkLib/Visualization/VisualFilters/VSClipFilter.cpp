@@ -541,3 +541,11 @@ QStringList VSClipFilter::getClipTypes()
 
   return clipTypes;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSClipFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

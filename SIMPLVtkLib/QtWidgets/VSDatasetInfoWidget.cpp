@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2015 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -33,230 +33,221 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "VSTextFilter.h"
+#include "VSDatasetInfoWidget.h"
 
-#include <QtCore/QUuid>
+#include <vtkImageData.h>
 
-#include <vtkAlgorithmOutput.h>
+#include <QtGui/QIntValidator>
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter::VSTextFilter(VSAbstractFilter* parent, QString text, QString toolTip)
-: VSAbstractFilter()
+VSDatasetInfoWidget::VSDatasetInfoWidget(QWidget* parent)
+: QWidget(parent)
+, m_Ui(new Ui::VSDatasetInfoWidget)
 {
-  setParentFilter(parent);
-
-  setText(text);
-  setToolTip(toolTip);
-  setItalic();
-  setEditable(true);
-
-  m_TextValues = new VSTextValues(this);
+  m_Ui->setupUi(this);
+  setupGui();
+  setFilters(VSAbstractFilter::FilterListType());
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSTextFilter* VSTextFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
+void VSDatasetInfoWidget::setupGui()
 {
-  QString text = json["Text"].toString();
-  QString tooltip = json["Tooltip"].toString();
-
-  VSTextFilter* filter = new VSTextFilter(parent, text, tooltip);
-
-  QFont font = filter->font();
-  font.setItalic(json["Italic"].toBool());
-  font.setBold(json["Bold"].toBool());
-  font.setUnderline(json["Underline"].toBool());
-  filter->setFont(font);
-
-  filter->setInitialized(true);
-  filter->readTransformJson(json);
-
-  return filter;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSTextFilter::getFilterName() const
+void VSDatasetInfoWidget::setFilters(VSAbstractFilter::FilterListType filters)
 {
-  return "Text Filter";
-}
+  m_Filters = filters;
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setItalic(bool italic)
-{
-  QFont itemFont = font();
-  itemFont.setItalic(italic);
-  setFont(itemFont);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setBold(bool bold)
-{
-  QFont itemFont = font();
-  itemFont.setBold(bold);
-  setFont(itemFont);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::setUnderline(bool underline)
-{
-  QFont itemFont = font();
-  itemFont.setUnderline(underline);
-  setFont(itemFont);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QUuid VSTextFilter::GetUuid()
-{
-  return QUuid("{c819de20-4110-5ea2-b847-89307b05895c}");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-vtkAlgorithmOutput* VSTextFilter::getOutputPort()
-{
-  if(getParentFilter())
+  bool filterExists = (filters.size() > 0);
+  if(filterExists && m_ViewWidget)
   {
-    return getParentFilter()->getOutputPort();
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters));
+  }
+  else
+  {
+    connectFilterViewSettings(VSFilterViewSettings::Collection());
   }
 
-  return nullptr;
+  updateViewSettingInfo();
+  updateDatasetInfo();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VTK_PTR(vtkDataSet) VSTextFilter::getOutput() const
+void VSDatasetInfoWidget::connectFilterViewSettings(VSFilterViewSettings::Collection settings)
 {
-  if(getParentFilter())
+  for(VSFilterViewSettings* setting : m_ViewSettings)
   {
-    return getParentFilter()->getOutput();
+    disconnect(setting, &VSFilterViewSettings::pointRenderingChanged, this, &VSDatasetInfoWidget::updatePointSettingVisibility);
+    disconnect(setting, &VSFilterViewSettings::pointSizeChanged, this, &VSDatasetInfoWidget::listenPointSize);
+    disconnect(setting, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSDatasetInfoWidget::listenPointSphere);
+    disconnect(setting, &VSFilterViewSettings::gridVisibilityChanged, this, &VSDatasetInfoWidget::listenAxesGridVisible);
   }
 
-  return nullptr;
+  m_ViewSettings = settings;
+
+  for(VSFilterViewSettings* setting : m_ViewSettings)
+  {
+    connect(setting, &VSFilterViewSettings::pointRenderingChanged, this, &VSDatasetInfoWidget::updatePointSettingVisibility);
+    connect(setting, &VSFilterViewSettings::pointSizeChanged, this, &VSDatasetInfoWidget::listenPointSize);
+    connect(setting, &VSFilterViewSettings::renderPointSpheresChanged, this, &VSDatasetInfoWidget::listenPointSphere);
+    connect(setting, &VSFilterViewSettings::gridVisibilityChanged, this, &VSDatasetInfoWidget::listenAxesGridVisible);
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::getOutputType() const
+void VSDatasetInfoWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
 {
-  // Return the parent's output type if a parent exists
-  if(getParentFilter())
+  m_ViewWidget = viewWidget;
+
+  if(m_ViewWidget)
   {
-    return getParentFilter()->getOutputType();
+    connectFilterViewSettings(m_ViewWidget->getFilterViewSettings(m_Filters));
+  }
+  else
+  {
+    connectFilterViewSettings(VSFilterViewSettings::Collection());
   }
 
-  return INVALID_DATA;
+  updateViewSettingInfo();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::dataType_t VSTextFilter::GetRequiredInputType()
+void VSDatasetInfoWidget::updateDatasetInfo()
 {
-  return ANY_DATA_SET;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::writeJson(QJsonObject& json)
-{
-  VSAbstractFilter::writeJson(json);
-
-  json["Text"] = getText();
-  json["Tooltip"] = getToolTip();
-  json["Italic"] = font().italic();
-  json["Bold"] = font().bold();
-  json["Underline"] = font().underline();
-  json["Uuid"] = GetUuid().toString();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSTextFilter::CompatibleWithParent(VSAbstractFilter* filter)
-{
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool VSTextFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filters)
-{
-  if(filters.size() == 0)
+  if(m_Filters.size() > 0)
   {
-    return false;
+    // Get the dataset info
+    VSAbstractFilter* filter = m_Filters.front();
+    QString infoString = filter->getInfoString(SIMPL::InfoStringFormat::HtmlFormat);
+    m_Ui->infoLabel->setText(infoString);
+  }
+  else
+  {
+    m_Ui->infoLabel->setText("");
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::updateFilterInfo()
+{
+  if(m_ViewSettings.size() > 0)
+  {
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::updateViewSettingInfo()
+{
+  // Clear the visualization settings if the current VSFilterViewSettings is null
+  if(m_ViewSettings.size() == 0)
+  {
+    return;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::updatePointSettingVisibility()
+{
+  bool visible = false;
+  if(m_ViewSettings.size() > 0)
+  {
+    visible = VSFilterViewSettings::IsRenderingPoints(m_ViewSettings);
   }
 
-  for(VSAbstractFilter* filter : filters)
-  {
-    if(false == CompatibleWithParent(filter))
-    {
-      return false;
-    }
-  }
-
-  return true;
+  update();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilterValues* VSTextFilter::getValues()
+void VSDatasetInfoWidget::updateAnnotationVisibility()
 {
-  return m_TextValues;
+  bool validData = VSFilterViewSettings::HasValidSettings(m_ViewSettings);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTextFilter::createFilter()
+void VSDatasetInfoWidget::updatePointSize(QString pointSizeStr)
 {
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void VSTextFilter::updateAlgorithmInput(VSAbstractFilter* filter)
-{
-  if(nullptr == filter)
+  if(m_ViewSettings.size() == 0)
   {
     return;
   }
 
-  setInputPort(filter->getOutputPort());
-
-  emit updatedOutputPort(filter);
+  if(!pointSizeStr.isEmpty())
+  {
+    int pointSize = pointSizeStr.toInt();
+    VSFilterViewSettings::SetPointSize(m_ViewSettings, pointSize);
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSAbstractFilter::FilterType VSTextFilter::getFilterType() const
+void VSDatasetInfoWidget::updateRenderPointSpheres(int checkState)
 {
-  return FilterType::Placeholder;
+  if(m_ViewSettings.size() == 0)
+  {
+    return;
+  }
+
+  VSFilterViewSettings::SetRenderPointsAsSpheres(m_ViewSettings, Qt::Unchecked != checkState);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString VSTextFilter::getInfoString(SIMPL::InfoStringFormat format) const
+void VSDatasetInfoWidget::setAxesGridVisible(int checkState)
 {
-  return QString();
+  if(m_ViewSettings.size() == 0)
+  {
+    return;
+  }
+
+  bool visible = checkState != Qt::Unchecked;
+  VSFilterViewSettings::SetGridVisible(m_ViewSettings, visible);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::listenPointSize(int size)
+{
+  size = VSFilterViewSettings::GetPointSize(m_ViewSettings);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::listenPointSphere(bool renderAsSpheres)
+{
+  Qt::CheckState checked = VSFilterViewSettings::IsRenderingPointsAsSpheres(m_ViewSettings);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void VSDatasetInfoWidget::listenAxesGridVisible(double show)
+{
+  Qt::CheckState checked = VSFilterViewSettings::IsGridVisible(m_ViewSettings);
 }

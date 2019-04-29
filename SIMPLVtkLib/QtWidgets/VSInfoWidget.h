@@ -68,6 +68,12 @@ public:
   virtual ~VSInfoWidget() = default;
 
   /**
+   * @brief Returns the VSDatasetInfo widget
+   * @return
+   */
+  VSDatasetInfoWidget* getDatasetInfoWidget() const;
+
+  /**
    * @brief Returns the VSFilterSettings widget
    * @return
    */

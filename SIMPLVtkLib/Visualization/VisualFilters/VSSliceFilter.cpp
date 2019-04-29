@@ -320,3 +320,11 @@ VSAbstractFilterValues* VSSliceFilter::getValues()
 {
   return m_SliceValues;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSSliceFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

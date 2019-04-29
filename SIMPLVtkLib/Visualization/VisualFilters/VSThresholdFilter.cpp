@@ -309,3 +309,11 @@ VSAbstractFilterValues* VSThresholdFilter::getValues()
 {
   return m_ThresholdValues;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSThresholdFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

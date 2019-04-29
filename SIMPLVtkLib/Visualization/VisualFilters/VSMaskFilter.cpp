@@ -296,3 +296,11 @@ VSAbstractFilterValues* VSMaskFilter::getValues()
 {
   return m_MaskValues;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSMaskFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

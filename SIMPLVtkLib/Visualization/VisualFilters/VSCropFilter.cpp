@@ -313,3 +313,11 @@ VSAbstractFilterValues* VSCropFilter::getValues()
 {
   return m_CropValues;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString VSCropFilter::getInfoString(SIMPL::InfoStringFormat format) const
+{
+  return QString();
+}

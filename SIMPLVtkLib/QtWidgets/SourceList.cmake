@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_QtWidgets_HDRS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorButton.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorMappingWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSDatasetImporter.h
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSDatasetInfoWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterFactory.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.h
@@ -35,6 +36,7 @@ set(${PROJECT_NAME}_QtWidgets_SRCS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorButton.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSColorMappingWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSDatasetImporter.cpp
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSDatasetInfoWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterFactory.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterSettingsWidget.cpp
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/VSFilterView.cpp
@@ -62,6 +64,7 @@ set(${PROJECT_NAME}_QtWidgets_UIS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VisualizationFilterWidgets.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSAdvancedVisibilitySettingsWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSColorMappingWidget.ui
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSDatasetInfoWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSFilterSettingsWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSLoadHDF5DataWidget.ui
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/QtWidgets/UI_Files/VSInfoWidget.ui
