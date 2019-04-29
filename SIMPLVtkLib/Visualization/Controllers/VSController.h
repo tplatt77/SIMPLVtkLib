@@ -116,6 +116,14 @@ public:
   void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
 
   /**
+   * @brief Import data from a DataContainerArray and add any relevant DataContainers
+   * as top-level VisualFilters
+   * @param fileFilter
+   * @param dca
+   */
+  void importDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca);
+
+  /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
    * @param pipeline
    * @param dca
@@ -127,21 +135,6 @@ public:
    * @param pipelines
    */
   void importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines);
-
-  /**
-   * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
-   * @param pipeline
-   * @param dca
-   */
-  void reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
-
-  /**
-   * @brief Import data from a DataContainerArray and add any relevant DataContainers
-   * as top-level VisualFilters
-   * @param fileFilter
-   * @param dca
-   */
-  void reloadDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers

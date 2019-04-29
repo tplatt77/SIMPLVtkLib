@@ -50,18 +50,19 @@ VSConcurrentImport::VSConcurrentImport(VSController* controller)
 , m_Controller(controller)
 , m_ImportDataContainerOrderLock(1)
 , m_UnappliedDataFilterLock(1)
+, m_AppliedDataFilterLock(1)
 , m_FilterLock(1)
 , m_WrappedDcLock(1)
 , m_ThreadCountLock(1)
 , m_AppliedFilterCountLock(1)
 {
-  m_UnappliedDataFilters.clear();
   if(controller && controller->getFilterModel())
   {
     connect(this, SIGNAL(importedFilter(VSAbstractFilter*, bool)), controller->getFilterModel(), SLOT(addFilter(VSAbstractFilter*, bool)));
   }
 
   connect(this, SIGNAL(finishedPartialWrapping()), this, SLOT(partialWrappingThreadFinished()));
+  connect(this, SIGNAL(finishedApplying()), this, SLOT(applyDataFiltersThreadFinished()));
 
   int threadsUsed = 2;
   m_ThreadCount = QThreadPool::globalInstance()->maxThreadCount();
@@ -139,12 +140,26 @@ void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
   m_DataParentFilter = genericPair.first;
   DataContainerArray::Pointer dca = genericPair.second;
 
-  if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry)
+  VSFilterModel* filterModel = m_Controller->getFilterModel();
+
+  auto currentFilters = filterModel->getAllFilters();
+  bool parentFilterFound = (std::find(currentFilters.begin(), currentFilters.end(), m_DataParentFilter) != currentFilters.end());
+  if (!parentFilterFound)
   {
-    m_Controller->getFilterModel()->addFilter(m_DataParentFilter);
+    filterModel->addFilter(m_DataParentFilter);
   }
 
-  m_ImportDataContainerOrder = dca->getDataContainers();
+  m_ImportDataContainerQueue = dca->getDataContainers();
+
+  for (int i = 0; i < m_ImportDataContainerQueue.size(); i++)
+  {
+    DataContainer::Pointer dc = m_ImportDataContainerQueue[i];
+    m_DataContainerIndexMap.insert(dc, i);
+  }
+
+  m_WrappedDataContainers.resize(m_ImportDataContainerQueue.size());
+  m_UnappliedDataFilters.resize(m_ImportDataContainerQueue.size());
+  m_AppliedDataFilters.resize(m_ImportDataContainerQueue.size());
 
   emit blockRender(true);
 
@@ -172,46 +187,9 @@ void VSConcurrentImport::partialWrappingThreadFinished()
   {
     m_ThreadCountLock.release();
 
-    VSAbstractFilter::FilterListType childFilters = m_DataParentFilter->getChildren();
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
-      VSSIMPLDataContainerFilter* filter = nullptr;
-      // Do not fully load for LoadType::Geometry
-      bool fullLoad = (m_LoadType != LoadType::Geometry);
-
-      // Reload existing data and search for old DataContainers that no longer exist
-      if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
-      {
-        // Find the DataContainer filter from the parent container
-        VSAbstractFilter::FilterListType filterList = childFilters;
-        for(VSAbstractFilter* childFilter : filterList)
-        {
-          if(childFilter->getFilterName() != wrappedDc->m_Name)
-          {
-            continue;
-          }
-
-          filter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-          if(filter)
-          {
-            if(m_LoadType == LoadType::SemiReload)
-            {
-              // If the filter exists and was not fully loaded, remain so.
-              fullLoad = filter->dataFullyLoaded();
-            }
-
-            filter->setWrappedDataContainer(wrappedDc);
-            // Remove from the list of childFilters
-            auto iter = std::find(childFilters.begin(), childFilters.end(), filter);
-            childFilters.erase(iter);
-          }
-        }
-      }
-
-      // Import data if it was not there to reload
-      if(m_LoadType == LoadType::Import || m_LoadType == LoadType::Geometry || nullptr == filter)
-      {
-        filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
+      VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
 		DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
 		ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
 		SIMPL::Tuple3FVec originTuple = imageGeom->getOrigin();
@@ -223,39 +201,12 @@ void VSConcurrentImport::partialWrappingThreadFinished()
 		filter->getTransform()->setLocalPosition(origin);
 		filter->getTransform()->setOriginPosition(origin);
 
-        // SemiReload differs from Reload in that it does not fully load new filters
-        if(m_LoadType == LoadType::SemiReload)
-        {
-          fullLoad = false;
-        }
-      }
-
-      // Do not append a nullptr to the list to be applied later
-      if(filter && (m_LoadType != LoadType::Geometry && fullLoad))
-      {
-        // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
-        m_UnappliedDataFilterLock.acquire();
-        m_UnappliedDataFilters.push_back(filter);
-        m_UnappliedDataFilterLock.release();
-      }
-    }
-
-    // When reloading, delete any extra data that no longer exists
-    if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
-    {
-      for(VSAbstractFilter* filter : childFilters)
-      {
-        filter->deleteFilter();
-      }
-    }
-
-    // Select the last filter
+    // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
     m_UnappliedDataFilterLock.acquire();
-    //if(m_UnappliedDataFilters.size() > 0)
-    //{
-    //  m_Controller->selectFilter(m_UnappliedDataFilters.back());
-    //}
+    int index = m_DataContainerIndexMap.value(filter->getWrappedDataContainer()->m_DataContainer);
+    m_UnappliedDataFilters[index] = filter;
     m_UnappliedDataFilterLock.release();
+    }
 
     m_AppliedFilterCountLock.acquire();
     m_AppliedFilterCount = 0;
@@ -287,17 +238,18 @@ void VSConcurrentImport::partialWrappingThreadFinished()
 void VSConcurrentImport::wrapDataContainer()
 {
   m_ImportDataContainerOrderLock.acquire();
-  while(m_ImportDataContainerOrder.size() > 0)
+  while(m_ImportDataContainerQueue.size() > 0)
   {
-    DataContainer::Pointer dc = m_ImportDataContainerOrder.front();
-    m_ImportDataContainerOrder.erase(m_ImportDataContainerOrder.begin());
+    DataContainer::Pointer dc = m_ImportDataContainerQueue.front();
+    m_ImportDataContainerQueue.erase(m_ImportDataContainerQueue.begin());
     m_ImportDataContainerOrderLock.release();
 
     SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc = SIMPLVtkBridge::WrapGeometryPtr(dc);
     if(wrappedDc)
     {
       m_WrappedDcLock.acquire();
-      m_WrappedDataContainers.push_back(wrappedDc);
+      int index = m_DataContainerIndexMap.value(dc);
+      m_WrappedDataContainers[index] = wrappedDc;
       m_WrappedDcLock.release();
     }
 
@@ -318,7 +270,7 @@ void VSConcurrentImport::applyDataFilters()
   while(m_UnappliedDataFilters.size() > 0)
   {
     VSSIMPLDataContainerFilter* filter = m_UnappliedDataFilters.front();
-    m_UnappliedDataFilters.pop_front();
+    m_UnappliedDataFilters.erase(m_UnappliedDataFilters.begin());
     m_UnappliedDataFilterLock.release();
 
     filter->finishWrapping();
@@ -327,23 +279,42 @@ void VSConcurrentImport::applyDataFilters()
     emit dataFilterApplied(++m_AppliedFilterCount);
     m_AppliedFilterCountLock.release();
 
-    if(m_LoadType == LoadType::Reload || m_LoadType == LoadType::SemiReload)
-    {
-      filter->reloadWrappingFinished();
-    }
-
-    m_Controller->getFilterModel()->addFilter(filter, false);
+    m_AppliedDataFilterLock.acquire();
+    int index = m_DataContainerIndexMap.value(filter->getWrappedDataContainer()->m_DataContainer);
+    m_AppliedDataFilters[index] = filter;
+    m_AppliedDataFilterLock.release();
 
     // Lock semaphore before the while statement is checked again
     m_UnappliedDataFilterLock.acquire();
   }
   m_UnappliedDataFilterLock.release();
+
+  emit finishedApplying();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSConcurrentImport::setLoadType(LoadType type)
+void VSConcurrentImport::applyDataFiltersThreadFinished()
 {
-  m_LoadType = type;
+  // Threads remaining lock
+  m_ThreadCountLock.acquire();
+  m_ThreadsRemaining--;
+  if(m_ThreadsRemaining <= 0)
+  {
+    m_ThreadCountLock.release();
+
+    for (VSSIMPLDataContainerFilter* filter : m_AppliedDataFilters)
+    {
+      auto currentFilters = m_Controller->getFilterModel()->getAllFilters();
+      bool filterFound = (std::find(currentFilters.begin(), currentFilters.end(), m_DataParentFilter) != currentFilters.end());
+      if (!filterFound)
+      {
+        m_Controller->getFilterModel()->addFilter(filter, false);
+      }
+    }
+
+    m_AppliedDataFilters.clear();
+  }
+  m_ThreadCountLock.release();
 }

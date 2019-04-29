@@ -844,24 +844,33 @@ void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
     if(success)
     {
       int err = 0;
-      DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
+      SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Cell, IGeometry::Type::Any);
+      DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(&req, err);
+      QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
 
       for(size_t i = 0; i < filters.size(); i++)
       {
         VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
-		QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
-        DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
 
-        AttributeMatrixProxy::AMTypeFlags amFlags(AttributeMatrixProxy::AMTypeFlag::Cell_AMType);
-        DataArrayProxy::PrimitiveTypeFlags pFlags(DataArrayProxy::PrimitiveTypeFlag::Any_PType);
-        DataArrayProxy::CompDimsVector compDimsVector;
+    if (dataContainers.contains(validFilter->getFilterName()))
+    {
+      validFilter->reloadData();
+    }
+    else
+    {
+      validFilter->removeFilter();
+    }
 
-        dcProxy.setFlags(Qt::Checked, amFlags, pFlags, compDimsVector);
-        dataContainers[dcProxy.getName()] = dcProxy;
+    DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
+    dcProxy.setFlag(Qt::Unchecked);
+    dataContainers[dcProxy.getName()] = dcProxy;
       }
 
       DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
-      m_Controller->reloadDataContainerArray(fileNameFilter, dca);
+      if (dca->getDataContainers().size() > 0)
+      {
+        m_Controller->importDataContainerArray(fileNameFilter, dca);
+      }
     }
   }
   else

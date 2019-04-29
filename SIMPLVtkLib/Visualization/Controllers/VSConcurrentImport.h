@@ -60,14 +60,6 @@ class SIMPLVtkLib_EXPORT VSConcurrentImport : public QObject
   Q_OBJECT
 
 public:
-  enum class LoadType : unsigned int
-  {
-    Import,
-    Reload,
-    Geometry,
-    SemiReload
-  };
-
   using DcaGenericPair = std::pair<VSTextFilter*, DataContainerArray::Pointer>;
 
   /**
@@ -116,24 +108,24 @@ public:
    */
   void run();
 
-  /**
-   * @brief setLoadType
-   * @param type
-   */
-  void setLoadType(LoadType type);
-
 signals:
   void importedFilter(VSAbstractFilter* filter, bool currentFilter = false);
   void blockRender(bool block = true);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
   void finishedPartialWrapping();
+  void finishedApplying();
 
 protected slots:
   /**
    * @brief partialWrappingThreadFinished
    */
   void partialWrappingThreadFinished();
+
+  /**
+   * @brief applyDataFiltersThreadFinished
+   */
+  void applyDataFiltersThreadFinished();
 
 protected:
   /**
@@ -161,21 +153,22 @@ protected:
 private:
   VSController* m_Controller;
   std::list<DcaGenericPair> m_WrappedList;
-  std::list<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
+  std::vector<VSSIMPLDataContainerFilter*> m_UnappliedDataFilters;
+  std::vector<VSSIMPLDataContainerFilter*> m_AppliedDataFilters;
 
-  DataContainerArray::Container m_ImportDataContainerOrder;
+  DataContainerArray::Container m_ImportDataContainerQueue;
+  QMap<DataContainer::Pointer, int> m_DataContainerIndexMap;
   QSemaphore m_ImportDataContainerOrderLock;
   QSemaphore m_UnappliedDataFilterLock;
+  QSemaphore m_AppliedDataFilterLock;
   QSemaphore m_FilterLock;
   QSemaphore m_WrappedDcLock;
   QSemaphore m_ThreadCountLock;
   QSemaphore m_AppliedFilterCountLock;
   int m_NumOfFinishedImportDataContainerThreads = 0;
-  std::list<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
+  std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
   VSTextFilter* m_DataParentFilter = nullptr;
   int m_ThreadCount;
   int m_ThreadsRemaining = 0;
   int m_AppliedFilterCount = 0;
-
-  LoadType m_LoadType = LoadType::Import;
 };

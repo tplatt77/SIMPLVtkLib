@@ -101,7 +101,6 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 void VSController::importDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
 {
-  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
   m_ImportObject->addDataContainerArray(filePath, dca);
   m_ImportObject->run();
 }
@@ -109,9 +108,8 @@ void VSController::importDataContainerArray(QString filePath, DataContainerArray
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::reloadDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca)
 {
-  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Reload);
   m_ImportObject->addDataContainerArray(fileFilter, dca);
   m_ImportObject->run();
 }
@@ -121,7 +119,6 @@ void VSController::reloadDataContainerArray(VSFileNameFilter* fileFilter, DataCo
 // -----------------------------------------------------------------------------
 void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
 {
-  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
   m_ImportObject->addDataContainerArray(pipeline, dca);
   m_ImportObject->run();
 }
@@ -131,7 +128,6 @@ void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataCo
 // -----------------------------------------------------------------------------
 void VSController::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
 {
-  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
   for(FilterPipeline::Pointer pipeline : pipelines)
   {
     DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
@@ -143,29 +139,8 @@ void VSController::importPipelineOutput(std::vector<FilterPipeline::Pointer> pip
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::reloadPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
-{
-  VSPipelineFilter* parentFilter = dynamic_cast<VSPipelineFilter*>(getFilterModel()->getPipelineFilter(pipeline));
-  if(parentFilter)
-  {
-    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::SemiReload);
-    m_ImportObject->addDataContainerArray(parentFilter, dca);
-  }
-  else
-  {
-    m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Geometry);
-    m_ImportObject->addDataContainerArray(pipeline, dca);
-  }
-
-  m_ImportObject->run();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void VSController::importDataContainerArray(DataContainerArray::Pointer dca)
 {
-  m_ImportObject->setLoadType(VSConcurrentImport::LoadType::Import);
   m_ImportObject->addDataContainerArray("No File", dca);
   m_ImportObject->run();
 }
