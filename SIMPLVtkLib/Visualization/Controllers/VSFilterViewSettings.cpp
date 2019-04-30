@@ -1221,6 +1221,7 @@ void VSFilterViewSettings::setupImageActors()
   if(ActorType::DataSet == m_ActorType || nullptr == m_Actor)
   {
     mapper = vtkDataSetMapper::New();
+    m_OutlineFilter = VTK_PTR(vtkOutlineFilter)::New();
 
     actor = vtkActor::New();
     actor->SetMapper(mapper);
@@ -1233,8 +1234,17 @@ void VSFilterViewSettings::setupImageActors()
     mapper = vtkDataSetMapper::SafeDownCast(m_Mapper);
     actor = vtkActor::SafeDownCast(m_Actor);
   }
-  
-  mapper->SetInputConnection(plane->GetOutputPort());
+
+  m_OutlineFilter->SetInputConnection(plane->GetOutputPort());
+
+  if(getRepresentation() == Representation::Outline)
+  {
+    mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
+  }
+  else
+  {
+    mapper->SetInputConnection(plane->GetOutputPort());
+  }
 
   if(ActorType::DataSet == m_ActorType && isVisible())
   {
