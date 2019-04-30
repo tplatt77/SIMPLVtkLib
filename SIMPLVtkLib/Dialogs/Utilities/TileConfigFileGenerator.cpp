@@ -91,7 +91,7 @@ QObject* TileConfigFileGenerator::parentObject() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TileConfigFileGenerator::buildTileConfigFile() const
+void TileConfigFileGenerator::generateTileConfigFile() const
 {
   // Prepare the input files
   bool hasMissingFiles = false;

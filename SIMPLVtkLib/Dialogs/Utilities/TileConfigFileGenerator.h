@@ -87,7 +87,7 @@ public:
   /**
    * @brief
    */
-  void buildTileConfigFile() const;
+  void generateTileConfigFile() const;
 
 private:
   int m_gridSizeX;

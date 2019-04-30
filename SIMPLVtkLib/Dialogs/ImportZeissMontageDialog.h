@@ -76,18 +76,6 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getOverrideTileOverlap
-   * @return
-   */
-  bool getOverrideTileOverlap();
-
-  /**
-   * @brief getTileOverlap
-   * @return
-   */
-  int getTileOverlap();
-
-  /**
    * @brief getOverrideSpacing
    * @return
    */
@@ -135,7 +123,6 @@ protected:
 protected slots:
 
   // Slots to catch signals emitted by the various ui widgets
-  void changeTileOverlap_stateChanged(int state);
   void convertGrayscale_stateChanged(int state);
   void changeOrigin_stateChanged(int state);
   void changeSpacing_stateChanged(int state);

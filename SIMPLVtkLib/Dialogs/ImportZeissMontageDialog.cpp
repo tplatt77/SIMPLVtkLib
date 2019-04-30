@@ -116,8 +116,6 @@ void ImportZeissMontageDialog::connectSignalsSlots()
   connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfRowsChanged, this, &ImportZeissMontageDialog::zeissListWidgetChanged);
   connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfColumnsChanged, this, &ImportZeissMontageDialog::zeissListWidgetChanged);
 
-  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
-
   connect(m_Ui->colorWeightingR, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->colorWeightingG, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->colorWeightingB, &QLineEdit::textChanged, [=] { checkComplete(); });
@@ -150,7 +148,6 @@ void ImportZeissMontageDialog::connectSignalsSlots()
     m_Ui->spacingZ->setEnabled(isChecked);
   });
 
-  connect(m_Ui->changeTileOverlapCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::changeTileOverlap_stateChanged);
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::convertGrayscale_stateChanged);
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::changeOrigin_stateChanged);
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::changeSpacing_stateChanged);
@@ -165,18 +162,6 @@ void ImportZeissMontageDialog::zeissListWidgetChanged()
   setZeissListInfo(zeissListInfo);
 
   checkComplete();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::changeTileOverlap_stateChanged(int state)
-{
-  m_Ui->tileOverlapSB->setEnabled(state);
-  if(state == false)
-  {
-    m_Ui->tileOverlapSB->setValue(15);
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -245,14 +230,6 @@ void ImportZeissMontageDialog::checkComplete() const
   if(m_Ui->zeissListWidget->isEnabled())
   {
     if(!m_Ui->zeissListWidget->isComplete())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->tileOverlapSB->isEnabled())
-  {
-    if(m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
     {
       result = false;
     }
@@ -345,22 +322,6 @@ void ImportZeissMontageDialog::checkComplete() const
 QString ImportZeissMontageDialog::getMontageName()
 {
   return m_Ui->montageNameLE->text();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportZeissMontageDialog::getOverrideTileOverlap()
-{
-  return m_Ui->changeTileOverlapCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int ImportZeissMontageDialog::getTileOverlap()
-{
-  return m_Ui->tileOverlapSB->value();
 }
 
 // -----------------------------------------------------------------------------

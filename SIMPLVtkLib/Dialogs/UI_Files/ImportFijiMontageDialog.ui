@@ -26,27 +26,10 @@
    <property name="bottomMargin">
     <number>6</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_17">
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
      <property name="text">
-      <string>Montage Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLineEdit" name="originZ">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="3">
-    <widget class="QLineEdit" name="montageNameLE">
-     <property name="text">
-      <string>Untitled Montage</string>
+      <string>Data Display Type</string>
      </property>
     </widget>
    </item>
@@ -60,18 +43,39 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="4">
-    <widget class="FijiListWidget" name="fijiListWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>4</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="3" column="2">
+    <widget class="QLineEdit" name="originY">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>0</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="spacingX">
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="changeTileOverlapCB">
+     <property name="text">
+      <string>Override Tile Overlap</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="changeOriginCB">
+     <property name="text">
+      <string>Override Origin (X, Y, Z)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="QLineEdit" name="montageNameLE">
+     <property name="text">
+      <string>Untitled Montage</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QLineEdit" name="spacingZ">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -90,15 +94,8 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="changeSpacingCB">
-     <property name="text">
-      <string>Change Spacing (X, Y, Z)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3">
-    <widget class="QLineEdit" name="spacingZ">
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="spacingX">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -117,47 +114,20 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QSpinBox" name="tileOverlapSB">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="maximum">
-      <number>100</number>
-     </property>
-     <property name="value">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="changeOriginCB">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_17">
      <property name="text">
-      <string>Change Origin (X, Y, Z)</string>
+      <string>Montage Name</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="changeTileOverlapCB">
-     <property name="text">
-      <string>Change Tile Overlap</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QLineEdit" name="originY">
+   <item row="3" column="3">
+    <widget class="QLineEdit" name="originZ">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="text">
       <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Data Display Type</string>
      </property>
     </widget>
    </item>
@@ -170,14 +140,47 @@
      </item>
      <item>
       <property name="text">
-       <string>Side-By-Side</string>
+       <string>Individual Tiles</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Montage</string>
+       <string>Stitched Montage</string>
       </property>
      </item>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="tileOverlapSB">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="suffix">
+      <string>%</string>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>15</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="FijiListWidget" name="fijiListWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>4</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="changeSpacingCB">
+     <property name="text">
+      <string>Override Spacing (X, Y, Z)</string>
+     </property>
     </widget>
    </item>
   </layout>

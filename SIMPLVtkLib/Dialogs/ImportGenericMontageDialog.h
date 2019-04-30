@@ -90,12 +90,6 @@ public:
   int getTileOverlap();
 
   /**
-   * @brief getOutputFileName
-   * @return
-   */
-  QString getOutputFileName();
-
-  /**
    * @brief getMontageType
    * @return
    */
@@ -120,12 +114,6 @@ public:
   std::tuple<double, double, double> getSpacing();
 
   /**
-   * @brief getOverrideOrigin
-   * @return
-   */
-  bool getOverrideOrigin();
-
-  /**
    * @brief getOrigin
    * @return
    */
@@ -145,7 +133,6 @@ protected slots:
 
 private slots:
   void updateOrderChoices(MontageSettings::MontageType collectionType);
-  void changeOrigin_stateChanged(int state);
   void changeSpacing_stateChanged(int state);
 
 private:

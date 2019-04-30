@@ -41,6 +41,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="suffix">
+      <string>%</string>
+     </property>
      <property name="maximum">
       <number>100</number>
      </property>
@@ -59,7 +62,7 @@
    <item row="2" column="0">
     <widget class="QCheckBox" name="changeTileOverlapCB">
      <property name="text">
-      <string>Change Tile Overlap</string>
+      <string>Override Tile Overlap</string>
      </property>
     </widget>
    </item>
@@ -109,12 +112,12 @@
      </item>
      <item>
       <property name="text">
-       <string>Side-By-Side</string>
+       <string>Individual Tiles</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Montage</string>
+       <string>Stitched Montage</string>
       </property>
      </item>
     </widget>
