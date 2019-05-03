@@ -57,9 +57,6 @@ public:
 
   ~PerformMontageDialog() override;
 
-  SIMPL_INSTANCE_PROPERTY(DatasetListInfo_t, DatasetListInfo)
-  Q_PROPERTY(DatasetListInfo_t DatasetListInfo READ getDatasetListInfo WRITE setDatasetListInfo)
-
   /**
    * @brief Initializes some of the GUI elements with selections or other GUI related items
    */
@@ -107,7 +104,6 @@ protected:
 protected slots:
 
   // Slots to catch signals emitted by the various ui widgets
-  void datasetListWidgetChanged();
   void selectBtn_clicked();
   void dataFile_textChanged(const QString& text);
 

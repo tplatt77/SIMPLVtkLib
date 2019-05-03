@@ -99,6 +99,8 @@ void PerformMontageDialog::initializeDatasetList()
   // Clear each combobox
   m_Ui->datasetsListWidget->clear();
 
+  m_Ui->datasetsListWidget->setSelectionMode(QAbstractItemView::NoSelection);
+
   // Get the list of all loaded datasets
   VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(this->parentWidget());
   if(baseWidget != nullptr)
@@ -106,28 +108,14 @@ void PerformMontageDialog::initializeDatasetList()
     VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
     VSAbstractFilter::FilterListType selectedDatasets = baseWidget->getActiveViewWidget()->getSelectedFilters();
     int i = 0;
-    for(VSAbstractFilter* dataset : datasets)
+    for(VSAbstractFilter* selectedDataset : selectedDatasets)
     {
-      m_Ui->datasetsListWidget->addDataset(dataset);
-      bool isSelected = false;
-      for(VSAbstractFilter* selectedDataset : selectedDatasets)
+      if(dynamic_cast<VSSIMPLDataContainerFilter*>(selectedDataset))
       {
-        for(VSAbstractFilter* childFilter : dataset->getChildren())
-        {
-          if(childFilter == selectedDataset || dataset == selectedDataset)
-          {
-            m_Ui->datasetsListWidget->setSelected(i, true);
-            datasetListWidgetChanged();
-            isSelected = true;
-            break;
-          }
-        }
-        if(isSelected)
-        {
-          break;
-        }
+        m_Ui->datasetsListWidget->addItem(selectedDataset->getFilterName());
+        m_Ui->datasetsListWidget->item(i)->setFlags(Qt::ItemFlag::NoItemFlags);
+        i++;
       }
-      i++;
     }
   }
 }
@@ -137,11 +125,10 @@ void PerformMontageDialog::initializeDatasetList()
 // -----------------------------------------------------------------------------
 void PerformMontageDialog::connectSignalsSlots()
 {
-  connect(m_Ui->datasetsListWidget, &DatasetListWidget::itemSelectionChanged, this, &PerformMontageDialog::datasetListWidgetChanged);
-
   connect(m_Ui->saveToFileCB, &QCheckBox::toggled, [=](bool checked) {
     m_Ui->dataFileLE->setEnabled(checked);
     m_Ui->selectButton->setEnabled(checked);
+    checkComplete();
   });
 
   connect(m_Ui->selectButton, &QPushButton::clicked, this, &PerformMontageDialog::selectBtn_clicked);
@@ -157,17 +144,6 @@ void PerformMontageDialog::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void PerformMontageDialog::disconnectSignalsSlots()
 {
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PerformMontageDialog::datasetListWidgetChanged()
-{
-  DatasetListInfo_t datasetListInfo = m_Ui->datasetsListWidget->getDatasetListInfo();
-  setDatasetListInfo(datasetListInfo);
-
-  checkComplete();
 }
 
 // -----------------------------------------------------------------------------
@@ -239,20 +215,17 @@ void PerformMontageDialog::checkComplete() const
     }
   }
 
-  if(m_Ui->datasetsListWidget->isEnabled())
-  {
-    if(m_Ui->datasetsListWidget->selectedItems().isEmpty())
-    {
-      result = false;
-    }
-  }
-
   if(m_Ui->dataFileLE->isEnabled())
   {
     if(m_Ui->dataFileLE->text().isEmpty())
     {
       result = false;
     }
+  }
+
+  if(m_Ui->datasetsListWidget->count() < 2)
+  {
+    result = false;
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
@@ -295,4 +268,3 @@ bool PerformMontageDialog::getStitchingOnly()
 {
   return m_Ui->stitchingOnlyCB->isChecked();
 }
-
