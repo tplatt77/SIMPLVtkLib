@@ -65,9 +65,6 @@
 #include "SIMPLVtkLib/Dialogs/Utilities/ImporterWorker.h"
 #include "SIMPLVtkLib/Dialogs/ZeissListWidget.h"
 
-#include "SIMPLVtkLib/Wizards/PerformMontage/PerformMontageConstants.h"
-#include "SIMPLVtkLib/Wizards/PerformMontage/PerformMontageWizard.h"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
