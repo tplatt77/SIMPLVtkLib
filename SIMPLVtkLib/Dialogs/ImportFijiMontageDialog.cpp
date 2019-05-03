@@ -88,9 +88,6 @@ void ImportFijiMontageDialog::setupGui()
 
   connectSignalsSlots();
 
-  m_Ui->tileOverlapSB->setMinimum(0);
-  m_Ui->tileOverlapSB->setMaximum(100);
-
   m_Ui->originX->setValidator(new QDoubleValidator);
   m_Ui->originY->setValidator(new QDoubleValidator);
   m_Ui->originZ->setValidator(new QDoubleValidator);
@@ -110,31 +107,15 @@ void ImportFijiMontageDialog::connectSignalsSlots()
 {
   connect(m_Ui->dataDisplayTypeCB, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) { setDisplayType(static_cast<AbstractImportMontageDialog::DisplayType>(index)); });
 
-  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
-
   connect(m_Ui->fijiListWidget, &FijiListWidget::inputDirectoryChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
   connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfRowsChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
   connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfColumnsChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
 
-  connect(m_Ui->changeTileOverlapCB, &QCheckBox::stateChanged, this, &ImportFijiMontageDialog::changeTileOverlap_stateChanged);
-
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
-    bool isChecked = m_Ui->changeOriginCB->isChecked();
-    m_Ui->originX->setEnabled(isChecked);
-    m_Ui->originY->setEnabled(isChecked);
-    m_Ui->originZ->setEnabled(isChecked);
-  });
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportFijiMontageDialog::changeOrigin_stateChanged);
   connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originY, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { checkComplete(); });
 
-  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
-    bool isChecked = m_Ui->changeSpacingCB->isChecked();
-    m_Ui->spacingX->setEnabled(isChecked);
-    m_Ui->spacingY->setEnabled(isChecked);
-    m_Ui->spacingZ->setEnabled(isChecked);
-  });
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &ImportFijiMontageDialog::changeSpacing_stateChanged);
   connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
@@ -146,7 +127,7 @@ void ImportFijiMontageDialog::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void ImportFijiMontageDialog::disconnectSignalsSlots()
 {
-  disconnect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), 0, 0);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -163,18 +144,6 @@ void ImportFijiMontageDialog::fijiListWidgetChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportFijiMontageDialog::changeTileOverlap_stateChanged(int state)
-{
-  m_Ui->tileOverlapSB->setEnabled(state);
-  if(state == false)
-  {
-    m_Ui->tileOverlapSB->setValue(15);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ImportFijiMontageDialog::changeOrigin_stateChanged(int state)
 {
   m_Ui->originX->setEnabled(state);
@@ -186,6 +155,8 @@ void ImportFijiMontageDialog::changeOrigin_stateChanged(int state)
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
   }
+
+  checkComplete();
 }
 
 // -----------------------------------------------------------------------------
@@ -202,6 +173,8 @@ void ImportFijiMontageDialog::changeSpacing_stateChanged(int state)
     m_Ui->spacingY->setText("1");
     m_Ui->spacingZ->setText("1");
   }
+
+  checkComplete();
 }
 
 // -----------------------------------------------------------------------------
@@ -222,14 +195,6 @@ void ImportFijiMontageDialog::checkComplete() const
   if(m_Ui->fijiListWidget->isEnabled())
   {
     if(!m_Ui->fijiListWidget->isComplete())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->tileOverlapSB->isEnabled())
-  {
-    if(m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
     {
       result = false;
     }
@@ -303,22 +268,6 @@ QString ImportFijiMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ImportFijiMontageDialog::getOverrideTileOverlap()
-{
-  return m_Ui->changeTileOverlapCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int ImportFijiMontageDialog::getTileOverlap()
-{
-  return m_Ui->tileOverlapSB->value();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool ImportFijiMontageDialog::getOverrideSpacing()
 {
   return m_Ui->changeSpacingCB->isChecked();
@@ -327,12 +276,12 @@ bool ImportFijiMontageDialog::getOverrideSpacing()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportFijiMontageDialog::getSpacing()
+FloatVec3Type ImportFijiMontageDialog::getSpacing()
 {
-  double spacingX = m_Ui->spacingX->text().toDouble();
-  double spacingY = m_Ui->spacingY->text().toDouble();
-  double spacingZ = m_Ui->spacingZ->text().toDouble();
-  std::tuple<double, double, double> spacing = std::make_tuple(spacingX, spacingY, spacingZ);
+  float spacingX = m_Ui->spacingX->text().toFloat();
+  float spacingY = m_Ui->spacingY->text().toFloat();
+  float spacingZ = m_Ui->spacingZ->text().toFloat();
+  FloatVec3Type spacing = {spacingX, spacingY, spacingZ};
   return spacing;
 }
 
@@ -347,11 +296,11 @@ bool ImportFijiMontageDialog::getOverrideOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportFijiMontageDialog::getOrigin()
+FloatVec3Type ImportFijiMontageDialog::getOrigin()
 {
-  double originX = m_Ui->originX->text().toDouble();
-  double originY = m_Ui->originY->text().toDouble();
-  double originZ = m_Ui->originZ->text().toDouble();
-  std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
+  float originX = m_Ui->originX->text().toFloat();
+  float originY = m_Ui->originY->text().toFloat();
+  float originZ = m_Ui->originZ->text().toFloat();
+  FloatVec3Type origin = {originX, originY, originZ};
   return origin;
 }

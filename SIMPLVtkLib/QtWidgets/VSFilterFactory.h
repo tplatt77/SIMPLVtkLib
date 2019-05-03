@@ -69,9 +69,15 @@ public:
    * @param dcPrefix The prefix of the data containers the image data will be stored in
    * @param amName The name of the attribute matrix that the image data will be stored in
    * @param daName The name of the image data array
+   * @param changeOrigin Boolean that overrides the origins in the image files.
+   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
+   * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
+   * isn't needed if changeOrigin is false.
+   * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
+   * isn't needed if changeSpacing is false.
    * @return
    */
-  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName);
+  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, bool changeSpacing, float *origin, float *spacing);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
@@ -82,10 +88,16 @@ public:
    * @param sliceNumber The slice number of the Robomet data
    * @param imageFilePrefix The prefix of the image files
    * @param imageFileExtension The extension of the image files
+   * @param changeOrigin Boolean that overrides the origins in the image files.
+   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
+   * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
+   * isn't needed if changeOrigin is false.
+   * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
+   * isn't needed if changeSpacing is false.
    * @return
    */
   AbstractFilter::Pointer createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                          const QString &imageFilePrefix, const QString &imageFileExtension);
+                                                                          const QString &imageFilePrefix, const QString &imageFileExtension, bool changeOrigin, bool changeSpacing, float *origin, float *spacing);
 
   /**
    * @brief Creates a filter that imports a Zeiss montage, and sets all the necessary properties
@@ -127,10 +139,9 @@ public:
    * @param amName Common attribute matrix name in each data container
    * @param daName Common data array name in each common attribute matrix
    * @param montagePath The path to the created montage data array
-   * @param tileOverlap Optional tile overlap value
    * @return
    */
-  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap = 0.0);
+  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath);
 
   /**
    * @brief Creates a Set Origin Resolution filter that sets the origin and resolution of a data container's image geometry

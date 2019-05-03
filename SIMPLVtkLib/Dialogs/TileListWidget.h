@@ -88,13 +88,19 @@ public:
    * @brief isComplete
    * @return
    */
-  bool isComplete() const;
+  bool isComplete(QString &errMsg) const;
 
   /**
    * @brief getFileListInfo
    * @return
    */
   FileListInfo_t getFileListInfo();
+
+  /**
+   * @brief getCurrentNumberOfTiles
+   * @return
+   */
+  int getCurrentNumberOfTiles();
 
 protected slots:
 

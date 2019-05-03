@@ -101,36 +101,6 @@ public:
   QString getDataArrayName();
 
   /**
-   * @brief getTileOverlap
-   * @return
-   */
-  int getTileOverlap();
-
-  /**
-   * @brief getOverrideSpacing
-   * @return
-   */
-  bool getOverrideSpacing();
-
-  /**
-   * @brief getSpacing
-   * @return
-   */
-  std::tuple<double, double, double> getSpacing();
-
-  /**
-   * @brief getOverrideOrigin
-   * @return
-   */
-  bool getOverrideOrigin();
-
-  /**
-   * @brief getOrigin
-   * @return
-   */
-  std::tuple<double, double, double> getOrigin();
-
-  /**
    * @brief getLoadProxy
    * @return
    */
@@ -161,8 +131,6 @@ protected slots:
   // Slots to catch signals emitted by the various ui widgets
   void selectBtn_clicked();
   void dataFile_textChanged(const QString& text);
-  void changeOrigin_stateChanged(int state);
-  void changeSpacing_stateChanged(int state);
 
 protected:
   void setInputDirectory(QString val);

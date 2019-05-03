@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include "SIMPLib/Common/SIMPLArray.hpp"
+
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 
 #include "ui_ImportRobometMontageDialog.h"
@@ -76,16 +78,28 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getOverrideTileOverlap
+   * @brief getOverrideSpacing
    * @return
    */
-  bool getOverrideTileOverlap();
+  bool getOverrideSpacing();
 
   /**
-   * @brief getTileOverlap
+   * @brief getSpacing
    * @return
    */
-  int getTileOverlap();
+  FloatVec3Type getSpacing();
+
+  /**
+   * @brief getOverrideOrigin
+   * @return
+   */
+  bool getOverrideOrigin();
+
+  /**
+   * @brief getOrigin
+   * @return
+   */
+  FloatVec3Type getOrigin();
 
 protected:
   /**
@@ -97,7 +111,8 @@ protected:
   ImportRobometMontageDialog(QWidget* parent = nullptr);
 
 protected slots:
-  void changeTileOverlap_stateChanged(int state);
+  void changeOrigin_stateChanged(int state);
+  void changeSpacing_stateChanged(int state);
   void robometListWidgetChanged();
 
 protected:

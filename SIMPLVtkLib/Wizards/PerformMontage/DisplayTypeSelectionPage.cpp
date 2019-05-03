@@ -164,28 +164,32 @@ void DisplayTypeSelectionPage::connectSignalsSlots()
 	VSMainWidgetBase* baseWidget = dynamic_cast<VSMainWidgetBase*>(wizard()->parentWidget());
 	if(baseWidget != nullptr)
 	{
-	  QString datasetName = m_Ui->datasetsListWidget->selectedItems().front()->text();
-	  QString amName;
-	  QString daName;
-	  VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
-	  for(VSAbstractFilter* dataset : datasets)
-	  {
-		if(datasetName == dataset->getFilterName())
-		{
-		  VSAbstractFilter* childFilter = dataset->getChildren().front();
-		  VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-		  if(dcFilter != nullptr)
-		  {
-			DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-			AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
-			amName = am->getName();
-			daName = am->getAttributeArrayNames().first();
-			m_Ui->cellAttrMatrixNameLE->setText(amName);
-			m_Ui->imageArrayNameLE->setText(daName);
-		  }
-		  break;
-		}
-	  }
+    QList<QListWidgetItem*> selectedItems = m_Ui->datasetsListWidget->selectedItems();
+    if (selectedItems.size() > 0)
+    {
+      QString datasetName = selectedItems.front()->text();
+      QString amName;
+      QString daName;
+      VSAbstractFilter::FilterListType datasets = baseWidget->getController()->getBaseFilters();
+      for(VSAbstractFilter* dataset : datasets)
+      {
+        if(datasetName == dataset->getFilterName())
+        {
+          VSAbstractFilter* childFilter = dataset->getChildren().front();
+          VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+          if(dcFilter != nullptr)
+          {
+            DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+            AttributeMatrix::Pointer am = dataContainer->getAttributeMatrices()[0];
+            amName = am->getName();
+            daName = am->getAttributeArrayNames().first();
+            m_Ui->cellAttrMatrixNameLE->setText(amName);
+            m_Ui->imageArrayNameLE->setText(daName);
+          }
+          break;
+        }
+      }
+    }
 	}
 	emit completeChanged();
   });

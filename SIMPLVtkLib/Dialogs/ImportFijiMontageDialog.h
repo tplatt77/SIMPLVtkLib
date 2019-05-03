@@ -35,8 +35,9 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
 
+#include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 #include "SIMPLVtkLib/Dialogs/FijiListWidget.h"
 
 #include "ui_ImportFijiMontageDialog.h"
@@ -78,18 +79,6 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getOverrideTileOverlap
-   * @return
-   */
-  bool getOverrideTileOverlap();
-
-  /**
-   * @brief getTileOverlap
-   * @return
-   */
-  int getTileOverlap();
-
-  /**
    * @brief getOverrideSpacing
    * @return
    */
@@ -99,7 +88,7 @@ public:
    * @brief getSpacing
    * @return
    */
-  std::tuple<double, double, double> getSpacing();
+  FloatVec3Type getSpacing();
 
   /**
    * @brief getOverrideOrigin
@@ -111,7 +100,7 @@ public:
    * @brief getOrigin
    * @return
    */
-  std::tuple<double, double, double> getOrigin();
+  FloatVec3Type getOrigin();
 
 protected:
   /**
@@ -125,7 +114,6 @@ protected:
 protected slots:
 
   // Slots to catch signals emitted by the various ui widgets
-  void changeTileOverlap_stateChanged(int state);
   void changeOrigin_stateChanged(int state);
   void changeSpacing_stateChanged(int state);
   void fijiListWidgetChanged();

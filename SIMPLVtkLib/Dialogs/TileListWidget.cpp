@@ -568,12 +568,13 @@ FileListInfo_t TileListWidget::getFileListInfo()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool TileListWidget::isComplete() const
+bool TileListWidget::isComplete(QString &errMsg) const
 {
   bool result = true;
 
   if(m_Ui->fileListView->count() <= 0)
   {
+    errMsg = "The tile list is empty.";
     result = false;
   }
   else
@@ -586,6 +587,7 @@ bool TileListWidget::isComplete() const
       QFileInfo fi(filePath);
       if(!fi.exists())
       {
+        errMsg = tr("The tile with file name '%1' does not exist.").arg(fi.fileName());
         result = false;
       }
     }
@@ -612,4 +614,12 @@ QString TileListWidget::getInputDirectory()
     return QDir::homePath();
   }
   return m_Ui->inputDir->text();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int TileListWidget::getCurrentNumberOfTiles()
+{
+  return m_Ui->fileListView->count();
 }

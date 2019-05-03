@@ -101,16 +101,6 @@ void ImportDREAM3DMontageDialog::setupGui()
   m_Ui->numOfColsSB->setMinimum(1);
   m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
 
-  m_Ui->tileOverlapSB->setMinimum(0);
-  m_Ui->tileOverlapSB->setMaximum(100);
-
-  m_Ui->originX->setValidator(new QDoubleValidator);
-  m_Ui->originY->setValidator(new QDoubleValidator);
-  m_Ui->originZ->setValidator(new QDoubleValidator);
-  m_Ui->spacingX->setValidator(new QDoubleValidator);
-  m_Ui->spacingY->setValidator(new QDoubleValidator);
-  m_Ui->spacingZ->setValidator(new QDoubleValidator);
-
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
 
   checkComplete();
@@ -133,64 +123,10 @@ void ImportDREAM3DMontageDialog::connectSignalsSlots()
 
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, [=] { checkComplete(); });
 
-  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
   connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
   connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
 
   connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &ImportDREAM3DMontageDialog::proxyChanged);
-
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, [=] {
-    bool isChecked = m_Ui->changeOriginCB->isChecked();
-    m_Ui->originX->setEnabled(isChecked);
-    m_Ui->originY->setEnabled(isChecked);
-    m_Ui->originZ->setEnabled(isChecked);
-  });
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportDREAM3DMontageDialog::changeOrigin_stateChanged);
-  connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->originY, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { checkComplete(); });
-
-  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
-    bool isChecked = m_Ui->changeSpacingCB->isChecked();
-    m_Ui->spacingX->setEnabled(isChecked);
-    m_Ui->spacingY->setEnabled(isChecked);
-    m_Ui->spacingZ->setEnabled(isChecked);
-  });
-  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &ImportDREAM3DMontageDialog::changeSpacing_stateChanged);
-  connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { checkComplete(); });
-}
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportDREAM3DMontageDialog::changeOrigin_stateChanged(int state)
-{
-  m_Ui->originX->setEnabled(state);
-  m_Ui->originY->setEnabled(state);
-  m_Ui->originZ->setEnabled(state);
-  if(state == false)
-  {
-    m_Ui->originX->setText("0");
-    m_Ui->originY->setText("0");
-    m_Ui->originZ->setText("0");
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportDREAM3DMontageDialog::changeSpacing_stateChanged(int state)
-{
-  m_Ui->spacingX->setEnabled(state);
-  m_Ui->spacingY->setEnabled(state);
-  m_Ui->spacingZ->setEnabled(state);
-  if(state == false)
-  {
-    m_Ui->spacingX->setText("1");
-    m_Ui->spacingY->setText("1");
-    m_Ui->spacingZ->setText("1");
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -279,14 +215,6 @@ void ImportDREAM3DMontageDialog::checkComplete() const
     }
   }
 
-  if(m_Ui->tileOverlapSB->isEnabled())
-  {
-    if(m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
-    {
-      result = false;
-    }
-  }
-
   DataContainerArrayProxy proxy = getProxy();
 
   bool allChecked = true;
@@ -318,54 +246,6 @@ void ImportDREAM3DMontageDialog::checkComplete() const
   if(m_LoadingProxy)
   {
     result = false;
-  }
-
-  if(m_Ui->originX->isEnabled())
-  {
-    if(m_Ui->originX->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->originY->isEnabled())
-  {
-    if(m_Ui->originY->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->originZ->isEnabled())
-  {
-    if(m_Ui->originZ->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->spacingX->isEnabled())
-  {
-    if(m_Ui->spacingX->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->spacingY->isEnabled())
-  {
-    if(m_Ui->spacingY->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->spacingZ->isEnabled())
-  {
-    if(m_Ui->spacingZ->text().isEmpty())
-    {
-      result = false;
-    }
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
@@ -510,52 +390,4 @@ QString ImportDREAM3DMontageDialog::getAttributeMatrixName()
 QString ImportDREAM3DMontageDialog::getDataArrayName()
 {
   return m_Ui->imageArrayNameLE->text();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int ImportDREAM3DMontageDialog::getTileOverlap()
-{
-  return m_Ui->tileOverlapSB->value();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportDREAM3DMontageDialog::getOverrideSpacing()
-{
-  return m_Ui->changeSpacingCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportDREAM3DMontageDialog::getSpacing()
-{
-  double spacingX = m_Ui->spacingX->text().toDouble();
-  double spacingY = m_Ui->spacingY->text().toDouble();
-  double spacingZ = m_Ui->spacingZ->text().toDouble();
-  std::tuple<double, double, double> spacing = std::make_tuple(spacingX, spacingY, spacingZ);
-  return spacing;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportDREAM3DMontageDialog::getOverrideOrigin()
-{
-  return m_Ui->changeOriginCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportDREAM3DMontageDialog::getOrigin()
-{
-  double originX = m_Ui->originX->text().toDouble();
-  double originY = m_Ui->originY->text().toDouble();
-  double originZ = m_Ui->originZ->text().toDouble();
-  std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
-  return origin;
 }

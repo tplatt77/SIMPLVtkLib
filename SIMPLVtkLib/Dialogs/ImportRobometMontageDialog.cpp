@@ -103,8 +103,6 @@ void ImportRobometMontageDialog::connectSignalsSlots()
 {
   connect(m_Ui->dataDisplayTypeCB, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) { setDisplayType(static_cast<AbstractImportMontageDialog::DisplayType>(index)); });
 
-  connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
-
   connect(m_Ui->robometListWidget, &RobometListWidget::inputDirectoryChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::filePrefixChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::fileSuffixChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
@@ -116,7 +114,15 @@ void ImportRobometMontageDialog::connectSignalsSlots()
   connect(m_Ui->robometListWidget, &RobometListWidget::slicePaddingChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::rowColPaddingChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
 
-  connect(m_Ui->changeTileOverlapCB, &QCheckBox::stateChanged, this, &ImportRobometMontageDialog::changeTileOverlap_stateChanged);
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportRobometMontageDialog::changeOrigin_stateChanged);
+  connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->originY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { checkComplete(); });
+
+  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &ImportRobometMontageDialog::changeSpacing_stateChanged);
+  connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { checkComplete(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -124,7 +130,7 @@ void ImportRobometMontageDialog::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void ImportRobometMontageDialog::disconnectSignalsSlots()
 {
-  disconnect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), 0, 0);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -141,13 +147,37 @@ void ImportRobometMontageDialog::robometListWidgetChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportRobometMontageDialog::changeTileOverlap_stateChanged(int state)
+void ImportRobometMontageDialog::changeOrigin_stateChanged(int state)
 {
-  m_Ui->tileOverlapSB->setEnabled(state);
+  m_Ui->originX->setEnabled(state);
+  m_Ui->originY->setEnabled(state);
+  m_Ui->originZ->setEnabled(state);
   if(state == false)
   {
-    m_Ui->tileOverlapSB->setValue(15);
+    m_Ui->originX->setText("0");
+    m_Ui->originY->setText("0");
+    m_Ui->originZ->setText("0");
   }
+
+  checkComplete();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImportRobometMontageDialog::changeSpacing_stateChanged(int state)
+{
+  m_Ui->spacingX->setEnabled(state);
+  m_Ui->spacingY->setEnabled(state);
+  m_Ui->spacingZ->setEnabled(state);
+  if(state == false)
+  {
+    m_Ui->spacingX->setText("1");
+    m_Ui->spacingY->setText("1");
+    m_Ui->spacingZ->setText("1");
+  }
+
+  checkComplete();
 }
 
 // -----------------------------------------------------------------------------
@@ -173,9 +203,49 @@ void ImportRobometMontageDialog::checkComplete() const
     }
   }
 
-  if(m_Ui->tileOverlapSB->isEnabled())
+  if(m_Ui->originX->isEnabled())
   {
-    if(m_Ui->tileOverlapSB->value() < m_Ui->tileOverlapSB->minimum() || m_Ui->tileOverlapSB->value() > m_Ui->tileOverlapSB->maximum())
+    if(m_Ui->originX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->originY->isEnabled())
+  {
+    if(m_Ui->originY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->originZ->isEnabled())
+  {
+    if(m_Ui->originZ->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingX->isEnabled())
+  {
+    if(m_Ui->spacingX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingY->isEnabled())
+  {
+    if(m_Ui->spacingY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->spacingZ->isEnabled())
+  {
+    if(m_Ui->spacingZ->text().isEmpty())
     {
       result = false;
     }
@@ -201,15 +271,39 @@ QString ImportRobometMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ImportRobometMontageDialog::getOverrideTileOverlap()
+bool ImportRobometMontageDialog::getOverrideSpacing()
 {
-  return m_Ui->changeTileOverlapCB->isChecked();
+  return m_Ui->changeSpacingCB->isChecked();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ImportRobometMontageDialog::getTileOverlap()
+FloatVec3Type ImportRobometMontageDialog::getSpacing()
 {
-  return m_Ui->tileOverlapSB->value();
+  float spacingX = m_Ui->spacingX->text().toFloat();
+  float spacingY = m_Ui->spacingY->text().toFloat();
+  float spacingZ = m_Ui->spacingZ->text().toFloat();
+  FloatVec3Type spacing = {spacingX, spacingY, spacingZ};
+  return spacing;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool ImportRobometMontageDialog::getOverrideOrigin()
+{
+  return m_Ui->changeOriginCB->isChecked();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+FloatVec3Type ImportRobometMontageDialog::getOrigin()
+{
+  float originX = m_Ui->originX->text().toFloat();
+  float originY = m_Ui->originY->text().toFloat();
+  float originZ = m_Ui->originZ->text().toFloat();
+  FloatVec3Type origin = {originX, originY, originZ};
+  return origin;
 }

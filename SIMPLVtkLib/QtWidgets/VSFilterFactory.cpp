@@ -189,7 +189,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName)
+AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName,
+                                                                       bool changeOrigin, bool changeSpacing, float* origin, float* spacing)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -207,6 +208,46 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
       if(!setFilterProperty(importFijiMontageFilter, "FijiConfigFilePath", var))
       {
         return AbstractFilter::NullPointer();
+      }
+
+      // Set Origin
+      var.setValue(changeOrigin);
+      if(!setFilterProperty(importFijiMontageFilter, "ChangeOrigin", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(changeOrigin)
+      {
+        float originX = origin[0];
+        float originY = origin[1];
+        float originZ = origin[2];
+        FloatVec3Type newOrigin = {originX, originY, originZ};
+        var.setValue(newOrigin);
+        if(!setFilterProperty(importFijiMontageFilter, "Origin", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
+      }
+
+      // Set Spacing
+      var.setValue(changeSpacing);
+      if(!setFilterProperty(importFijiMontageFilter, "ChangeSpacing", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(changeSpacing)
+      {
+        float spacingX = spacing[0];
+        float spacingY = spacing[1];
+        float spacingZ = spacing[2];
+        FloatVec3Type newSpacing = {spacingX, spacingY, spacingZ};
+        var.setValue(newSpacing);
+        if(!setFilterProperty(importFijiMontageFilter, "Spacing", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
       }
 
       // Set the Data Container Prefix
@@ -241,7 +282,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                        const QString &imageFilePrefix, const QString &imageFileExtension)
+                                                                          const QString &imageFilePrefix, const QString &imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin, float* spacing)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -261,9 +302,49 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
         return AbstractFilter::NullPointer();
       }
 
+      // Set Origin
+      var.setValue(changeOrigin);
+      if(!setFilterProperty(importRoboMetMontageFilter, "ChangeOrigin", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(changeOrigin)
+      {
+        float originX = origin[0];
+        float originY = origin[1];
+        float originZ = origin[2];
+        FloatVec3Type newOrigin = {originX, originY, originZ};
+        var.setValue(newOrigin);
+        if(!setFilterProperty(importRoboMetMontageFilter, "Origin", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
+      }
+
+      // Set Spacing
+      var.setValue(changeSpacing);
+      if(!setFilterProperty(importRoboMetMontageFilter, "ChangeSpacing", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(changeSpacing)
+      {
+        float spacingX = spacing[0];
+        float spacingY = spacing[1];
+        float spacingZ = spacing[2];
+        FloatVec3Type newSpacing = {spacingX, spacingY, spacingZ};
+        var.setValue(newSpacing);
+        if(!setFilterProperty(importRoboMetMontageFilter, "Spacing", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
+      }
+
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
-      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerName", var))
+      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPrefix", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -492,7 +573,7 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath, double tileOverlap)
+AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath)
 {
   QString filterName = "ITKStitchMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -529,13 +610,6 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type m
       // Set the list of image data containers
       var.setValue(dcNames);
       if(!setFilterProperty(itkStitchingFilter, "ImageDataContainers", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
-      // Tile overlap
-      var.setValue(tileOverlap);
-      if(!setFilterProperty(itkStitchingFilter, "TileOverlap", var))
       {
         return AbstractFilter::NullPointer();
       }
