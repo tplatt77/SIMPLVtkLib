@@ -116,10 +116,10 @@ bool VSSIMPLDataContainerFilter::isFlatImage()
     return false;
   }
 
-  SIMPL::Tuple3SVec dims = imageGeom->getDimensions();
-  int xDim = std::get<0>(dims);
-  int yDim = std::get<1>(dims);
-  int zDim = std::get<2>(dims);
+  SizeVec3Type dims = imageGeom->getDimensions();
+  int xDim = dims[0];
+  int yDim = dims[1];
+  int zDim = dims[2];
 
   if(xDim <= 1 || yDim <= 1 || zDim <= 1)
   {

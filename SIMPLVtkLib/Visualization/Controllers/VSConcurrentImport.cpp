@@ -192,11 +192,11 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
 		DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
 		ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
-		SIMPL::Tuple3FVec originTuple = imageGeom->getOrigin();
+    FloatVec3Type originTuple = imageGeom->getOrigin();
 		double origin[3];
-		origin[0] = std::get<0>(originTuple);
-		origin[1] = std::get<1>(originTuple);
-		origin[2] = std::get<2>(originTuple);
+    origin[0] = originTuple[0];
+    origin[1] = originTuple[1];
+    origin[2] = originTuple[2];
 
 		filter->getTransform()->setLocalPosition(origin);
 		filter->getTransform()->setOriginPosition(origin);

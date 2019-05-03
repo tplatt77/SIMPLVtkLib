@@ -777,16 +777,13 @@ VTK_PTR(vtkDataSet) SIMPLVtkBridge::WrapGeometry(VertexGeom::Pointer geom)
 // -----------------------------------------------------------------------------
 VTK_PTR(vtkDataSet) SIMPLVtkBridge::WrapGeometry(ImageGeom::Pointer image)
 {
-  FloatVec3Type res = {0.0f, 0.0f, 0.0f};
-  FloatVec3Type origin = {0.0f, 0.0f, 0.0f};
-
-  std::tuple<size_t, size_t, size_t> dims = image->getDimensions();
-  image->getSpacing(res);
-  image->getOrigin(origin);
+  FloatVec3Type res = image->getSpacing();
+  FloatVec3Type origin = image->getOrigin();
+  SizeVec3Type dims = image->getDimensions();
 
   VTK_NEW(vtkImageData, vtkImage);
 //  vtkImage->SetExtent(origin[0], origin[0] + std::get<0>(dims), origin[1], origin[1] + std::get<1>(dims), origin[2], origin[2] + std::get<2>(dims));
-  vtkImage->SetDimensions(std::get<0>(dims) + 1, std::get<1>(dims) + 1, std::get<2>(dims) + 1);
+  vtkImage->SetDimensions(dims[0] + 1, dims[1] + 1, dims[2] + 1);
   vtkImage->SetSpacing(res[0], res[1], res[2]);
   vtkImage->SetOrigin(origin[0], origin[1], origin[2]);
 
