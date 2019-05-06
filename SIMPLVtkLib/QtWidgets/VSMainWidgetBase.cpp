@@ -37,6 +37,7 @@
 
 #include <QtConcurrent>
 
+#include <QInputDialog>
 #include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -44,7 +45,6 @@
 #include <QtCore/QUuid>
 #include <QtGui/QKeySequence>
 #include <QtWidgets/QShortcut>
-#include <QInputDialog>
 
 #include <QtWidgets/QMessageBox>
 
@@ -191,7 +191,7 @@ void VSMainWidgetBase::setFilterView(VSFilterView* view)
     disconnect(m_FilterView, &VSFilterView::deleteFilterRequested, this, &VSMainWidgetBase::deleteFilter);
     disconnect(m_FilterView, &VSFilterView::reloadFilterRequested, this, &VSMainWidgetBase::reloadDataFilter);
     disconnect(m_FilterView, &VSFilterView::reloadFileFilterRequested, this, &VSMainWidgetBase::reloadFileFilter);
-	disconnect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
+    disconnect(view, &VSFilterView::renameFilterRequested, this, &VSMainWidgetBase::renameDataFilter);
     disconnect(m_FilterView, &VSFilterView::filterClicked, this, &VSMainWidgetBase::setCurrentFilter);
     disconnect(this, &VSMainWidgetBase::changedActiveView, m_FilterView, &VSFilterView::setViewWidget);
   }
@@ -400,7 +400,7 @@ void VSMainWidgetBase::setInfoWidget(VSInfoWidget* infoWidget)
     setVisibilitySettingsWidget(infoWidget->getVisibilitySettingsWidget());
     setColorMappingWidget(infoWidget->getColorMappingWidget());
     setTransformWidget(infoWidget->getTransformWidget());
-	setAdvancedVisibilityWidget(infoWidget->getAdvancedVisibilitySettingsWidget());
+    setAdvancedVisibilityWidget(infoWidget->getAdvancedVisibilitySettingsWidget());
   }
 }
 
@@ -508,7 +508,7 @@ void VSMainWidgetBase::launchHDF5SelectionDialog(const QString& filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSMainWidgetBase::importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca)
+bool VSMainWidgetBase::importDataContainerArray(const QString& filePath, DataContainerArray::Pointer dca)
 {
   m_Controller->importDataContainerArray(filePath, dca);
   return true;
@@ -528,8 +528,8 @@ bool VSMainWidgetBase::importPipelineOutput(FilterPipeline::Pointer pipeline, Da
 // -----------------------------------------------------------------------------
 bool VSMainWidgetBase::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
 {
-	m_Controller->importPipelineOutput(pipelines);
-	return true;
+  m_Controller->importPipelineOutput(pipelines);
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -805,20 +805,18 @@ void VSMainWidgetBase::renameDataFilter(VSAbstractDataFilter* filter)
   VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   if(dcFilter != nullptr)
   {
-	DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-	if(dataContainer != nullptr)
-	{
-	  VSSIMPLDataContainerValues* dcValues = dynamic_cast<VSSIMPLDataContainerValues*>(dcFilter->getValues());
-	  QString dcName = QInputDialog::getText(this, tr("Rename Filter"),
-		tr("New Data Container Name:"), QLineEdit::Normal,
-		dcFilter->getFilterName(), &ok);
-	  if(ok && !dcName.isEmpty())
-	  {
-		dcValues->getWrappedDataContainer()->m_Name = dcName;
-		dataContainer->setName(dcName);
-		dcFilter->setText(dcName);
-	  }
-	}
+    DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+    if(dataContainer != nullptr)
+    {
+      VSSIMPLDataContainerValues* dcValues = dynamic_cast<VSSIMPLDataContainerValues*>(dcFilter->getValues());
+      QString dcName = QInputDialog::getText(this, tr("Rename Filter"), tr("New Data Container Name:"), QLineEdit::Normal, dcFilter->getFilterName(), &ok);
+      if(ok && !dcName.isEmpty())
+      {
+        dcValues->getWrappedDataContainer()->m_Name = dcName;
+        dataContainer->setName(dcName);
+        dcFilter->setText(dcName);
+      }
+    }
   }
 }
 
@@ -878,22 +876,22 @@ void VSMainWidgetBase::reloadFilters(std::vector<VSAbstractDataFilter*> filters)
       {
         VSSIMPLDataContainerFilter* validFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filters[i]);
 
-    if (dataContainers.contains(validFilter->getFilterName()))
-    {
-      validFilter->reloadData();
-    }
-    else
-    {
-      validFilter->removeFilter();
-    }
+        if(dataContainers.contains(validFilter->getFilterName()))
+        {
+          validFilter->reloadData();
+        }
+        else
+        {
+          validFilter->removeFilter();
+        }
 
-    DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
-    dcProxy.setFlag(Qt::Unchecked);
-    dataContainers[dcProxy.getName()] = dcProxy;
+        DataContainerProxy dcProxy = dataContainers.value(validFilter->getFilterName());
+        dcProxy.setFlag(Qt::Unchecked);
+        dataContainers[dcProxy.getName()] = dcProxy;
       }
 
       DataContainerArray::Pointer dca = reader->readSIMPLDataUsingProxy(dcaProxy, false);
-      if (dca->getDataContainers().size() > 0)
+      if(dca->getDataContainers().size() > 0)
       {
         m_Controller->importDataContainerArray(fileNameFilter, dca);
       }

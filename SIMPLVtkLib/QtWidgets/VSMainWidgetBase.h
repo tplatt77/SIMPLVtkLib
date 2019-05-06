@@ -151,7 +151,7 @@ public:
    * @brief Sets the VSDatasetInfoWidget
    * @param widget
    */
-   void setDatasetInfoWidget(VSDatasetInfoWidget* widget);
+  void setDatasetInfoWidget(VSDatasetInfoWidget* widget);
 
   /**
    * @brief Sets the VSFilterSettingsWidget
@@ -187,7 +187,7 @@ public:
    * @brief importDataContainerArray
    * @param dca
    */
-  bool importDataContainerArray(const QString &filePath, DataContainerArray::Pointer dca);
+  bool importDataContainerArray(const QString& filePath, DataContainerArray::Pointer dca);
 
   /**
    * @brief importPipelineOutput

@@ -101,10 +101,9 @@ private:
    */
   void clearModel();
 
-  public:
-  DREAM3DFileTreeModel(const DREAM3DFileTreeModel&) = delete;    // Copy Constructor Not Implemented
-    DREAM3DFileTreeModel(DREAM3DFileTreeModel&&) = delete; // Move Constructor Not Implemented
-    DREAM3DFileTreeModel& operator=(const DREAM3DFileTreeModel&) = delete; // Copy Assignment Not Implemented
-    DREAM3DFileTreeModel& operator=(DREAM3DFileTreeModel&&) = delete; // Move Assignment Not Implemented
-
+public:
+  DREAM3DFileTreeModel(const DREAM3DFileTreeModel&) = delete;            // Copy Constructor Not Implemented
+  DREAM3DFileTreeModel(DREAM3DFileTreeModel&&) = delete;                 // Move Constructor Not Implemented
+  DREAM3DFileTreeModel& operator=(const DREAM3DFileTreeModel&) = delete; // Copy Assignment Not Implemented
+  DREAM3DFileTreeModel& operator=(DREAM3DFileTreeModel&&) = delete;      // Move Assignment Not Implemented
 };

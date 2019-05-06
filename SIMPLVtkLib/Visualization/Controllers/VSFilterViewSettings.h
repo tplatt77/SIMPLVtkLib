@@ -49,10 +49,10 @@
 #include <vtkCubeAxesActor.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkOutlineFilter.h>
+#include <vtkPlaneSource.h>
 #include <vtkScalarBarActor.h>
 #include <vtkScalarBarWidget.h>
 #include <vtkTexture.h>
-#include <vtkPlaneSource.h>
 
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSLookupTableController.h"
@@ -439,7 +439,7 @@ public:
    * @return
    */
   QAction* getToggleScalarBarAction();
-  
+
   /**
    * @brief Returns the subsampling rate.
    * @return
@@ -697,7 +697,6 @@ public:
    * @return
    */
   static double GetSubsampling(VSFilterViewSettings::Collection collection);
-
 
 public slots:
   /**

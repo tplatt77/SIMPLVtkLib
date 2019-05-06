@@ -88,7 +88,7 @@ public:
    * @brief isComplete
    * @return
    */
-  bool isComplete(QString &errMsg) const;
+  bool isComplete(QString& errMsg) const;
 
   /**
    * @brief getFileListInfo

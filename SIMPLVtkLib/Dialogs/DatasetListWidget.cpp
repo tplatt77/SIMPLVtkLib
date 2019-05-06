@@ -83,8 +83,7 @@ void DatasetListWidget::setupGui()
 // -----------------------------------------------------------------------------
 void DatasetListWidget::connectSignalsSlots()
 {
-  connect(m_Ui->datasetListView, &QListWidget::itemSelectionChanged,
-	this, &DatasetListWidget::itemSelectionChanged);
+  connect(m_Ui->datasetListView, &QListWidget::itemSelectionChanged, this, &DatasetListWidget::itemSelectionChanged);
 }
 
 // -----------------------------------------------------------------------------
@@ -96,7 +95,7 @@ DatasetListInfo_t DatasetListWidget::getDatasetListInfo()
   QStringList selectedDatasetNames;
   for(QListWidgetItem* item : selectedItems())
   {
-	selectedDatasetNames.push_back(item->data(Qt::DisplayRole).toString());
+    selectedDatasetNames.push_back(item->data(Qt::DisplayRole).toString());
   }
   data.DatasetNames = selectedDatasetNames;
   return data;

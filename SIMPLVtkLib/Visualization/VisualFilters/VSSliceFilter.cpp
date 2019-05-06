@@ -65,7 +65,6 @@ VSSliceFilter::VSSliceFilter(const VSSliceFilter& copy)
   setParentFilter(copy.getParentFilter());
 
   m_SliceValues = new VSSliceValues(*(copy.m_SliceValues));
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -75,7 +74,7 @@ VSSliceFilter* VSSliceFilter::Create(QJsonObject& json, VSAbstractFilter* parent
 {
   VSSliceFilter* filter = new VSSliceFilter(parent);
   filter->m_SliceValues->readJson(json);
-  
+
   filter->setInitialized(true);
   filter->readTransformJson(json);
 

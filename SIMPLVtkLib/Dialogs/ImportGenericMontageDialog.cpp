@@ -203,7 +203,9 @@ void ImportGenericMontageDialog::checkComplete() const
   if(numberOfSelectedTiles != numberOfMontageTiles)
   {
     m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) does not match the number of tiles declared in the montage (%2).\nPlease update"
-                               " the tile list as well as the 'Total Rows' and 'Total Columns' fields.").arg(numberOfSelectedTiles).arg(numberOfMontageTiles));
+                               " the tile list as well as the 'Total Rows' and 'Total Columns' fields.")
+                                .arg(numberOfSelectedTiles)
+                                .arg(numberOfMontageTiles));
     result = false;
   }
 

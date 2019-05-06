@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QFutureWatcher>
 #include <QtCore/QDateTime>
+#include <QtCore/QFutureWatcher>
 
 #include <QtWidgets/QWidget>
 
@@ -71,7 +71,7 @@ public:
   /**
    * @brief initialize
    */
-  void initialize(const QString &filePath);
+  void initialize(const QString& filePath);
 
   /**
    * @brief setNavigationButtonsVisibility
@@ -83,7 +83,7 @@ protected slots:
   /**
    * @brief modelDataChanged
    */
-  void modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+  void modelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles);
 
   /**
    * @brief selectAllStateChanged
@@ -123,9 +123,8 @@ private:
   DataContainerArrayProxy readDCAProxy(const QString& filePath);
 
 public:
-  VSLoadHDF5DataWidget(const VSLoadHDF5DataWidget&) = delete;    // Copy Constructor Not Implemented
-    VSLoadHDF5DataWidget(VSLoadHDF5DataWidget&&) = delete; // Move Constructor Not Implemented
-    VSLoadHDF5DataWidget& operator=(const VSLoadHDF5DataWidget&) = delete; // Copy Assignment Not Implemented
-    VSLoadHDF5DataWidget& operator=(VSLoadHDF5DataWidget&&) = delete; // Move Assignment Not Implemented
-
+  VSLoadHDF5DataWidget(const VSLoadHDF5DataWidget&) = delete;            // Copy Constructor Not Implemented
+  VSLoadHDF5DataWidget(VSLoadHDF5DataWidget&&) = delete;                 // Move Constructor Not Implemented
+  VSLoadHDF5DataWidget& operator=(const VSLoadHDF5DataWidget&) = delete; // Copy Assignment Not Implemented
+  VSLoadHDF5DataWidget& operator=(VSLoadHDF5DataWidget&&) = delete;      // Move Assignment Not Implemented
 };

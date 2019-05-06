@@ -77,7 +77,7 @@ VSClipFilter* VSClipFilter::Create(QJsonObject& json, VSAbstractFilter* parent)
 {
   VSClipFilter* filter = new VSClipFilter(parent);
   filter->m_ClipValues->loadJSon(json);
-  
+
   filter->setInitialized(true);
   filter->readTransformJson(json);
 
@@ -518,7 +518,7 @@ bool VSClipFilter::CompatibleWithParents(VSAbstractFilter::FilterListType filter
       return false;
     }
   }
-  
+
   return true;
 }
 

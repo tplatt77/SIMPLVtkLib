@@ -80,7 +80,6 @@ void VSAbstractViewWidget::setupModel()
 
   connect(m_SelectionModel, &QItemSelectionModel::currentChanged, this, &VSAbstractViewWidget::listenCurrentIndexChanged);
   connect(m_SelectionModel, &QItemSelectionModel::selectionChanged, this, &VSAbstractViewWidget::localSelectionChanged);
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -858,9 +857,7 @@ void VSAbstractViewWidget::selectFilters(VSAbstractFilter::FilterListType filter
 void VSAbstractViewWidget::listenCurrentIndexChanged(const QModelIndex& current, const QModelIndex& previous)
 {
   emit currentFilterChanged(getCurrentFilter());
-  m_CurrentFilterConnection = connect(getCurrentFilter(), &VSAbstractFilter::updatedOutputPort, [=] {
-    emit currentFilterUpdated();
-  });
+  m_CurrentFilterConnection = connect(getCurrentFilter(), &VSAbstractFilter::updatedOutputPort, [=] { emit currentFilterUpdated(); });
 }
 
 // -----------------------------------------------------------------------------

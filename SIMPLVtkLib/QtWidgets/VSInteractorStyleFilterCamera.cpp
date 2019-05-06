@@ -43,10 +43,10 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractViewWidget.h"
 #include "SIMPLVtkLib/QtWidgets/VSViewWidget.h"
 #include "SIMPLVtkLib/SIMPLBridge/VtkMacros.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSDataSetFilter.h"
 
 vtkStandardNewMacro(VSInteractorStyleFilterCamera);
 
@@ -208,19 +208,19 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   }
   else if(keyDown == "Escape")
   {
-	if(shiftKey() || (m_ActionAxis == Axis::None && m_ActionType != ActionType::None && !m_CustomTransform))
-	{
-	  cancelAction();
-	}
-	if(m_CustomTransform)
-	{
-	  m_CustomTransform = false;
-	  m_CustomTransformAmount.clear();
-	}
-	else if(m_ActionAxis != Axis::None)
-	{
-	  m_ActionAxis = Axis::None;
-	}
+    if(shiftKey() || (m_ActionAxis == Axis::None && m_ActionType != ActionType::None && !m_CustomTransform))
+    {
+      cancelAction();
+    }
+    if(m_CustomTransform)
+    {
+      m_CustomTransform = false;
+      m_CustomTransformAmount.clear();
+    }
+    else if(m_ActionAxis != Axis::None)
+    {
+      m_ActionAxis = Axis::None;
+    }
   }
   else if(keyDown == "a")
   {
@@ -239,14 +239,14 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   }
   else if(keyDown == "y")
   {
-	if(ctrlKey())
-	{
-	  redoTransform();
-	}
-	else
-	{
-	  setAxis(Axis::Y);
-	}
+    if(ctrlKey())
+    {
+      redoTransform();
+    }
+    else
+    {
+      setAxis(Axis::Y);
+    }
   }
   else if(keyDown == "z")
   {
@@ -254,18 +254,18 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
     {
       setActionType(ActionType::ResetTransform);
     }
-	else if(ctrlKey())
-	{
-	  undoTransform();
-	}
+    else if(ctrlKey())
+    {
+      undoTransform();
+    }
     else
     {
       setAxis(Axis::Z);
     }
   }
-  else if (keyDown == "space")
+  else if(keyDown == "space")
   {
-    if (m_CustomTransform)
+    if(m_CustomTransform)
     {
       if(m_ActiveFilter && ActionType::None != m_ActionType)
       {
@@ -297,38 +297,38 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   {
     if(m_ActionType != ActionType::None)
     {
-      if (!m_CustomTransform)
+      if(!m_CustomTransform)
       {
         m_CustomTransform = true;
       }
       m_CustomTransformAmount.append(keyDown.at(0));
     }
   }
-  else if (keyDown == "minus" || keyDown == "plus")
+  else if(keyDown == "minus" || keyDown == "plus")
   {
     if(m_ActionType != ActionType::None && !m_CustomTransform)
     {
       m_CustomTransform = true;
       m_CustomTransformAmount.clear();
-      if (keyDown == "minus")
+      if(keyDown == "minus")
       {
         m_CustomTransformAmount.append("-");
       }
-      else if (keyDown == "plus")
+      else if(keyDown == "plus")
       {
         m_CustomTransformAmount.append("+");
       }
     }
   }
-  else if (keyDown == "period")
+  else if(keyDown == "period")
   {
-    if (m_ActionType == ActionType::None)
+    if(m_ActionType == ActionType::None)
     {
       return;
     }
-    if (m_CustomTransform)
+    if(m_CustomTransform)
     {
-      if (!m_CustomTransformAmount.contains("."))
+      if(!m_CustomTransformAmount.contains("."))
       {
         m_CustomTransformAmount.append(".");
       }
@@ -342,138 +342,138 @@ void VSInteractorStyleFilterCamera::OnKeyDown()
   }
   else if(keyDown == "Up" || keyDown == "Down")
   {
-	if(!m_CustomTransform)
-	{
-	  m_CustomTransform = true;
-	}
-	QString previousCustomTransformAmount = m_CustomTransformAmount;
-	m_CustomTransformAmount.clear();
-	if(m_ActiveFilter && ActionType::None != m_ActionType)
-	{
-	  setAxis(Axis::Y);
-	  switch(m_ActionType)
-	  {
-	  case ActionType::Translate:
-		if(keyDown == "Up")
-		{
-		  m_CustomTransformAmount = "1.0";
-		}
-		else
-		{
-		  m_CustomTransformAmount = "-1.0";
-		}
-		translateFilter();
-		break;
-	  case ActionType::Rotate:
-		setAxis(Axis::X);
-		if(keyDown == "Up")
-		{
-		  m_CustomTransformAmount = "-1.0";
-		}
-		else
-		{
-		  m_CustomTransformAmount = "1.0";
-		}
-		rotateFilter();
-		break;
-	  case ActionType::Scale:
-		if(!previousCustomTransformAmount.isEmpty())
-		{
-		  if(keyDown == "Up")
-		  {
-			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
-		  }
-		  else
-		  {
-			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
-		  }
-		}
-		else
-		{
-		  if(keyDown == "Up")
-		  {
-			m_CustomTransformAmount = "1.1";
-		  }
-		  else
-		  {
-			m_CustomTransformAmount = "0.9";
-		  }
-		}
-		scaleFilter();
-		break;
-	  }
-	}
-	m_CustomTransform = false;
-	m_CustomTransformAmount.clear();
-	setAxis(Axis::None);
+    if(!m_CustomTransform)
+    {
+      m_CustomTransform = true;
+    }
+    QString previousCustomTransformAmount = m_CustomTransformAmount;
+    m_CustomTransformAmount.clear();
+    if(m_ActiveFilter && ActionType::None != m_ActionType)
+    {
+      setAxis(Axis::Y);
+      switch(m_ActionType)
+      {
+      case ActionType::Translate:
+        if(keyDown == "Up")
+        {
+          m_CustomTransformAmount = "1.0";
+        }
+        else
+        {
+          m_CustomTransformAmount = "-1.0";
+        }
+        translateFilter();
+        break;
+      case ActionType::Rotate:
+        setAxis(Axis::X);
+        if(keyDown == "Up")
+        {
+          m_CustomTransformAmount = "-1.0";
+        }
+        else
+        {
+          m_CustomTransformAmount = "1.0";
+        }
+        rotateFilter();
+        break;
+      case ActionType::Scale:
+        if(!previousCustomTransformAmount.isEmpty())
+        {
+          if(keyDown == "Up")
+          {
+            m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
+          }
+          else
+          {
+            m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
+          }
+        }
+        else
+        {
+          if(keyDown == "Up")
+          {
+            m_CustomTransformAmount = "1.1";
+          }
+          else
+          {
+            m_CustomTransformAmount = "0.9";
+          }
+        }
+        scaleFilter();
+        break;
+      }
+    }
+    m_CustomTransform = false;
+    m_CustomTransformAmount.clear();
+    setAxis(Axis::None);
   }
   else if(keyDown == "Left" || keyDown == "Right")
   {
-	if(!m_CustomTransform)
-	{
-	  m_CustomTransform = true;
-	}
-	QString previousCustomTransformAmount = m_CustomTransformAmount;
-	m_CustomTransformAmount.clear();
-	if(m_ActiveFilter && ActionType::None != m_ActionType)
-	{
-	  switch(m_ActionType)
-	  {
-	  case ActionType::Translate:
-		setAxis(Axis::X);
-		if(keyDown == "Right")
-		{
-		  m_CustomTransformAmount = "1.0";
-		}
-		else
-		{
-		  m_CustomTransformAmount = "-1.0";
-		}
-		translateFilter();
-		break;
-	  case ActionType::Rotate:
-		if(keyDown == "Right")
-		{
-		  m_CustomTransformAmount = "-1.0";
-		}
-		else
-		{
-		  m_CustomTransformAmount = "1.0";
-		}
-		setAxis(Axis::Z);
-		rotateFilter();
-		break;
-	  case ActionType::Scale:
-		setAxis(Axis::X);
-		if(!previousCustomTransformAmount.isEmpty())
-		{
-		  if(keyDown == "Right")
-		  {
-			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
-		  }
-		  else
-		  {
-			m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
-		  }
-		}
-		else
-		{
-		  if(keyDown == "Right")
-		  {
-			m_CustomTransformAmount = "1.1";
-		  }
-		  else
-		  {
-			m_CustomTransformAmount = "0.9";
-		  }
-		}
-		scaleFilter();
-		break;
-	  }
-	}
-	m_CustomTransform = false;
-	m_CustomTransformAmount.clear();
-	setAxis(Axis::None);
+    if(!m_CustomTransform)
+    {
+      m_CustomTransform = true;
+    }
+    QString previousCustomTransformAmount = m_CustomTransformAmount;
+    m_CustomTransformAmount.clear();
+    if(m_ActiveFilter && ActionType::None != m_ActionType)
+    {
+      switch(m_ActionType)
+      {
+      case ActionType::Translate:
+        setAxis(Axis::X);
+        if(keyDown == "Right")
+        {
+          m_CustomTransformAmount = "1.0";
+        }
+        else
+        {
+          m_CustomTransformAmount = "-1.0";
+        }
+        translateFilter();
+        break;
+      case ActionType::Rotate:
+        if(keyDown == "Right")
+        {
+          m_CustomTransformAmount = "-1.0";
+        }
+        else
+        {
+          m_CustomTransformAmount = "1.0";
+        }
+        setAxis(Axis::Z);
+        rotateFilter();
+        break;
+      case ActionType::Scale:
+        setAxis(Axis::X);
+        if(!previousCustomTransformAmount.isEmpty())
+        {
+          if(keyDown == "Right")
+          {
+            m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 1.1;
+          }
+          else
+          {
+            m_CustomTransformAmount = previousCustomTransformAmount.toDouble() * 0.9;
+          }
+        }
+        else
+        {
+          if(keyDown == "Right")
+          {
+            m_CustomTransformAmount = "1.1";
+          }
+          else
+          {
+            m_CustomTransformAmount = "0.9";
+          }
+        }
+        scaleFilter();
+        break;
+      }
+    }
+    m_CustomTransform = false;
+    m_CustomTransformAmount.clear();
+    setAxis(Axis::None);
   }
   updateTransformText();
 }
@@ -760,7 +760,7 @@ void VSInteractorStyleFilterCamera::translateFilter()
 {
   if(nullptr == m_ActiveFilter || nullptr == m_ActiveProp)
   {
-	m_PreviousTransforms.clear();
+    m_PreviousTransforms.clear();
     return;
   }
 
@@ -796,7 +796,7 @@ void VSInteractorStyleFilterCamera::translateFilter()
   }
 
   // Check for custom transform
-  if (m_CustomTransform)
+  if(m_CustomTransform)
   {
     double newDelta = m_CustomTransformAmount.toDouble();
     localDelta[0] = newDelta;
@@ -827,11 +827,11 @@ void VSInteractorStyleFilterCamera::translateFilter()
   VSAbstractFilter::FilterListType selection = getFilterSelection();
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* previousTransform = new VSTransform(*filter->getTransform());
-	previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
-	previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
-	previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
-	m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
+    VSTransform* previousTransform = new VSTransform(*filter->getTransform());
+    previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
+    previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
+    previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
+    m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
     filter->getTransform()->translate(localDelta);
   }
 }
@@ -878,7 +878,7 @@ void VSInteractorStyleFilterCamera::rotateFilter()
 {
   if(nullptr == m_ActiveFilter || nullptr == m_ActiveProp)
   {
-	m_PreviousTransforms.clear();
+    m_PreviousTransforms.clear();
     return;
   }
 
@@ -929,16 +929,15 @@ void VSInteractorStyleFilterCamera::rotateFilter()
     break;
   }
 
-
   // Rotate all selected filters
   VSAbstractFilter::FilterListType selection = getFilterSelection();
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* previousTransform = new VSTransform(*filter->getTransform());
-	previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
-	previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
-	previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
-	m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
+    VSTransform* previousTransform = new VSTransform(*filter->getTransform());
+    previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
+    previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
+    previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
+    m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
     filter->getTransform()->rotate(rotateAmt, rotationAxis);
   }
 }
@@ -982,7 +981,7 @@ void VSInteractorStyleFilterCamera::scaleFilter()
 {
   if(nullptr == m_ActiveFilter || nullptr == m_ActiveProp)
   {
-	m_PreviousTransforms.clear();
+    m_PreviousTransforms.clear();
     return;
   }
 
@@ -1011,7 +1010,7 @@ void VSInteractorStyleFilterCamera::scaleFilter()
 
   if(deltaScale == 0.0)
   {
-	deltaScale = 1.0;
+    deltaScale = 1.0;
   }
 
   double scaleVector[3];
@@ -1042,11 +1041,11 @@ void VSInteractorStyleFilterCamera::scaleFilter()
   VSAbstractFilter::FilterListType selection = getFilterSelection();
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* previousTransform = new VSTransform(*filter->getTransform());
-	previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
-	previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
-	previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
-	m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
+    VSTransform* previousTransform = new VSTransform(*filter->getTransform());
+    previousTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
+    previousTransform->setLocalScale(filter->getTransform()->getLocalScale());
+    previousTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
+    m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
     filter->getTransform()->scale(scaleVector);
   }
 }
@@ -1103,7 +1102,7 @@ void VSInteractorStyleFilterCamera::resetTransform()
 
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* defaultTransform = m_ViewWidget->getFilterViewSettings(filter)->getDefaultTransform();
+    VSTransform* defaultTransform = m_ViewWidget->getFilterViewSettings(filter)->getDefaultTransform();
     filter->getTransform()->setLocalPosition(defaultTransform->getLocalPosition());
     filter->getTransform()->setLocalScale(defaultTransform->getLocalScale());
     filter->getTransform()->setLocalRotation(defaultTransform->getLocalRotation());
@@ -1120,18 +1119,18 @@ void VSInteractorStyleFilterCamera::undoTransform()
 
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* previousTransform = m_PreviousTransforms.at(filter);
-	if(previousTransform != nullptr)
-	{
-	  VSTransform* lastUndoneTransform = new VSTransform(filter->getTransform());
-	  lastUndoneTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
-	  lastUndoneTransform->setLocalScale(filter->getTransform()->getLocalScale());
-	  lastUndoneTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
-	  m_LastUndoneTransforms.insert(std::make_pair(filter, lastUndoneTransform));
-	  filter->getTransform()->setLocalPosition(previousTransform->getLocalPosition());
-	  filter->getTransform()->setLocalScale(previousTransform->getLocalScale());
-	  filter->getTransform()->setLocalRotation(previousTransform->getLocalRotation());
-	}
+    VSTransform* previousTransform = m_PreviousTransforms.at(filter);
+    if(previousTransform != nullptr)
+    {
+      VSTransform* lastUndoneTransform = new VSTransform(filter->getTransform());
+      lastUndoneTransform->setLocalPosition(filter->getTransform()->getLocalPosition());
+      lastUndoneTransform->setLocalScale(filter->getTransform()->getLocalScale());
+      lastUndoneTransform->setLocalRotation(filter->getTransform()->getLocalRotation());
+      m_LastUndoneTransforms.insert(std::make_pair(filter, lastUndoneTransform));
+      filter->getTransform()->setLocalPosition(previousTransform->getLocalPosition());
+      filter->getTransform()->setLocalScale(previousTransform->getLocalScale());
+      filter->getTransform()->setLocalRotation(previousTransform->getLocalRotation());
+    }
   }
   setActionType(ActionType::None);
 }
@@ -1145,19 +1144,19 @@ void VSInteractorStyleFilterCamera::redoTransform()
 
   for(VSAbstractFilter* filter : selection)
   {
-	VSTransform* lastUndoneTransform = m_LastUndoneTransforms.at(filter);
-	if(lastUndoneTransform != nullptr)
-	{
-	  // Save the lastUndoneTransform as previousTransform
-	  VSTransform* previousTransform = new VSTransform(*lastUndoneTransform);
-	  previousTransform->setLocalPosition(lastUndoneTransform->getLocalPosition());
-	  previousTransform->setLocalScale(lastUndoneTransform->getLocalScale());
-	  previousTransform->setLocalRotation(lastUndoneTransform->getLocalRotation());
-	  m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
-	  filter->getTransform()->setLocalPosition(lastUndoneTransform->getLocalPosition());
-	  filter->getTransform()->setLocalScale(lastUndoneTransform->getLocalScale());
-	  filter->getTransform()->setLocalRotation(lastUndoneTransform->getLocalRotation());
-	}
+    VSTransform* lastUndoneTransform = m_LastUndoneTransforms.at(filter);
+    if(lastUndoneTransform != nullptr)
+    {
+      // Save the lastUndoneTransform as previousTransform
+      VSTransform* previousTransform = new VSTransform(*lastUndoneTransform);
+      previousTransform->setLocalPosition(lastUndoneTransform->getLocalPosition());
+      previousTransform->setLocalScale(lastUndoneTransform->getLocalScale());
+      previousTransform->setLocalRotation(lastUndoneTransform->getLocalRotation());
+      m_PreviousTransforms.insert(std::make_pair(filter, previousTransform));
+      filter->getTransform()->setLocalPosition(lastUndoneTransform->getLocalPosition());
+      filter->getTransform()->setLocalScale(lastUndoneTransform->getLocalScale());
+      filter->getTransform()->setLocalRotation(lastUndoneTransform->getLocalRotation());
+    }
   }
   setActionType(ActionType::None);
 }
@@ -1338,14 +1337,14 @@ void VSInteractorStyleFilterCamera::determineSubsampling()
     filterViewSettingsCollection.push_back(iter->second);
     if(!isSIMPL)
     {
-	  try {
-		simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
-		imageDatasetFilter = dynamic_cast<VSDataSetFilter*>(iter->first);
-	  }
-	  catch(const std::bad_cast& badCastException)
-	  {
-		qDebug() << badCastException.what();
-	  }
+      try
+      {
+        simplDataContainerFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(iter->first);
+        imageDatasetFilter = dynamic_cast<VSDataSetFilter*>(iter->first);
+      } catch(const std::bad_cast& badCastException)
+      {
+        qDebug() << badCastException.what();
+      }
       isSIMPL = simplDataContainerFilter && iter->second->isFlat();
       if(isSIMPL || imageDatasetFilter)
       {

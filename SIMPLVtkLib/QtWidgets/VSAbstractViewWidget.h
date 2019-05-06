@@ -422,7 +422,7 @@ protected:
   void localSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
   /**
-   * @brief Selects the current filter's parent.  If the current filter is not set, 
+   * @brief Selects the current filter's parent.  If the current filter is not set,
    * select the first base filter in the model.
    * @param addSelection
    */

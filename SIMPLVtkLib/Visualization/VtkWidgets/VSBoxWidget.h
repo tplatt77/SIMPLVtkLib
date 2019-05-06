@@ -187,23 +187,23 @@ public:
   void setInteractor(vtkRenderWindowInteractor* interactor) override;
 
   /**
-  * @brief Returns true if the translation, rotation, and scale are consistent with current values.
-  * Returns false otherwise.
-  * @param translation
-  * @param rotation
-  * @param scale
-  * @return
-  */
+   * @brief Returns true if the translation, rotation, and scale are consistent with current values.
+   * Returns false otherwise.
+   * @param translation
+   * @param rotation
+   * @param scale
+   * @return
+   */
   bool equals(double* translation, double* rotation, double* scale) const;
 
   /**
-  * @brief Returns true if the translation, rotation, and scale are consistent with current values.
-  * Returns false otherwise.
-  * @param translation
-  * @param rotation
-  * @param scale
-  * @return
-  */
+   * @brief Returns true if the translation, rotation, and scale are consistent with current values.
+   * Returns false otherwise.
+   * @param translation
+   * @param rotation
+   * @param scale
+   * @return
+   */
   bool equals(std::vector<double> translation, std::vector<double> rotation, std::vector<double> scale) const;
 
   /**

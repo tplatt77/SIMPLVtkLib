@@ -43,18 +43,17 @@
 #include <vtkCellData.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataSetMapper.h>
+#include <vtkExtractVOI.h>
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
 #include <vtkImageProperty.h>
 #include <vtkImageSliceMapper.h>
 #include <vtkMapper.h>
+#include <vtkPlaneSource.h>
 #include <vtkPointData.h>
 #include <vtkProperty.h>
 #include <vtkTextProperty.h>
 #include <vtkTexture.h>
-#include <vtkImageData.h>
-#include <vtkPlaneSource.h>
-#include <vtkExtractVOI.h>
 
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSAbstractDataFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSSIMPLDataContainerFilter.h"
@@ -92,10 +91,9 @@ VSFilterViewSettings::VSFilterViewSettings(VSAbstractFilter* filter, Representat
   setupActions();
   bool isSIMPL = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
   setupActors(isSIMPL);
-  if(isSIMPL && (representation == Representation::Surface ||
-	 representation == Representation::SurfaceWithEdges))
+  if(isSIMPL && (representation == Representation::Surface || representation == Representation::SurfaceWithEdges))
   {
-	  connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(inputUpdated(VSAbstractFilter*)));
+    connect(filter, SIGNAL(updatedOutputPort(VSAbstractFilter*)), this, SLOT(inputUpdated(VSAbstractFilter*)));
   }
 }
 
@@ -596,8 +594,7 @@ vtkDataSetMapper* VSFilterViewSettings::getDataSetMapper() const
 // -----------------------------------------------------------------------------
 vtkActor* VSFilterViewSettings::getDataSetActor() const
 {
-  if((ActorType::DataSet == m_ActorType || ActorType::Image2D == m_ActorType)
-	&& isValid())
+  if((ActorType::DataSet == m_ActorType || ActorType::Image2D == m_ActorType) && isValid())
   {
     return vtkActor::SafeDownCast(m_Actor);
   }
@@ -790,7 +787,7 @@ void VSFilterViewSettings::setActiveArrayName(QString name)
     emit requiresRender();
 
     updateScalarBarVisibility();
-	updateTexture();
+    updateTexture();
     return;
   }
 
@@ -863,7 +860,7 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
 
     m_LookupTable->setRange(range);
     m_ScalarBarActor->SetTitle(qPrintable(componentName));
-	updateTexture();
+    updateTexture();
   }
   else if(index < numComponents)
   {
@@ -1165,12 +1162,11 @@ void VSFilterViewSettings::setupActors(bool outline)
 
     // Refresh ScalarBarSetting
     setScalarBarSetting(m_ScalarBarSetting);
-
   }
 
   setupCubeAxesActor();
 
-  //if(outline)
+  // if(outline)
   //{
   //  setRepresentation(Representation::Outline);
   //}
@@ -1418,7 +1414,7 @@ void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
 
   if(!m_DataSetFilter)
   {
-	m_Mapper->SetInputConnection(filter->getOutputPort());
+    m_Mapper->SetInputConnection(filter->getOutputPort());
     m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
   }
   emit requiresRender();
@@ -1436,28 +1432,27 @@ void VSFilterViewSettings::updateTransform()
 
   if(ActorType::Image2D == m_ActorType || ActorType::DataSet == m_ActorType)
   {
-	VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
-	vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
-	double bounds[6];
-	imageData->GetBounds(bounds);
-	int extent[6];
-	imageData->GetExtent(extent);
-	// Set Zmax to 1.0f for Image2D actor types
-	if(ActorType::Image2D == m_ActorType && extent[5] == 0)
-	{
-	  extent[5] = 1.0f;
-	}
+    VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+    double bounds[6];
+    imageData->GetBounds(bounds);
+    int extent[6];
+    imageData->GetExtent(extent);
+    // Set Zmax to 1.0f for Image2D actor types
+    if(ActorType::Image2D == m_ActorType && extent[5] == 0)
+    {
+      extent[5] = 1.0f;
+    }
 
-	// Get transform vectors
-	VSTransform* transform = m_Filter->getTransform();
-	double* transformPosition = transform->getPosition();
-	double* transformRotation = transform->getRotation();
-	double* transformScale = transform->getScale();
-	  
-	m_Actor->SetPosition(transformPosition);
-	  m_Actor->SetOrientation(transformRotation);
-	  m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1],
-		extent[5] * transformScale[2]);
+    // Get transform vectors
+    VSTransform* transform = m_Filter->getTransform();
+    double* transformPosition = transform->getPosition();
+    double* transformRotation = transform->getRotation();
+    double* transformScale = transform->getScale();
+
+    m_Actor->SetPosition(transformPosition);
+    m_Actor->SetOrientation(transformRotation);
+    m_Actor->SetScale(extent[1] * transformScale[0], extent[3] * transformScale[1], extent[5] * transformScale[2]);
   }
   else
   {
@@ -1468,7 +1463,7 @@ void VSFilterViewSettings::updateTransform()
 
   if(m_CubeAxesActor && m_Filter->getOutput())
   {
-    if (ActorType::Image2D == m_ActorType)
+    if(ActorType::Image2D == m_ActorType)
     {
       m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
     }
@@ -2345,13 +2340,13 @@ void VSFilterViewSettings::SetActiveComponentIndex(VSFilterViewSettings::Collect
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::SetSubsampling(VSFilterViewSettings::Collection collection, int value)
 {
-	for(VSFilterViewSettings* settings : collection)
-	{
-		if(settings->isVisible())
-		{
-			settings->setSubsampling(value);
-		}
-	}
+  for(VSFilterViewSettings* settings : collection)
+  {
+    if(settings->isVisible())
+    {
+      settings->setSubsampling(value);
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -2359,9 +2354,9 @@ void VSFilterViewSettings::SetSubsampling(VSFilterViewSettings::Collection colle
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setSubsampling(int value)
 {
-	m_Subsampling = value;
-	updateTexture();
-	emit subsamplingChanged(value);
+  m_Subsampling = value;
+  updateTexture();
+  emit subsamplingChanged(value);
 }
 
 // -----------------------------------------------------------------------------
@@ -2647,16 +2642,16 @@ double VSFilterViewSettings::GetAlpha(VSFilterViewSettings::Collection collectio
 // -----------------------------------------------------------------------------
 double VSFilterViewSettings::GetSubsampling(VSFilterViewSettings::Collection collection)
 {
-	// Returns the first valid setting's subsampling value
-	for(VSFilterViewSettings* settings : collection)
-	{
-		if(settings->isValid())
-		{
-			return settings->getSubsampling();
-		}
-	}
+  // Returns the first valid setting's subsampling value
+  for(VSFilterViewSettings* settings : collection)
+  {
+    if(settings->isValid())
+    {
+      return settings->getSubsampling();
+    }
+  }
 
-	return 1.0;
+  return 1.0;
 }
 
 // -----------------------------------------------------------------------------
@@ -2664,7 +2659,7 @@ double VSFilterViewSettings::GetSubsampling(VSFilterViewSettings::Collection col
 // -----------------------------------------------------------------------------
 int VSFilterViewSettings::getSubsampling() const
 {
-	return m_Subsampling;
+  return m_Subsampling;
 }
 
 // -----------------------------------------------------------------------------
@@ -2720,15 +2715,15 @@ void VSFilterViewSettings::updateTexture()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::inputUpdated(VSAbstractFilter* filter)
 {
-	if(filter->getOutput() != nullptr)
-	{
-		VTK_PTR(vtkCellData) cellData = filter->getOutput()->GetCellData();
-		if(cellData)
-		{
-			setActiveArrayName(cellData->GetArrayName(0));
-		}
-	}
-	updateTexture();
+  if(filter->getOutput() != nullptr)
+  {
+    VTK_PTR(vtkCellData) cellData = filter->getOutput()->GetCellData();
+    if(cellData)
+    {
+      setActiveArrayName(cellData->GetArrayName(0));
+    }
+  }
+  updateTexture();
 }
 
 // -----------------------------------------------------------------------------
@@ -2762,12 +2757,12 @@ VSTransform* VSFilterViewSettings::getDefaultTransform()
 {
   if(m_DefaultTransform == nullptr)
   {
-	m_DefaultTransform = new VSTransform(m_Filter->getTransform());
-	return m_DefaultTransform;
+    m_DefaultTransform = new VSTransform(m_Filter->getTransform());
+    return m_DefaultTransform;
   }
   else
   {
-	return m_DefaultTransform;
+    return m_DefaultTransform;
   }
 }
 

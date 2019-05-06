@@ -42,7 +42,7 @@ class VSPipelineFilter;
 /**
  * @class VSPipelineValues VSPipelineValues.h
  * SIMPLVtkLib/Visualization/VisualFilters/VSPipelineValues.h
- * @brief This class handles information for importing pipelines and allows a 
+ * @brief This class handles information for importing pipelines and allows a
  * quick import process for all geometries the DataContainerArray contains.
  */
 class SIMPLVtkLib_EXPORT VSPipelineValues : public VSAbstractFilterValues
@@ -56,13 +56,13 @@ public:
   virtual ~VSPipelineValues() = default;
 
   /**
-  * @brief Finishes importing all geometries with their current values
-  */
+   * @brief Finishes importing all geometries with their current values
+   */
   void applyValues() override;
 
   /**
-  * @brief resetValues
-  */
+   * @brief resetValues
+   */
   void resetValues() override;
 
   /**

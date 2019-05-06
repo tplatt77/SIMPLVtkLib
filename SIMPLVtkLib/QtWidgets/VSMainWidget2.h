@@ -42,8 +42,8 @@
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
 #include "ui_VSMainWidget2.h"
-#include "ui_VisualizationFilterWidgets.h"
 #include "ui_VisibilitySettingsContainer.h"
+#include "ui_VisualizationFilterWidgets.h"
 
 /**
  * @class VSMainWidget2 VSMainWidget2.h SIMPLVtkLib/QtWidgets/VSMainWidget2.h

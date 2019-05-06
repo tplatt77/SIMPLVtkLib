@@ -292,13 +292,13 @@ void VSFilterViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     backgroundColor = SVStyle::Instance()->getQTreeViewItem_background_color();
   }
 
-  if (!backgroundColor.isValid())
+  if(!backgroundColor.isValid())
   {
-    if (option.state & QStyle::State_Selected)
+    if(option.state & QStyle::State_Selected)
     {
       backgroundColor = option.palette.color(QPalette::Highlight);
     }
-    else if (option.features & QStyleOptionViewItem::Alternate)
+    else if(option.features & QStyleOptionViewItem::Alternate)
     {
       backgroundColor = option.palette.color(QPalette::AlternateBase);
     }

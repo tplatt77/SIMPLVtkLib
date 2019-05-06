@@ -295,24 +295,24 @@ VSFilterViewSettings* VSFilterViewModel::createFilterViewSettings(VSAbstractFilt
   VSFilterViewSettings* viewSettings;
   if(m_DisplayType == AbstractImportMontageDialog::DisplayType::NotSpecified)
   {
-	  viewSettings = new VSFilterViewSettings(filter);
+    viewSettings = new VSFilterViewSettings(filter);
   }
   else
   {
-	  VSFilterViewSettings::Representation representation = VSFilterViewSettings::Representation::Outline;
+    VSFilterViewSettings::Representation representation = VSFilterViewSettings::Representation::Outline;
     if(m_DisplayType == AbstractImportMontageDialog::DisplayType::SideBySide || m_DisplayType == AbstractImportMontageDialog::DisplayType::Montage)
     {
-		  representation = VSFilterViewSettings::Representation::Surface;
-	  }
-	  viewSettings = new VSFilterViewSettings(filter, representation, m_DisplayType);
+      representation = VSFilterViewSettings::Representation::Surface;
+    }
+    viewSettings = new VSFilterViewSettings(filter, representation, m_DisplayType);
   }
 
   viewSettings->getTransform()->setOriginPosition(viewSettings->getTransform()->getLocalPosition());
   viewSettings->getTransform()->setOriginRotation(viewSettings->getTransform()->getLocalRotation());
   viewSettings->getTransform()->setOriginScale(viewSettings->getTransform()->getLocalScale());
 
-  //connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
-  //connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
+  // connect(filter, &VSAbstractFilter::removeFilter, this, [=] { removeFilterViewSettings(filter); });
+  // connect(viewSettings, &VSFilterViewSettings::visibilityChanged, this, [=] { filterVisibilityChanged(); });
 
   m_FilterViewSettings[filter] = viewSettings;
 
@@ -754,5 +754,5 @@ QModelIndexList VSFilterViewModel::convertIndicesFromFilterModel(const QModelInd
 // -----------------------------------------------------------------------------
 void VSFilterViewModel::setDisplayType(AbstractImportMontageDialog::DisplayType displayType)
 {
-	m_DisplayType = displayType;
+  m_DisplayType = displayType;
 }

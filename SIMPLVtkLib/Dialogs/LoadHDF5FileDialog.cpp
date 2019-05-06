@@ -72,7 +72,7 @@ void LoadHDF5FileDialog::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void LoadHDF5FileDialog::setHDF5FilePath(const QString &filePath)
+void LoadHDF5FileDialog::setHDF5FilePath(const QString& filePath)
 {
   m_Ui->loadHDF5DataWidget->initialize(filePath);
 }

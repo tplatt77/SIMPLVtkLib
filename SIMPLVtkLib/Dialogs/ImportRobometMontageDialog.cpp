@@ -130,7 +130,6 @@ void ImportRobometMontageDialog::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void ImportRobometMontageDialog::disconnectSignalsSlots()
 {
-
 }
 
 // -----------------------------------------------------------------------------

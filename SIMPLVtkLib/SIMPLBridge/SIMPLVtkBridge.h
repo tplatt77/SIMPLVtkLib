@@ -331,11 +331,10 @@ protected:
   static bool CanWrapDataArray(IDataArray::Pointer array);
 
 public:
-  SIMPLVtkBridge(const SIMPLVtkBridge&) = delete;    // Copy Constructor Not Implemented
-    SIMPLVtkBridge(SIMPLVtkBridge&&) = delete; // Move Constructor Not Implemented
-    SIMPLVtkBridge& operator=(const SIMPLVtkBridge&) = delete; // Copy Assignment Not Implemented
-    SIMPLVtkBridge& operator=(SIMPLVtkBridge&&) = delete; // Move Assignment Not Implemented
-
+  SIMPLVtkBridge(const SIMPLVtkBridge&) = delete;            // Copy Constructor Not Implemented
+  SIMPLVtkBridge(SIMPLVtkBridge&&) = delete;                 // Move Constructor Not Implemented
+  SIMPLVtkBridge& operator=(const SIMPLVtkBridge&) = delete; // Copy Assignment Not Implemented
+  SIMPLVtkBridge& operator=(SIMPLVtkBridge&&) = delete;      // Move Assignment Not Implemented
 };
 
 #ifdef __clang__

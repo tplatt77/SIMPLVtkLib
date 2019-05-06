@@ -111,9 +111,9 @@ public:
   double* getNormal() const;
 
   /**
- * @brief Returns the origin of the last applied slice
- * @return
- */
+   * @brief Returns the origin of the last applied slice
+   * @return
+   */
   double* getLastOrigin() const;
 
   /**
@@ -137,15 +137,15 @@ public:
   void setLastNormal(double* normal);
 
   /**
-  * @brief Write values to Json
-  * @param json
-  */
+   * @brief Write values to Json
+   * @param json
+   */
   void writeJson(QJsonObject& json);
 
   /**
-  * @brief Read values from Json
-  * @param json
-  */
+   * @brief Read values from Json
+   * @param json
+   */
   void readJson(QJsonObject& json);
 
 signals:

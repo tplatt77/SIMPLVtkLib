@@ -93,10 +93,9 @@ private:
   QVector<QVariant> m_ItemData;
   DREAM3DFileItem* m_ParentItem;
 
-  public:
-  DREAM3DFileItem(const DREAM3DFileItem&) = delete;    // Copy Constructor Not Implemented
-    DREAM3DFileItem(DREAM3DFileItem&&) = delete; // Move Constructor Not Implemented
-    DREAM3DFileItem& operator=(const DREAM3DFileItem&) = delete; // Copy Assignment Not Implemented
-    DREAM3DFileItem& operator=(DREAM3DFileItem&&) = delete; // Move Assignment Not Implemented
-
+public:
+  DREAM3DFileItem(const DREAM3DFileItem&) = delete;            // Copy Constructor Not Implemented
+  DREAM3DFileItem(DREAM3DFileItem&&) = delete;                 // Move Constructor Not Implemented
+  DREAM3DFileItem& operator=(const DREAM3DFileItem&) = delete; // Copy Assignment Not Implemented
+  DREAM3DFileItem& operator=(DREAM3DFileItem&&) = delete;      // Move Assignment Not Implemented
 };

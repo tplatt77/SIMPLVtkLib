@@ -86,7 +86,7 @@ public:
    * @brief Performs any necessary actions when the mouse is double clicked
    */
   void OnDoubleClick();
-  
+
   /**
    * @brief Performs any necessary actions when the mouse wheel is scrolled backward
    */
@@ -117,15 +117,15 @@ protected:
     Translate,
     Rotate,
     Scale,
-	ResetTransform
+    ResetTransform
   };
 
   enum class Axis
   {
     None = 0,
-	X,
-	Y,
-	Z
+    X,
+    Y,
+    Z
   };
 
   /**

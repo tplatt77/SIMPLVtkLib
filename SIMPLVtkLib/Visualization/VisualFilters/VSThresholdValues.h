@@ -190,27 +190,27 @@ protected:
   void setRange(double min, double max);
 
   /**
-  * @brief Return the percent of the way the lower limit is through the entire range.
-  * @return
-  */
+   * @brief Return the percent of the way the lower limit is through the entire range.
+   * @return
+   */
   double getMinPercent() const;
 
   /**
-  * @brief Return the percent of the way the upper limit is through the entire range.
-  * @return
-  */
+   * @brief Return the percent of the way the upper limit is through the entire range.
+   * @return
+   */
   double getMaxPercent() const;
 
   /**
-  * @brief Updates the minimum value based on the percent of the way the value is throughout the entire range.
-  * @param percent
-  */
+   * @brief Updates the minimum value based on the percent of the way the value is throughout the entire range.
+   * @param percent
+   */
   void setMinPercent(double percent);
 
   /**
-  * @brief Updates the maximum value based on the percent of the way the value is throughout the entire range.
-  * @param percent
-  */
+   * @brief Updates the maximum value based on the percent of the way the value is throughout the entire range.
+   * @param percent
+   */
   void setMaxPercent(double percent);
 
 private:

@@ -60,8 +60,7 @@ VSDatasetImporter::~VSDatasetImporter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSDatasetImporter::Pointer VSDatasetImporter::New(VSFileNameFilter* textFilter,
-  VSDataSetFilter* filter)
+VSDatasetImporter::Pointer VSDatasetImporter::New(VSFileNameFilter* textFilter, VSDataSetFilter* filter)
 {
   VSDatasetImporter::Pointer sharedPtr(new VSDatasetImporter(textFilter, filter));
   return sharedPtr;
@@ -84,7 +83,7 @@ void VSDatasetImporter::execute()
 
   if(m_TextFilter == nullptr || m_DatasetFilter == nullptr)
   {
-	cancel();
+    cancel();
   }
 
   setState(State::Finished);

@@ -112,11 +112,9 @@ private:
   ButtonState m_VisibilityButtonState = ButtonState::Normal;
   QModelIndex m_MouseIndex;
 
-  public:
-  VSFilterViewDelegate(const VSFilterViewDelegate&) = delete; // Copy Constructor Not Implemented
-    VSFilterViewDelegate(VSFilterViewDelegate&&) = delete; // Move Constructor Not Implemented
-    VSFilterViewDelegate& operator=(const VSFilterViewDelegate&) = delete; // Copy Assignment Not Implemented
-    VSFilterViewDelegate& operator=(VSFilterViewDelegate&&) = delete; // Move Assignment Not Implemented
+public:
+  VSFilterViewDelegate(const VSFilterViewDelegate&) = delete;            // Copy Constructor Not Implemented
+  VSFilterViewDelegate(VSFilterViewDelegate&&) = delete;                 // Move Constructor Not Implemented
+  VSFilterViewDelegate& operator=(const VSFilterViewDelegate&) = delete; // Copy Assignment Not Implemented
+  VSFilterViewDelegate& operator=(VSFilterViewDelegate&&) = delete;      // Move Assignment Not Implemented
 };
-
-

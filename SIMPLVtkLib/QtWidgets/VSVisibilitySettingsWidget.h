@@ -119,7 +119,7 @@ protected slots:
    * @brief Listens for the active VSFilterViewSettings solid color to change
    */
   void listenSolidColor();
-  
+
   /**
    * @brief Handles the subsampling spin box being changed
    * @param value

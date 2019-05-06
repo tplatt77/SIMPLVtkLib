@@ -521,9 +521,7 @@ bool VSBoxWidget::equals(double* translation, double* rotation, double* scale) c
 
   for(int i = 0; i < 3; i++)
   {
-    if(translation[i] != currentTranslation[i] ||
-       rotation[i] != currentRotation[i] ||
-       scale[i] != currentScale[i])
+    if(translation[i] != currentTranslation[i] || rotation[i] != currentRotation[i] || scale[i] != currentScale[i])
     {
       return false;
     }
@@ -541,7 +539,7 @@ bool VSBoxWidget::equals(std::vector<double> translationVector, std::vector<doub
   double rotation[3];
   double scale[3];
 
-  for (int i = 0; i < 3; i++)
+  for(int i = 0; i < 3; i++)
   {
     translation[i] = translationVector[i];
     rotation[i] = rotationVector[i];

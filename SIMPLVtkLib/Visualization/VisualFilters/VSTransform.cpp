@@ -749,5 +749,5 @@ double* VSTransform::getOriginScale() const
 // -----------------------------------------------------------------------------
 void VSTransform::setOriginScale(double* originScale)
 {
-  m_OriginScale= originScale;
+  m_OriginScale = originScale;
 }

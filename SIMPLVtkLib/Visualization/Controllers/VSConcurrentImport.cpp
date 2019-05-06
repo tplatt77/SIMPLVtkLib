@@ -144,14 +144,14 @@ void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
 
   auto currentFilters = filterModel->getAllFilters();
   bool parentFilterFound = (std::find(currentFilters.begin(), currentFilters.end(), m_DataParentFilter) != currentFilters.end());
-  if (!parentFilterFound)
+  if(!parentFilterFound)
   {
     filterModel->addFilter(m_DataParentFilter);
   }
 
   m_ImportDataContainerQueue = dca->getDataContainers();
 
-  for (int i = 0; i < m_ImportDataContainerQueue.size(); i++)
+  for(int i = 0; i < m_ImportDataContainerQueue.size(); i++)
   {
     DataContainer::Pointer dc = m_ImportDataContainerQueue[i];
     m_DataContainerIndexMap.insert(dc, i);
@@ -190,22 +190,22 @@ void VSConcurrentImport::partialWrappingThreadFinished()
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
       VSSIMPLDataContainerFilter* filter = new VSSIMPLDataContainerFilter(wrappedDc, m_DataParentFilter);
-		DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
-		ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
-    FloatVec3Type originTuple = imageGeom->getOrigin();
-		double origin[3];
-    origin[0] = originTuple[0];
-    origin[1] = originTuple[1];
-    origin[2] = originTuple[2];
+      DataContainer::Pointer dataContainer = wrappedDc->m_DataContainer;
+      ImageGeom::Pointer imageGeom = dataContainer->getGeometryAs<ImageGeom>();
+      FloatVec3Type originTuple = imageGeom->getOrigin();
+      double origin[3];
+      origin[0] = originTuple[0];
+      origin[1] = originTuple[1];
+      origin[2] = originTuple[2];
 
-		filter->getTransform()->setLocalPosition(origin);
-		filter->getTransform()->setOriginPosition(origin);
+      filter->getTransform()->setLocalPosition(origin);
+      filter->getTransform()->setOriginPosition(origin);
 
-    // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
-    m_UnappliedDataFilterLock.acquire();
-    int index = m_DataContainerIndexMap.value(filter->getWrappedDataContainer()->m_DataContainer);
-    m_UnappliedDataFilters[index] = filter;
-    m_UnappliedDataFilterLock.release();
+      // Attempting to run applyDataFilters requires the QSemaphore to lock when modifying this vector
+      m_UnappliedDataFilterLock.acquire();
+      int index = m_DataContainerIndexMap.value(filter->getWrappedDataContainer()->m_DataContainer);
+      m_UnappliedDataFilters[index] = filter;
+      m_UnappliedDataFilterLock.release();
     }
 
     m_AppliedFilterCountLock.acquire();
@@ -304,11 +304,11 @@ void VSConcurrentImport::applyDataFiltersThreadFinished()
   {
     m_ThreadCountLock.release();
 
-    for (VSSIMPLDataContainerFilter* filter : m_AppliedDataFilters)
+    for(VSSIMPLDataContainerFilter* filter : m_AppliedDataFilters)
     {
       auto currentFilters = m_Controller->getFilterModel()->getAllFilters();
       bool filterFound = (std::find(currentFilters.begin(), currentFilters.end(), m_DataParentFilter) != currentFilters.end());
-      if (!filterFound)
+      if(!filterFound)
       {
         m_Controller->getFilterModel()->addFilter(filter, false);
       }

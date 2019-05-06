@@ -42,10 +42,10 @@
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
-#include <vtkImageData.h>
-#include <vtkTransformFilter.h>
-#include <vtkPointSet.h>
 #include <vtkExtractVOI.h>
+#include <vtkImageData.h>
+#include <vtkPointSet.h>
+#include <vtkTransformFilter.h>
 
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
@@ -99,19 +99,19 @@ bool VSSIMPLDataContainerFilter::isFlatImage()
 {
   // Check dimensions
   SIMPLVtkBridge::WrappedDataContainerPtr wrappedDC = m_DCValues->getWrappedDataContainer();
-  if (nullptr == wrappedDC)
+  if(nullptr == wrappedDC)
   {
     return false;
   }
 
   DataContainer::Pointer dc = wrappedDC->m_DataContainer;
-  if (nullptr == dc)
+  if(nullptr == dc)
   {
     return false;
   }
 
   ImageGeom::Pointer imageGeom = dc->getGeometryAs<ImageGeom>();
-  if (nullptr == imageGeom)
+  if(nullptr == imageGeom)
   {
     return false;
   }
@@ -179,13 +179,13 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString& fi
   {
     int err = 0;
     DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(nullptr, err);
-	QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+    QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
     for(QMap<QString, DataContainerProxy>::iterator dcIter = dataContainers.begin(); dcIter != dataContainers.end(); dcIter++)
     {
       if(dcIter.key() == dcName)
       {
         DataContainerProxy dcProxy = dcIter.value();
-		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+        QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
         dcProxy.setFlag(Qt::Checked);
 
         for(QMap<QString, AttributeMatrixProxy>::iterator amIter = attributeMatricies.begin(); amIter != attributeMatricies.end(); amIter++)
@@ -196,7 +196,7 @@ VSSIMPLDataContainerFilter* VSSIMPLDataContainerFilter::Create(const QString& fi
           {
             amProxy.setFlag(Qt::Checked);
           }
-		  QMap<QString, DataArrayProxy> dataArrays = amProxy.getDataArrays();
+          QMap<QString, DataArrayProxy> dataArrays = amProxy.getDataArrays();
           for(QMap<QString, DataArrayProxy>::iterator daIter = dataArrays.begin(); daIter != dataArrays.end(); daIter++)
           {
             DataArrayProxy daProxy = daIter.value();
@@ -303,7 +303,7 @@ void VSSIMPLDataContainerFilter::reloadData()
     {
       int err = 0;
       DataContainerArrayProxy dcaProxy = reader->readDataContainerArrayStructure(nullptr, err);
-	  QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
+      QMap<QString, DataContainerProxy>& dataContainers = dcaProxy.getDataContainers();
       QStringList dcNames = dataContainers.keys();
       if(dcNames.contains(dcName))
       {

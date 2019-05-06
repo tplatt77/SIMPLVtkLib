@@ -56,11 +56,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(VSEdgeGeom, vtkObject)
 
-      /**
-       * @brief Sets the DREAM.3D geometry
-       * @param geom
-       */
-      void SetGeometry(EdgeGeom::Pointer geom);
+  /**
+   * @brief Sets the DREAM.3D geometry
+   * @param geom
+   */
+  void SetGeometry(EdgeGeom::Pointer geom);
 
   /**
    * @brief Returns the number of cells in the geometry

@@ -39,9 +39,9 @@
 #include <array>
 
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -89,8 +89,7 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const QString& outputFile,
-  bool writeXdmfFile, bool writeTimeSeriesMarkers)
+AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const QString& outputFile, bool writeXdmfFile, bool writeTimeSeriesMarkers)
 {
   QString filterName = "DataContainerWriter";
   FilterManager* fm = FilterManager::Instance();
@@ -98,33 +97,33 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const Q
 
   if(factory.get() != nullptr)
   {
-	AbstractFilter::Pointer dataContainerWriter = factory->create();
-	if(dataContainerWriter.get() != nullptr)
-	{
-	  QVariant var;
-
-	  // Set output file
-	  var.setValue(outputFile);
-	  if(!setFilterProperty(dataContainerWriter, "OutputFile", var))
+    AbstractFilter::Pointer dataContainerWriter = factory->create();
+    if(dataContainerWriter.get() != nullptr)
     {
-      return AbstractFilter::NullPointer();
-    }
+      QVariant var;
 
-    // Set whether to write Xdmf file
-	  var.setValue(writeXdmfFile);
-	  if(!setFilterProperty(dataContainerWriter, "WriteXdmfFile", var))
-	  {
-		return AbstractFilter::NullPointer();
-    }
+      // Set output file
+      var.setValue(outputFile);
+      if(!setFilterProperty(dataContainerWriter, "OutputFile", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
 
-    // Set whether to include Xdmf time markers
-	  var.setValue(writeTimeSeriesMarkers);
-	  if(!setFilterProperty(dataContainerWriter, "WriteTimeSeries", var))
-	  {
-		return AbstractFilter::NullPointer();
+      // Set whether to write Xdmf file
+      var.setValue(writeXdmfFile);
+      if(!setFilterProperty(dataContainerWriter, "WriteXdmfFile", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set whether to include Xdmf time markers
+      var.setValue(writeTimeSeriesMarkers);
+      if(!setFilterProperty(dataContainerWriter, "WriteTimeSeries", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
     }
-  }
-	return dataContainerWriter;
+    return dataContainerWriter;
   }
   return AbstractFilter::NullPointer();
 }
@@ -180,7 +179,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
         return AbstractFilter::NullPointer();
       }
 
-	  return setOriginResolutionFilter;
+      return setOriginResolutionFilter;
     }
   }
   return AbstractFilter::NullPointer();
@@ -189,8 +188,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName,
-                                                                       bool changeOrigin, bool changeSpacing, float* origin, float* spacing)
+AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin,
+                                                                       bool changeSpacing, float* origin, float* spacing)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -282,7 +281,8 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                          const QString &imageFilePrefix, const QString &imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin, float* spacing)
+                                                                          const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin,
+                                                                          float* spacing)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -418,7 +418,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       }
 
       // Set the Data Container Prefix
-      var.setValue(DataArrayPath(dcPrefix, "" , ""));
+      var.setValue(DataArrayPath(dcPrefix, "", ""));
       if(!setFilterProperty(importZeissMontageFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
@@ -646,8 +646,7 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type m
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile,
-  const QString& dcName)
+AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile, const QString& dcName)
 {
   QString filterName = "ITKImageReader";
   FilterManager* fm = FilterManager::Instance();
@@ -693,15 +692,14 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
       return itkImageReaderFilter;
     }
   }
-  
+
   return AbstractFilter::NullPointer();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QString& outputFile,
-  const QString& dcName, const QString& attrMatrixName, const QString& dataArrayName)
+AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QString& outputFile, const QString& dcName, const QString& attrMatrixName, const QString& dataArrayName)
 {
   QString filterName = "ITKImageWriter";
   FilterManager* fm = FilterManager::Instance();
@@ -709,36 +707,36 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QStri
 
   if(factory.get() != nullptr)
   {
-	AbstractFilter::Pointer itkImageWriterFilter = factory->create();
-	if(itkImageWriterFilter.get() != nullptr)
-	{
-	  QVariant var;
+    AbstractFilter::Pointer itkImageWriterFilter = factory->create();
+    if(itkImageWriterFilter.get() != nullptr)
+    {
+      QVariant var;
 
-	  // Set file name
-	  var.setValue(outputFile);
-	  if(!setFilterProperty(itkImageWriterFilter, "FileName", var))
-	  {
-		return AbstractFilter::NullPointer();
-	  }
+      // Set file name
+      var.setValue(outputFile);
+      if(!setFilterProperty(itkImageWriterFilter, "FileName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
 
-	  // Set plane [Currently default to XY (the first option in the DREAM3D GUI)]
-	  int plane = 0;
-	  var.setValue(plane);
-	  if(!setFilterProperty(itkImageWriterFilter, "Plane", var))
-	  {
-		return AbstractFilter::NullPointer();
-	  }
+      // Set plane [Currently default to XY (the first option in the DREAM3D GUI)]
+      int plane = 0;
+      var.setValue(plane);
+      if(!setFilterProperty(itkImageWriterFilter, "Plane", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
 
-	  // Set image data array name
-	  DataArrayPath imageArrayPath(dcName, attrMatrixName, dataArrayName);
-	  var.setValue(imageArrayPath);
-	  if(!setFilterProperty(itkImageWriterFilter, "ImageArrayPath", var))
-	  {
-		return AbstractFilter::NullPointer();
-	  }
+      // Set image data array name
+      DataArrayPath imageArrayPath(dcName, attrMatrixName, dataArrayName);
+      var.setValue(imageArrayPath);
+      if(!setFilterProperty(itkImageWriterFilter, "ImageArrayPath", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
 
-	  return itkImageWriterFilter;
-	}
+      return itkImageWriterFilter;
+    }
   }
 
   return AbstractFilter::NullPointer();

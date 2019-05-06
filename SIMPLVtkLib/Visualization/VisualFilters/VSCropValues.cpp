@@ -273,7 +273,7 @@ void VSCropValues::setLastVOI(int voi[6])
   {
     m_LastVoi[i] = voi[i];
   }
-  
+
   emit lastVolumeOfInterestChanged(voi);
 }
 
@@ -286,7 +286,7 @@ void VSCropValues::setLastSampleRate(int sampleRate[3])
   {
     m_LastSampleRate[i] = sampleRate[i];
   }
-  
+
   emit lastSampleRateChanged(sampleRate);
 }
 
@@ -326,7 +326,7 @@ void VSCropValues::loadJson(QJsonObject& json)
   {
     m_LastVoi[i] = voiArray.at(i).toInt();
   }
-  
+
   QJsonArray sampleRateArray = json["Last Sample Rate"].toArray();
   for(int i = 0; i < 3; i++)
   {

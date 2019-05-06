@@ -39,8 +39,8 @@
 #include <QtCore/QObject>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatVec3.h"
+#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
@@ -77,7 +77,8 @@ public:
    * isn't needed if changeSpacing is false.
    * @return
    */
-  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, bool changeSpacing, float *origin, float *spacing);
+  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, bool changeSpacing,
+                                                        float* origin, float* spacing);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
@@ -97,7 +98,7 @@ public:
    * @return
    */
   AbstractFilter::Pointer createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                          const QString &imageFilePrefix, const QString &imageFileExtension, bool changeOrigin, bool changeSpacing, float *origin, float *spacing);
+                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin, float* spacing);
 
   /**
    * @brief Creates a filter that imports a Zeiss montage, and sets all the necessary properties
@@ -167,8 +168,7 @@ public:
    * @param outputFile The DREAM3D file path to write to
    * @return
    */
-  AbstractFilter::Pointer createDataContainerWriterFilter(const QString& outputFile,
-	bool writeXdmfFile, bool writeTimeSeriesMarkers);
+  AbstractFilter::Pointer createDataContainerWriterFilter(const QString& outputFile, bool writeXdmfFile, bool writeTimeSeriesMarkers);
 
   /**
    * @brief Creates an Image Reader filter that reads the data from an image file and sets all necessary properties
@@ -184,8 +184,7 @@ public:
    * @param dcName The name of the data container
    * @return
    */
-  AbstractFilter::Pointer createImageFileWriterFilter(const QString& outputFile, const QString& dcName,
-	const QString& attrMatrixName, const QString& dataArrayName);
+  AbstractFilter::Pointer createImageFileWriterFilter(const QString& outputFile, const QString& dcName, const QString& attrMatrixName, const QString& dataArrayName);
 
 protected:
   /**
@@ -195,10 +194,9 @@ protected:
   VSFilterFactory(QObject* parent = nullptr);
 
 signals:
-  void notifyErrorMessage(const QString &msg, int code);
+  void notifyErrorMessage(const QString& msg, int code);
 
 private:
-
   /**
    * @brief printPropertyError
    * @param filter

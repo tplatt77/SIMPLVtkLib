@@ -168,7 +168,7 @@ public:
    * @return
    */
   VSAbstractFilterValues* getValues() override;
-  
+
   /**
    * @brief Writes values to a json file from the filter
    * @param json

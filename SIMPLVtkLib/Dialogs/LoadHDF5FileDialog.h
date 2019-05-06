@@ -61,7 +61,7 @@ public:
    * @brief setHDF5FilePath
    * @param filePath
    */
-  void setHDF5FilePath(const QString &filePath);
+  void setHDF5FilePath(const QString& filePath);
 
 protected:
   void setupGui();
@@ -70,9 +70,8 @@ private:
   QSharedPointer<Ui::LoadHDF5FileDialog> m_Ui;
 
 public:
-  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;    // Copy Constructor Not Implemented
-    LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete; // Move Constructor Not Implemented
-    LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
-    LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete; // Move Assignment Not Implemented
-
+  LoadHDF5FileDialog(const LoadHDF5FileDialog&) = delete;            // Copy Constructor Not Implemented
+  LoadHDF5FileDialog(LoadHDF5FileDialog&&) = delete;                 // Move Constructor Not Implemented
+  LoadHDF5FileDialog& operator=(const LoadHDF5FileDialog&) = delete; // Copy Assignment Not Implemented
+  LoadHDF5FileDialog& operator=(LoadHDF5FileDialog&&) = delete;      // Move Assignment Not Implemented
 };

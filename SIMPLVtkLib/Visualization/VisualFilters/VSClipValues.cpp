@@ -385,7 +385,7 @@ void VSClipValues::loadJSon(QJsonObject& json)
   setLastPlaneInverted(json["Last Plane Inverted"].toBool());
   setLastBoxInverted(json["Last Box Inverted"].toBool());
   setInverted(json["Inverted"].toBool());
-  
+
   m_BoxWidget->readJson(json);
   m_PlaneWidget->readJson(json);
 }

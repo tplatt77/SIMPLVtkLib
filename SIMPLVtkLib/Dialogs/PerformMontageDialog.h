@@ -79,7 +79,7 @@ public:
    * @return
    */
   QString getOutputPath();
- 
+
   /**
    * @brief getSaveToFile
    * @return

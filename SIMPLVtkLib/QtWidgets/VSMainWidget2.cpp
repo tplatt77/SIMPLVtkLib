@@ -59,7 +59,7 @@ VSMainWidget2::VSMainWidget2(QWidget* parent)
   setActiveView(viewWidget);
 
   createFilterMenu();
-  
+
   // Create Visualization Widgets
   QWidget* visualizationFilters = new QWidget(this);
   m_VisualizationFiltersUi->setupUi(visualizationFilters);
@@ -268,7 +268,7 @@ void VSMainWidget2::listenFilterRemoved(VSAbstractFilter* filter)
 void VSMainWidget2::updateFilterButtons()
 {
   VSAbstractFilter::FilterListType filtersSelected = getCurrentSelection();
-  
+
   // Clip Filter
   bool enableClip = VSClipFilter::CompatibleWithParents(filtersSelected);
   m_Ui->clipBtn->setEnabled(enableClip);
@@ -373,7 +373,7 @@ void VSMainWidget2::updateFilterLabel()
       break;
     }
   }
-  
+
   // Check array and component names
   QString arrayComponentText;
   if(VSFilterViewSettings::HasValidSettings(m_VisualizationViewSettings))
@@ -435,7 +435,7 @@ void VSMainWidget2::setVisualizationSettings(VSFilterViewSettings::Collection vi
   }
 
   m_VisualizationViewSettings = viewSettings;
-  
+
   for(VSFilterViewSettings* settings : m_VisualizationViewSettings)
   {
     connect(settings, &VSFilterViewSettings::visibilityChanged, this, &VSMainWidget2::vsVisibilityChanged);

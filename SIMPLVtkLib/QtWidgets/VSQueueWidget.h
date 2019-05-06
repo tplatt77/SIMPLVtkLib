@@ -40,8 +40,8 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
-#include "SIMPLVtkLib/QtWidgets/VSQueueModel.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
+#include "SIMPLVtkLib/QtWidgets/VSQueueModel.h"
 
 #include "ui_VSQueueWidget.h"
 
@@ -73,7 +73,7 @@ public:
    * @param name
    * @param importer
    */
-  void addDataImporter(const QString &name, VSAbstractImporter::Pointer importer);
+  void addDataImporter(const QString& name, VSAbstractImporter::Pointer importer);
 
   /**
    * @brief insertDataImporter
@@ -81,7 +81,7 @@ public:
    * @param name
    * @param importer
    */
-  void insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer);
+  void insertDataImporter(int row, const QString& name, VSAbstractImporter::Pointer importer);
 
   /**
    * @brief removeDataImporter
@@ -141,8 +141,8 @@ protected slots:
   void processImporterMessage(const VSAbstractImporter::Pointer& importer, const AbstractMessage::Pointer& msg);
 
 signals:
-  void notifyStatusMessage(const QString &msg);
-  void notifyErrorMessage(const QString &msg, int code);
+  void notifyStatusMessage(const QString& msg);
+  void notifyErrorMessage(const QString& msg, int code);
 
 private:
   QSharedPointer<Ui::VSQueueWidget> m_Ui;
@@ -151,5 +151,4 @@ private:
    * @brief connectSignalsSlots
    */
   void connectSignalsSlots();
-
 };

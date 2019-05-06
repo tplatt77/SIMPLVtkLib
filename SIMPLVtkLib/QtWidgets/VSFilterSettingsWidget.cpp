@@ -193,7 +193,7 @@ void VSFilterSettingsWidget::setViewWidget(VSAbstractViewWidget* viewWidget)
   {
     interactor = m_ViewWidget->getVisualizationWidget()->GetInteractor();
   }
-  
+
   // Update where filter widgets are rendering
   for(VSAbstractFilter* filter : m_Filters)
   {

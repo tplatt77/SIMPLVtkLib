@@ -127,7 +127,6 @@ void ImportFijiMontageDialog::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void ImportFijiMontageDialog::disconnectSignalsSlots()
 {
-
 }
 
 // -----------------------------------------------------------------------------

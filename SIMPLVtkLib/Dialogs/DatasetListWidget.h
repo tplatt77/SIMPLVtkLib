@@ -133,13 +133,11 @@ private:
    * @param inputPath
    * @return
    */
-  QVector<QString> generateFileList(QStringList filenameList,
-	  bool& hasMissingFiles, const QString& inputPath);
+  QVector<QString> generateFileList(QStringList filenameList, bool& hasMissingFiles, const QString& inputPath);
 
 public:
-  DatasetListWidget(const DatasetListWidget&) = delete; // Copy Constructor Not Implemented
-  DatasetListWidget(DatasetListWidget&&) = delete;      // Move Constructor Not Implemented
+  DatasetListWidget(const DatasetListWidget&) = delete;            // Copy Constructor Not Implemented
+  DatasetListWidget(DatasetListWidget&&) = delete;                 // Move Constructor Not Implemented
   DatasetListWidget& operator=(const DatasetListWidget&) = delete; // Copy Assignment Not Implemented
   DatasetListWidget& operator=(DatasetListWidget&&) = delete;      // Move Assignment Not Implemented
 };
-

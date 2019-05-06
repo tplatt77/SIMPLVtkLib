@@ -122,7 +122,7 @@ void VSVisibilitySettingsWidget::connectFilterViewSettings(VSFilterViewSettings:
     disconnect(setting, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSVisibilitySettingsWidget::listenComponentIndex);
     disconnect(setting, &VSFilterViewSettings::solidColorChanged, this, &VSVisibilitySettingsWidget::listenSolidColor);
     disconnect(setting, &VSFilterViewSettings::dataLoaded, this, &VSVisibilitySettingsWidget::updateFilterInfo);
-	disconnect(setting, &VSFilterViewSettings::subsamplingChanged, m_Ui->subsampleSB, &QSpinBox::setValue);
+    disconnect(setting, &VSFilterViewSettings::subsamplingChanged, m_Ui->subsampleSB, &QSpinBox::setValue);
   }
 
   m_ViewSettings = settings;
@@ -134,7 +134,7 @@ void VSVisibilitySettingsWidget::connectFilterViewSettings(VSFilterViewSettings:
     connect(setting, &VSFilterViewSettings::activeComponentIndexChanged, this, &VSVisibilitySettingsWidget::listenComponentIndex);
     connect(setting, &VSFilterViewSettings::solidColorChanged, this, &VSVisibilitySettingsWidget::listenSolidColor);
     connect(setting, &VSFilterViewSettings::dataLoaded, this, &VSVisibilitySettingsWidget::updateFilterInfo);
-	connect(setting, &VSFilterViewSettings::subsamplingChanged, m_Ui->subsampleSB, &QSpinBox::setValue);
+    connect(setting, &VSFilterViewSettings::subsamplingChanged, m_Ui->subsampleSB, &QSpinBox::setValue);
   }
 }
 
@@ -284,7 +284,7 @@ void VSVisibilitySettingsWidget::updateViewSettingInfo()
   int subsampling = VSFilterViewSettings::GetSubsampling(m_ViewSettings);
   if(subsampling > 0)
   {
-	  m_Ui->subsampleSB->setValue(subsampling);
+    m_Ui->subsampleSB->setValue(subsampling);
   }
 }
 
@@ -546,7 +546,7 @@ void VSVisibilitySettingsWidget::listenSolidColor()
 // -----------------------------------------------------------------------------
 void VSVisibilitySettingsWidget::subsampleValueChanged(int value)
 {
-	VSFilterViewSettings::SetSubsampling(m_ViewSettings, value);
+  VSFilterViewSettings::SetSubsampling(m_ViewSettings, value);
 }
 
 // -----------------------------------------------------------------------------

@@ -128,8 +128,7 @@ void VSViewWidget::connectSlots()
   connect(getVisualizationWidget(), &VSVisualizationWidget::customContextMenuRequested, this, &VSViewWidget::showVisualizationContextMenu);
 
   // Set up the interactive mode button
-  connect(m_Internals->interactiveModeBtn, &QPushButton::clicked, [=]()
-  {
+  connect(m_Internals->interactiveModeBtn, &QPushButton::clicked, [=]() {
     if(m_Internals->interactiveModeBtn->text() == "3D")
     {
       m_Internals->interactiveModeBtn->setText("2D");

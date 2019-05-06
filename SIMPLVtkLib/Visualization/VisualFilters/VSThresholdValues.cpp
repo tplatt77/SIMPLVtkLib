@@ -46,7 +46,7 @@ VSThresholdValues::VSThresholdValues(VSThresholdFilter* filter)
 , m_Range(new double[2])
 {
   QStringList scalarNames = filter->getScalarNames();
-  if (scalarNames.size() > 0)
+  if(scalarNames.size() > 0)
   {
     setArrayName(scalarNames[0]);
   }
@@ -165,10 +165,8 @@ QWidget* VSThresholdValues::createFilterWidget()
   ui->minSpinBox->setValue(getMinValue());
   ui->maxSpinBox->setValue(getMaxValue());
 
-  connect(this, &VSThresholdValues::arrayNameChanged, [=](QString name) {
-    ui->scalarsComboBox->setCurrentText(name);
-  });
-  connect(this, &VSThresholdValues::rangeChanged, [=](double range[2]) { 
+  connect(this, &VSThresholdValues::arrayNameChanged, [=](QString name) { ui->scalarsComboBox->setCurrentText(name); });
+  connect(this, &VSThresholdValues::rangeChanged, [=](double range[2]) {
     ui->minSpinBox->setMinimum(range[0]);
     ui->maxSpinBox->setMinimum(range[0]);
     ui->minSpinBox->setMaximum(range[1]);
@@ -220,12 +218,8 @@ QWidget* VSThresholdValues::createFilterWidget()
     double percent = static_cast<double>(tick) / numTicks;
     setMaxPercent(percent);
   });
-  connect(ui->minSpinBox, &QDoubleSpinBox::editingFinished, [=] {
-    setMinValue(ui->minSpinBox->value());
-  });
-  connect(ui->maxSpinBox, &QDoubleSpinBox::editingFinished, [=] {
-    setMaxValue(ui->maxSpinBox->value());
-  });
+  connect(ui->minSpinBox, &QDoubleSpinBox::editingFinished, [=] { setMinValue(ui->minSpinBox->value()); });
+  connect(ui->maxSpinBox, &QDoubleSpinBox::editingFinished, [=] { setMaxValue(ui->maxSpinBox->value()); });
 
   return filterWidget;
 }
@@ -321,7 +315,7 @@ void VSThresholdValues::setArrayName(QString name)
     double min = getFilter()->getArrayMinValue(name);
     double max = getFilter()->getArrayMaxValue(name);
     setRange(min, max);
-    
+
     emit arrayNameChanged(name);
     emit alertChangesWaiting();
   }

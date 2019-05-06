@@ -149,17 +149,17 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
         connect(reloadAction, &QAction::triggered, [=] { emit reloadFilterRequested(dataFilter); });
         menu.addAction(reloadAction);
 
-		VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
-		if(dcFilter != nullptr)
-		{
-		  QAction* renameAction = new QAction("Rename");
-		  connect(renameAction, &QAction::triggered, [=] { emit renameFilterRequested(dataFilter); });
-		  menu.addAction(renameAction);
+        VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
+        if(dcFilter != nullptr)
+        {
+          QAction* renameAction = new QAction("Rename");
+          connect(renameAction, &QAction::triggered, [=] { emit renameFilterRequested(dataFilter); });
+          menu.addAction(renameAction);
 
-		  QAction* saveAction = new QAction("Save");
-		  connect(saveAction, &QAction::triggered, [=] { emit saveFilterRequested(dataFilter); });
-		  menu.addAction(saveAction);
-		}
+          QAction* saveAction = new QAction("Save");
+          connect(saveAction, &QAction::triggered, [=] { emit saveFilterRequested(dataFilter); });
+          menu.addAction(saveAction);
+        }
         {
           QAction* separator = new QAction(this);
           separator->setSeparator(true);

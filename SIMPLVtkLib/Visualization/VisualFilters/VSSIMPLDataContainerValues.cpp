@@ -33,7 +33,6 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 #include "VSSIMPLDataContainerValues.h"
 
 #include <QtWidgets/QListWidget>
@@ -70,7 +69,6 @@ void VSSIMPLDataContainerValues::applyValues()
 // -----------------------------------------------------------------------------
 void VSSIMPLDataContainerValues::resetValues()
 {
-
 }
 
 // -----------------------------------------------------------------------------

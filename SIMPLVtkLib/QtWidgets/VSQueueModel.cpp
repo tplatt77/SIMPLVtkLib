@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "VSQueueModel.h"
 
@@ -148,51 +148,51 @@ QVariant VSQueueModel::data(const QModelIndex& index, int role) const
   }
   else if(role == Qt::ForegroundRole)
   {
-//    if(item->getHasErrors())
-//    {
-//      return styles->getQTreeViewItem_error_color();
-//    }
+    //    if(item->getHasErrors())
+    //    {
+    //      return styles->getQTreeViewItem_error_color();
+    //    }
 
-//      return styles->getQTreeViewItem_color();
+    //      return styles->getQTreeViewItem_color();
   }
   else if(role == Qt::ToolTipRole)
   {
-//    QString path = item->getPath();
-//    QFileInfo info(path);
-//    if(!path.isEmpty())
-//    {
-//      if(!info.exists())
-//      {
-//        QString tooltip = tr("'%1' was not found on the file system.\nYou can either locate the file or delete the entry from the table.").arg(item->getPath());
-//        return tooltip;
-//      }
-//      if(info.suffix().compare("json") == 0)
-//      {
-//        QString html = JsonFilterParametersReader::HtmlSummaryFromFile(path, nullptr);
-//        return html;
-//      }
-//    }
+    //    QString path = item->getPath();
+    //    QFileInfo info(path);
+    //    if(!path.isEmpty())
+    //    {
+    //      if(!info.exists())
+    //      {
+    //        QString tooltip = tr("'%1' was not found on the file system.\nYou can either locate the file or delete the entry from the table.").arg(item->getPath());
+    //        return tooltip;
+    //      }
+    //      if(info.suffix().compare("json") == 0)
+    //      {
+    //        QString html = JsonFilterParametersReader::HtmlSummaryFromFile(path, nullptr);
+    //        return html;
+    //      }
+    //    }
 
-//    return QVariant();
+    //    return QVariant();
   }
   else if(role == Qt::DecorationRole)
   {
     VSAbstractImporter::Pointer importer = item->getImporter();
-    if (importer)
+    if(importer)
     {
-      if (importer->getState() == VSAbstractImporter::State::Ready)
+      if(importer->getState() == VSAbstractImporter::State::Ready)
       {
         return QIcon(":/SIMPL/icons/images/bullet_ball_blue.png");
       }
-      else if (importer->getState() == VSAbstractImporter::State::Executing)
+      else if(importer->getState() == VSAbstractImporter::State::Executing)
       {
         return QIcon(":/SIMPL/icons/images/bullet_ball_yellow.png");
       }
-      else if (importer->getState() == VSAbstractImporter::State::Finished)
+      else if(importer->getState() == VSAbstractImporter::State::Finished)
       {
         return QIcon(":/SIMPL/icons/images/bullet_ball_green.png");
       }
-      else if (importer->getState() == VSAbstractImporter::State::Canceled)
+      else if(importer->getState() == VSAbstractImporter::State::Canceled)
       {
         return QIcon(":/SIMPL/icons/images/bullet_ball_red.png");
       }
@@ -252,7 +252,7 @@ QModelIndex VSQueueModel::index(int row, int column, const QModelIndex& parent) 
     return createIndex(row, column, childItem);
   }
 
-    return QModelIndex();
+  return QModelIndex();
 }
 
 // -----------------------------------------------------------------------------
@@ -355,14 +355,14 @@ bool VSQueueModel::setData(const QModelIndex& index, const QVariant& value, int 
   else if(role == static_cast<int>(Roles::ImporterRole))
   {
     VSAbstractImporter::Pointer oldImporter = item->getImporter();
-    if (oldImporter)
+    if(oldImporter)
     {
       disconnect(oldImporter.get(), &VSAbstractImporter::notifyMessage, 0, 0);
     }
 
     VSAbstractImporter::Pointer importer = value.value<VSAbstractImporter::Pointer>();
     connect(importer.get(), &VSAbstractImporter::stateChanged, this, &VSQueueModel::importerStateChanged);
-    connect(importer.get(), &VSAbstractImporter::notifyMessage, [=] (const AbstractMessage::Pointer& msg) { emit notifyImporterMessage(importer, msg); });
+    connect(importer.get(), &VSAbstractImporter::notifyMessage, [=](const AbstractMessage::Pointer& msg) { emit notifyImporterMessage(importer, msg); });
     item->setImporter(importer);
   }
   else if(role == Qt::ToolTipRole)
@@ -382,7 +382,7 @@ bool VSQueueModel::setData(const QModelIndex& index, const QVariant& value, int 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueModel::addImporter(const QString &name, VSAbstractImporter::Pointer importer, QIcon icon)
+void VSQueueModel::addImporter(const QString& name, VSAbstractImporter::Pointer importer, QIcon icon)
 {
   int row = rowCount();
   insertImporter(row, name, importer, icon);
@@ -391,7 +391,7 @@ void VSQueueModel::addImporter(const QString &name, VSAbstractImporter::Pointer 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueModel::insertImporter(int row, const QString &name, VSAbstractImporter::Pointer importer, QIcon icon)
+void VSQueueModel::insertImporter(int row, const QString& name, VSAbstractImporter::Pointer importer, QIcon icon)
 {
   insertRow(row);
   QModelIndex index = this->index(row, VSQueueItem::ItemData::Contents);
@@ -407,7 +407,7 @@ void VSQueueModel::insertImporter(int row, const QString &name, VSAbstractImport
   connect(importer.get(), &VSAbstractImporter::stateChanged, this, [=] {
     QModelIndex newIndex = indexOfImporter(importer);
     emit dataChanged(newIndex, newIndex, QVector<int>(1, VSQueueModel::Roles::ImporterRole));
- });
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -415,11 +415,11 @@ void VSQueueModel::insertImporter(int row, const QString &name, VSAbstractImport
 // -----------------------------------------------------------------------------
 void VSQueueModel::removeImporter(VSAbstractImporter::Pointer importer)
 {
-  for (int i = 0; i < rowCount(); i++)
+  for(int i = 0; i < rowCount(); i++)
   {
     QModelIndex index = this->index(i, VSQueueItem::ItemData::Contents);
     VSAbstractImporter::Pointer internalImporter = data(index, Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
-    if (internalImporter == importer)
+    if(internalImporter == importer)
     {
       disconnect(importer.get(), &VSAbstractImporter::stateChanged, 0, 0);
       removeRow(i);
@@ -433,12 +433,12 @@ void VSQueueModel::removeImporter(VSAbstractImporter::Pointer importer)
 // -----------------------------------------------------------------------------
 void VSQueueModel::clearAll()
 {
-  while (rowCount() > 0)
+  while(rowCount() > 0)
   {
     QModelIndex index = this->index(0, VSQueueItem::ItemData::Contents);
     VSQueueItem* item = getItem(index);
     VSAbstractImporter::Pointer importer = item->getImporter();
-    if (importer->getState() == VSAbstractImporter::State::Executing)
+    if(importer->getState() == VSAbstractImporter::State::Executing)
     {
       importer->cancel();
     }
@@ -452,11 +452,11 @@ void VSQueueModel::clearAll()
 // -----------------------------------------------------------------------------
 QModelIndex VSQueueModel::indexOfImporter(VSAbstractImporter::Pointer importer)
 {
-  for (int i = 0; i < rowCount(); i++)
+  for(int i = 0; i < rowCount(); i++)
   {
     QModelIndex index = this->index(i, VSQueueItem::ItemData::Contents);
     VSAbstractImporter::Pointer internalImporter = data(index, Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
-    if (internalImporter == importer)
+    if(internalImporter == importer)
     {
       return index;
     }

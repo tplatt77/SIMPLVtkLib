@@ -80,4 +80,4 @@ bool VSDataSetValues::hasChanges() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//QWidget* VSDataSetValues::createFilterWidget();
+// QWidget* VSDataSetValues::createFilterWidget();

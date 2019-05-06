@@ -149,9 +149,7 @@ QWidget* VSMaskValues::createFilterWidget()
   ui->maskComboBox->addItems(getFilter()->getScalarNames());
   ui->maskComboBox->setCurrentText(getLastArrayName());
 
-  connect(ui->maskComboBox, &QComboBox::currentTextChanged, [=](QString text) {
-    m_MaskArrayName = text;
-  });
+  connect(ui->maskComboBox, &QComboBox::currentTextChanged, [=](QString text) { m_MaskArrayName = text; });
   connect(getFilter(), &VSAbstractFilter::arrayNamesChanged, this, [=] {
     QStringList scalarNames = getFilter()->getScalarNames();
     ui->maskComboBox->blockSignals(true);

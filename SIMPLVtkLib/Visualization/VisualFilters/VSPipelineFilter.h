@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSPipelineValues.h"
+#include "SIMPLVtkLib/Visualization/VisualFilters/VSTextFilter.h"
 
 #include "SIMPLib/Filtering/FilterPipeline.h"
 

@@ -42,8 +42,8 @@
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
-#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/QtWidgets/VSAbstractImporter.h"
+#include "SIMPLVtkLib/SIMPLBridge/SIMPLVtkBridge.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSConcurrentImport.h"
 #include "SIMPLVtkLib/Visualization/Controllers/VSFilterModel.h"
 #include "SIMPLVtkLib/Visualization/VisualFilters/VSFileNameFilter.h"
@@ -179,7 +179,7 @@ public:
    * @brief Alert the VSMainWidgetBase, if available, that the given filter should be selected.
    * @param filter
    */
-  //void selectFilter(VSAbstractFilter* filter);
+  // void selectFilter(VSAbstractFilter* filter);
 
 signals:
   void filterAdded(VSAbstractFilter*, bool currentFilter);
@@ -187,7 +187,7 @@ signals:
   void filterCheckStateChanged(VSAbstractFilter* filter);
   void blockRender(bool block);
   void dataImported();
-  //void filterSelected(VSAbstractFilter* filter);
+  // void filterSelected(VSAbstractFilter* filter);
   void applyingDataFilters(int count);
   void dataFilterApplied(int num);
   void importDataQueueStarted();

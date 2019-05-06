@@ -568,7 +568,7 @@ FileListInfo_t TileListWidget::getFileListInfo()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool TileListWidget::isComplete(QString &errMsg) const
+bool TileListWidget::isComplete(QString& errMsg) const
 {
   bool result = true;
 

@@ -48,11 +48,10 @@ VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline,
-  DataContainerArray::Pointer dataContainerArray)
-  : VSAbstractImporter()
-  , m_Pipeline(pipeline)
-  , m_DataContainerArray(dataContainerArray)
+VSMontageImporter::VSMontageImporter(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dataContainerArray)
+: VSAbstractImporter()
+, m_Pipeline(pipeline)
+, m_DataContainerArray(dataContainerArray)
 {
   pipeline->addMessageReceiver(this);
 }
@@ -74,11 +73,9 @@ VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeli
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeline,
-  DataContainerArray::Pointer dataContainerArray)
+VSMontageImporter::Pointer VSMontageImporter::New(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dataContainerArray)
 {
-  VSMontageImporter::Pointer sharedPtr(new VSMontageImporter(pipeline, 
-	dataContainerArray));
+  VSMontageImporter::Pointer sharedPtr(new VSMontageImporter(pipeline, dataContainerArray));
   return sharedPtr;
 }
 
@@ -106,30 +103,30 @@ void VSMontageImporter::execute()
   setState(State::Executing);
   if(m_DataContainerArray != nullptr)
   {
-	m_Pipeline->execute(m_DataContainerArray);
+    m_Pipeline->execute(m_DataContainerArray);
   }
   else
   {
-	m_Pipeline->execute();
+    m_Pipeline->execute();
   }
 
   int err = m_Pipeline->getErrorCode();
 
-//  qInfo() << "Pipeline err condition: " << err;
-//  // For now, quit after an error condition
-//  // However, may want to consider returning
-//  // list of errors associated with each pipeline
-//  if(err < 0)
-//  {
-//    break;
-//  }
+  //  qInfo() << "Pipeline err condition: " << err;
+  //  // For now, quit after an error condition
+  //  // However, may want to consider returning
+  //  // list of errors associated with each pipeline
+  //  if(err < 0)
+  //  {
+  //    break;
+  //  }
 
-  if (m_Resetting)
+  if(m_Resetting)
   {
     setState(State::Ready);
     m_Resetting = false;
   }
-  else if (m_Pipeline->getExecutionResult() == FilterPipeline::ExecutionResult::Canceled)
+  else if(m_Pipeline->getExecutionResult() == FilterPipeline::ExecutionResult::Canceled)
   {
     setState(State::Canceled);
   }
@@ -145,7 +142,7 @@ void VSMontageImporter::execute()
 // -----------------------------------------------------------------------------
 void VSMontageImporter::cancel()
 {
-  if (m_Pipeline->getState() == FilterPipeline::State::Executing)
+  if(m_Pipeline->getState() == FilterPipeline::State::Executing)
   {
     m_Pipeline->cancel();
   }
@@ -156,7 +153,7 @@ void VSMontageImporter::cancel()
 // -----------------------------------------------------------------------------
 void VSMontageImporter::reset()
 {
-  if (m_Pipeline->getState() == FilterPipeline::State::Executing)
+  if(m_Pipeline->getState() == FilterPipeline::State::Executing)
   {
     m_Resetting = true;
     m_Pipeline->cancel();

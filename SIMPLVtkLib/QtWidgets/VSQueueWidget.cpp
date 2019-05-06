@@ -44,9 +44,9 @@
 
 #include "SIMPLib/Messages/AbstractMessageHandler.h"
 #include "SIMPLib/Messages/FilterErrorMessage.h"
-#include "SIMPLib/Messages/FilterWarningMessage.h"
-#include "SIMPLib/Messages/FilterStatusMessage.h"
 #include "SIMPLib/Messages/FilterProgressMessage.h"
+#include "SIMPLib/Messages/FilterStatusMessage.h"
+#include "SIMPLib/Messages/FilterWarningMessage.h"
 #include "SIMPLib/Messages/PipelineProgressMessage.h"
 
 /**
@@ -140,7 +140,6 @@ VSQueueWidget::VSQueueWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 VSQueueWidget::~VSQueueWidget()
 {
-
 }
 
 // -----------------------------------------------------------------------------
@@ -200,16 +199,16 @@ void VSQueueWidget::addDataImporter(const QString& name, VSAbstractImporter::Poi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSQueueWidget::insertDataImporter(int row, const QString &name, VSAbstractImporter::Pointer importer)
+void VSQueueWidget::insertDataImporter(int row, const QString& name, VSAbstractImporter::Pointer importer)
 {
-  if (!importer)
+  if(!importer)
   {
     return;
   }
 
   VSQueueModel* queueModel = getQueueModel();
 
-  if (queueModel)
+  if(queueModel)
   {
     queueModel->insertImporter(row, name, importer, QIcon(":/SIMPL/icons/images/bullet_ball_blue.png"));
   }
@@ -220,17 +219,17 @@ void VSQueueWidget::insertDataImporter(int row, const QString &name, VSAbstractI
 // -----------------------------------------------------------------------------
 void VSQueueWidget::removeDataImporter(VSAbstractImporter::Pointer importer)
 {
-  if (!importer)
+  if(!importer)
   {
     return;
   }
 
   VSQueueModel* queueModel = getQueueModel();
 
-  if (queueModel)
+  if(queueModel)
   {
     QPersistentModelIndex index = queueModel->indexOfImporter(importer);
-    if (index.isValid())
+    if(index.isValid())
     {
       queueModel->removeRow(index.row());
     }
@@ -244,11 +243,11 @@ void VSQueueWidget::startStopButtonClicked()
 {
   VSQueueModel* model = getQueueModel();
 
-  if (model->getQueueState() == VSQueueModel::QueueState::Idle)
+  if(model->getQueueState() == VSQueueModel::QueueState::Idle)
   {
     model->startQueue();
   }
-  else if (model->getQueueState() == VSQueueModel::QueueState::Executing)
+  else if(model->getQueueState() == VSQueueModel::QueueState::Executing)
   {
     model->cancelQueue();
   }
@@ -265,13 +264,13 @@ void VSQueueWidget::setIdleState()
 {
   VSQueueModel* model = getQueueModel();
   bool filtersAtReady = false;
-  for (int row = 0; row < model->rowCount() && !filtersAtReady; row++)
+  for(int row = 0; row < model->rowCount() && !filtersAtReady; row++)
   {
     QModelIndex index = model->index(row, VSQueueItem::ItemData::Contents);
     VSAbstractImporter::Pointer importer = model->data(index, VSQueueModel::Roles::ImporterRole).value<VSAbstractImporter::Pointer>();
-    if (importer)
+    if(importer)
     {
-      if (importer->getState() == VSAbstractImporter::State::Ready)
+      if(importer->getState() == VSAbstractImporter::State::Ready)
       {
         filtersAtReady = true;
       }
@@ -325,11 +324,11 @@ void VSQueueWidget::processImporterMessage(const VSAbstractImporter::Pointer& im
 // -----------------------------------------------------------------------------
 void VSQueueWidget::handleQueueStateChanged(VSQueueModel::QueueState queueState)
 {
-  if (queueState == VSQueueModel::QueueState::Idle)
+  if(queueState == VSQueueModel::QueueState::Idle)
   {
     setIdleState();
   }
-  else if (queueState == VSQueueModel::QueueState::Executing)
+  else if(queueState == VSQueueModel::QueueState::Executing)
   {
     setExecutingState();
   }
@@ -353,7 +352,7 @@ VSQueueModel* VSQueueWidget::getQueueModel()
 void VSQueueWidget::setQueueModel(VSQueueModel* queueModel)
 {
   VSQueueModel* oldModel = getQueueModel();
-  if (oldModel)
+  if(oldModel)
   {
   }
 

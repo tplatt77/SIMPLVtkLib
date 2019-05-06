@@ -309,7 +309,7 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
       indexesChanged.push_back(index);
 
       QString dcName = data(index, Qt::DisplayRole).toString();
-	  QMap<QString, DataContainerProxy>& dataContainers = m_Proxy.getDataContainers();
+      QMap<QString, DataContainerProxy>& dataContainers = m_Proxy.getDataContainers();
       DataContainerProxy dcProxy = dataContainers.value(dcName);
       dcProxy.setFlag(value.toBool());
 
@@ -320,7 +320,7 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
         indexesChanged.push_back(amIndex);
 
         QString amName = data(amIndex, Qt::DisplayRole).toString();
-		QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+        QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
         AttributeMatrixProxy amProxy = attributeMatricies.value(amName);
         amProxy.setFlag(value.toBool());
 
@@ -331,8 +331,8 @@ bool DREAM3DFileTreeModel::setData(const QModelIndex& index, const QVariant& val
           indexesChanged.push_back(daIndex);
 
           QString daName = data(daIndex, Qt::DisplayRole).toString();
-		  QMap<QString, DataArrayProxy>& dataArrays = amProxy.getDataArrays();
-		  DataArrayProxy daProxy = dataArrays.value(daName);
+          QMap<QString, DataArrayProxy>& dataArrays = amProxy.getDataArrays();
+          DataArrayProxy daProxy = dataArrays.value(daName);
           daProxy.setFlag(value.toBool());
           dataArrays[daName] = daProxy;
         }
@@ -465,7 +465,7 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
     setItemType(dcIndex, DREAM3DFileItem::ItemType::DataContainer);
     setData(dcIndex, dcName, Qt::DisplayRole);
 
-	QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+    QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
     for(QMap<QString, AttributeMatrixProxy>::iterator amIter = attributeMatricies.begin(); amIter != attributeMatricies.end(); amIter++)
     {
       QString amName = amIter.key();
@@ -477,7 +477,7 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
       setItemType(amIndex, DREAM3DFileItem::ItemType::AttributeMatrix);
       setData(amIndex, amName, Qt::DisplayRole);
 
-	  QMap<QString, DataArrayProxy>& dataArrays = amProxy.getDataArrays();
+      QMap<QString, DataArrayProxy>& dataArrays = amProxy.getDataArrays();
       for(QMap<QString, DataArrayProxy>::iterator daIter = dataArrays.begin(); daIter != dataArrays.end(); daIter++)
       {
         QString daName = daIter.key();

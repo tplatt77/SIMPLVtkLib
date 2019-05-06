@@ -262,58 +262,57 @@ bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter
   // If it is a data container filter, get the parent filter (a pipeline)
   if(dcFilter != nullptr)
   {
-	pipelineFilter = dynamic_cast<VSPipelineFilter*>(dcFilter->getParentFilter());
+    pipelineFilter = dynamic_cast<VSPipelineFilter*>(dcFilter->getParentFilter());
   }
   if(pipelineFilter != nullptr)
   {
-	VSAbstractFilter::FilterListType children = pipelineFilter->getChildren();
-	for(VSAbstractFilter* childFilter : children)
-	{
-	  dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-	  if(dcFilter != nullptr)
-	  {
-		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-		if(dataContainer != nullptr)
-		{
-		  dca->addOrReplaceDataContainer(dataContainer);
-		}
-	  }
-	}
+    VSAbstractFilter::FilterListType children = pipelineFilter->getChildren();
+    for(VSAbstractFilter* childFilter : children)
+    {
+      dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+      if(dcFilter != nullptr)
+      {
+        DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+        if(dataContainer != nullptr)
+        {
+          dca->addOrReplaceDataContainer(dataContainer);
+        }
+      }
+    }
   }
   else if(filenameFilter != nullptr)
   {
-	VSAbstractFilter::FilterListType children = filenameFilter->getChildren();
-	for(VSAbstractFilter* childFilter : children)
-	{
-	  dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
-	  if(dcFilter != nullptr)
-	  {
-		DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
-		if(dataContainer != nullptr)
-		{
-		  double* pos = dcFilter->getTransform()->getLocalPosition();
-		  ImageGeom::Pointer geom = dataContainer->getGeometryAs<ImageGeom>();
-		  geom->setOrigin(pos[0], pos[1], pos[2]);
-		  dca->addOrReplaceDataContainer(dataContainer);
-		}
-	  }
-	}
+    VSAbstractFilter::FilterListType children = filenameFilter->getChildren();
+    for(VSAbstractFilter* childFilter : children)
+    {
+      dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(childFilter);
+      if(dcFilter != nullptr)
+      {
+        DataContainer::Pointer dataContainer = dcFilter->getWrappedDataContainer()->m_DataContainer;
+        if(dataContainer != nullptr)
+        {
+          double* pos = dcFilter->getTransform()->getLocalPosition();
+          ImageGeom::Pointer geom = dataContainer->getGeometryAs<ImageGeom>();
+          geom->setOrigin(pos[0], pos[1], pos[2]);
+          dca->addOrReplaceDataContainer(dataContainer);
+        }
+      }
+    }
   }
   else
   {
-	return false;
+    return false;
   }
 
-  AbstractFilter::Pointer dcWriter = filterFactory
-	->createDataContainerWriterFilter(outputFilePath, true, false);
+  AbstractFilter::Pointer dcWriter = filterFactory->createDataContainerWriterFilter(outputFilePath, true, false);
   if(dcWriter != AbstractFilter::NullPointer())
   {
-	pipeline->pushBack(dcWriter);
-	pipeline->execute(dca);
-	if(pipeline->getErrorCode() >= 0)
-	{
-	  return true;
-	}
+    pipeline->pushBack(dcWriter);
+    pipeline->execute(dca);
+    if(pipeline->getErrorCode() >= 0)
+    {
+      return true;
+    }
   }
   return false;
 }

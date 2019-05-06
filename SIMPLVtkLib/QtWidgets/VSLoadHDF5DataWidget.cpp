@@ -90,13 +90,13 @@ void VSLoadHDF5DataWidget::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSLoadHDF5DataWidget::initialize(const QString &filePath)
+void VSLoadHDF5DataWidget::initialize(const QString& filePath)
 {
   QFileInfo fi(filePath);
   QDateTime modified = fi.lastModified();
 
   // Only load the proxy if the file path is different or the file has been modified since the last time it was loaded
-  if (filePath != m_ProxyFilePath || modified > m_ProxyLastModified)
+  if(filePath != m_ProxyFilePath || modified > m_ProxyLastModified)
   {
     m_Ui->errLabel->hide();
     m_Ui->loadBtn->setDisabled(true);
@@ -152,7 +152,7 @@ DataContainerArrayProxy VSLoadHDF5DataWidget::readDCAProxy(const QString& filePa
   QFileInfo fi(filePath);
 
   SIMPLH5DataReader reader;
-  connect(&reader, &SIMPLH5DataReader::errorGenerated, [=] (const QString &title, const QString &msg, const int &code) {
+  connect(&reader, &SIMPLH5DataReader::errorGenerated, [=](const QString& title, const QString& msg, const int& code) {
     m_Ui->errLabel->setText(tr("%1").arg(msg));
     m_Ui->errLabel->show();
   });
@@ -185,7 +185,7 @@ DataContainerArrayProxy VSLoadHDF5DataWidget::readDCAProxy(const QString& filePa
     }
     else
     {
-	  QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
+      QMap<QString, AttributeMatrixProxy>& attributeMatricies = dcProxy.getAttributeMatricies();
       QStringList amNames = attributeMatricies.keys();
       for(int j = 0; j < amNames.size(); j++)
       {
@@ -218,7 +218,7 @@ DataContainerArrayProxy VSLoadHDF5DataWidget::readDCAProxy(const QString& filePa
 void VSLoadHDF5DataWidget::selectAllStateChanged(int state)
 {
   DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if (model == nullptr)
+  if(model == nullptr)
   {
     return;
   }
@@ -240,10 +240,10 @@ void VSLoadHDF5DataWidget::selectAllStateChanged(int state)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSLoadHDF5DataWidget::modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
+void VSLoadHDF5DataWidget::modelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles = QVector<int>())
 {
   DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
-  if (model == nullptr)
+  if(model == nullptr)
   {
     return;
   }
@@ -296,7 +296,7 @@ void VSLoadHDF5DataWidget::setProxy(DataContainerArrayProxy proxy)
     for(int i = 0; i < rowCount; i++)
     {
       QModelIndex dcIndex = model->index(i, DREAM3DFileItem::Name);
-//      m_Ui->treeView->expand(dcIndex);
+      //      m_Ui->treeView->expand(dcIndex);
 
       if(model->getCheckState(dcIndex) == Qt::Checked)
       {
