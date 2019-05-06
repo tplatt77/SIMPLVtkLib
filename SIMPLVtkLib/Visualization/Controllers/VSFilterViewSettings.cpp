@@ -1468,7 +1468,14 @@ void VSFilterViewSettings::updateTransform()
 
   if(m_CubeAxesActor && m_Filter->getOutput())
   {
-    m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
+    if (ActorType::Image2D == m_ActorType)
+    {
+      m_CubeAxesActor->SetBounds(m_Filter->getTransformBounds());
+    }
+    else
+    {
+      m_CubeAxesActor->SetBounds(m_Filter->getBounds());
+    }
   }
 
   emit requiresRender();
