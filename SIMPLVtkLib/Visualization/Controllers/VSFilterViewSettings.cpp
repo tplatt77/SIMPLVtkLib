@@ -1325,7 +1325,7 @@ void VSFilterViewSettings::setupDataSetActors()
   }
 
   m_DataSetFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
-  m_OutlineFilter->SetInputConnection(m_Filter->getOutputPort());
+  m_OutlineFilter->SetInputConnection(m_Filter->getTransformedOutputPort());
 
   updateTexture();
 
