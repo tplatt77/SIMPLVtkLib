@@ -163,12 +163,14 @@ private:
   QSemaphore m_AppliedDataFilterLock;
   QSemaphore m_FilterLock;
   QSemaphore m_WrappedDcLock;
-  QSemaphore m_ThreadCountLock;
+  QSemaphore m_PartialWrappingThreadCountLock;
+  QSemaphore m_AppliedThreadCountLock;
   QSemaphore m_AppliedFilterCountLock;
   int m_NumOfFinishedImportDataContainerThreads = 0;
   std::vector<SIMPLVtkBridge::WrappedDataContainerPtr> m_WrappedDataContainers;
   VSTextFilter* m_DataParentFilter = nullptr;
   int m_ThreadCount;
-  int m_ThreadsRemaining = 0;
+  int m_AppliedThreadsRemaining = 0;
+  int m_PartialWrappingThreadsRemaining = 0;
   int m_AppliedFilterCount = 0;
 };

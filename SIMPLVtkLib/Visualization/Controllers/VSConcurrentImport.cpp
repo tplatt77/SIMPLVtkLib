@@ -53,7 +53,8 @@ VSConcurrentImport::VSConcurrentImport(VSController* controller)
 , m_AppliedDataFilterLock(1)
 , m_FilterLock(1)
 , m_WrappedDcLock(1)
-, m_ThreadCountLock(1)
+, m_PartialWrappingThreadCountLock(1)
+, m_AppliedThreadCountLock(1)
 , m_AppliedFilterCountLock(1)
 {
   if(controller && controller->getFilterModel())
@@ -166,9 +167,13 @@ void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
   // Wait for the filter lock
   m_FilterLock.acquire();
 
-  m_ThreadCountLock.acquire();
-  m_ThreadsRemaining = m_ThreadCount;
-  m_ThreadCountLock.release();
+  m_PartialWrappingThreadCountLock.acquire();
+  m_PartialWrappingThreadsRemaining = m_ThreadCount;
+  m_PartialWrappingThreadCountLock.release();
+  m_AppliedThreadCountLock.acquire();
+  m_AppliedThreadsRemaining = m_ThreadCount;
+  m_AppliedThreadCountLock.release();
+
   for(int i = 0; i < m_ThreadCount; i++)
   {
     QtConcurrent::run(this, &VSConcurrentImport::wrapDataContainer);
@@ -181,11 +186,11 @@ void VSConcurrentImport::importDataContainerArray(DcaGenericPair genericPair)
 void VSConcurrentImport::partialWrappingThreadFinished()
 {
   // Threads remaining lock
-  m_ThreadCountLock.acquire();
-  m_ThreadsRemaining--;
-  if(m_ThreadsRemaining <= 0)
+  m_PartialWrappingThreadCountLock.acquire();
+  m_PartialWrappingThreadsRemaining--;
+  if(m_PartialWrappingThreadsRemaining <= 0)
   {
-    m_ThreadCountLock.release();
+    m_PartialWrappingThreadCountLock.release();
 
     for(SIMPLVtkBridge::WrappedDataContainerPtr wrappedDc : m_WrappedDataContainers)
     {
@@ -229,7 +234,7 @@ void VSConcurrentImport::partialWrappingThreadFinished()
       }
     }
   }
-  m_ThreadCountLock.release();
+  m_PartialWrappingThreadCountLock.release();
 }
 
 // -----------------------------------------------------------------------------
@@ -298,11 +303,11 @@ void VSConcurrentImport::applyDataFilters()
 void VSConcurrentImport::applyDataFiltersThreadFinished()
 {
   // Threads remaining lock
-  m_ThreadCountLock.acquire();
-  m_ThreadsRemaining--;
-  if(m_ThreadsRemaining <= 0)
+  m_AppliedThreadCountLock.acquire();
+  m_AppliedThreadsRemaining--;
+  if(m_AppliedThreadsRemaining <= 0)
   {
-    m_ThreadCountLock.release();
+    m_AppliedThreadCountLock.release();
 
     for(VSSIMPLDataContainerFilter* filter : m_AppliedDataFilters)
     {
@@ -316,5 +321,5 @@ void VSConcurrentImport::applyDataFiltersThreadFinished()
 
     m_AppliedDataFilters.clear();
   }
-  m_ThreadCountLock.release();
+  m_AppliedThreadCountLock.release();
 }
