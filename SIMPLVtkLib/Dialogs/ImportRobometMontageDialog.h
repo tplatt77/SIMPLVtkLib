@@ -107,6 +107,12 @@ public:
    */
   bool usePixelCoordinates();
 
+  /**
+   * @brief getLengthUnit
+   * @return
+   */
+  QString getLengthUnit();
+
 protected:
   /**
    * @brief Constructor

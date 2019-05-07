@@ -36,6 +36,7 @@
 #pragma once
 
 #include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/Geometry/IGeometry.h"
 
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 #include "SIMPLVtkLib/Dialogs/FijiListWidget.h"
@@ -107,6 +108,12 @@ public:
    * @return
    */
   bool usePixelCoordinates();
+
+  /**
+   * @brief getLengthUnit
+   * @return
+   */
+  QString getLengthUnit();
 
 protected:
   /**

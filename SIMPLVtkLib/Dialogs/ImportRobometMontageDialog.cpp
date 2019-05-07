@@ -89,6 +89,10 @@ void ImportRobometMontageDialog::setupGui()
 
   qRegisterMetaType<RobometListInfo_t>();
 
+  QVector<QString> lengthUnitStrings = IGeometry::GetAllLengthUnitStrings();
+  m_Ui->unitsCB->addItems(lengthUnitStrings.toList());
+  m_Ui->unitsCB->setCurrentIndex(lengthUnitStrings.indexOf("Micrometer"));
+
   connectSignalsSlots();
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
@@ -315,4 +319,12 @@ FloatVec3Type ImportRobometMontageDialog::getOrigin()
 bool ImportRobometMontageDialog::usePixelCoordinates()
 {
   return m_Ui->pixelCoordsCB->isChecked();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString ImportRobometMontageDialog::getLengthUnit()
+{
+  return m_Ui->unitsCB->currentText();
 }
