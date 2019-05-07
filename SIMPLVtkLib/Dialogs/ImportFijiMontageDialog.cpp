@@ -148,11 +148,13 @@ void ImportFijiMontageDialog::changeOrigin_stateChanged(int state)
   m_Ui->originX->setEnabled(state);
   m_Ui->originY->setEnabled(state);
   m_Ui->originZ->setEnabled(state);
+  m_Ui->pixelCoordsCB->setEnabled(state);
   if(state == false)
   {
     m_Ui->originX->setText("0");
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
+    m_Ui->pixelCoordsCB->setChecked(false);
   }
 
   checkComplete();
@@ -302,4 +304,12 @@ FloatVec3Type ImportFijiMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool ImportFijiMontageDialog::usePixelCoordinates()
+{
+  return m_Ui->pixelCoordsCB->isChecked();
 }

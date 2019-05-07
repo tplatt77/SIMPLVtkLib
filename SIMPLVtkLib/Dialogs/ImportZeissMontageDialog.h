@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include "SIMPLib/Common/SIMPLArray.hpp"
+
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 
 #include "ui_ImportZeissMontageDialog.h"
@@ -85,7 +87,7 @@ public:
    * @brief getSpacing
    * @return
    */
-  std::tuple<double, double, double> getSpacing();
+  FloatVec3Type getSpacing();
 
   /**
    * @brief getOverrideOrigin
@@ -97,7 +99,7 @@ public:
    * @brief getOrigin
    * @return
    */
-  std::tuple<double, double, double> getOrigin();
+  FloatVec3Type getOrigin();
 
   /**
    * @brief getConvertToGrayscale
@@ -109,7 +111,13 @@ public:
    * @brief getColorWeighting
    * @return
    */
-  std::tuple<double, double, double> getColorWeighting();
+  FloatVec3Type getColorWeighting();
+
+  /**
+   * @brief usePixelCoordinates
+   * @return
+   */
+  bool usePixelCoordinates();
 
 protected:
   /**

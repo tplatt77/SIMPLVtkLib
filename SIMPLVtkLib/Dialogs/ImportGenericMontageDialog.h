@@ -119,6 +119,12 @@ public:
    */
   std::tuple<double, double, double> getOrigin();
 
+  /**
+   * @brief usePixelCoordinates
+   * @return
+   */
+  bool usePixelCoordinates();
+
 protected:
   /**
    * @brief Constructor

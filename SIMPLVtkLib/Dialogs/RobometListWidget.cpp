@@ -587,7 +587,7 @@ RobometListInfo_t RobometListWidget::getRobometListInfo()
 // -----------------------------------------------------------------------------
 bool RobometListWidget::isComplete() const
 {
-  if(m_Ui->sliceMin > m_Ui->sliceMax)
+  if(m_Ui->sliceMin->value() > m_Ui->sliceMax->value())
   {
     return false;
   }

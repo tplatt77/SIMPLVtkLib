@@ -26,13 +26,49 @@
    <property name="bottomMargin">
     <number>6</number>
    </property>
-   <item row="6" column="0" colspan="4">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="changeSpacingCB">
+     <property name="text">
+      <string>Override Spacing (X,Y,Z)</string>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="originX">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>56</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLineEdit" name="originY">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>56</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="changeOriginCB">
+     <property name="text">
+      <string>Override Origin (X,Y,Z)</string>
      </property>
     </widget>
    </item>
@@ -55,8 +91,38 @@
      </item>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QLineEdit" name="spacingY">
+   <item row="3" column="3">
+    <widget class="QLineEdit" name="originZ">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>56</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Data Display Type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="convertGrayscaleCB">
+     <property name="text">
+      <string>Convert to Grayscale (RGB Weighting)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="spacingX">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -94,92 +160,17 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="changeOriginCB">
-     <property name="text">
-      <string>Override Origin (X,Y,Z)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="convertGrayscaleCB">
-     <property name="text">
-      <string>Convert to Grayscale (RGB Weighting)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3">
-    <widget class="QLineEdit" name="spacingZ">
+   <item row="3" column="4">
+    <widget class="QCheckBox" name="pixelCoordsCB">
      <property name="enabled">
       <bool>false</bool>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>56</width>
-       <height>21</height>
-      </size>
-     </property>
      <property name="text">
-      <string>1</string>
+      <string>Pixel Coordinates</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="originX">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>56</width>
-       <height>21</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="changeSpacingCB">
-     <property name="text">
-      <string>Override Spacing (X,Y,Z)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QLineEdit" name="colorWeightingG">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>56</width>
-       <height>21</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>0.7154</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QLineEdit" name="originY">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>56</width>
-       <height>21</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
+   <item row="2" column="4">
     <widget class="QLineEdit" name="colorWeightingB">
      <property name="enabled">
       <bool>false</bool>
@@ -195,8 +186,24 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="spacingX">
+   <item row="2" column="2" colspan="2">
+    <widget class="QLineEdit" name="colorWeightingG">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>56</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>0.7154</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="QLineEdit" name="spacingZ">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -211,8 +218,8 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
-    <widget class="QLineEdit" name="originZ">
+   <item row="4" column="2" colspan="2">
+    <widget class="QLineEdit" name="spacingY">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -223,26 +230,29 @@
       </size>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>1</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Data Display Type</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="3">
+   <item row="0" column="1" colspan="4">
     <widget class="QLineEdit" name="montageNameLE">
      <property name="text">
       <string>Untitled Montage</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="4">
+   <item row="1" column="0" colspan="5">
     <widget class="ZeissListWidget" name="zeissListWidget" native="true"/>
+   </item>
+   <item row="6" column="0" colspan="5">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -390,3 +390,11 @@ std::tuple<double, double, double> ImportGenericMontageDialog::getOrigin()
   std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
   return origin;
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool ImportGenericMontageDialog::usePixelCoordinates()
+{
+  return m_Ui->pixelCoordsCB->isChecked();
+}

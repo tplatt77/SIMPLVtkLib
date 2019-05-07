@@ -188,11 +188,13 @@ void ImportZeissMontageDialog::changeOrigin_stateChanged(int state)
   m_Ui->originX->setEnabled(state);
   m_Ui->originY->setEnabled(state);
   m_Ui->originZ->setEnabled(state);
+  m_Ui->pixelCoordsCB->setEnabled(state);
   if(state == false)
   {
     m_Ui->originX->setText("0");
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
+    m_Ui->pixelCoordsCB->setChecked(false);
   }
 }
 
@@ -335,12 +337,12 @@ bool ImportZeissMontageDialog::getOverrideSpacing()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportZeissMontageDialog::getSpacing()
+FloatVec3Type ImportZeissMontageDialog::getSpacing()
 {
-  double spacingX = m_Ui->spacingX->text().toDouble();
-  double spacingY = m_Ui->spacingY->text().toDouble();
-  double spacingZ = m_Ui->spacingZ->text().toDouble();
-  std::tuple<double, double, double> spacing = std::make_tuple(spacingX, spacingY, spacingZ);
+  float spacingX = m_Ui->spacingX->text().toFloat();
+  float spacingY = m_Ui->spacingY->text().toFloat();
+  float spacingZ = m_Ui->spacingZ->text().toFloat();
+  FloatVec3Type spacing = {spacingX, spacingY, spacingZ};
   return spacing;
 }
 
@@ -355,12 +357,12 @@ bool ImportZeissMontageDialog::getOverrideOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportZeissMontageDialog::getOrigin()
+FloatVec3Type ImportZeissMontageDialog::getOrigin()
 {
-  double originX = m_Ui->originX->text().toDouble();
-  double originY = m_Ui->originY->text().toDouble();
-  double originZ = m_Ui->originZ->text().toDouble();
-  std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
+  float originX = m_Ui->originX->text().toFloat();
+  float originY = m_Ui->originY->text().toFloat();
+  float originZ = m_Ui->originZ->text().toFloat();
+  FloatVec3Type origin = {originX, originY, originZ};
   return origin;
 }
 
@@ -375,11 +377,19 @@ bool ImportZeissMontageDialog::getConvertToGrayscale()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<double, double, double> ImportZeissMontageDialog::getColorWeighting()
+FloatVec3Type ImportZeissMontageDialog::getColorWeighting()
 {
-  double r = m_Ui->colorWeightingR->text().toDouble();
-  double g = m_Ui->colorWeightingG->text().toDouble();
-  double b = m_Ui->colorWeightingB->text().toDouble();
-  std::tuple<double, double, double> colorWeighting = std::make_tuple(r, g, b);
+  float r = m_Ui->colorWeightingR->text().toFloat();
+  float g = m_Ui->colorWeightingG->text().toFloat();
+  float b = m_Ui->colorWeightingB->text().toFloat();
+  FloatVec3Type colorWeighting = {r, g, b};
   return colorWeighting;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool ImportZeissMontageDialog::usePixelCoordinates()
+{
+  return m_Ui->pixelCoordsCB->isChecked();
 }

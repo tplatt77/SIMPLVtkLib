@@ -101,6 +101,12 @@ public:
    */
   FloatVec3Type getOrigin();
 
+  /**
+   * @brief usePixelCoordinates
+   * @return
+   */
+  bool usePixelCoordinates();
+
 protected:
   /**
    * @brief Constructor

@@ -188,8 +188,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin,
-                                                                       bool changeSpacing, float* origin, float* spacing)
+AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, float* origin,
+                                                                       bool usePixelCoordinates, bool changeSpacing, float* spacing)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -249,6 +249,12 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
         }
       }
 
+      var.setValue(usePixelCoordinates);
+      if(!setFilterProperty(importFijiMontageFilter, "UsePixelCoordinates", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
       if(!setFilterProperty(importFijiMontageFilter, "DataContainerPrefix", var))
@@ -281,8 +287,8 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                          const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin,
-                                                                          float* spacing)
+                                                                          const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, float* origin, bool usePixelCoordinates,
+                                                                          bool changeSpacing, float* spacing)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -342,6 +348,12 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
         }
       }
 
+      var.setValue(usePixelCoordinates);
+      if(!setFilterProperty(importRoboMetMontageFilter, "UsePixelCoordinates", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
       // Set the Data Container Prefix
       var.setValue(dcPrefix);
       if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPrefix", var))
@@ -395,8 +407,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const QString& dcPrefix, const QString& amName, const QString& daName, const QString metaAmName,
-                                                                        bool importAllMetadata, bool convertToGrayscale, bool changeOrigin, bool changeSpacing, float* colorWeights, float* origin,
-                                                                        float* spacing)
+                                                                        bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, bool usePixelCoordinates, bool changeSpacing, FloatVec3Type spacing)
 {
   // Instantiate Import AxioVision V4 Montage filter
   QString filterName = "ImportAxioVisionV4Montage";
@@ -510,6 +521,12 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         {
           return AbstractFilter::NullPointer();
         }
+      }
+
+      var.setValue(usePixelCoordinates);
+      if(!setFilterProperty(importZeissMontageFilter, "UsePixelCoordinates", var))
+      {
+        return AbstractFilter::NullPointer();
       }
 
       return importZeissMontageFilter;

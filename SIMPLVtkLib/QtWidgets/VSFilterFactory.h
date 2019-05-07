@@ -70,15 +70,16 @@ public:
    * @param amName The name of the attribute matrix that the image data will be stored in
    * @param daName The name of the image data array
    * @param changeOrigin Boolean that overrides the origins in the image files.
-   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
+   * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
+   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
-  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, bool changeSpacing,
-                                                        float* origin, float* spacing);
+  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, float* origin,
+                                                        bool usePixelCoordinates, bool changeSpacing, float* spacing);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
@@ -90,15 +91,17 @@ public:
    * @param imageFilePrefix The prefix of the image files
    * @param imageFileExtension The extension of the image files
    * @param changeOrigin Boolean that overrides the origins in the image files.
-   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
+   * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
+   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
   AbstractFilter::Pointer createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, bool changeSpacing, float* origin, float* spacing);
+                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, float* origin, bool usePixelCoordinates,
+                                                           bool changeSpacing, float* spacing);
 
   /**
    * @brief Creates a filter that imports a Zeiss montage, and sets all the necessary properties
@@ -109,19 +112,19 @@ public:
    * @param metaAmName The name of the image metadata array
    * @param importAllMetadata Boolean that imports all of the image metadata
    * @param convertToGrayscale Boolean that converts the image data to grayscale
-   * @param changeOrigin Boolean that overrides the origins in the image files.
-   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param colorWeights RGB array of color weights used during the grayscale conversion.  This parameter
    * isn't needed if convertToGrayscale is false.
+   * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
+   * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
+   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
   AbstractFilter::Pointer createImportZeissMontageFilter(const QString& zeissFile, const QString& dcPrefix, const QString& amName, const QString& daName, const QString metaAmName,
-                                                         bool importAllMetadata, bool convertToGrayscale, bool changeOrigin, bool changeSpacing, float* colorWeights = nullptr, float* origin = nullptr,
-                                                         float* spacing = nullptr);
+                                                         bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, bool usePixelCoordinates, bool changeSpacing, FloatVec3Type spacing);
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
