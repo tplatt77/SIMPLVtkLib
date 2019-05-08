@@ -1414,8 +1414,24 @@ void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
 
   if(!m_DataSetFilter)
   {
-    m_Mapper->SetInputConnection(filter->getOutputPort());
-    m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
+    if(m_ActorType != ActorType::Image2D)
+    {
+      m_Mapper->SetInputConnection(filter->getOutputPort());
+      m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
+    }
+    else
+    {
+      m_OutlineFilter->SetInputConnection(m_Plane->GetOutputPort());
+
+      if(getRepresentation() == Representation::Outline)
+      {
+        m_Mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
+      }
+      else
+      {
+        m_Mapper->SetInputConnection(m_Plane->GetOutputPort());
+      }
+    }
   }
   emit requiresRender();
 }
