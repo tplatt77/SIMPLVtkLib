@@ -146,6 +146,7 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
       if(dataFilter != nullptr)
       {
         QAction* reloadAction = new QAction("Reload Data");
+        reloadAction->setVisible(false);
         connect(reloadAction, &QAction::triggered, [=] { emit reloadFilterRequested(dataFilter); });
         menu.addAction(reloadAction);
 
@@ -169,6 +170,7 @@ void VSFilterView::requestContextMenu(const QPoint& pos)
       else if(fileNameFilter != nullptr)
       {
         QAction* reloadAction = new QAction("Reload File");
+        reloadAction->setVisible(false);
         connect(reloadAction, &QAction::triggered, [=] { emit reloadFileFilterRequested(fileNameFilter); });
         menu.addAction(reloadAction);
 
