@@ -129,7 +129,7 @@ public:
    * @brief getLengthUnit
    * @return
    */
-  QString getLengthUnit();
+  int32_t getLengthUnit();
 
 protected:
   /**

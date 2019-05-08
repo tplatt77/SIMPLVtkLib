@@ -321,7 +321,7 @@ bool ImportFijiMontageDialog::usePixelCoordinates()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ImportFijiMontageDialog::getLengthUnit()
+int32_t ImportFijiMontageDialog::getLengthUnit()
 {
-  return m_Ui->unitsCB->currentText();
+  return m_Ui->unitsCB->currentIndex();
 }

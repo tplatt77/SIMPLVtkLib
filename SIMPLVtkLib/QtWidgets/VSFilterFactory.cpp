@@ -189,7 +189,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, float* origin,
-                                                                       bool usePixelCoordinates, bool changeSpacing, float* spacing, QString lengthUnit)
+                                                                       bool usePixelCoordinates, bool changeSpacing, float* spacing, int32_t lengthUnit)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -295,7 +295,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
                                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, float* origin, bool usePixelCoordinates,
-                                                                          bool changeSpacing, float* spacing, QString lengthUnit)
+                                                                          bool changeSpacing, float* spacing, int32_t lengthUnit)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();

@@ -324,7 +324,7 @@ bool ImportRobometMontageDialog::usePixelCoordinates()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ImportRobometMontageDialog::getLengthUnit()
+int32_t ImportRobometMontageDialog::getLengthUnit()
 {
-  return m_Ui->unitsCB->currentText();
+  return m_Ui->unitsCB->currentIndex();
 }

@@ -406,7 +406,7 @@ bool ImportGenericMontageDialog::usePixelCoordinates()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ImportGenericMontageDialog::getLengthUnit()
+int32_t ImportGenericMontageDialog::getLengthUnit()
 {
-  return m_Ui->unitsCB->currentText();
+  return m_Ui->unitsCB->currentIndex();
 }
