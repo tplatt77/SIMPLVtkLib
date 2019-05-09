@@ -1414,8 +1414,24 @@ void VSFilterViewSettings::updateInputPort(VSAbstractFilter* filter)
 
   if(!m_DataSetFilter)
   {
-    m_Mapper->SetInputConnection(filter->getOutputPort());
-    m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
+    if(m_ActorType != ActorType::Image2D)
+    {
+      m_Mapper->SetInputConnection(filter->getOutputPort());
+      m_Actor->SetUserTransform(m_Filter->getTransform()->getGlobalTransform());
+    }
+    else
+    {
+      m_OutlineFilter->SetInputConnection(m_Plane->GetOutputPort());
+
+      if(getRepresentation() == Representation::Outline)
+      {
+        m_Mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
+      }
+      else
+      {
+        m_Mapper->SetInputConnection(m_Plane->GetOutputPort());
+      }
+    }
   }
   emit requiresRender();
 }
@@ -1784,6 +1800,28 @@ void VSFilterViewSettings::checkDataType()
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::reloadedData()
 {
+  if(isFlatImage())
+  {
+    VTK_PTR(vtkDataSet) outputData = m_Filter->getOutput();
+    vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
+
+    int* currentDims = imageData->GetDimensions();
+    int newDims[3];
+    for(int i = 0; i < 3; i++)
+    {
+      if(currentDims[i] > 1)
+      {
+        newDims[i] = currentDims[i] - 1;
+      }
+      else
+      {
+        newDims[i] = currentDims[i];
+      }
+    }
+
+    int extent[6] = {0, newDims[0], 0, newDims[1], 0, newDims[2] - 1};
+    imageData->SetExtent(extent);
+  }
   setupActors(false);
   emit actorsUpdated();
   emit dataLoaded();
