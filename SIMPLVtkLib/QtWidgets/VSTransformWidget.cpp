@@ -85,13 +85,13 @@ void VSTransformWidget::setupGui()
   connect(m_Internals->posYEdit, SIGNAL(editingFinished()), this, SLOT(translationEditChanged()));
   connect(m_Internals->posZEdit, SIGNAL(editingFinished()), this, SLOT(translationEditChanged()));
 
-  connect(m_Internals->rotXEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
-  connect(m_Internals->rotYEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
-  connect(m_Internals->rotZEdit, SIGNAL(editingFinished()), this, SLOT(rotationEditChanged()));
+  connect(m_Internals->rotXEdit, &QLineEdit::editingFinished, this, [=]() { rotationEditChanged('x'); });
+  connect(m_Internals->rotYEdit, &QLineEdit::editingFinished, this, [=]() { rotationEditChanged('y'); });
+  connect(m_Internals->rotZEdit, &QLineEdit::editingFinished, this, [=]() { rotationEditChanged('z'); });
 
-  connect(m_Internals->scaleXEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
-  connect(m_Internals->scaleYEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
-  connect(m_Internals->scaleZEdit, SIGNAL(editingFinished()), this, SLOT(scaleEditChanged()));
+  connect(m_Internals->scaleXEdit, &QLineEdit::editingFinished, this, [=]() { scaleEditChanged('x'); });
+  connect(m_Internals->scaleYEdit, &QLineEdit::editingFinished, this, [=]() { scaleEditChanged('y'); });
+  connect(m_Internals->scaleZEdit, &QLineEdit::editingFinished, this, [=]() { scaleEditChanged('z'); });
 
   connect(m_Internals->resetTransformBtn, &QPushButton::clicked, this, [=] {
     for(VSAbstractFilter* filter : m_SelectedFilters)
@@ -292,7 +292,7 @@ void VSTransformWidget::translationEditChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::rotationEditChanged()
+void VSTransformWidget::rotationEditChanged(char axis)
 {
   if(nullptr == m_Transform)
   {
@@ -304,9 +304,31 @@ void VSTransformWidget::rotationEditChanged()
   for(VSAbstractFilter* filter : m_SelectedFilters)
   {
     double* originRotation = filter->getTransform()->getOriginRotation();
-    rotation[0] = m_Internals->rotXEdit->text().toDouble() + originRotation[0];
-    rotation[1] = m_Internals->rotYEdit->text().toDouble() + originRotation[1];
-    rotation[2] = m_Internals->rotZEdit->text().toDouble() + originRotation[2];
+    double* localRotation = filter->getTransform()->getLocalRotation();
+
+    switch(axis)
+    {
+    case 'x':
+      rotation[0] = m_Internals->rotXEdit->text().toDouble() + originRotation[0];
+      rotation[1] = localRotation[1];
+      rotation[2] = localRotation[2];
+      break;
+    case 'y':
+      rotation[0] = localRotation[0];
+      rotation[1] = m_Internals->rotYEdit->text().toDouble() + originRotation[1];
+      rotation[2] = localRotation[2];
+      break;
+    case 'z':
+      rotation[0] = localRotation[0];
+      rotation[1] = localRotation[1];
+      rotation[2] = m_Internals->rotZEdit->text().toDouble() + originRotation[2];
+      break;
+    default:
+      rotation[0] = localRotation[0];
+      rotation[1] = localRotation[1];
+      rotation[2] = localRotation[2];
+      break;
+    }
     filter->getTransform()->setLocalRotation(rotation);
   }
 }
@@ -314,7 +336,7 @@ void VSTransformWidget::rotationEditChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSTransformWidget::scaleEditChanged()
+void VSTransformWidget::scaleEditChanged(char axis)
 {
   if(nullptr == m_Transform)
   {
@@ -326,9 +348,31 @@ void VSTransformWidget::scaleEditChanged()
   for(VSAbstractFilter* filter : m_SelectedFilters)
   {
     double* originScale = filter->getTransform()->getOriginScale();
-    scale[0] = m_Internals->scaleXEdit->text().toDouble() * originScale[0];
-    scale[1] = m_Internals->scaleYEdit->text().toDouble() * originScale[1];
-    scale[2] = m_Internals->scaleZEdit->text().toDouble() * originScale[2];
+    double* localScale = filter->getTransform()->getLocalScale();
+
+    switch(axis)
+    {
+    case 'x':
+      scale[0] = m_Internals->scaleXEdit->text().toDouble() * originScale[0];
+      scale[1] = localScale[1];
+      scale[2] = localScale[2];
+      break;
+    case 'y':
+      scale[0] = localScale[0];
+      scale[1] = m_Internals->scaleYEdit->text().toDouble() * originScale[1];
+      scale[2] = localScale[2];
+      break;
+    case 'z':
+      scale[0] = localScale[0];
+      scale[1] = localScale[1];
+      scale[2] = m_Internals->scaleZEdit->text().toDouble() * originScale[2];
+      break;
+    default:
+      scale[0] = localScale[0];
+      scale[1] = localScale[1];
+      scale[2] = localScale[2];
+      break;
+    }
     filter->getTransform()->setLocalScale(scale);
   }
 }
@@ -380,6 +424,14 @@ void VSTransformWidget::updateRotationLabels()
   else
   {
     rotation = m_Transform->getRotation();
+    double* originRotation = m_Transform->getOriginRotation();
+    if(originRotation != nullptr)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        rotation[i] -= originRotation[i];
+      }
+    }
   }
 
   QLocale locale = QLocale::system();
@@ -494,6 +546,14 @@ void VSTransformWidget::updateLocalScale()
   else
   {
     scale = m_Transform->getLocalScale();
+    double* originScale = m_Transform->getOriginScale();
+    if(originScale != nullptr)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        scale[i] /= originScale[i];
+      }
+    }
   }
 
   m_Internals->scaleXEdit->setText(QString::number(scale[0]));

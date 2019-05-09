@@ -96,12 +96,12 @@ protected slots:
   /**
    * @brief Updates the rotation spin boxes to match the transformation's local values
    */
-  void rotationEditChanged();
+  void rotationEditChanged(char axis);
 
   /**
    * @brief Updates the scale spin boxes to match the transformation's local values
    */
-  void scaleEditChanged();
+  void scaleEditChanged(char axis);
 
   /**
    * @brief Updates the translation labels to match the transformation's global values
