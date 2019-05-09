@@ -107,6 +107,12 @@ public:
    */
   bool usePixelCoordinates();
 
+  /**
+   * @brief getLengthUnit
+   * @return
+   */
+  int32_t getLengthUnit();
+
 protected:
   /**
    * @brief Constructor

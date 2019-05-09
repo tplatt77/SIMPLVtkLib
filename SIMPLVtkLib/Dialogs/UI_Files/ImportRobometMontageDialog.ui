@@ -26,41 +26,8 @@
    <property name="bottomMargin">
     <number>6</number>
    </property>
-   <item row="4" column="1">
-    <widget class="QComboBox" name="dataDisplayTypeCB">
-     <item>
-      <property name="text">
-       <string>Outline Only</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Individual Tiles</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Stitched Montage</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Data Display Type</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_17">
-     <property name="text">
-      <string>Montage Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="originX">
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="originY">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -76,18 +43,18 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="spacingX">
+   <item row="2" column="3">
+    <widget class="QLineEdit" name="originZ">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QLineEdit" name="originY">
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="originX">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -106,13 +73,30 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="QLineEdit" name="originZ">
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="spacingX">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="4">
+    <widget class="QLineEdit" name="montageNameLE">
+     <property name="text">
+      <string>Untitled Montage</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QCheckBox" name="pixelCoordsCB">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Pixel Coordinates</string>
      </property>
     </widget>
    </item>
@@ -133,17 +117,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="4">
-    <widget class="QCheckBox" name="pixelCoordsCB">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Pixel Coordinates</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="5">
+   <item row="7" column="0" colspan="5">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -153,11 +127,37 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="4">
-    <widget class="QLineEdit" name="montageNameLE">
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
      <property name="text">
-      <string>Untitled Montage</string>
+      <string>Data Display Type</string>
      </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_17">
+     <property name="text">
+      <string>Montage Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QComboBox" name="dataDisplayTypeCB">
+     <item>
+      <property name="text">
+       <string>Outline Only</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Individual Tiles</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Stitched Montage</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="1" column="0" colspan="5">
@@ -167,6 +167,16 @@
        <width>0</width>
        <height>0</height>
       </size>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="unitsCB"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Length Units</string>
      </property>
     </widget>
    </item>
