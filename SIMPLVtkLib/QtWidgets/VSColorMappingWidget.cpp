@@ -151,12 +151,9 @@ void VSColorMappingWidget::setFilters(VSAbstractFilter::FilterListType filters)
   switch(actorType)
   {
   case VSFilterViewSettings::ActorType::DataSet:
-    m_Ui->contentContainer->setVisible(true);
-    m_Ui->colorMappingContainer->setVisible(true);
-    break;
   case VSFilterViewSettings::ActorType::Image2D:
     m_Ui->contentContainer->setVisible(true);
-    m_Ui->colorMappingContainer->setVisible(false);
+    m_Ui->colorMappingContainer->setVisible(true);
     break;
   case VSFilterViewSettings::ActorType::Invalid:
   default:
@@ -169,8 +166,6 @@ void VSColorMappingWidget::setFilters(VSAbstractFilter::FilterListType filters)
   // Hide color mapping
   if(!m_ViewSettings.empty() && m_ViewSettings.front()->getNumberOfComponents(0) > 1)
   {
-    m_Ui->colorMapLabel->setVisible(false);
-    m_Ui->contentContainer->setVisible(false);
     m_Ui->colorMappingContainer->setVisible(false);
   }
 

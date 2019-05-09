@@ -94,7 +94,7 @@ void VSVisibilitySettingsWidget::setFilters(VSAbstractFilter::FilterListType fil
   {
     listenSolidColor();
     VSFilterViewSettings::ActorType actorType = VSFilterViewSettings::GetActorType(m_ViewSettings);
-    isDataSetType = (VSFilterViewSettings::ActorType::DataSet == actorType);
+    isDataSetType = (VSFilterViewSettings::ActorType::DataSet == actorType) || (VSFilterViewSettings::ActorType::Image2D == actorType);
   }
 
   if(isDataSetType)

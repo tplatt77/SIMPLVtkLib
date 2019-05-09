@@ -101,8 +101,8 @@ QWidget* VSSIMPLDataContainerValues::createFilterWidget()
   for(auto iter = importSettings.begin(); iter != importSettings.end(); iter++)
   {
     QListWidgetItem* item = new QListWidgetItem(arrayListWidget);
-    item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
-    item->setCheckState(iter->second ? Qt::Checked : Qt::Unchecked);
+    item->setFlags(item->flags() /*| Qt::ItemFlag::ItemIsUserCheckable*/);
+    //item->setCheckState(iter->second ? Qt::Checked : Qt::Unchecked);
     item->setText(iter->first);
     arrayListWidget->addItem(item);
   }

@@ -771,15 +771,23 @@ vtkDataArray* VSFilterViewSettings::getArrayByName(QString name) const
 // -----------------------------------------------------------------------------
 void VSFilterViewSettings::setActiveArrayName(QString name)
 {
-  if(nullptr == getDataSetMapper())
+  vtkDataSetMapper* mapper = getDataSetMapper();
+  if(nullptr == mapper)
   {
-    return;
+    if(nullptr == getImageMapper())
+    {
+      return;
+    }
+    else
+    {
+      mapper = getImageMapper();
+    }
   }
 
   // Check for Solid Color
   if(name.isNull())
   {
-    getDataSetMapper()->SelectColorArray(-1);
+    mapper->SelectColorArray(-1);
     m_ActiveArrayName = QString::null;
 
     emit activeArrayNameChanged(m_ActiveArrayName);
@@ -812,7 +820,14 @@ void VSFilterViewSettings::setActiveComponentIndex(int index)
   vtkDataSetMapper* mapper = getDataSetMapper();
   if(nullptr == mapper)
   {
-    return;
+    if(nullptr == getImageMapper())
+    {
+      return;
+    }
+    else
+    {
+      mapper = getImageMapper();
+    }
   }
 
   m_ActiveComponent = index;
@@ -1219,13 +1234,34 @@ void VSFilterViewSettings::setupImageActors()
   if(ActorType::DataSet == m_ActorType || nullptr == m_Actor)
   {
     mapper = vtkDataSetMapper::New();
+    mapper->ReleaseDataFlagOn();
     m_OutlineFilter = VTK_PTR(vtkOutlineFilter)::New();
 
     actor = vtkActor::New();
     actor->SetMapper(mapper);
 
+    m_LookupTable = new VSLookupTableController();
+    mapper->SetLookupTable(m_LookupTable->getColorTransferFunction());
+
     setMapColors(ColorMapping::None);
     setScalarBarVisible(false);
+
+    m_ScalarBarActor = VTK_PTR(vtkScalarBarActor)::New();
+    m_ScalarBarActor->SetLookupTable(mapper->GetLookupTable());
+    m_ScalarBarWidget = VTK_PTR(vtkScalarBarWidget)::New();
+    m_ScalarBarWidget->SetScalarBarActor(m_ScalarBarActor);
+
+    // Scalar Bar Title
+    vtkTextProperty* titleProperty = m_ScalarBarActor->GetTitleTextProperty();
+    titleProperty->SetJustificationToCentered();
+    titleProperty->SetFontSize(titleProperty->GetFontSize() * 1.5);
+
+    // Introduced in 7.1.0rc1, prevents resizing title to fill width
+#if VTK_MAJOR_VERSION > 7 || (VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >= 1)
+    m_ScalarBarActor->UnconstrainedFontSizeOn();
+#endif
+
+    m_ScalarBarActor->SetTitleRatio(0.75);
   }
   else
   {
@@ -1249,9 +1285,51 @@ void VSFilterViewSettings::setupImageActors()
     emit swappingActors(m_Actor.Get(), actor);
   }
 
+  // Check if there are any arrays to use
+  bool hasArrays = false;
+  if(isPointData())
+  {
+    hasArrays = outputData->GetPointData()->GetNumberOfArrays() > 0;
+  }
+  else
+  {
+    hasArrays = outputData->GetCellData()->GetNumberOfArrays() > 0;
+  }
+
   m_Mapper = mapper;
   m_Actor = actor;
   m_Plane = plane;
+  m_ActorType = ActorType::Image2D;
+
+  // Set Mapper to use the active array and component
+  if(hasArrays)
+  {
+    if(m_HadNoArrays)
+    {
+      setMapColors(ColorMapping::NonColors);
+      setActiveArrayName(getArrayNameByIndex(0));
+      m_HadNoArrays = false;
+    }
+    else
+    {
+      QStringList arrayNames = getFilter()->getArrayNames();
+      if(arrayNames.empty())
+      {
+        setActiveArrayName(m_ActiveArrayName);
+      }
+      else
+      {
+        setActiveArrayName(arrayNames[0]);
+      }
+      setActiveComponentIndex(m_ActiveComponent);
+    }
+  }
+  else
+  {
+    setMapColors(ColorMapping::None);
+    setScalarBarVisible(false);
+    m_HadNoArrays = true;
+  }
 
   vtkImageData* imageData = dynamic_cast<vtkImageData*>(outputData.Get());
 
@@ -1271,7 +1349,6 @@ void VSFilterViewSettings::setupImageActors()
   defaultTransform->setLocalRotation(m_Filter->getTransform()->getLocalRotation());
   defaultTransform->setLocalScale(m_Filter->getTransform()->getLocalScale());
 
-  m_ActorType = ActorType::Image2D;
   updateTexture();
   updateTransform();
 }
@@ -1710,24 +1787,36 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
     m_Representation = Representation::Invalid;
     return;
   }
+  vtkDataSetMapper* mapper = getDataSetMapper();
+  if(nullptr == mapper)
+  {
+    if(nullptr == getImageMapper())
+    {
+      return;
+    }
+    else
+    {
+      mapper = getImageMapper();
+    }
+  }
 
   const Representation prevRep = m_Representation;
   m_Representation = type;
   if(type == Representation::Outline)
   {
-    getDataSetMapper()->SetInputConnection(m_OutlineFilter->GetOutputPort());
+    mapper->SetInputConnection(m_OutlineFilter->GetOutputPort());
     actor->GetProperty()->SetRepresentation(static_cast<int>(Representation::Wireframe));
   }
   else
   {
     if(isFlatImage())
     {
-      getDataSetMapper()->SetInputConnection(m_Plane->GetOutputPort());
+      mapper->SetInputConnection(m_Plane->GetOutputPort());
       updateTexture();
     }
     else
     {
-      getDataSetMapper()->SetInputConnection(m_DataSetFilter->GetOutputPort());
+      mapper->SetInputConnection(m_DataSetFilter->GetOutputPort());
     }
 
     if(type == Representation::SurfaceWithEdges)
@@ -1738,7 +1827,10 @@ void VSFilterViewSettings::setRepresentation(const Representation& type)
     else
     {
       actor->GetProperty()->SetRepresentation(static_cast<int>(type) - 1);
-      actor->GetProperty()->EdgeVisibilityOff();
+      if(!m_Selected || m_ActorType != ActorType::Image2D)
+      {
+        actor->GetProperty()->EdgeVisibilityOff();
+      }
     }
   }
 
