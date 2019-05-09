@@ -165,6 +165,16 @@ void VSColorMappingWidget::setFilters(VSAbstractFilter::FilterListType filters)
     break;
   }
 
+  // Check for number of components, if greater than 1
+  // Hide color mapping
+  if(!m_ViewSettings.empty() && m_ViewSettings.front()->getNumberOfComponents(0) > 1)
+  {
+    m_Ui->colorMapLabel->setVisible(false);
+    m_Ui->contentContainer->setVisible(false);
+    m_Ui->colorMappingContainer->setVisible(false);
+  }
+
+
   updateViewSettingInfo();
 }
 
