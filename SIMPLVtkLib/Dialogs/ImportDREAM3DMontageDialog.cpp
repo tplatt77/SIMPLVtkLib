@@ -96,10 +96,10 @@ void ImportDREAM3DMontageDialog::setupGui()
   m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
 
   m_Ui->numOfRowsSB->setMinimum(1);
-  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>::max());
 
   m_Ui->numOfColsSB->setMinimum(1);
-  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>::max());
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
 
@@ -215,41 +215,13 @@ void ImportDREAM3DMontageDialog::checkComplete() const
     }
   }
 
-  DataContainerArrayProxy proxy = getProxy();
-
-  bool allChecked = true;
-  Qt::CheckState checkState = Qt::Unchecked;
-  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
-  for(QMap<QString, DataContainerProxy>::iterator iter = dataContainers.begin(); iter != dataContainers.end(); iter++)
-  {
-    DataContainerProxy dcProxy = iter.value();
-    if(dcProxy.getFlag() == Qt::Checked || dcProxy.getFlag() == Qt::PartiallyChecked)
-    {
-      checkState = Qt::PartiallyChecked;
-    }
-    else
-    {
-      allChecked = false;
-    }
-  }
-
-  if(allChecked == true)
-  {
-    checkState = Qt::Checked;
-  }
-
-  if(checkState == Qt::Unchecked)
-  {
-    result = false;
-  }
-
   if(m_LoadingProxy)
   {
     result = false;
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
-  if(!okBtn)
+  if(okBtn == nullptr)
   {
     throw InvalidOKButtonException();
   }
@@ -299,14 +271,6 @@ void ImportDREAM3DMontageDialog::dataFile_textChanged(const QString& text)
   {
   }
 
-  if(!inputPath.isEmpty())
-  {
-    QFileInfo fi(inputPath);
-    QString ext = fi.completeSuffix();
-    QMimeDatabase db;
-    QMimeType mimeType = db.mimeTypeForFile(inputPath, QMimeDatabase::MatchContent);
-  }
-
   QString filePath = m_Ui->dataFileLE->text();
 
   m_Ui->loadHDF5DataWidget->initialize(filePath);
@@ -318,7 +282,7 @@ void ImportDREAM3DMontageDialog::dataFile_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportDREAM3DMontageDialog::setInputDirectory(QString val)
+void ImportDREAM3DMontageDialog::setInputDirectory(const QString &val)
 {
   m_Ui->dataFileLE->setText(val);
 }
@@ -338,17 +302,9 @@ QString ImportDREAM3DMontageDialog::getInputDirectory()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportDREAM3DMontageDialog::setProxy(DataContainerArrayProxy proxy)
+QString ImportDREAM3DMontageDialog::getDataContainerPrefix() const
 {
-  m_Ui->loadHDF5DataWidget->setProxy(proxy);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-DataContainerArrayProxy ImportDREAM3DMontageDialog::getProxy() const
-{
-  return m_Ui->loadHDF5DataWidget->getProxy();
+  return m_Ui->dcPrefixLE->text();
 }
 
 // -----------------------------------------------------------------------------

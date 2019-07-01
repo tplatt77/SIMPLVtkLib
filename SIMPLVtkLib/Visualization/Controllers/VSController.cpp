@@ -96,7 +96,7 @@ VSController::~VSController()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importDataContainerArray(QString filePath, DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(const QString &filePath, const DataContainerArray::Pointer &dca)
 {
   m_ImportObject->addDataContainerArray(filePath, dca);
   m_ImportObject->run();
@@ -105,7 +105,7 @@ void VSController::importDataContainerArray(QString filePath, DataContainerArray
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(VSFileNameFilter* fileFilter, const DataContainerArray::Pointer &dca)
 {
   m_ImportObject->addDataContainerArray(fileFilter, dca);
   m_ImportObject->run();
@@ -114,7 +114,7 @@ void VSController::importDataContainerArray(VSFileNameFilter* fileFilter, DataCo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca)
+void VSController::importPipelineOutput(const FilterPipeline::Pointer &pipeline, const DataContainerArray::Pointer &dca)
 {
   m_ImportObject->addDataContainerArray(pipeline, dca);
   m_ImportObject->run();
@@ -125,7 +125,7 @@ void VSController::importPipelineOutput(FilterPipeline::Pointer pipeline, DataCo
 // -----------------------------------------------------------------------------
 void VSController::importPipelineOutput(std::vector<FilterPipeline::Pointer> pipelines)
 {
-  for(FilterPipeline::Pointer pipeline : pipelines)
+  for(const FilterPipeline::Pointer &pipeline : pipelines)
   {
     DataContainerArray::Pointer dca = pipeline->getDataContainerArray();
     m_ImportObject->addDataContainerArray(pipeline, dca);
@@ -136,7 +136,7 @@ void VSController::importPipelineOutput(std::vector<FilterPipeline::Pointer> pip
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importDataContainerArray(DataContainerArray::Pointer dca)
+void VSController::importDataContainerArray(const DataContainerArray::Pointer &dca)
 {
   m_ImportObject->addDataContainerArray("No File", dca);
   m_ImportObject->run();
@@ -145,7 +145,7 @@ void VSController::importDataContainerArray(DataContainerArray::Pointer dca)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void VSController::importDataContainer(DataContainer::Pointer dc)
+void VSController::importDataContainer(const DataContainer::Pointer &dc)
 {
   SIMPLVtkBridge::WrappedDataContainerPtr wrappedData = SIMPLVtkBridge::WrapDataContainerAsStruct(dc);
 
@@ -199,11 +199,9 @@ bool VSController::saveSession(const QString& sessionFilePath)
 
     return true;
   }
-  else
-  {
-    // "Failed to open output file" error
-    return false;
-  }
+
+  // "Failed to open output file" error
+  return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -222,7 +220,7 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
     QString dcName = dataContainer->getName();
     QString amName;
     QString dataArrayName;
-    for(AttributeMatrix::Pointer am : attributeMatricies)
+    for(const AttributeMatrix::Pointer &am : attributeMatricies)
     {
       if(am->getType() == AttributeMatrix::Type::Cell)
       {
@@ -232,7 +230,8 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
     }
     DataContainerArray::Pointer dca = DataContainerArray::New();
     dca->addOrReplaceDataContainer(dataContainer);
-    AbstractFilter::Pointer imageWriter = filterFactory->createImageFileWriterFilter(imageFilePath, dcName, amName, dataArrayName);
+    DataArrayPath imageDataPath(dcName, amName, dataArrayName);
+    AbstractFilter::Pointer imageWriter = filterFactory->createImageFileWriterFilter(imageFilePath, imageDataPath);
     if(imageWriter != AbstractFilter::NullPointer())
     {
       pipeline->pushBack(imageWriter);
@@ -251,7 +250,6 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
 // -----------------------------------------------------------------------------
 bool VSController::saveAsDREAM3D(const QString& outputFilePath, VSAbstractFilter* filter)
 {
-  bool dream3dFileSaved = false;
   VSFilterFactory::Pointer filterFactory = VSFilterFactory::New();
   FilterPipeline::Pointer pipeline = FilterPipeline::New();
   DataContainerArray::Pointer dca = DataContainerArray::New();
@@ -346,7 +344,7 @@ void VSController::saveFilter(VSAbstractFilter* filter, QJsonObject& obj)
 bool VSController::loadSession(const QString& sessionFilePath)
 {
   QFile inputFile(sessionFilePath);
-  if(inputFile.open(QIODevice::ReadOnly) == false)
+  if(!inputFile.open(QIODevice::ReadOnly))
   {
     return false;
   }
@@ -431,7 +429,7 @@ void VSController::loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter)
   {
     QJsonObject childrenObj = obj["Child Filters"].toObject();
 
-    m_FilterModel->addFilter(newFilter, (childrenObj.size() == 0));
+    m_FilterModel->addFilter(newFilter, childrenObj.empty());
     newFilter->setChecked(obj["CheckState"].toInt() == Qt::Checked);
     emit filterCheckStateChanged(newFilter);
 
@@ -446,13 +444,13 @@ void VSController::loadFilter(QJsonObject& obj, VSAbstractFilter* parentFilter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-VSFileNameFilter* VSController::getBaseFileNameFilter(QString text)
+VSFileNameFilter* VSController::getBaseFileNameFilter(const QString &text)
 {
   VSAbstractFilter::FilterListType baseFilters = getBaseFilters();
   for(VSAbstractFilter* baseFilter : baseFilters)
   {
     VSFileNameFilter* filter = dynamic_cast<VSFileNameFilter*>(baseFilter);
-    if(filter)
+    if(filter != nullptr)
     {
       if(filter->getFilterName().compare(text) == 0)
       {

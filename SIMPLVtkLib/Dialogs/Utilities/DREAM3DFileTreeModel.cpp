@@ -148,7 +148,7 @@ Qt::ItemFlags DREAM3DFileTreeModel::flags(const QModelIndex& index) const
   DREAM3DFileItem* item = getItem(index);
   if(item->getItemType() == DREAM3DFileItem::ItemType::DataContainer)
   {
-    return (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+    return (Qt::ItemIsEnabled);
   }
   else if(item->getItemType() == DREAM3DFileItem::ItemType::AttributeMatrix)
   {

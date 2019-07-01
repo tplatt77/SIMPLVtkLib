@@ -54,7 +54,7 @@ VSFilterFactory::VSFilterFactory(QObject* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const QString& inputFile, DataContainerArrayProxy inputFileDCAProxy)
+AbstractFilter::Pointer VSFilterFactory::createDataContainerReaderFilter(const QString& inputFile, const DataContainerArrayProxy &inputFileDCAProxy)
 {
   QString filterName = "DataContainerReader";
   FilterManager* fm = FilterManager::Instance();
@@ -131,7 +131,7 @@ AbstractFilter::Pointer VSFilterFactory::createDataContainerWriterFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const QString& dcName, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin)
+AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const DataArrayPath& dcPath, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin)
 {
   QString filterName = "SetOriginResolutionImageGeom";
   FilterManager* fm = FilterManager::Instance();
@@ -145,7 +145,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
       QVariant var;
 
       // Set the data container name
-      var.setValue(DataArrayPath(dcName, "", ""));
+      var.setValue(dcPath);
       if(!setFilterProperty(setOriginResolutionFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
@@ -188,8 +188,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, float* origin,
-                                                                       bool usePixelCoordinates, bool changeSpacing, float* spacing, int32_t lengthUnit)
+AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
+                                                                       bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -204,7 +204,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 
       // Set the path for the Fiji Configuration File
       var.setValue(fijiFile);
-      if(!setFilterProperty(importFijiMontageFilter, "FijiConfigFilePath", var))
+      if(!setFilterProperty(importFijiMontageFilter, "InputFile", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -249,15 +249,9 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
         }
       }
 
-      var.setValue(usePixelCoordinates);
-      if(!setFilterProperty(importFijiMontageFilter, "UsePixelCoordinates", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
       // Set the Data Container Prefix
-      var.setValue(dcPrefix);
-      if(!setFilterProperty(importFijiMontageFilter, "DataContainerPrefix", var))
+      var.setValue(dcPath);
+      if(!setFilterProperty(importFijiMontageFilter, "DataContainerPath", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -271,14 +265,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 
       // Set the Image Array Name
       var.setValue(daName);
-      if(!setFilterProperty(importFijiMontageFilter, "AttributeArrayName", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
-      // Set the Length Unit
-      var.setValue(lengthUnit);
-      if(!setFilterProperty(importFijiMontageFilter, "LengthUnit", var))
+      if(!setFilterProperty(importFijiMontageFilter, "ImageDataArrayName", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -293,9 +280,9 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const QString& dcPrefix, const QString& amName, const QString& daName, int sliceNumber,
-                                                                          const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, float* origin, bool usePixelCoordinates,
-                                                                          bool changeSpacing, float* spacing, int32_t lengthUnit)
+AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, int sliceNumber,
+                                                                          const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, const float* origin,
+                                                                          bool changeSpacing, const float* spacing)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -310,7 +297,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 
       // Set the path for the Robomet Configuration File
       var.setValue(robometFile);
-      if(!setFilterProperty(importRoboMetMontageFilter, "RegistrationFile", var))
+      if(!setFilterProperty(importRoboMetMontageFilter, "InputFile", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -355,15 +342,9 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
         }
       }
 
-      var.setValue(usePixelCoordinates);
-      if(!setFilterProperty(importRoboMetMontageFilter, "UsePixelCoordinates", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
-      // Set the Data Container Prefix
-      var.setValue(dcPrefix);
-      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPrefix", var))
+      // Set the Data Container Path
+      var.setValue(dcPath);
+      if(!setFilterProperty(importRoboMetMontageFilter, "DataContainerPath", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -377,7 +358,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 
       // Set the Image Array Name
       var.setValue(daName);
-      if(!setFilterProperty(importRoboMetMontageFilter, "AttributeArrayName", var))
+      if(!setFilterProperty(importRoboMetMontageFilter, "ImageDataArrayName", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -403,13 +384,6 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
         return AbstractFilter::NullPointer();
       }
 
-      // Set the Length Unit
-      var.setValue(lengthUnit);
-      if(!setFilterProperty(importRoboMetMontageFilter, "LengthUnit", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
       return importRoboMetMontageFilter;
     }
   }
@@ -420,8 +394,9 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const QString& dcPrefix, const QString& amName, const QString& daName, const QString metaAmName,
-                                                                        bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, bool usePixelCoordinates, bool changeSpacing, FloatVec3Type spacing)
+AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
+                                                                        const QString &metaAmName, bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights,
+                                                                        bool changeOrigin, FloatVec3Type origin, bool changeSpacing, FloatVec3Type spacing)
 {
   // Instantiate Import AxioVision V4 Montage filter
   QString filterName = "ImportAxioVisionV4Montage";
@@ -443,8 +418,8 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       }
 
       // Set the Data Container Prefix
-      var.setValue(DataArrayPath(dcPrefix, "", ""));
-      if(!setFilterProperty(importZeissMontageFilter, "DataContainerName", var))
+      var.setValue(dcPath);
+      if(!setFilterProperty(importZeissMontageFilter, "DataContainerPath", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -537,12 +512,6 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
         }
       }
 
-      var.setValue(usePixelCoordinates);
-      if(!setFilterProperty(importZeissMontageFilter, "UsePixelCoordinates", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
       return importZeissMontageFilter;
     }
   }
@@ -553,7 +522,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName)
+AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3Type montageStart, IntVec3Type montageEnd, const QString &dcPrefix, const QString& amName, const QString& daName)
 {
   QString filterName = "ITKPCMTileRegistration";
   FilterManager* fm = FilterManager::Instance();
@@ -566,9 +535,16 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
     {
       QVariant var;
 
-      // Set montage size
-      var.setValue(montageSize);
-      if(!setFilterProperty(itkRegistrationFilter, "MontageSize", var))
+      // Set montage start
+      var.setValue(montageStart);
+      if(!setFilterProperty(itkRegistrationFilter, "MontageStart", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set montage end
+      var.setValue(montageEnd);
+      if(!setFilterProperty(itkRegistrationFilter, "MontageEnd", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -588,8 +564,8 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
       }
 
       // Set the list of image data containers
-      var.setValue(dcNames);
-      if(!setFilterProperty(itkRegistrationFilter, "ImageDataContainers", var))
+      var.setValue(dcPrefix);
+      if(!setFilterProperty(itkRegistrationFilter, "DataContainerPrefix", var))
       {
         return AbstractFilter::NullPointer();
       }
@@ -604,7 +580,7 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec3
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, QStringList dcNames, const QString& amName, const QString& daName, DataArrayPath montagePath)
+AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, const QStringList &dcNames, const QString& amName, const QString& daName, const DataArrayPath &montagePath)
 {
   QString filterName = "ITKStitchMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -677,7 +653,7 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type m
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile, const QString& dcName)
+AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QString& inputFile, const DataArrayPath& dcPath)
 {
   QString filterName = "ITKImageReader";
   FilterManager* fm = FilterManager::Instance();
@@ -698,7 +674,7 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
       }
 
       // Set data container name
-      var.setValue(DataArrayPath(dcName, "", ""));
+      var.setValue(dcPath);
       if(!setFilterProperty(itkImageReaderFilter, "DataContainerName", var))
       {
         return AbstractFilter::NullPointer();
@@ -730,7 +706,7 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileReaderFilter(const QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QString& outputFile, const QString& dcName, const QString& attrMatrixName, const QString& dataArrayName)
+AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QString& outputFile, const DataArrayPath& imageArrayPath)
 {
   QString filterName = "ITKImageWriter";
   FilterManager* fm = FilterManager::Instance();
@@ -759,7 +735,6 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QStri
       }
 
       // Set image data array name
-      DataArrayPath imageArrayPath(dcName, attrMatrixName, dataArrayName);
       var.setValue(imageArrayPath);
       if(!setFilterProperty(itkImageWriterFilter, "ImageArrayPath", var))
       {
@@ -776,7 +751,7 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSFilterFactory::setFilterProperty(AbstractFilter::Pointer filter, const char* propertyName, QVariant value)
+bool VSFilterFactory::setFilterProperty(const AbstractFilter::Pointer &filter, const char* propertyName, const QVariant &value)
 {
   if(!filter->setProperty(propertyName, value))
   {

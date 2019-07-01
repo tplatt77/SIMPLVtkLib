@@ -51,8 +51,8 @@ class VSLoadHDF5DataWidget : public QWidget
   Q_OBJECT
 
 public:
-  VSLoadHDF5DataWidget(QWidget* parent = 0);
-  ~VSLoadHDF5DataWidget();
+  VSLoadHDF5DataWidget(QWidget* parent = nullptr);
+  ~VSLoadHDF5DataWidget() override;
 
   Q_PROPERTY(DataContainerArrayProxy Proxy READ getProxy WRITE setProxy NOTIFY proxyChanged)
 

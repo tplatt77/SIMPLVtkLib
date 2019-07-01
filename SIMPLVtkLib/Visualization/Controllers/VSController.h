@@ -76,7 +76,7 @@ public:
   /**
    * @brief Deconstructor
    */
-  virtual ~VSController();
+  ~VSController() override;
 
   /**
    * @brief Saves the session to the file at sessionFilePath
@@ -113,7 +113,7 @@ public:
    * as top-level VisualFilters
    * @param dca
    */
-  void importDataContainerArray(QString filePath, DataContainerArray::Pointer dca);
+  void importDataContainerArray(const QString &filePath, const DataContainerArray::Pointer &dca);
 
   /**
    * @brief Import data from a DataContainerArray and add any relevant DataContainers
@@ -121,14 +121,14 @@ public:
    * @param fileFilter
    * @param dca
    */
-  void importDataContainerArray(VSFileNameFilter* fileFilter, DataContainerArray::Pointer dca);
+  void importDataContainerArray(VSFileNameFilter *fileFilter, const DataContainerArray::Pointer &dca);
 
   /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
    * @param pipeline
    * @param dca
    */
-  void importPipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
+  void importPipelineOutput(const FilterPipeline::Pointer &pipeline, const DataContainerArray::Pointer &dca);
 
   /**
    * @brief Import data from a FilterPipeline and add any relevant DataContainers as top-level VisualFilters
@@ -141,21 +141,21 @@ public:
    * as top-level VisualFilters
    * @param dca
    */
-  void importDataContainerArray(DataContainerArray::Pointer dca);
+  void importDataContainerArray(const DataContainerArray::Pointer &dca);
 
   /**
    * @brief Import data from a DataContainer and add a top-level VisualFilter if there
    * is relevant data for visualization
    * @param dc
    */
-  void importDataContainer(DataContainer::Pointer dc);
+  void importDataContainer(const DataContainer::Pointer &dc);
 
   /**
    * @brief Returns the first top level text filter with the given value;
    * @param text
    * @return
    */
-  VSFileNameFilter* getBaseFileNameFilter(QString text);
+  VSFileNameFilter* getBaseFileNameFilter(const QString &text);
 
   /**
    * @brief Returns a vector of top-level data filters

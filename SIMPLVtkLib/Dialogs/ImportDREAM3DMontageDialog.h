@@ -101,16 +101,10 @@ public:
   QString getDataArrayName();
 
   /**
-   * @brief getLoadProxy
+   * @brief getDataContainerPrefix
    * @return
    */
-  DataContainerArrayProxy getProxy() const;
-
-  /**
-   * @brief setProxy
-   * @param proxy
-   */
-  void setProxy(DataContainerArrayProxy proxy);
+  QString getDataContainerPrefix() const;
 
   /**
    * @brief initializePage
@@ -133,10 +127,10 @@ protected slots:
   void dataFile_textChanged(const QString& text);
 
 protected:
-  void setInputDirectory(QString val);
+  void setInputDirectory(const QString &val);
   QString getInputDirectory();
 
-  static void setOpenDialogLastFilePath(QString val)
+  static void setOpenDialogLastFilePath(const QString &val)
   {
     m_OpenDialogLastDirectory = val;
   }
