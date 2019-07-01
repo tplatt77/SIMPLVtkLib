@@ -427,20 +427,9 @@ bool SIMPLVtkBridge::WrapAttrMatrixData(AttributeMatrix::Pointer attrMat, Wrappe
     return false;
   }
 
-  int numTuples = 0;
-  QVector<size_t> tupleDims = attrMat->getTupleDimensions();
-  int count = tupleDims.size();
-  for(int i = 0; i < count; i++)
-  {
-    if(i == 0)
-    {
-      numTuples = tupleDims[i];
-    }
-    else
-    {
-      numTuples *= tupleDims[i];
-    }
-  }
+  std::vector<size_t> tupleDims = attrMat->getTupleDimensions();
+
+  size_t numTuples = std::accumulate(tupleDims.begin(), tupleDims.end(), 1, std::multiplies<>());
 
   if(tuplesReq == numTuples)
   {

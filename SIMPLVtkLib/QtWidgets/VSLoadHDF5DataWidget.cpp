@@ -41,6 +41,7 @@
 
 #include <QtWidgets/QMessageBox>
 
+#include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
