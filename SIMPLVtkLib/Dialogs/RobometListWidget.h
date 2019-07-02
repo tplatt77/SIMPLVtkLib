@@ -55,8 +55,10 @@
 
 typedef struct
 {
-  qint32 NumberOfColumns = 0;
-  qint32 NumberOfRows = 0;
+  qint32 MontageStartCol = 0;
+  qint32 MontageStartRow = 0;
+  qint32 MontageEndCol = 0;
+  qint32 MontageEndRow = 0;
   qint32 SliceMin = 0;
   qint32 SliceMax = 0;
   QString RobometFilePath;
@@ -65,8 +67,10 @@ typedef struct
 
   void writeJson(QJsonObject& json)
   {
-    json["NumberOfColumns"] = static_cast<double>(NumberOfColumns);
-    json["NumberOfRows"] = static_cast<double>(NumberOfRows);
+    json["MontageStartCol"] = static_cast<double>(MontageStartCol);
+    json["MontageStartRow"] = static_cast<double>(MontageStartRow);
+    json["MontageEndCol"] = static_cast<double>(MontageEndCol);
+    json["MontageEndRow"] = static_cast<double>(MontageEndRow);
     json["SliceMin"] = static_cast<double>(SliceMin);
     json["SliceMax"] = static_cast<double>(SliceMax);
     json["RobometFilePath"] = RobometFilePath;
@@ -79,8 +83,10 @@ typedef struct
     if(json["PaddingDigits"].isDouble() && json["Ordering"].isDouble() && json["StartIndex"].isDouble() && json["EndIndex"].isDouble() && json["IncrementIndex"].isDouble() &&
        json["InputPath"].isString() && json["FilePrefix"].isString() && json["FileSuffix"].isString() && json["FileExtension"].isString())
     {
-      NumberOfColumns = static_cast<qint32>(json["NumberOfColumns"].toDouble());
-      NumberOfRows = static_cast<qint32>(json["NumberOfRows"].toDouble());
+      MontageStartCol = static_cast<qint32>(json["MontageStartCol"].toDouble());
+      MontageStartRow = static_cast<qint32>(json["MontageStartRow"].toDouble());
+      MontageEndCol = static_cast<qint32>(json["MontageEndCol"].toDouble());
+      MontageEndRow = static_cast<qint32>(json["MontageEndRow"].toDouble());
       SliceMin = static_cast<qint32>(json["SliceMin"].toDouble());
       SliceMax = static_cast<qint32>(json["SliceMax"].toDouble());
       RobometFilePath = json["RobometFilePath"].toString();
@@ -235,16 +241,28 @@ signals:
   void sliceMaxChanged(size_t sliceNumber);
 
   /**
-   * @brief numberOfRowsChanged
-   * @param numberOfRows
+   * @brief montageStartCol
+   * @param startRow
    */
-  void numberOfRowsChanged(size_t numberOfRows);
+  void montageStartColChanged(size_t startRow);
 
   /**
-   * @brief numberOfColumnsChanged
-   * @param numOfCols
+   * @brief montageStartRow
+   * @param startCol
    */
-  void numberOfColumnsChanged(size_t numOfCols);
+  void montageStartRowChanged(size_t startCol);
+
+  /**
+   * @brief montageEndColChanged
+   * @param endCol
+   */
+  void montageEndColChanged(size_t endCol);
+
+  /**
+   * @brief montageEndRowChanged
+   * @param endRow
+   */
+  void montageEndRowChanged(size_t endRow);
 
   /**
    * @brief slicePaddingChanged
@@ -293,7 +311,8 @@ private:
    * @param fileExtension
    * @return
    */
-  QVector<QString> generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix, const QString& fileExtension);
+  QVector<QString> generateFileList(int sliceNumber, int montageStartCol, int montageStartRow, int montageEndCol, int montageEndRow, bool& hasMissingFiles, const QString& inputPath,
+                                    const QString& filePrefix, const QString& fileExtension);
 
 public:
   RobometListWidget(const RobometListWidget&) = delete;            // Copy Constructor Not Implemented

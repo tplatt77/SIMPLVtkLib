@@ -93,8 +93,10 @@ void RobometListWidget::setupGui()
 
   setupMenuField();
 
-  m_Ui->numOfRows->setMaximum(std::numeric_limits<int>().max());
-  m_Ui->numOfCols->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->montageStartCol->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->montageStartRow->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->montageEndCol->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->montageEndRow->setMaximum(std::numeric_limits<int>().max());
   m_Ui->sliceMin->setMaximum(std::numeric_limits<int>().max());
   m_Ui->sliceMax->setMaximum(std::numeric_limits<int>().max());
 
@@ -102,7 +104,8 @@ void RobometListWidget::setupGui()
 
   m_WidgetList << m_Ui->inputDir << m_Ui->inputDirBtn;
   m_WidgetList << m_Ui->filePrefix << m_Ui->fileExt << m_Ui->sliceMin << m_Ui->sliceMax;
-  m_WidgetList << m_Ui->numOfRows << m_Ui->numOfCols;
+  m_WidgetList << m_Ui->montageStartCol << m_Ui->montageStartRow;
+  m_WidgetList << m_Ui->montageEndCol << m_Ui->montageEndRow;
 
   m_Ui->errorMessage->setVisible(false);
 
@@ -147,14 +150,24 @@ void RobometListWidget::connectSignalsSlots()
     emit sliceMaxChanged(value);
   });
 
-  connect(m_Ui->numOfRows, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
+  connect(m_Ui->montageStartCol, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
     generateExampleInputFile();
-    emit numberOfRowsChanged(value);
+    emit montageStartColChanged(value);
   });
 
-  connect(m_Ui->numOfCols, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
+  connect(m_Ui->montageStartRow, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
     generateExampleInputFile();
-    emit numberOfColumnsChanged(value);
+    emit montageStartRowChanged(value);
+  });
+
+  connect(m_Ui->montageEndCol, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
+    generateExampleInputFile();
+    emit montageEndColChanged(value);
+  });
+
+  connect(m_Ui->montageEndRow, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=](int value) {
+    generateExampleInputFile();
+    emit montageEndRowChanged(value);
   });
 }
 
@@ -345,8 +358,10 @@ void RobometListWidget::generateExampleInputFile()
 
   int sliceMin = m_Ui->sliceMin->value();
   int sliceMax = m_Ui->sliceMax->value();
-  int numOfRows = m_Ui->numOfRows->value();
-  int numOfCols = m_Ui->numOfCols->value();
+  int montageStartCol = m_Ui->montageStartCol->value();
+  int montageStartRow = m_Ui->montageStartRow->value();
+  int montageEndCol = m_Ui->montageEndCol->value();
+  int montageEndRow = m_Ui->montageEndRow->value();
   QString prefix = m_Ui->filePrefix->text();
   QString ext = m_Ui->fileExt->text();
   bool hasMissingFiles = false;
@@ -366,7 +381,7 @@ void RobometListWidget::generateExampleInputFile()
     QString inputPath = validator->convertToAbsolutePath(slicePath);
 
     // Now generate all the file names the user is asking for and populate the table
-    QVector<QString> fileList = generateFileList(slice, numOfRows, numOfCols, hasMissingFiles, inputPath, prefix, ext);
+    QVector<QString> fileList = generateFileList(slice, montageStartCol, montageStartRow, montageEndCol, montageEndRow, hasMissingFiles, inputPath, prefix, ext);
 
     QIcon greenDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_green.png"));
     QIcon redDot = QIcon(QString(":/SIMPL/icons/images/bullet_ball_red.png"));
@@ -407,7 +422,7 @@ void RobometListWidget::generateExampleInputFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int numberOfRows, int numberOfColumns, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
+QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int montageStartCol, int montageStartRow, int montageEndCol, int montageEndRow, bool& hasMissingFiles, const QString& inputPath, const QString& filePrefix,
                                                      const QString& fileExtension)
 {
   QVector<QString> fileList;
@@ -423,9 +438,9 @@ QVector<QString> RobometListWidget::generateFileList(int sliceNumber, int number
   }
 
   bool missingFiles = false;
-  for(int row = 0; row < numberOfRows; row++)
+  for(int row = montageStartRow; row <= montageEndRow; row++)
   {
-    for(int col = 0; col < numberOfColumns; col++)
+    for(int col = montageStartCol; col <= montageEndCol; col++)
     {
       QString filename;
       if(!filePrefix.isEmpty())
@@ -557,9 +572,11 @@ void RobometListWidget::findNumberOfRowsAndColumns()
       }
     }
   }
-
-  m_Ui->numOfRows->setValue(maxRow + 1); // Convert to 1-based
-  m_Ui->numOfCols->setValue(maxCol + 1); // Convert to 1-based
+  
+  m_Ui->montageStartCol->setValue(0);
+  m_Ui->montageStartRow->setValue(0);
+  m_Ui->montageEndCol->setValue(maxCol);
+  m_Ui->montageEndRow->setValue(maxRow);
 }
 
 // -----------------------------------------------------------------------------
@@ -571,8 +588,10 @@ RobometListInfo_t RobometListWidget::getRobometListInfo()
   QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
 
   RobometListInfo_t data;
-  data.NumberOfColumns = m_Ui->numOfCols->value();
-  data.NumberOfRows = m_Ui->numOfRows->value();
+  data.MontageStartCol = m_Ui->montageStartCol->value();
+  data.MontageStartRow = m_Ui->montageStartRow->value();
+  data.MontageEndCol = m_Ui->montageEndCol->value();
+  data.MontageEndRow = m_Ui->montageEndRow->value();
   data.SliceMin = m_Ui->sliceMin->value();
   data.SliceMax = m_Ui->sliceMax->value();
   data.RobometFilePath = inputPath;

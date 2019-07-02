@@ -113,8 +113,10 @@ void ImportRobometMontageDialog::connectSignalsSlots()
   connect(m_Ui->robometListWidget, &RobometListWidget::fileExtensionChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::sliceMinChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::sliceMaxChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
-  connect(m_Ui->robometListWidget, &RobometListWidget::numberOfRowsChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
-  connect(m_Ui->robometListWidget, &RobometListWidget::numberOfColumnsChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::montageStartColChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::montageStartRowChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::montageEndColChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
+  connect(m_Ui->robometListWidget, &RobometListWidget::montageEndRowChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::slicePaddingChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
   connect(m_Ui->robometListWidget, &RobometListWidget::rowColPaddingChanged, this, &ImportRobometMontageDialog::robometListWidgetChanged);
 
