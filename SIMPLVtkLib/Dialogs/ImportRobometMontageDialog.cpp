@@ -89,10 +89,6 @@ void ImportRobometMontageDialog::setupGui()
 
   qRegisterMetaType<RobometListInfo_t>();
 
-  QVector<QString> lengthUnitStrings = IGeometry::GetAllLengthUnitStrings();
-  m_Ui->unitsCB->addItems(lengthUnitStrings.toList());
-  m_Ui->unitsCB->setCurrentIndex(lengthUnitStrings.indexOf("Micrometer"));
-
   connectSignalsSlots();
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
@@ -154,16 +150,14 @@ void ImportRobometMontageDialog::robometListWidgetChanged()
 // -----------------------------------------------------------------------------
 void ImportRobometMontageDialog::changeOrigin_stateChanged(int state)
 {
-  m_Ui->originX->setEnabled(state);
-  m_Ui->originY->setEnabled(state);
-  m_Ui->originZ->setEnabled(state);
-  m_Ui->pixelCoordsCB->setEnabled(state);
-  if(state == false)
+  m_Ui->originX->setEnabled(state == Qt::Checked);
+  m_Ui->originY->setEnabled(state == Qt::Checked);
+  m_Ui->originZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->originX->setText("0");
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
-    m_Ui->pixelCoordsCB->setChecked(false);
   }
 
   checkComplete();
@@ -174,10 +168,10 @@ void ImportRobometMontageDialog::changeOrigin_stateChanged(int state)
 // -----------------------------------------------------------------------------
 void ImportRobometMontageDialog::changeSpacing_stateChanged(int state)
 {
-  m_Ui->spacingX->setEnabled(state);
-  m_Ui->spacingY->setEnabled(state);
-  m_Ui->spacingZ->setEnabled(state);
-  if(state == false)
+  m_Ui->spacingX->setEnabled(state == Qt::Checked);
+  m_Ui->spacingY->setEnabled(state == Qt::Checked);
+  m_Ui->spacingZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->spacingX->setText("1");
     m_Ui->spacingY->setText("1");
@@ -313,20 +307,4 @@ FloatVec3Type ImportRobometMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportRobometMontageDialog::usePixelCoordinates()
-{
-  return m_Ui->pixelCoordsCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int32_t ImportRobometMontageDialog::getLengthUnit()
-{
-  return m_Ui->unitsCB->currentIndex();
 }
