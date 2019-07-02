@@ -101,6 +101,12 @@ public:
    */
   FloatVec3Type getOrigin();
 
+  /**
+   * @brief getLengthUnit
+   * @return
+   */
+  int32_t getLengthUnit();
+
 protected:
   /**
    * @brief Constructor

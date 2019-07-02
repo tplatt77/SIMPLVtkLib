@@ -86,6 +86,10 @@ void ImportFijiMontageDialog::setupGui()
 
   qRegisterMetaType<FijiListInfo_t>();
 
+  QVector<QString> lengthUnitStrings = IGeometry::GetAllLengthUnitStrings();
+  m_Ui->unitsCB->addItems(lengthUnitStrings.toList());
+  m_Ui->unitsCB->setCurrentIndex(lengthUnitStrings.indexOf("Micrometer"));
+
   connectSignalsSlots();
 
   m_Ui->originX->setValidator(new QDoubleValidator);
@@ -302,4 +306,12 @@ FloatVec3Type ImportFijiMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int32_t ImportFijiMontageDialog::getLengthUnit()
+{
+  return m_Ui->unitsCB->currentIndex();
 }

@@ -119,6 +119,12 @@ public:
    */
   std::tuple<double, double, double> getOrigin();
 
+  /**
+   * @brief getLengthUnit
+   * @return
+   */
+  int32_t getLengthUnit();
+
 protected:
   /**
    * @brief Constructor

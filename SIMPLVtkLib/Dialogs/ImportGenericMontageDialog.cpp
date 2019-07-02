@@ -77,6 +77,10 @@ void ImportGenericMontageDialog::setupGui()
 {
   m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setText("Import");
 
+  QVector<QString> lengthUnitStrings = IGeometry::GetAllLengthUnitStrings();
+  m_Ui->unitsCB->addItems(lengthUnitStrings.toList());
+  m_Ui->unitsCB->setCurrentIndex(lengthUnitStrings.indexOf("Micrometer"));
+
   connectSignalsSlots();
 
   updateOrderChoices(MontageSettings::MontageType::GridRowByRow);
@@ -389,4 +393,12 @@ std::tuple<double, double, double> ImportGenericMontageDialog::getOrigin()
   double originZ = m_Ui->originZ->text().toDouble();
   std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
   return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int32_t ImportGenericMontageDialog::getLengthUnit()
+{
+  return m_Ui->unitsCB->currentIndex();
 }

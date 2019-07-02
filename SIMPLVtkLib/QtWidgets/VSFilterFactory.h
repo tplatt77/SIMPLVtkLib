@@ -78,7 +78,7 @@ public:
    * @return
    */
   AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
-                                                        bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing);
+                                                        bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing, int32_t lengthUnit);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
@@ -100,7 +100,7 @@ public:
    */
   AbstractFilter::Pointer createImportRobometMontageFilter(const QString& robometFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, int sliceNumber,
                                                            const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, const float* origin,
-                                                           bool changeSpacing, const float* spacing);
+                                                           bool changeSpacing, const float* spacing, int32_t lengthUnit);
 
   /**
    * @brief Creates a filter that imports a Zeiss montage, and sets all the necessary properties

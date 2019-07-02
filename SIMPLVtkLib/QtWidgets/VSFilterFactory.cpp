@@ -189,7 +189,7 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const D
 //
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
-                                                                       bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing)
+                                                                       bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing, int32_t lengthUnit)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -270,6 +270,13 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
         return AbstractFilter::NullPointer();
       }
 
+      // Set the Length Unit
+      var.setValue(lengthUnit);
+      if(!setFilterProperty(importFijiMontageFilter, "LengthUnit", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
       return importFijiMontageFilter;
     }
   }
@@ -282,7 +289,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QSt
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const QString& robometFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, int sliceNumber,
                                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, const float* origin,
-                                                                          bool changeSpacing, const float* spacing)
+                                                                          bool changeSpacing, const float* spacing, int32_t lengthUnit)
 {
   QString filterName = "ITKImportRoboMetMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -380,6 +387,13 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
       // Image file extension
       var.setValue(imageFileExtension);
       if(!setFilterProperty(importRoboMetMontageFilter, "ImageFileExtension", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the Length Unit
+      var.setValue(lengthUnit);
+      if(!setFilterProperty(importRoboMetMontageFilter, "LengthUnit", var))
       {
         return AbstractFilter::NullPointer();
       }

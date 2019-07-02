@@ -26,10 +26,88 @@
    <property name="bottomMargin">
     <number>6</number>
    </property>
-   <item row="2" column="3">
-    <widget class="QSpinBox" name="numOfColsSB">
-     <property name="value">
-      <number>5</number>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="changeSpacingCB">
+     <property name="text">
+      <string>Override Spacing (X, Y, Z)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QComboBox" name="orderCB"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Total Rows</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="4">
+    <widget class="QLabel" name="errLabel">
+     <property name="text">
+      <string>Error Label</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Data Display Type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLineEdit" name="spacingX">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QLineEdit" name="spacingZ">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="5">
+    <widget class="TileListWidget" name="tileListWidget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Order</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="5">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Total Columns</string>
      </property>
     </widget>
    </item>
@@ -43,6 +121,80 @@
      </property>
     </widget>
    </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Origin (X, Y, Z)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Collection Type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QComboBox" name="dataDisplayTypeCB">
+     <item>
+      <property name="text">
+       <string>Outline Only</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Individual Tiles</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Stitched Montage</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLineEdit" name="originY">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QSpinBox" name="numOfColsSB">
+     <property name="value">
+      <number>5</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="4">
+    <widget class="QLineEdit" name="montageNameLE">
+     <property name="text">
+      <string>Untitled Montage</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_17">
+     <property name="text">
+      <string>Montage Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="spacingY">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="1">
     <widget class="QSpinBox" name="tileOverlapSB">
      <property name="suffix">
@@ -53,6 +205,30 @@
      </property>
      <property name="value">
       <number>15</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="originX">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Tile Overlap</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="numOfRowsSB">
+     <property name="value">
+      <number>6</number>
      </property>
     </widget>
    </item>
@@ -88,181 +264,15 @@
      </item>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="spacingY">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Order</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QSpinBox" name="numOfRowsSB">
-     <property name="value">
-      <number>6</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2">
-    <widget class="QLineEdit" name="spacingX">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-   </item>
    <item row="9" column="0">
-    <widget class="QLabel" name="label_7">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Data Display Type</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Collection Type</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="3">
-    <widget class="QLineEdit" name="spacingZ">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="4">
-    <widget class="QLineEdit" name="montageNameLE">
-     <property name="text">
-      <string>Untitled Montage</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="4">
-    <widget class="QLabel" name="errLabel">
-     <property name="text">
-      <string>Error Label</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="5">
-    <widget class="TileListWidget" name="tileListWidget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_17">
-     <property name="text">
-      <string>Montage Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="originX">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QCheckBox" name="changeSpacingCB">
-     <property name="text">
-      <string>Override Spacing (X, Y, Z)</string>
+      <string>Length Units</string>
      </property>
     </widget>
    </item>
    <item row="9" column="1">
-    <widget class="QComboBox" name="dataDisplayTypeCB">
-     <item>
-      <property name="text">
-       <string>Outline Only</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Individual Tiles</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Stitched Montage</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QComboBox" name="orderCB"/>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Origin (X, Y, Z)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QLineEdit" name="originY">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Total Columns</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Tile Overlap</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Total Rows</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0" colspan="5">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <widget class="QComboBox" name="unitsCB"/>
    </item>
   </layout>
  </widget>
