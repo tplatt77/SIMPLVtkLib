@@ -113,12 +113,6 @@ public:
    */
   FloatVec3Type getColorWeighting();
 
-  /**
-   * @brief usePixelCoordinates
-   * @return
-   */
-  bool usePixelCoordinates();
-
 protected:
   /**
    * @brief Constructor
@@ -137,7 +131,7 @@ protected slots:
   void zeissListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(QString val)
+  static void setOpenDialogLastFilePath(const QString &val)
   {
     m_OpenDialogLastDirectory = val;
   }

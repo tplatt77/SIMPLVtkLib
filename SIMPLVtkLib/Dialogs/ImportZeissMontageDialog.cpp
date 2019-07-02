@@ -169,10 +169,10 @@ void ImportZeissMontageDialog::zeissListWidgetChanged()
 // -----------------------------------------------------------------------------
 void ImportZeissMontageDialog::convertGrayscale_stateChanged(int state)
 {
-  m_Ui->colorWeightingR->setEnabled(state);
-  m_Ui->colorWeightingG->setEnabled(state);
-  m_Ui->colorWeightingB->setEnabled(state);
-  if(state == false)
+  m_Ui->colorWeightingR->setEnabled(state == Qt::Checked);
+  m_Ui->colorWeightingG->setEnabled(state == Qt::Checked);
+  m_Ui->colorWeightingB->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->colorWeightingR->setText("0.2125");
     m_Ui->colorWeightingG->setText("0.7154");
@@ -185,16 +185,14 @@ void ImportZeissMontageDialog::convertGrayscale_stateChanged(int state)
 // -----------------------------------------------------------------------------
 void ImportZeissMontageDialog::changeOrigin_stateChanged(int state)
 {
-  m_Ui->originX->setEnabled(state);
-  m_Ui->originY->setEnabled(state);
-  m_Ui->originZ->setEnabled(state);
-  m_Ui->pixelCoordsCB->setEnabled(state);
-  if(state == false)
+  m_Ui->originX->setEnabled(state == Qt::Checked);
+  m_Ui->originY->setEnabled(state == Qt::Checked);
+  m_Ui->originZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->originX->setText("0");
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
-    m_Ui->pixelCoordsCB->setChecked(false);
   }
 }
 
@@ -203,10 +201,10 @@ void ImportZeissMontageDialog::changeOrigin_stateChanged(int state)
 // -----------------------------------------------------------------------------
 void ImportZeissMontageDialog::changeSpacing_stateChanged(int state)
 {
-  m_Ui->spacingX->setEnabled(state);
-  m_Ui->spacingY->setEnabled(state);
-  m_Ui->spacingZ->setEnabled(state);
-  if(state == false)
+  m_Ui->spacingX->setEnabled(state == Qt::Checked);
+  m_Ui->spacingY->setEnabled(state == Qt::Checked);
+  m_Ui->spacingZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->spacingX->setText("1");
     m_Ui->spacingY->setText("1");
@@ -310,7 +308,7 @@ void ImportZeissMontageDialog::checkComplete() const
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
-  if(!okBtn)
+  if(okBtn == nullptr)
   {
     throw InvalidOKButtonException();
   }
@@ -384,12 +382,4 @@ FloatVec3Type ImportZeissMontageDialog::getColorWeighting()
   float b = m_Ui->colorWeightingB->text().toFloat();
   FloatVec3Type colorWeighting = {r, g, b};
   return colorWeighting;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportZeissMontageDialog::usePixelCoordinates()
-{
-  return m_Ui->pixelCoordsCB->isChecked();
 }
