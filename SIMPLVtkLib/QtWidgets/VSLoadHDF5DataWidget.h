@@ -79,6 +79,12 @@ public:
    */
   void setNavigationButtonsVisibility(bool visible);
 
+  /**
+   * @brief setReadOnly
+   * @param readOnly
+   */
+  void setReadOnly(bool readOnly);
+
 protected slots:
   /**
    * @brief modelDataChanged

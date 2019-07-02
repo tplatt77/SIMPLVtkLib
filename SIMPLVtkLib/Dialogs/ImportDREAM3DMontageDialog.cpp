@@ -90,16 +90,14 @@ void ImportDREAM3DMontageDialog::setupGui()
   m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setText("Import");
 
   m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
+  m_Ui->loadHDF5DataWidget->setReadOnly(true);
 
   connectSignalsSlots();
 
-  m_Ui->loadHDF5DataWidget->setNavigationButtonsVisibility(false);
-
-  m_Ui->numOfRowsSB->setMinimum(1);
-  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>::max());
-
-  m_Ui->numOfColsSB->setMinimum(1);
-  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>::max());
+  m_Ui->montageStartX->setValidator(new QIntValidator(m_Ui->montageStartX));
+  m_Ui->montageStartY->setValidator(new QIntValidator(m_Ui->montageStartY));
+  m_Ui->montageEndX->setValidator(new QIntValidator(m_Ui->montageEndX));
+  m_Ui->montageEndY->setValidator(new QIntValidator(m_Ui->montageEndY));
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
 
@@ -123,8 +121,10 @@ void ImportDREAM3DMontageDialog::connectSignalsSlots()
 
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, [=] { checkComplete(); });
 
-  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
-  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
+  connect(m_Ui->montageStartX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageStartY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndY, &QLineEdit::textChanged, [=] { checkComplete(); });
 
   connect(m_Ui->loadHDF5DataWidget, &VSLoadHDF5DataWidget::proxyChanged, this, &ImportDREAM3DMontageDialog::proxyChanged);
 }
@@ -155,17 +155,17 @@ void ImportDREAM3DMontageDialog::proxyChanged(DataContainerArrayProxy proxy)
     int rowNumber = rowString.toInt();
     if(rowNumber >= rowCount)
     {
-      rowCount = rowNumber + 1;
+      rowCount = rowNumber;
     }
     int colNumber = colString.toInt();
     if(colNumber >= colCount)
     {
-      colCount = colNumber + 1;
+      colCount = colNumber;
     }
   }
 
-  m_Ui->numOfRowsSB->setValue(rowCount);
-  m_Ui->numOfColsSB->setValue(colCount);
+  m_Ui->montageEndY->setText(QString::number(rowCount));
+  m_Ui->montageEndX->setText(QString::number(colCount));
 
   checkComplete();
 }
@@ -197,22 +197,6 @@ void ImportDREAM3DMontageDialog::checkComplete() const
   if(fi.completeSuffix() != "dream3d")
   {
     result = false;
-  }
-
-  if(m_Ui->numOfRowsSB->isEnabled())
-  {
-    if(m_Ui->numOfRowsSB->value() < m_Ui->numOfRowsSB->minimum() || m_Ui->numOfRowsSB->value() > m_Ui->numOfRowsSB->maximum())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->numOfColsSB->isEnabled())
-  {
-    if(m_Ui->numOfColsSB->value() < m_Ui->numOfColsSB->minimum() || m_Ui->numOfColsSB->value() > m_Ui->numOfColsSB->maximum())
-    {
-      result = false;
-    }
   }
 
   if(m_LoadingProxy)
@@ -318,10 +302,30 @@ QString ImportDREAM3DMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<int, int> ImportDREAM3DMontageDialog::getMontageDimensions()
+IntVec3Type ImportDREAM3DMontageDialog::getMontageStart()
 {
-  std::tuple<int, int> dims = std::make_tuple(m_Ui->numOfRowsSB->value(), m_Ui->numOfColsSB->value());
-  return dims;
+  IntVec3Type montageStart = {m_Ui->montageStartX->text().toInt(), m_Ui->montageStartY->text().toInt(), 1};
+  return montageStart;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportDREAM3DMontageDialog::getMontageEnd()
+{
+  IntVec3Type montageEnd = {m_Ui->montageEndX->text().toInt(), m_Ui->montageEndY->text().toInt(), 1};
+  return montageEnd;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportDREAM3DMontageDialog::getMontageSize()
+{
+  int rowCount = m_Ui->montageEndY->text().toInt() - m_Ui->montageStartY->text().toInt() + 1;
+  int colCount = m_Ui->montageEndX->text().toInt() - m_Ui->montageStartX->text().toInt() + 1;
+  IntVec3Type montageSize = {colCount, rowCount, 1};
+  return montageSize;
 }
 
 // -----------------------------------------------------------------------------

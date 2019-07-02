@@ -37,6 +37,7 @@
 
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 
+#include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "ui_ImportDREAM3DMontageDialog.h"
@@ -77,10 +78,22 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getMontageDimensions
+   * @brief getMontageStart
    * @return
    */
-  std::tuple<int, int> getMontageDimensions();
+  IntVec3Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec3Type getMontageEnd();
+
+  /**
+   * @brief getMontageSize
+   * @return
+   */
+  IntVec3Type getMontageSize();
 
   /**
    * @brief getDataFilePath

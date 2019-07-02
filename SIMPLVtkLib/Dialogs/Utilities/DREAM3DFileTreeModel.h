@@ -78,6 +78,8 @@ public:
 
   bool setData(const QModelIndex& index, const QVariant& value, int role) Q_DECL_OVERRIDE;
 
+  void setReadOnly(bool readOnly);
+
   /**
    * @brief populateTree
    * @param proxy
@@ -93,6 +95,7 @@ public:
 private:
   DREAM3DFileItem* rootItem;
   DataContainerArrayProxy m_Proxy;
+  bool m_ReadOnly = false;
 
   DREAM3DFileItem* getItem(const QModelIndex& index) const;
 

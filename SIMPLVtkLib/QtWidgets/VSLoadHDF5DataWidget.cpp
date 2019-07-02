@@ -139,6 +139,19 @@ void VSLoadHDF5DataWidget::proxyInitFinished()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void VSLoadHDF5DataWidget::setReadOnly(bool readOnly)
+{
+  DREAM3DFileTreeModel* model = dynamic_cast<DREAM3DFileTreeModel*>(m_Ui->treeView->model());
+  if (model != nullptr)
+  {
+    model->setReadOnly(readOnly);
+    m_Ui->selectAllCB->setHidden(readOnly);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void VSLoadHDF5DataWidget::setNavigationButtonsVisibility(bool visible)
 {
   m_Ui->loadBtn->setVisible(visible);

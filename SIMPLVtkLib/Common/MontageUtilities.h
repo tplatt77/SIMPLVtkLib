@@ -36,6 +36,8 @@
 #pragma once
 
 #include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
+#include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 
 #include "SIMPLVtkLib/SIMPLVtkLib.h"
 
@@ -44,8 +46,33 @@ class QString;
 class SIMPLVtkLib_EXPORT MontageUtilities
 {
 public:
+  /**
+   * @brief GenerateDataContainerName
+   * @param dataContainerPrefix
+   * @param montageStart
+   * @param montageEnd
+   * @param row
+   * @param col
+   * @return
+   */
   static QString GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec3Type& montageStart, const IntVec3Type& montageEnd, int32_t row, int32_t col);
 
+  /**
+   * @brief CreateMontageProxy
+   * @param reader
+   * @param filePath
+   * @param checkedDCNames
+   * @return
+   */
+  static DataContainerArrayProxy CreateMontageProxy(SIMPLH5DataReader &reader, const QString &filePath, const QStringList &checkedDCNames = QStringList());
+
+private:
+
+  /**
+   * @brief CalculatePaddingDigits
+   * @param count
+   * @return
+   */
   static int32_t CalculatePaddingDigits(int32_t count);
 
 public:

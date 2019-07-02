@@ -88,23 +88,23 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
   {
     return item->data(index.column());
   }
-  else if(role == Qt::CheckStateRole)
+  if(role == Qt::CheckStateRole && !m_ReadOnly)
   {
     return item->getCheckState();
   }
-  else if(role == Qt::BackgroundRole)
+  if(role == Qt::BackgroundRole)
   {
     return QVariant();
   }
-  else if(role == Qt::ForegroundRole)
+  if(role == Qt::ForegroundRole)
   {
     return QColor(Qt::black);
   }
-  else if(role == Qt::ToolTipRole)
+  if(role == Qt::ToolTipRole)
   {
     return QVariant();
   }
-  else if(role == Qt::FontRole)
+  if(role == Qt::FontRole)
   {
     DREAM3DFileItem* item = getItem(index);
     if(item->getItemType() == DREAM3DFileItem::ItemType::DataContainer)
@@ -113,12 +113,10 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
       font.setBold(true);
       return font;
     }
-    else
-    {
-      return QVariant();
-    }
+
+    return {};
   }
-  else if(role == Qt::DecorationRole)
+  if(role == Qt::DecorationRole)
   {
     QModelIndex nameIndex = this->index(index.row(), DREAM3DFileItem::Name, index.parent());
     if(nameIndex == index)
@@ -126,10 +124,8 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
       DREAM3DFileItem* item = getItem(index);
       return item->getIcon();
     }
-    else
-    {
-      return QVariant();
-    }
+
+    return {};
   }
 
   return QVariant();
@@ -140,23 +136,33 @@ QVariant DREAM3DFileTreeModel::data(const QModelIndex& index, int role) const
 // -----------------------------------------------------------------------------
 Qt::ItemFlags DREAM3DFileTreeModel::flags(const QModelIndex& index) const
 {
+  Qt::ItemFlags flags;
+
   if(!index.isValid())
   {
-    return 0;
+    return flags;
   }
 
   DREAM3DFileItem* item = getItem(index);
   if(item->getItemType() == DREAM3DFileItem::ItemType::DataContainer)
   {
-    return (Qt::ItemIsEnabled);
+    if (!m_ReadOnly)
+    {
+      flags.setFlag(Qt::ItemIsEnabled);
+      flags.setFlag(Qt::ItemIsUserCheckable);
+    }
+    return flags;
   }
-  else if(item->getItemType() == DREAM3DFileItem::ItemType::AttributeMatrix)
+
+  if(item->getItemType() == DREAM3DFileItem::ItemType::AttributeMatrix)
   {
-    return (0);
+    return flags;
   }
-  else if(item->getItemType() == DREAM3DFileItem::ItemType::DataArray)
+
+  if(item->getItemType() == DREAM3DFileItem::ItemType::DataArray)
   {
-    return (Qt::ItemNeverHasChildren);
+    flags.setFlag(Qt::ItemNeverHasChildren);
+    return flags;
   }
 
   return QAbstractItemModel::flags(index);
@@ -506,4 +512,12 @@ bool DREAM3DFileTreeModel::populateTreeWithProxy(DataContainerArrayProxy proxy)
 DataContainerArrayProxy DREAM3DFileTreeModel::getModelProxy()
 {
   return m_Proxy;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void DREAM3DFileTreeModel::setReadOnly(bool readOnly)
+{
+  m_ReadOnly = readOnly;
 }

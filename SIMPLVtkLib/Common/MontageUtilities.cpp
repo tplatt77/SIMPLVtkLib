@@ -37,6 +37,10 @@
 
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
+#include <QtCore/QFileInfo>
+
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -64,6 +68,49 @@ QString MontageUtilities::GenerateDataContainerName(const QString& dataContainer
   dcNameStream.setFieldWidth(charPaddingCount);
   dcNameStream << col;
   return dcName;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+DataContainerArrayProxy MontageUtilities::CreateMontageProxy(SIMPLH5DataReader &reader, const QString& filePath, const QStringList &checkedDCNames)
+{
+  bool success = reader.openFile(filePath);
+  if(!success)
+  {
+    return {};
+  }
+
+  int err = 0;
+  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
+  DataContainerArrayProxy proxy = reader.readDataContainerArrayStructure(&req, err);
+  QMap<QString, DataContainerProxy>& dataContainers = proxy.getDataContainers();
+  if(dataContainers.isEmpty())
+  {
+    return {};
+  }
+
+  QStringList dcNames = dataContainers.keys();
+  for(int i = 0; i < dcNames.size(); i++)
+  {
+    QString dcName = dcNames[i];
+    DataContainerProxy dcProxy = dataContainers[dcName];
+
+    if(checkedDCNames.contains(dcName))
+    {
+      dcProxy.setFlag(Qt::Checked);
+    }
+    else
+    {
+      dcProxy.setFlag(Qt::Unchecked);
+    }
+
+    dataContainers[dcName] = dcProxy;
+  }
+
+  reader.closeFile();
+
+  return proxy;
 }
 
 // -----------------------------------------------------------------------------
