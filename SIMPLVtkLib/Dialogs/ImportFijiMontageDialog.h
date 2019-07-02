@@ -103,18 +103,6 @@ public:
    */
   FloatVec3Type getOrigin();
 
-  /**
-   * @brief usePixelCoordinates
-   * @return
-   */
-  bool usePixelCoordinates();
-
-  /**
-   * @brief getLengthUnit
-   * @return
-   */
-  int32_t getLengthUnit();
-
 protected:
   /**
    * @brief Constructor
@@ -132,7 +120,7 @@ protected slots:
   void fijiListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(QString val)
+  static void setOpenDialogLastFilePath(const QString &val)
   {
     m_OpenDialogLastDirectory = val;
   }

@@ -86,10 +86,6 @@ void ImportFijiMontageDialog::setupGui()
 
   qRegisterMetaType<FijiListInfo_t>();
 
-  QVector<QString> lengthUnitStrings = IGeometry::GetAllLengthUnitStrings();
-  m_Ui->unitsCB->addItems(lengthUnitStrings.toList());
-  m_Ui->unitsCB->setCurrentIndex(lengthUnitStrings.indexOf("Micrometer"));
-
   connectSignalsSlots();
 
   m_Ui->originX->setValidator(new QDoubleValidator);
@@ -149,16 +145,14 @@ void ImportFijiMontageDialog::fijiListWidgetChanged()
 // -----------------------------------------------------------------------------
 void ImportFijiMontageDialog::changeOrigin_stateChanged(int state)
 {
-  m_Ui->originX->setEnabled(state);
-  m_Ui->originY->setEnabled(state);
-  m_Ui->originZ->setEnabled(state);
-  m_Ui->pixelCoordsCB->setEnabled(state);
-  if(state == false)
+  m_Ui->originX->setEnabled(state == Qt::Checked);
+  m_Ui->originY->setEnabled(state == Qt::Checked);
+  m_Ui->originZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->originX->setText("0");
     m_Ui->originY->setText("0");
     m_Ui->originZ->setText("0");
-    m_Ui->pixelCoordsCB->setChecked(false);
   }
 
   checkComplete();
@@ -169,10 +163,10 @@ void ImportFijiMontageDialog::changeOrigin_stateChanged(int state)
 // -----------------------------------------------------------------------------
 void ImportFijiMontageDialog::changeSpacing_stateChanged(int state)
 {
-  m_Ui->spacingX->setEnabled(state);
-  m_Ui->spacingY->setEnabled(state);
-  m_Ui->spacingZ->setEnabled(state);
-  if(state == false)
+  m_Ui->spacingX->setEnabled(state == Qt::Checked);
+  m_Ui->spacingY->setEnabled(state == Qt::Checked);
+  m_Ui->spacingZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->spacingX->setText("1");
     m_Ui->spacingY->setText("1");
@@ -254,7 +248,7 @@ void ImportFijiMontageDialog::checkComplete() const
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
-  if(!okBtn)
+  if(okBtn == nullptr)
   {
     throw InvalidOKButtonException();
   }
@@ -308,20 +302,4 @@ FloatVec3Type ImportFijiMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportFijiMontageDialog::usePixelCoordinates()
-{
-  return m_Ui->pixelCoordsCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int32_t ImportFijiMontageDialog::getLengthUnit()
-{
-  return m_Ui->unitsCB->currentIndex();
 }
