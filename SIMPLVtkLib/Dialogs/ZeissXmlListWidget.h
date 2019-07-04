@@ -51,9 +51,9 @@
 
 #include "SVWidgetsLib/FilterParameterWidgets/FilterParameterWidget.h"
 
-#include "ui_ZeissListWidget.h"
+#include "ui_ZeissXmlListWidget.h"
 
-struct ZeissListInfo_t
+struct ZeissXmlListInfo_t
 {
   QString ZeissFilePath;
 
@@ -73,10 +73,10 @@ struct ZeissListInfo_t
   }
 };
 
-Q_DECLARE_METATYPE(ZeissListInfo_t)
+Q_DECLARE_METATYPE(ZeissXmlListInfo_t)
 
 /**
- * @class ZeissListWidget ZeissListWidget.h SIMPLVtkLib/Wizards/ImportMontage/UI_Files/ZeissListWidget.h
+ * @class ZeissXmlListWidget ZeissXmlListWidget.h SIMPLVtkLib/Wizards/ImportMontage/UI_Files/ZeissXmlListWidget.h
  * @brief This class represents the User Interface for the Fiji file import module
  * of the SIMPLView program. The user interface subclasses QFrame which
  * should make it able to be embedded in most Qt applications. This module controls
@@ -86,7 +86,7 @@ Q_DECLARE_METATYPE(ZeissListInfo_t)
  * @date Jan 30, 2011
  * @version 1.0
  */
-class SIMPLVtkLib_EXPORT ZeissListWidget : public QWidget
+class SIMPLVtkLib_EXPORT ZeissXmlListWidget : public QWidget
 {
   Q_OBJECT
 
@@ -97,9 +97,9 @@ public:
    * @param filter The instance of the filter that this parameter is a part of
    * @param parent The parent QWidget for this Widget
    */
-  ZeissListWidget(QWidget* parent = nullptr);
+  ZeissXmlListWidget(QWidget* parent = nullptr);
 
-  ~ZeissListWidget() override;
+  ~ZeissXmlListWidget() override;
 
   /**
    * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -113,10 +113,10 @@ public:
   bool isComplete() const;
 
   /**
-   * @brief getZeissListInfo
+   * @brief getZeissXmlListInfo
    * @return
    */
-  ZeissListInfo_t getZeissListInfo();
+  ZeissXmlListInfo_t getZeissXmlListInfo();
 
 protected slots:
 
@@ -190,7 +190,7 @@ signals:
   void numberOfColumnsChanged(size_t numOfCols);
 
 private:
-  QSharedPointer<Ui::ZeissListWidget> m_Ui;
+  QSharedPointer<Ui::ZeissXmlListWidget> m_Ui;
 
   QList<QWidget*> m_WidgetList;
   static QString m_OpenDialogLastFilePath;
@@ -213,8 +213,8 @@ private:
   void showFileInFileSystem(const QString& filePath);
 
 public:
-  ZeissListWidget(const ZeissListWidget&) = delete;            // Copy Constructor Not Implemented
-  ZeissListWidget(ZeissListWidget&&) = delete;                 // Move Constructor Not Implemented
-  ZeissListWidget& operator=(const ZeissListWidget&) = delete; // Copy Assignment Not Implemented
-  ZeissListWidget& operator=(ZeissListWidget&&) = delete;      // Move Assignment Not Implemented
+  ZeissXmlListWidget(const ZeissXmlListWidget&) = delete;            // Copy Constructor Not Implemented
+  ZeissXmlListWidget(ZeissXmlListWidget&&) = delete;                 // Move Constructor Not Implemented
+  ZeissXmlListWidget& operator=(const ZeissXmlListWidget&) = delete; // Copy Assignment Not Implemented
+  ZeissXmlListWidget& operator=(ZeissXmlListWidget&&) = delete;      // Move Assignment Not Implemented
 };

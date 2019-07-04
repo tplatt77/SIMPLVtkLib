@@ -63,7 +63,8 @@
 
 #include "SIMPLVtkLib/Dialogs/RobometListWidget.h"
 #include "SIMPLVtkLib/Dialogs/Utilities/ImporterWorker.h"
-#include "SIMPLVtkLib/Dialogs/ZeissListWidget.h"
+#include "SIMPLVtkLib/Dialogs/ZeissXmlListWidget.h"
+#include "SIMPLVtkLib/Dialogs/ZeissZenListWidget.h"
 
 // -----------------------------------------------------------------------------
 //

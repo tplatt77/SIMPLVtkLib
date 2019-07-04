@@ -33,7 +33,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "ImportZeissMontageDialog.h"
+#include "ImportZeissZenMontageDialog.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QMimeDatabase>
@@ -49,14 +49,14 @@
 #include "SVWidgetsLib/QtSupport/QtSFileUtils.h"
 
 // Initialize private static member variable
-QString ImportZeissMontageDialog::m_OpenDialogLastDirectory = "";
+QString ImportZeissZenMontageDialog::m_OpenDialogLastDirectory = "";
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportZeissMontageDialog::ImportZeissMontageDialog(QWidget* parent)
+ImportZeissZenMontageDialog::ImportZeissZenMontageDialog(QWidget* parent)
 : AbstractImportMontageDialog(parent)
-, m_Ui(new Ui::ImportZeissMontageDialog)
+, m_Ui(new Ui::ImportZeissZenMontageDialog)
 {
   m_Ui->setupUi(this);
 
@@ -66,25 +66,25 @@ ImportZeissMontageDialog::ImportZeissMontageDialog(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportZeissMontageDialog::~ImportZeissMontageDialog() = default;
+ImportZeissZenMontageDialog::~ImportZeissZenMontageDialog() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportZeissMontageDialog::Pointer ImportZeissMontageDialog::New(QWidget* parent)
+ImportZeissZenMontageDialog::Pointer ImportZeissZenMontageDialog::New(QWidget* parent)
 {
-  Pointer sharedPtr(new ImportZeissMontageDialog(parent));
+  Pointer sharedPtr(new ImportZeissZenMontageDialog(parent));
   return sharedPtr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::setupGui()
+void ImportZeissZenMontageDialog::setupGui()
 {
   m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setText("Import");
 
-  qRegisterMetaType<ZeissListInfo_t>();
+  qRegisterMetaType<ZeissZenListInfo_t>();
 
   connectSignalsSlots();
 
@@ -94,9 +94,6 @@ void ImportZeissMontageDialog::setupGui()
   m_Ui->originX->setValidator(new QDoubleValidator);
   m_Ui->originY->setValidator(new QDoubleValidator);
   m_Ui->originZ->setValidator(new QDoubleValidator);
-  m_Ui->spacingX->setValidator(new QDoubleValidator);
-  m_Ui->spacingY->setValidator(new QDoubleValidator);
-  m_Ui->spacingZ->setValidator(new QDoubleValidator);
 
   m_Ui->montageNameLE->setText("Untitled Montage");
 
@@ -108,13 +105,13 @@ void ImportZeissMontageDialog::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::connectSignalsSlots()
+void ImportZeissZenMontageDialog::connectSignalsSlots()
 {
   connect(m_Ui->dataDisplayTypeCB, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) { setDisplayType(static_cast<AbstractImportMontageDialog::DisplayType>(index)); });
 
-  connect(m_Ui->zeissListWidget, &ZeissListWidget::inputDirectoryChanged, this, &ImportZeissMontageDialog::zeissListWidgetChanged);
-  connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfRowsChanged, this, &ImportZeissMontageDialog::zeissListWidgetChanged);
-  connect(m_Ui->zeissListWidget, &ZeissListWidget::numberOfColumnsChanged, this, &ImportZeissMontageDialog::zeissListWidgetChanged);
+  connect(m_Ui->zeissListWidget, &ZeissZenListWidget::inputDirectoryChanged, this, &ImportZeissZenMontageDialog::zeissListWidgetChanged);
+  connect(m_Ui->zeissListWidget, &ZeissZenListWidget::numberOfRowsChanged, this, &ImportZeissZenMontageDialog::zeissListWidgetChanged);
+  connect(m_Ui->zeissListWidget, &ZeissZenListWidget::numberOfColumnsChanged, this, &ImportZeissZenMontageDialog::zeissListWidgetChanged);
 
   connect(m_Ui->colorWeightingR, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->colorWeightingG, &QLineEdit::textChanged, [=] { checkComplete(); });
@@ -123,10 +120,6 @@ void ImportZeissMontageDialog::connectSignalsSlots()
   connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originY, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { checkComplete(); });
-
-  connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
-  connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { checkComplete(); });
 
   // Connect the checkboxes for grayscale, origin, and spacing to respective line edit group boxes
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, [=] {
@@ -141,25 +134,18 @@ void ImportZeissMontageDialog::connectSignalsSlots()
     m_Ui->originY->setEnabled(isChecked);
     m_Ui->originZ->setEnabled(isChecked);
   });
-  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
-    bool isChecked = m_Ui->changeSpacingCB->isChecked();
-    m_Ui->spacingX->setEnabled(isChecked);
-    m_Ui->spacingY->setEnabled(isChecked);
-    m_Ui->spacingZ->setEnabled(isChecked);
-  });
 
-  connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::convertGrayscale_stateChanged);
-  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::changeOrigin_stateChanged);
-  connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, this, &ImportZeissMontageDialog::changeSpacing_stateChanged);
+  connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, this, &ImportZeissZenMontageDialog::convertGrayscale_stateChanged);
+  connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportZeissZenMontageDialog::changeOrigin_stateChanged);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::zeissListWidgetChanged()
+void ImportZeissZenMontageDialog::zeissListWidgetChanged()
 {
-  ZeissListInfo_t zeissListInfo = m_Ui->zeissListWidget->getZeissListInfo();
-  setZeissListInfo(zeissListInfo);
+  ZeissZenListInfo_t zeissListInfo = m_Ui->zeissListWidget->getZeissZenListInfo();
+  setZeissZenListInfo(zeissListInfo);
 
   checkComplete();
 }
@@ -167,7 +153,7 @@ void ImportZeissMontageDialog::zeissListWidgetChanged()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::convertGrayscale_stateChanged(int state)
+void ImportZeissZenMontageDialog::convertGrayscale_stateChanged(int state)
 {
   m_Ui->colorWeightingR->setEnabled(state == Qt::Checked);
   m_Ui->colorWeightingG->setEnabled(state == Qt::Checked);
@@ -183,7 +169,7 @@ void ImportZeissMontageDialog::convertGrayscale_stateChanged(int state)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::changeOrigin_stateChanged(int state)
+void ImportZeissZenMontageDialog::changeOrigin_stateChanged(int state)
 {
   m_Ui->originX->setEnabled(state == Qt::Checked);
   m_Ui->originY->setEnabled(state == Qt::Checked);
@@ -199,23 +185,7 @@ void ImportZeissMontageDialog::changeOrigin_stateChanged(int state)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::changeSpacing_stateChanged(int state)
-{
-  m_Ui->spacingX->setEnabled(state == Qt::Checked);
-  m_Ui->spacingY->setEnabled(state == Qt::Checked);
-  m_Ui->spacingZ->setEnabled(state == Qt::Checked);
-  if(state == Qt::Unchecked)
-  {
-    m_Ui->spacingX->setText("1");
-    m_Ui->spacingY->setText("1");
-    m_Ui->spacingZ->setText("1");
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportZeissMontageDialog::checkComplete() const
+void ImportZeissZenMontageDialog::checkComplete() const
 {
   bool result = true;
 
@@ -283,30 +253,6 @@ void ImportZeissMontageDialog::checkComplete() const
     }
   }
 
-  if(m_Ui->spacingX->isEnabled())
-  {
-    if(m_Ui->spacingX->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->spacingY->isEnabled())
-  {
-    if(m_Ui->spacingY->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
-  if(m_Ui->spacingZ->isEnabled())
-  {
-    if(m_Ui->spacingZ->text().isEmpty())
-    {
-      result = false;
-    }
-  }
-
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {
@@ -319,7 +265,7 @@ void ImportZeissMontageDialog::checkComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ImportZeissMontageDialog::getMontageName()
+QString ImportZeissZenMontageDialog::getMontageName()
 {
   return m_Ui->montageNameLE->text();
 }
@@ -327,27 +273,7 @@ QString ImportZeissMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ImportZeissMontageDialog::getOverrideSpacing()
-{
-  return m_Ui->changeSpacingCB->isChecked();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-FloatVec3Type ImportZeissMontageDialog::getSpacing()
-{
-  float spacingX = m_Ui->spacingX->text().toFloat();
-  float spacingY = m_Ui->spacingY->text().toFloat();
-  float spacingZ = m_Ui->spacingZ->text().toFloat();
-  FloatVec3Type spacing = {spacingX, spacingY, spacingZ};
-  return spacing;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportZeissMontageDialog::getOverrideOrigin()
+bool ImportZeissZenMontageDialog::getOverrideOrigin()
 {
   return m_Ui->changeOriginCB->isChecked();
 }
@@ -355,7 +281,7 @@ bool ImportZeissMontageDialog::getOverrideOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FloatVec3Type ImportZeissMontageDialog::getOrigin()
+FloatVec3Type ImportZeissZenMontageDialog::getOrigin()
 {
   float originX = m_Ui->originX->text().toFloat();
   float originY = m_Ui->originY->text().toFloat();
@@ -367,7 +293,7 @@ FloatVec3Type ImportZeissMontageDialog::getOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ImportZeissMontageDialog::getConvertToGrayscale()
+bool ImportZeissZenMontageDialog::getConvertToGrayscale()
 {
   return m_Ui->convertGrayscaleCB->isChecked();
 }
@@ -375,7 +301,7 @@ bool ImportZeissMontageDialog::getConvertToGrayscale()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FloatVec3Type ImportZeissMontageDialog::getColorWeighting()
+FloatVec3Type ImportZeissZenMontageDialog::getColorWeighting()
 {
   float r = m_Ui->colorWeightingR->text().toFloat();
   float g = m_Ui->colorWeightingG->text().toFloat();

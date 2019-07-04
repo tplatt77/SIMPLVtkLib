@@ -33,7 +33,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "ZeissListWidget.h"
+#include "ZeissXmlListWidget.h"
 
 //-- Qt Includes
 #include <QtCore/QDir>
@@ -58,14 +58,14 @@
 #include "FilterParameterWidgetsDialogs.h"
 
 // Initialize private static member variable
-QString ZeissListWidget::m_OpenDialogLastFilePath = "";
+QString ZeissXmlListWidget::m_OpenDialogLastFilePath = "";
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ZeissListWidget::ZeissListWidget(QWidget* parent)
+ZeissXmlListWidget::ZeissXmlListWidget(QWidget* parent)
 : QWidget(parent)
-, m_Ui(new Ui::ZeissListWidget)
+, m_Ui(new Ui::ZeissXmlListWidget)
 {
   m_Ui->setupUi(this);
   setupGui();
@@ -74,12 +74,12 @@ ZeissListWidget::ZeissListWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ZeissListWidget::~ZeissListWidget() = default;
+ZeissXmlListWidget::~ZeissXmlListWidget() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::setWidgetListEnabled(bool b)
+void ZeissXmlListWidget::setWidgetListEnabled(bool b)
 {
   foreach(QWidget* w, m_WidgetList)
   {
@@ -90,7 +90,7 @@ void ZeissListWidget::setWidgetListEnabled(bool b)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::setupGui()
+void ZeissXmlListWidget::setupGui()
 {
   connectSignalsSlots();
 
@@ -112,20 +112,20 @@ void ZeissListWidget::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::connectSignalsSlots()
+void ZeissXmlListWidget::connectSignalsSlots()
 {
   // Connections for the various ui widgets
-  connect(m_Ui->inputDirBtn, &QPushButton::clicked, this, &ZeissListWidget::inputDirBtn_clicked);
+  connect(m_Ui->inputDirBtn, &QPushButton::clicked, this, &ZeissXmlListWidget::inputDirBtn_clicked);
   QtSFileCompleter* com = new QtSFileCompleter(this, true);
   m_Ui->inputDir->setCompleter(com);
-  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &ZeissListWidget::inputDir_textChanged);
-  connect(m_Ui->inputDir, &QtSLineEdit::textChanged, this, &ZeissListWidget::inputDir_textChanged);
+  connect(com, static_cast<void (QtSFileCompleter::*)(const QString&)>(&QtSFileCompleter::activated), this, &ZeissXmlListWidget::inputDir_textChanged);
+  connect(m_Ui->inputDir, &QtSLineEdit::textChanged, this, &ZeissXmlListWidget::inputDir_textChanged);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::keyPressEvent(QKeyEvent* event)
+void ZeissXmlListWidget::keyPressEvent(QKeyEvent* event)
 {
   if(event->key() == Qt::Key_Escape)
   {
@@ -138,7 +138,7 @@ void ZeissListWidget::keyPressEvent(QKeyEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::setupMenuField()
+void ZeissXmlListWidget::setupMenuField()
 {
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
@@ -185,7 +185,7 @@ void ZeissListWidget::setupMenuField()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::showFileInFileSystem(const QString& filePath)
+void ZeissXmlListWidget::showFileInFileSystem(const QString& filePath)
 {
   QFileInfo fi(filePath);
   QString path;
@@ -204,7 +204,7 @@ void ZeissListWidget::showFileInFileSystem(const QString& filePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::validateInputFile()
+void ZeissXmlListWidget::validateInputFile()
 {
   QString currentPath = m_Ui->inputDir->text();
   QFileInfo fi(currentPath);
@@ -230,7 +230,7 @@ void ZeissListWidget::validateInputFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::inputDirBtn_clicked()
+void ZeissXmlListWidget::inputDirBtn_clicked()
 {
   QString filter = tr("Zeiss Configuration File (*.xml);;All Files (*.*)");
   QString title = "Select a Zeiss configuration file";
@@ -250,7 +250,7 @@ void ZeissListWidget::inputDirBtn_clicked()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::inputDir_textChanged(const QString& text)
+void ZeissXmlListWidget::inputDir_textChanged(const QString& text)
 {
   Q_UNUSED(text)
 
@@ -284,7 +284,7 @@ void ZeissListWidget::inputDir_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::generateExampleInputFile(const QStringList &filenameList)
+void ZeissXmlListWidget::generateExampleInputFile(const QStringList &filenameList)
 {
   QFileInfo fi(m_Ui->inputDir->text());
   bool hasMissingFiles = false;
@@ -339,7 +339,7 @@ void ZeissListWidget::generateExampleInputFile(const QStringList &filenameList)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QStringList ZeissListWidget::readZeissConfigFile()
+QStringList ZeissXmlListWidget::readZeissConfigFile()
 {
   QStringList fileNameList;
 
@@ -420,12 +420,12 @@ QStringList ZeissListWidget::readZeissConfigFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ZeissListInfo_t ZeissListWidget::getZeissListInfo()
+ZeissXmlListInfo_t ZeissXmlListWidget::getZeissXmlListInfo()
 {
   SIMPLDataPathValidator* validator = SIMPLDataPathValidator::Instance();
   QString inputPath = validator->convertToAbsolutePath(m_Ui->inputDir->text());
 
-  ZeissListInfo_t data;
+  ZeissXmlListInfo_t data;
   data.ZeissFilePath = inputPath;
 
   return data;
@@ -434,7 +434,7 @@ ZeissListInfo_t ZeissListWidget::getZeissListInfo()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ZeissListWidget::isComplete() const
+bool ZeissXmlListWidget::isComplete() const
 {
   bool result = true;
 
@@ -463,7 +463,7 @@ bool ZeissListWidget::isComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::setInputDirectory(const QString &val)
+void ZeissXmlListWidget::setInputDirectory(const QString &val)
 {
   m_Ui->inputDir->setText(val);
 }
@@ -471,7 +471,7 @@ void ZeissListWidget::setInputDirectory(const QString &val)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ZeissListWidget::getInputDirectory()
+QString ZeissXmlListWidget::getInputDirectory()
 {
   if(m_Ui->inputDir->text().isEmpty())
   {

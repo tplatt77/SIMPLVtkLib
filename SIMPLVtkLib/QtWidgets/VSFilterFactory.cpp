@@ -408,7 +408,7 @@ AbstractFilter::Pointer VSFilterFactory::createImportRobometMontageFilter(const 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
+AbstractFilter::Pointer VSFilterFactory::createImportZeissXmlMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
                                                                         const QString &metaAmName, bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights,
                                                                         bool changeOrigin, FloatVec3Type origin, bool changeSpacing, FloatVec3Type spacing)
 {
@@ -527,6 +527,99 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QS
       }
 
       return importZeissMontageFilter;
+    }
+  }
+
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createImportZeissZenMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
+  bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin)
+{
+  // Instantiate Import AxioVision V4 Montage filter
+  QString filterName = "ImportZenInfoMontage";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+    AbstractFilter::Pointer importZeissZenMontageFilter = factory->create();
+    if(importZeissZenMontageFilter.get() != nullptr)
+    {
+      QVariant var;
+
+      // Set the path for the Zeiss Zen File
+      var.setValue(zeissFile);
+      if(!setFilterProperty(importZeissZenMontageFilter, "InputFile", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the Data Container Prefix
+      var.setValue(dcPath);
+      if(!setFilterProperty(importZeissZenMontageFilter, "DataContainerPath", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the Cell Attribute Matrix Name
+      var.setValue(amName);
+      if(!setFilterProperty(importZeissZenMontageFilter, "CellAttributeMatrixName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the Image Array Name
+      var.setValue(daName);
+      if(!setFilterProperty(importZeissZenMontageFilter, "ImageDataArrayName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set Convert to Grayscale
+      var.setValue(convertToGrayscale);
+      if(!setFilterProperty(importZeissZenMontageFilter, "ConvertToGrayScale", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(convertToGrayscale)
+      {
+        float colorWeightR = colorWeights[0];
+        float colorWeightG = colorWeights[1];
+        float colorWeightB = colorWeights[2];
+        FloatVec3Type colorWeights = {colorWeightR, colorWeightG, colorWeightB};
+        var.setValue(colorWeights);
+        if(!setFilterProperty(importZeissZenMontageFilter, "ColorWeights", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
+      }
+
+      // Set Origin
+      var.setValue(changeOrigin);
+      if(!setFilterProperty(importZeissZenMontageFilter, "ChangeOrigin", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      if(changeOrigin)
+      {
+        float originX = origin[0];
+        float originY = origin[1];
+        float originZ = origin[2];
+        FloatVec3Type newOrigin = {originX, originY, originZ};
+        var.setValue(newOrigin);
+        if(!setFilterProperty(importZeissZenMontageFilter, "Origin", var))
+        {
+          return AbstractFilter::NullPointer();
+        }
+      }
+
+      return importZeissZenMontageFilter;
     }
   }
 

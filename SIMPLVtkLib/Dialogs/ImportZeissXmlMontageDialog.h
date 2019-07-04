@@ -39,14 +39,14 @@
 
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 
-#include "ui_ImportZeissMontageDialog.h"
+#include "ui_ImportZeissXmlMontageDialog.h"
 
-class SIMPLVtkLib_EXPORT ImportZeissMontageDialog : public AbstractImportMontageDialog
+class SIMPLVtkLib_EXPORT ImportZeissXmlMontageDialog : public AbstractImportMontageDialog
 {
   Q_OBJECT
 
 public:
-  SIMPL_SHARED_POINTERS(ImportZeissMontageDialog)
+  SIMPL_SHARED_POINTERS(ImportZeissXmlMontageDialog)
 
   /**
    * @brief New
@@ -55,10 +55,10 @@ public:
    */
   static Pointer New(QWidget* parent = nullptr);
 
-  ~ImportZeissMontageDialog() override;
+  ~ImportZeissXmlMontageDialog() override;
 
-  SIMPL_INSTANCE_PROPERTY(ZeissListInfo_t, ZeissListInfo)
-  Q_PROPERTY(ZeissListInfo_t ZeissListInfo READ getZeissListInfo WRITE setZeissListInfo)
+  SIMPL_INSTANCE_PROPERTY(ZeissXmlListInfo_t, ZeissXmlListInfo)
+  Q_PROPERTY(ZeissXmlListInfo_t ZeissXmlListInfo READ getZeissXmlListInfo WRITE setZeissXmlListInfo)
 
   /**
    * @brief Initializes some of the GUI elements with selections or other GUI related items
@@ -120,7 +120,7 @@ protected:
    * @param filter The instance of the filter that this parameter is a part of
    * @param parent The parent QWidget for this Widget
    */
-  ImportZeissMontageDialog(QWidget* parent = nullptr);
+  ImportZeissXmlMontageDialog(QWidget* parent = nullptr);
 
 protected slots:
 
@@ -148,7 +148,7 @@ signals:
   void dataFileChanged(const QString& dataFile);
 
 private:
-  QSharedPointer<Ui::ImportZeissMontageDialog> m_Ui;
+  QSharedPointer<Ui::ImportZeissXmlMontageDialog> m_Ui;
 
   static QString m_OpenDialogLastDirectory;
 
@@ -158,8 +158,8 @@ private:
   void connectSignalsSlots();
 
 public:
-  ImportZeissMontageDialog(const ImportZeissMontageDialog&) = delete;            // Copy Constructor Not Implemented
-  ImportZeissMontageDialog(ImportZeissMontageDialog&&) = delete;                 // Move Constructor Not Implemented
-  ImportZeissMontageDialog& operator=(const ImportZeissMontageDialog&) = delete; // Copy Assignment Not Implemented
-  ImportZeissMontageDialog& operator=(ImportZeissMontageDialog&&) = delete;      // Move Assignment Not Implemented
+  ImportZeissXmlMontageDialog(const ImportZeissXmlMontageDialog&) = delete;            // Copy Constructor Not Implemented
+  ImportZeissXmlMontageDialog(ImportZeissXmlMontageDialog&&) = delete;                 // Move Constructor Not Implemented
+  ImportZeissXmlMontageDialog& operator=(const ImportZeissXmlMontageDialog&) = delete; // Copy Assignment Not Implemented
+  ImportZeissXmlMontageDialog& operator=(ImportZeissXmlMontageDialog&&) = delete;      // Move Assignment Not Implemented
 };

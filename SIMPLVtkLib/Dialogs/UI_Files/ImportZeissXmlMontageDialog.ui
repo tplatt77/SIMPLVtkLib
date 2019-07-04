@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ImportZeissMontageDialog</class>
- <widget class="QDialog" name="ImportZeissMontageDialog">
+ <class>ImportZeissXmlMontageDialog</class>
+ <widget class="QDialog" name="ImportZeissXmlMontageDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Import Zeiss Montage</string>
+   <string>Import Zeiss XML Montage</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -200,7 +200,7 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="5">
-    <widget class="ZeissListWidget" name="zeissListWidget" native="true"/>
+    <widget class="ZeissXmlListWidget" name="zeissListWidget" native="true"/>
    </item>
    <item row="6" column="0" colspan="5">
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -248,9 +248,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ZeissListWidget</class>
+   <class>ZeissXmlListWidget</class>
    <extends>QWidget</extends>
-   <header>ZeissListWidget.h</header>
+   <header>ZeissXmlListWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -259,7 +259,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ImportZeissMontageDialog</receiver>
+   <receiver>ImportZeissXmlMontageDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -275,7 +275,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ImportZeissMontageDialog</receiver>
+   <receiver>ImportZeissXmlMontageDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
