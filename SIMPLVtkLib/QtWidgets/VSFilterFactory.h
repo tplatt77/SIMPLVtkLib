@@ -72,13 +72,15 @@ public:
    * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
+   * @param montageStart The starting column and row of the montage
+   * @param montageEnd The ending column and row of the montage
    * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
-  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
-                                                        bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing, int32_t lengthUnit);
+  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, bool changeOrigin, const float* origin,
+                                                        IntVec3Type montageStart, IntVec3Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties

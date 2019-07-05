@@ -188,8 +188,8 @@ AbstractFilter::Pointer VSFilterFactory::createSetOriginResolutionFilter(const D
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
-                                                                       bool changeOrigin, const float* origin, bool changeSpacing, const float* spacing, int32_t lengthUnit)
+AbstractFilter::Pointer VSFilterFactory::createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, bool changeOrigin,
+                                                                       const float* origin, IntVec3Type montageStart, IntVec3Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit)
 {
   QString filterName = "ITKImportFijiMontage";
   FilterManager* fm = FilterManager::Instance();
