@@ -66,21 +66,21 @@ public:
   /**
    * @brief Creates a filter that imports a Fiji montage, and sets all the necessary properties
    * @param robometFile The Fiji file path
-   * @param dcPrefix The prefix of the data containers the image data will be stored in
+   * @param dcPath The path to the data containers the image data will be stored in
    * @param amName The name of the attribute matrix that the image data will be stored in
    * @param daName The name of the image data array
    * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
-   * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
+   * @param montageStart The starting column and row of the montage
+   * @param montageEnd The ending column and row of the montage
    * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
-  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const QString& dcPrefix, const QString& amName, const QString& daName, bool changeOrigin, float* origin,
-                                                        bool usePixelCoordinates, bool changeSpacing, float* spacing, int32_t lengthUnit);
-
+  AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, bool changeOrigin, const float* origin,
+                                                        IntVec3Type montageStart, IntVec3Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit);
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
    * @param robometFile The Robomet file path

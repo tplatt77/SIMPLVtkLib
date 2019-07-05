@@ -177,18 +177,6 @@ signals:
    */
   void inputDirectoryChanged(const QString& dirPath);
 
-  /**
-   * @brief numberOfRowsChanged
-   * @param numberOfRows
-   */
-  void numberOfRowsChanged(size_t numberOfRows);
-
-  /**
-   * @brief numberOfColumnsChanged
-   * @param numOfCols
-   */
-  void numberOfColumnsChanged(size_t numOfCols);
-
 private:
   QSharedPointer<Ui::FijiListWidget> m_Ui;
 

@@ -99,6 +99,11 @@ void ImportFijiMontageDialog::setupGui()
   m_Ui->spacingY->setValidator(new QDoubleValidator);
   m_Ui->spacingZ->setValidator(new QDoubleValidator);
 
+  m_Ui->montageStartX->setValidator(new QDoubleValidator);
+  m_Ui->montageStartY->setValidator(new QDoubleValidator);
+  m_Ui->montageEndX->setValidator(new QDoubleValidator);
+  m_Ui->montageEndY->setValidator(new QDoubleValidator);
+
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
 
   checkComplete();
@@ -112,8 +117,6 @@ void ImportFijiMontageDialog::connectSignalsSlots()
   connect(m_Ui->dataDisplayTypeCB, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) { setDisplayType(static_cast<AbstractImportMontageDialog::DisplayType>(index)); });
 
   connect(m_Ui->fijiListWidget, &FijiListWidget::inputDirectoryChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
-  connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfRowsChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
-  connect(m_Ui->fijiListWidget, &FijiListWidget::numberOfColumnsChanged, this, &ImportFijiMontageDialog::fijiListWidgetChanged);
 
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportFijiMontageDialog::changeOrigin_stateChanged);
   connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
@@ -124,6 +127,11 @@ void ImportFijiMontageDialog::connectSignalsSlots()
   connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { checkComplete(); });
+
+  connect(m_Ui->montageStartX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageStartY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndY, &QLineEdit::textChanged, [=] { checkComplete(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -253,6 +261,38 @@ void ImportFijiMontageDialog::checkComplete() const
     }
   }
 
+  if(m_Ui->montageStartX->isEnabled())
+  {
+    if(m_Ui->montageStartX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageStartY->isEnabled())
+  {
+    if(m_Ui->montageStartY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndX->isEnabled())
+  {
+    if(m_Ui->montageEndX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndY->isEnabled())
+  {
+    if(m_Ui->montageEndY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(!okBtn)
   {
@@ -308,6 +348,28 @@ FloatVec3Type ImportFijiMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportFijiMontageDialog::getMontageStart()
+{
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  return montageStart;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportFijiMontageDialog::getMontageEnd()
+{
+  int montageEndX = m_Ui->montageStartX->text().toInt();
+  int montageEndY = m_Ui->montageStartY->text().toInt();
+  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  return montageEnd;
 }
 
 // -----------------------------------------------------------------------------
