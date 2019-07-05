@@ -35,8 +35,9 @@
 
 #pragma once
 
-#include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
 
+#include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 #include "SIMPLVtkLib/Dialogs/Utilities/MontageSettings.h"
 
 #include "ui_ImportGenericMontageDialog.h"
@@ -78,10 +79,16 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getMontageDimensions
+   * @brief getMontageStart
    * @return
    */
-  std::tuple<int, int> getMontageDimensions();
+  IntVec3Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec3Type getMontageEnd();
 
   /**
    * @brief getTileOverlap
