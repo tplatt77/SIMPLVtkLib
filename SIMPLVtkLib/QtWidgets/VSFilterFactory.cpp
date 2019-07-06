@@ -501,10 +501,10 @@ AbstractFilter::Pointer VSFilterFactory::createImportZeissZenMontageFilter(const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName,
-                                                                        const QString &metaAmName, bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights,
-                                                                        bool changeOrigin, FloatVec3Type origin, bool changeSpacing, FloatVec3Type spacing)
-{
+AbstractFilter::Pointer VSFilterFactory::createImportZeissMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, const QString& metaAmName,
+                                                                        bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin,
+                                                                        IntVec3Type montageStart, IntVec3Type montageEnd, bool changeSpacing, FloatVec3Type spacing)
+  {
   // Instantiate Import AxioVision V4 Montage filter
   QString filterName = "ImportAxioVisionV4Montage";
   FilterManager* fm = FilterManager::Instance();

@@ -98,6 +98,11 @@ void ImportZeissMontageDialog::setupGui()
   m_Ui->spacingY->setValidator(new QDoubleValidator);
   m_Ui->spacingZ->setValidator(new QDoubleValidator);
 
+  m_Ui->montageStartX->setValidator(new QDoubleValidator);
+  m_Ui->montageStartY->setValidator(new QDoubleValidator);
+  m_Ui->montageEndX->setValidator(new QDoubleValidator);
+  m_Ui->montageEndY->setValidator(new QDoubleValidator);
+
   m_Ui->montageNameLE->setText("Untitled Montage");
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
@@ -127,6 +132,11 @@ void ImportZeissMontageDialog::connectSignalsSlots()
   connect(m_Ui->spacingX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->spacingY, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->spacingZ, &QLineEdit::textChanged, [=] { checkComplete(); });
+
+  connect(m_Ui->montageStartX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageStartY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndY, &QLineEdit::textChanged, [=] { checkComplete(); });
 
   // Connect the checkboxes for grayscale, origin, and spacing to respective line edit group boxes
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, [=] {
@@ -307,6 +317,38 @@ void ImportZeissMontageDialog::checkComplete() const
     }
   }
 
+  if(m_Ui->montageStartX->isEnabled())
+  {
+    if(m_Ui->montageStartX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageStartY->isEnabled())
+  {
+    if(m_Ui->montageStartY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndX->isEnabled())
+  {
+    if(m_Ui->montageEndX->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndY->isEnabled())
+  {
+    if(m_Ui->montageEndY->text().isEmpty())
+    {
+      result = false;
+    }
+  }
+
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {
@@ -362,6 +404,28 @@ FloatVec3Type ImportZeissMontageDialog::getOrigin()
   float originZ = m_Ui->originZ->text().toFloat();
   FloatVec3Type origin = {originX, originY, originZ};
   return origin;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportZeissMontageDialog::getMontageStart()
+{
+  int montageStartX = m_Ui->montageStartX->text().toFloat();
+  int montageStartY = m_Ui->montageStartY->text().toFloat();
+  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  return montageStart;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportZeissMontageDialog::getMontageEnd()
+{
+  int montageEndX = m_Ui->montageEndX->text().toFloat();
+  int montageEndY = m_Ui->montageEndY->text().toFloat();
+  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  return montageEnd;
 }
 
 // -----------------------------------------------------------------------------

@@ -102,6 +102,18 @@ public:
   FloatVec3Type getOrigin();
 
   /**
+   * @brief getMontageStart
+   * @return
+   */
+  IntVec3Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec3Type getMontageEnd();
+
+  /**
    * @brief getConvertToGrayscale
    * @return
    */
