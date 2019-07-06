@@ -117,6 +117,8 @@ public:
    * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
+   * @param montageStart The starting column and row of the montage
+   * @param montageEnd The ending column and row of the montage
    * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
    * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
@@ -124,7 +126,8 @@ public:
    * @return
    */
   AbstractFilter::Pointer createImportZeissMontageFilter(const QString& zeissFile, const QString& dcPrefix, const QString& amName, const QString& daName, const QString metaAmName,
-                                                         bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, bool usePixelCoordinates, bool changeSpacing, FloatVec3Type spacing);
+                                                         bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, IntVec3Type montageStart,
+                                                         IntVec3Type montageEnd, bool usePixelCoordinates, bool changeSpacing, FloatVec3Type spacing);
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
