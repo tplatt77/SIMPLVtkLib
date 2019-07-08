@@ -373,7 +373,7 @@ QStringList ZeissListWidget::readZeissConfigFile()
       // Set the Data Container Prefix
       QString dataContainerPrefix = "DataContainer";
       var.setValue(DataArrayPath(dataContainerPrefix, "", ""));
-      if(!importZeissMontageFilter->setProperty("DataContainerName", var))
+      if(!importZeissMontageFilter->setProperty("DataContainerPath", var))
       {
         return fileNameList;
       }
@@ -410,7 +410,7 @@ QStringList ZeissListWidget::readZeissConfigFile()
       }
 
       importZeissMontageFilter->preflight();
-      fileNameList = importZeissMontageFilter->property("FilenameList").toStringList();
+      fileNameList = importZeissMontageFilter->property("GeneratedFileList").toStringList();
     }
   }
 
