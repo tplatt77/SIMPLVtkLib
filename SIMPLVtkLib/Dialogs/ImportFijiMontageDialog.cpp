@@ -325,7 +325,6 @@ void ImportFijiMontageDialog::checkComplete() const
     result = false;
   }
 
-
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {

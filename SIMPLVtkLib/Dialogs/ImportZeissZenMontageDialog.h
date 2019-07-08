@@ -101,6 +101,18 @@ public:
    */
   FloatVec3Type getColorWeighting();
 
+  /**
+   * @brief getMontageStart
+   * @return
+   */
+  IntVec3Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec3Type getMontageEnd();
+
 protected:
   /**
    * @brief Constructor

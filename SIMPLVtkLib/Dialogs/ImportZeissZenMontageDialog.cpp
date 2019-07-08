@@ -88,12 +88,20 @@ void ImportZeissZenMontageDialog::setupGui()
 
   connectSignalsSlots();
 
+  SVStyle* style = SVStyle::Instance();
+  m_Ui->errLabel->setStyleSheet(tr("QLabel { color: %1; }").arg(style->getWidget_Error_color().name()));
+
   m_Ui->colorWeightingR->setValidator(new QDoubleValidator);
   m_Ui->colorWeightingG->setValidator(new QDoubleValidator);
   m_Ui->colorWeightingB->setValidator(new QDoubleValidator);
   m_Ui->originX->setValidator(new QDoubleValidator);
   m_Ui->originY->setValidator(new QDoubleValidator);
   m_Ui->originZ->setValidator(new QDoubleValidator);
+
+  m_Ui->montageStartX->setValidator(new QDoubleValidator);
+  m_Ui->montageStartY->setValidator(new QDoubleValidator);
+  m_Ui->montageEndX->setValidator(new QDoubleValidator);
+  m_Ui->montageEndY->setValidator(new QDoubleValidator);
 
   m_Ui->montageNameLE->setText("Untitled Montage");
 
@@ -134,6 +142,11 @@ void ImportZeissZenMontageDialog::connectSignalsSlots()
     m_Ui->originY->setEnabled(isChecked);
     m_Ui->originZ->setEnabled(isChecked);
   });
+
+  connect(m_Ui->montageStartX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageStartY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndY, &QLineEdit::textChanged, [=] { checkComplete(); });
 
   connect(m_Ui->convertGrayscaleCB, &QCheckBox::stateChanged, this, &ImportZeissZenMontageDialog::convertGrayscale_stateChanged);
   connect(m_Ui->changeOriginCB, &QCheckBox::stateChanged, this, &ImportZeissZenMontageDialog::changeOrigin_stateChanged);
@@ -253,6 +266,62 @@ void ImportZeissZenMontageDialog::checkComplete() const
     }
   }
 
+  if(m_Ui->montageStartX->isEnabled())
+  {
+    if(m_Ui->montageStartX->text().isEmpty())
+    {
+      m_Ui->errLabel->setText("Montage Start X is empty");
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageStartY->isEnabled())
+  {
+    if(m_Ui->montageStartY->text().isEmpty())
+    {
+      m_Ui->errLabel->setText("Montage Start Y is empty");
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndX->isEnabled())
+  {
+    if(m_Ui->montageEndX->text().isEmpty())
+    {
+      m_Ui->errLabel->setText("Montage End X is empty");
+      result = false;
+    }
+  }
+
+  if(m_Ui->montageEndY->isEnabled())
+  {
+    if(m_Ui->montageEndY->text().isEmpty())
+    {
+      m_Ui->errLabel->setText("Montage End Y is empty");
+      result = false;
+    }
+  }
+
+  // Check that size of montage based on start and end is valid
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  int numCols = montageEndX - montageStartX + 1;
+  int numRows = montageEndY - montageStartY + 1;
+
+  int numberOfMontageTiles = numCols * numRows;
+  int numberOfSelectedTiles = m_Ui->zeissListWidget->getCurrentNumberOfTiles();
+  if(numberOfSelectedTiles < numberOfMontageTiles)
+  {
+    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) is less than the number of tiles declared in the montage (%2).\nPlease update"
+                               " the tile list as well as the 'Montage Start' and 'Montage End' fields.")
+                                .arg(numberOfSelectedTiles)
+                                .arg(numberOfMontageTiles));
+    result = false;
+  }
+
+
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {
@@ -260,6 +329,7 @@ void ImportZeissZenMontageDialog::checkComplete() const
   }
 
   okBtn->setEnabled(result);
+  m_Ui->errLabel->setVisible(!result);
 }
 
 // -----------------------------------------------------------------------------
@@ -308,4 +378,26 @@ FloatVec3Type ImportZeissZenMontageDialog::getColorWeighting()
   float b = m_Ui->colorWeightingB->text().toFloat();
   FloatVec3Type colorWeighting = {r, g, b};
   return colorWeighting;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportZeissZenMontageDialog::getMontageStart()
+{
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  return montageStart;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec3Type ImportZeissZenMontageDialog::getMontageEnd()
+{
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  return montageEnd;
 }
