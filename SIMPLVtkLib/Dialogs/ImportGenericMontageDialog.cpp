@@ -212,10 +212,10 @@ void ImportGenericMontageDialog::checkComplete() const
 
   int numberOfMontageTiles = numCols * numRows;
   int numberOfSelectedTiles = m_Ui->tileListWidget->getCurrentNumberOfTiles();
-  if(numberOfSelectedTiles != numberOfMontageTiles)
+  if(numberOfSelectedTiles < numberOfMontageTiles)
   {
-    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) does not match the number of tiles declared in the montage (%2).\nPlease update"
-                               " the tile list as well as the 'Total Rows' and 'Total Columns' fields.")
+    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) is less than the number of tiles declared in the montage (%2).\nPlease update"
+                               " the tile list as well as the 'Montage Start' and 'Montage End' fields.")
                                 .arg(numberOfSelectedTiles)
                                 .arg(numberOfMontageTiles));
     result = false;

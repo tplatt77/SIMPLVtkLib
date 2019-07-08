@@ -92,6 +92,9 @@ void ImportFijiMontageDialog::setupGui()
 
   connectSignalsSlots();
 
+  SVStyle* style = SVStyle::Instance();
+  m_Ui->errLabel->setStyleSheet(tr("QLabel { color: %1; }").arg(style->getWidget_Error_color().name()));
+
   m_Ui->originX->setValidator(new QDoubleValidator);
   m_Ui->originY->setValidator(new QDoubleValidator);
   m_Ui->originZ->setValidator(new QDoubleValidator);
@@ -199,6 +202,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->montageNameLE->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Montage name is empty");
       result = false;
     }
   }
@@ -207,6 +211,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(!m_Ui->fijiListWidget->isComplete())
     {
+      m_Ui->errLabel->setText("Fiji file list is incomplete.");
       result = false;
     }
   }
@@ -215,6 +220,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->originX->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Origin X is empty");
       result = false;
     }
   }
@@ -223,6 +229,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->originY->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Origin Y is empty");
       result = false;
     }
   }
@@ -231,6 +238,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->originZ->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Origin Z is empty");
       result = false;
     }
   }
@@ -239,6 +247,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->spacingX->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Spacing X is empty");
       result = false;
     }
   }
@@ -247,6 +256,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->spacingY->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Spacing Y is empty");
       result = false;
     }
   }
@@ -255,6 +265,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->spacingZ->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Spacing Z is empty");
       result = false;
     }
   }
@@ -263,6 +274,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->montageStartX->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Montage Start X is empty");
       result = false;
     }
   }
@@ -271,6 +283,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->montageStartY->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Montage Start Y is empty");
       result = false;
     }
   }
@@ -279,6 +292,7 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->montageEndX->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Montage End X is empty");
       result = false;
     }
   }
@@ -287,9 +301,30 @@ void ImportFijiMontageDialog::checkComplete() const
   {
     if(m_Ui->montageEndY->text().isEmpty())
     {
+      m_Ui->errLabel->setText("Montage End Y is empty");
       result = false;
     }
   }
+  
+  // Check that size of montage based on start and end is valid
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  int numCols = montageEndX - montageStartX + 1;
+  int numRows = montageEndY - montageStartY + 1;
+
+  int numberOfMontageTiles = numCols * numRows;
+  int numberOfSelectedTiles = m_Ui->fijiListWidget->getCurrentNumberOfTiles();
+  if(numberOfSelectedTiles < numberOfMontageTiles)
+  {
+    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) is less than the number of tiles declared in the montage (%2).\nPlease update"
+                               " the tile list as well as the 'Montage Start' and 'Montage End' fields.")
+                                .arg(numberOfSelectedTiles)
+                                .arg(numberOfMontageTiles));
+    result = false;
+  }
+
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
@@ -298,6 +333,7 @@ void ImportFijiMontageDialog::checkComplete() const
   }
 
   okBtn->setEnabled(result);
+  m_Ui->errLabel->setVisible(!result);
 }
 
 // -----------------------------------------------------------------------------
@@ -364,8 +400,8 @@ IntVec3Type ImportFijiMontageDialog::getMontageStart()
 // -----------------------------------------------------------------------------
 IntVec3Type ImportFijiMontageDialog::getMontageEnd()
 {
-  int montageEndX = m_Ui->montageStartX->text().toInt();
-  int montageEndY = m_Ui->montageStartY->text().toInt();
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
   IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
   return montageEnd;
 }

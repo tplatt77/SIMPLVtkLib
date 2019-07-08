@@ -88,6 +88,9 @@ void ImportZeissMontageDialog::setupGui()
 
   connectSignalsSlots();
 
+  SVStyle* style = SVStyle::Instance();
+  m_Ui->errLabel->setStyleSheet(tr("QLabel { color: %1; }").arg(style->getWidget_Error_color().name()));
+
   m_Ui->colorWeightingR->setValidator(new QDoubleValidator);
   m_Ui->colorWeightingG->setValidator(new QDoubleValidator);
   m_Ui->colorWeightingB->setValidator(new QDoubleValidator);
@@ -349,6 +352,25 @@ void ImportZeissMontageDialog::checkComplete() const
     }
   }
 
+  // Check that size of montage based on start and end is valid
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  int numCols = montageEndX - montageStartX + 1;
+  int numRows = montageEndY - montageStartY + 1;
+
+  int numberOfMontageTiles = numCols * numRows;
+  int numberOfSelectedTiles = m_Ui->zeissListWidget->getCurrentNumberOfTiles();
+  if(numberOfSelectedTiles < numberOfMontageTiles)
+  {
+    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) is less than the number of tiles declared in the montage (%2).\nPlease update"
+                               " the tile list as well as the 'Montage Start' and 'Montage End' fields.")
+                                .arg(numberOfSelectedTiles)
+                                .arg(numberOfMontageTiles));
+    result = false;
+  }
+
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {
@@ -356,6 +378,7 @@ void ImportZeissMontageDialog::checkComplete() const
   }
 
   okBtn->setEnabled(result);
+  m_Ui->errLabel->setVisible(!result);
 }
 
 // -----------------------------------------------------------------------------

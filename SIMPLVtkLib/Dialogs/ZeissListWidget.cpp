@@ -479,3 +479,11 @@ QString ZeissListWidget::getInputDirectory()
   }
   return m_Ui->inputDir->text();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int ZeissListWidget::getCurrentNumberOfTiles()
+{
+  return m_Ui->fileListView->count();
+}

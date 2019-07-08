@@ -459,3 +459,11 @@ QString FijiListWidget::getInputDirectory()
   }
   return m_Ui->inputDir->text();
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int FijiListWidget::getCurrentNumberOfTiles()
+{
+  return m_Ui->fileListView->count();
+}
