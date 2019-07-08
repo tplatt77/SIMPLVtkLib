@@ -102,12 +102,6 @@ public:
   FloatVec3Type getOrigin();
 
   /**
-   * @brief usePixelCoordinates
-   * @return
-   */
-  bool usePixelCoordinates();
-
-  /**
    * @brief getLengthUnit
    * @return
    */

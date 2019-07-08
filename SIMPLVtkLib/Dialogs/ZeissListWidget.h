@@ -53,7 +53,7 @@
 
 #include "ui_ZeissListWidget.h"
 
-typedef struct
+struct ZeissListInfo_t
 {
   QString ZeissFilePath;
 
@@ -71,7 +71,7 @@ typedef struct
     }
     return false;
   }
-} ZeissListInfo_t;
+};
 
 Q_DECLARE_METATYPE(ZeissListInfo_t)
 
@@ -125,10 +125,10 @@ protected slots:
   void inputDir_textChanged(const QString& text);
 
 protected:
-  void setInputDirectory(QString val);
+  void setInputDirectory(const QString &val);
   QString getInputDirectory();
 
-  static void setOpenDialogLastFilePath(QString val)
+  static void setOpenDialogLastFilePath(const QString &val)
   {
     m_OpenDialogLastFilePath = val;
   }
@@ -157,7 +157,7 @@ protected:
    * @brief generateExampleInputFile
    * @param filenameList
    */
-  void generateExampleInputFile(QStringList filenameList);
+  void generateExampleInputFile(const QStringList &filenameList);
 
   /**
    * @brief

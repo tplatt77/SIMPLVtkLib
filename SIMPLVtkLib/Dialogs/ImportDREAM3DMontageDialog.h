@@ -37,6 +37,7 @@
 
 #include "SIMPLVtkLib/Dialogs/AbstractImportMontageDialog.h"
 
+#include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
 #include "ui_ImportDREAM3DMontageDialog.h"
@@ -77,10 +78,22 @@ public:
   QString getMontageName();
 
   /**
-   * @brief getMontageDimensions
+   * @brief getMontageStart
    * @return
    */
-  std::tuple<int, int> getMontageDimensions();
+  IntVec3Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec3Type getMontageEnd();
+
+  /**
+   * @brief getMontageSize
+   * @return
+   */
+  IntVec3Type getMontageSize();
 
   /**
    * @brief getDataFilePath
@@ -101,16 +114,10 @@ public:
   QString getDataArrayName();
 
   /**
-   * @brief getLoadProxy
+   * @brief getDataContainerPrefix
    * @return
    */
-  DataContainerArrayProxy getProxy() const;
-
-  /**
-   * @brief setProxy
-   * @param proxy
-   */
-  void setProxy(DataContainerArrayProxy proxy);
+  QString getDataContainerPrefix() const;
 
   /**
    * @brief initializePage
@@ -133,10 +140,10 @@ protected slots:
   void dataFile_textChanged(const QString& text);
 
 protected:
-  void setInputDirectory(QString val);
+  void setInputDirectory(const QString &val);
   QString getInputDirectory();
 
-  static void setOpenDialogLastFilePath(QString val)
+  static void setOpenDialogLastFilePath(const QString &val)
   {
     m_OpenDialogLastDirectory = val;
   }

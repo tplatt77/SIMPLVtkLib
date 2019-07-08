@@ -210,7 +210,7 @@ void ZeissListWidget::validateInputFile()
   QFileInfo fi(currentPath);
   if(!currentPath.isEmpty() && !fi.exists())
   {
-    QString defaultName = m_OpenDialogLastFilePath;
+//    QString defaultName = m_OpenDialogLastFilePath;
 
     QString title = QObject::tr("Select a replacement input file");
 
@@ -264,7 +264,7 @@ void ZeissListWidget::inputDir_textChanged(const QString& text)
     m_ShowFileAction->setEnabled(true);
     QStringList filenameList = readZeissConfigFile();
     QDir dir(inputPath);
-    QString dirname = dir.dirName();
+//    QString dirname = dir.dirName();
     dir.cdUp();
 
     generateExampleInputFile(filenameList);
@@ -284,7 +284,7 @@ void ZeissListWidget::inputDir_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::generateExampleInputFile(QStringList filenameList)
+void ZeissListWidget::generateExampleInputFile(const QStringList &filenameList)
 {
   QFileInfo fi(m_Ui->inputDir->text());
   bool hasMissingFiles = false;
@@ -302,7 +302,7 @@ void ZeissListWidget::generateExampleInputFile(QStringList filenameList)
   int fileExistsCount = 0;
   for(QVector<QString>::size_type i = 0; i < filenameList.size(); ++i)
   {
-    QString filePath(fileList.at(i));
+    const QString &filePath(fileList.at(i));
     QFileInfo fi(filePath);
     QListWidgetItem* item = new QListWidgetItem(filePath, m_Ui->fileListView);
     if(fi.exists())
@@ -370,10 +370,10 @@ QStringList ZeissListWidget::readZeissConfigFile()
         return fileNameList;
       }
 
-      // Set the Data Container Prefix
-      QString dataContainerPrefix = "DataContainer";
-      var.setValue(DataArrayPath(dataContainerPrefix, "", ""));
-      if(!importZeissMontageFilter->setProperty("DataContainerName", var))
+      // Set the Data Container Path
+      DataArrayPath dcPath("DataContainer", "", "");
+      var.setValue(dcPath);
+      if(!importZeissMontageFilter->setProperty("DataContainerPath", var))
       {
         return fileNameList;
       }
@@ -410,7 +410,7 @@ QStringList ZeissListWidget::readZeissConfigFile()
       }
 
       importZeissMontageFilter->preflight();
-      fileNameList = importZeissMontageFilter->property("FilenameList").toStringList();
+      fileNameList = importZeissMontageFilter->property("GeneratedFileList").toStringList();
     }
   }
 
@@ -463,7 +463,7 @@ bool ZeissListWidget::isComplete() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ZeissListWidget::setInputDirectory(QString val)
+void ZeissListWidget::setInputDirectory(const QString &val)
 {
   m_Ui->inputDir->setText(val);
 }

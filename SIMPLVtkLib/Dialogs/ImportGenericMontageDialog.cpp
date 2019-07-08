@@ -89,10 +89,10 @@ void ImportGenericMontageDialog::setupGui()
   m_Ui->errLabel->setStyleSheet(tr("QLabel { color: %1; }").arg(style->getWidget_Error_color().name()));
 
   m_Ui->numOfRowsSB->setMinimum(1);
-  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>::max());
 
   m_Ui->numOfColsSB->setMinimum(1);
-  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>().max());
+  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>::max());
 
   m_Ui->tileOverlapSB->setMinimum(0);
   m_Ui->tileOverlapSB->setMaximum(100);
@@ -168,10 +168,10 @@ void ImportGenericMontageDialog::tileListWidgetChanged()
 // -----------------------------------------------------------------------------
 void ImportGenericMontageDialog::changeSpacing_stateChanged(int state)
 {
-  m_Ui->spacingX->setEnabled(state);
-  m_Ui->spacingY->setEnabled(state);
-  m_Ui->spacingZ->setEnabled(state);
-  if(state == false)
+  m_Ui->spacingX->setEnabled(state == Qt::Checked);
+  m_Ui->spacingY->setEnabled(state == Qt::Checked);
+  m_Ui->spacingZ->setEnabled(state == Qt::Checked);
+  if(state == Qt::Unchecked)
   {
     m_Ui->spacingX->setText("1");
     m_Ui->spacingY->setText("1");
@@ -268,7 +268,7 @@ void ImportGenericMontageDialog::checkComplete() const
   }
 
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
-  if(!okBtn)
+  if(okBtn == nullptr)
   {
     throw InvalidOKButtonException();
   }
@@ -393,14 +393,6 @@ std::tuple<double, double, double> ImportGenericMontageDialog::getOrigin()
   double originZ = m_Ui->originZ->text().toDouble();
   std::tuple<double, double, double> origin = std::make_tuple(originX, originY, originZ);
   return origin;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool ImportGenericMontageDialog::usePixelCoordinates()
-{
-  return m_Ui->pixelCoordsCB->isChecked();
 }
 
 // -----------------------------------------------------------------------------
