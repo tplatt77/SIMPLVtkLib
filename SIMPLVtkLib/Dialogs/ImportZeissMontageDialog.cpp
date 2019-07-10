@@ -432,22 +432,22 @@ FloatVec3Type ImportZeissMontageDialog::getOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportZeissMontageDialog::getMontageStart()
+IntVec2Type ImportZeissMontageDialog::getMontageStart()
 {
   int montageStartX = m_Ui->montageStartX->text().toFloat();
   int montageStartY = m_Ui->montageStartY->text().toFloat();
-  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  IntVec2Type montageStart = {montageStartX, montageStartY};
   return montageStart;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportZeissMontageDialog::getMontageEnd()
+IntVec2Type ImportZeissMontageDialog::getMontageEnd()
 {
   int montageEndX = m_Ui->montageEndX->text().toFloat();
   int montageEndY = m_Ui->montageEndY->text().toFloat();
-  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  IntVec2Type montageEnd = {montageEndX, montageEndY};
   return montageEnd;
 }
 

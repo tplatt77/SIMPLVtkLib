@@ -266,7 +266,7 @@ void ImportDREAM3DMontageDialog::dataFile_textChanged(const QString& text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ImportDREAM3DMontageDialog::setInputDirectory(const QString &val)
+void ImportDREAM3DMontageDialog::setInputDirectory(const QString& val)
 {
   m_Ui->dataFileLE->setText(val);
 }
@@ -302,18 +302,18 @@ QString ImportDREAM3DMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportDREAM3DMontageDialog::getMontageStart()
+IntVec2Type ImportDREAM3DMontageDialog::getMontageStart()
 {
-  IntVec3Type montageStart = {m_Ui->montageStartX->text().toInt(), m_Ui->montageStartY->text().toInt(), 1};
+  IntVec2Type montageStart = {m_Ui->montageStartX->text().toInt(), m_Ui->montageStartY->text().toInt()};
   return montageStart;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportDREAM3DMontageDialog::getMontageEnd()
+IntVec2Type ImportDREAM3DMontageDialog::getMontageEnd()
 {
-  IntVec3Type montageEnd = {m_Ui->montageEndX->text().toInt(), m_Ui->montageEndY->text().toInt(), 1};
+  IntVec2Type montageEnd = {m_Ui->montageEndX->text().toInt(), m_Ui->montageEndY->text().toInt()};
   return montageEnd;
 }
 

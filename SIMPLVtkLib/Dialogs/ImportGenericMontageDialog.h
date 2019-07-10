@@ -82,13 +82,13 @@ public:
    * @brief getMontageStart
    * @return
    */
-  IntVec3Type getMontageStart();
+  IntVec2Type getMontageStart();
 
   /**
    * @brief getMontageEnd
    * @return
    */
-  IntVec3Type getMontageEnd();
+  IntVec2Type getMontageEnd();
 
   /**
    * @brief getTileOverlap

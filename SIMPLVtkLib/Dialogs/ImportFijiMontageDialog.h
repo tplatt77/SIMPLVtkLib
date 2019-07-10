@@ -107,13 +107,13 @@ public:
    * @brief getMontageStart
    * @return
    */
-  IntVec3Type getMontageStart();
+  IntVec2Type getMontageStart();
 
   /**
    * @brief getMontageEnd
    * @return
    */
-  IntVec3Type getMontageEnd();
+  IntVec2Type getMontageEnd();
 
   /**
    * @brief getLengthUnit
@@ -138,7 +138,7 @@ protected slots:
   void fijiListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(const QString &val)
+  static void setOpenDialogLastFilePath(const QString& val)
   {
     m_OpenDialogLastDirectory = val;
   }

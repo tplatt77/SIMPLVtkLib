@@ -35,9 +35,9 @@
 
 #include "MontageUtilities.h"
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
 
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
@@ -45,7 +45,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString MontageUtilities::GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec3Type& montageStart, const IntVec3Type& montageEnd, int32_t row, int32_t col)
+QString MontageUtilities::GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageStart, const IntVec2Type& montageEnd, int32_t row, int32_t col)
 {
   IntVec3Type montageSize;
   std::transform(montageStart.begin(), montageStart.end(), montageEnd.begin(), montageSize.begin(), [](int32_t a, int32_t b) -> int32_t { return a + b + 1; });
@@ -73,7 +73,7 @@ QString MontageUtilities::GenerateDataContainerName(const QString& dataContainer
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataContainerArrayProxy MontageUtilities::CreateMontageProxy(SIMPLH5DataReader &reader, const QString& filePath, const QStringList &checkedDCNames)
+DataContainerArrayProxy MontageUtilities::CreateMontageProxy(SIMPLH5DataReader& reader, const QString& filePath, const QStringList& checkedDCNames)
 {
   bool success = reader.openFile(filePath);
   if(!success)

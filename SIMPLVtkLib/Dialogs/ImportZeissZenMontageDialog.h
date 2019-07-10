@@ -105,13 +105,13 @@ public:
    * @brief getMontageStart
    * @return
    */
-  IntVec3Type getMontageStart();
+  IntVec2Type getMontageStart();
 
   /**
    * @brief getMontageEnd
    * @return
    */
-  IntVec3Type getMontageEnd();
+  IntVec2Type getMontageEnd();
 
 protected:
   /**
@@ -130,7 +130,7 @@ protected slots:
   void zeissListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(const QString &val)
+  static void setOpenDialogLastFilePath(const QString& val)
   {
     m_OpenDialogLastDirectory = val;
   }

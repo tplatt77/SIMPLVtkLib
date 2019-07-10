@@ -80,7 +80,7 @@ public:
    * @return
    */
   AbstractFilter::Pointer createImportFijiMontageFilter(const QString& fijiFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, bool changeOrigin, const float* origin,
-                                                        IntVec3Type montageStart, IntVec3Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit);
+                                                        IntVec2Type montageStart, IntVec2Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit);
 
   /**
    * @brief Creates a filter that imports a Robomet montage, and sets all the necessary properties
@@ -94,15 +94,16 @@ public:
    * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
-   * @param usePixelCoordinates Boolean that determines whether the origin values are in pixel coordinates
+   * @param montageStart The starting column and row of the montage
+   * @param montageEnd The ending column and row of the montage
    * @param changeSpacing Boolean that overrides the spacings coming from the image files.
    * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
    * isn't needed if changeSpacing is false.
    * @return
    */
   AbstractFilter::Pointer createImportRobometMontageFilter(const QString& robometFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, int sliceNumber,
-                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, const float* origin,
-                                                           bool changeSpacing, const float* spacing, int32_t lengthUnit);
+                                                           const QString& imageFilePrefix, const QString& imageFileExtension, bool changeOrigin, const float* origin, IntVec2Type montageStart,
+                                                           IntVec2Type montageEnd, bool changeSpacing, const float* spacing, int32_t lengthUnit);
 
   /**
    * @brief Creates a filter that imports a Zeiss montage, and sets all the necessary properties
@@ -126,30 +127,27 @@ public:
    * @return
    */
   AbstractFilter::Pointer createImportZeissMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, const QString& metaAmName,
-                                                         bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, IntVec3Type montageStart,
-                                                         IntVec3Type montageEnd, bool changeSpacing, FloatVec3Type spacing);
-  
+                                                         bool importAllMetadata, bool convertToGrayscale, FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, IntVec2Type montageStart,
+                                                         IntVec2Type montageEnd, bool changeSpacing, FloatVec3Type spacing);
+
   /**
    * @brief Creates a filter that imports a Zeiss Zen montage, and sets all the necessary properties
    * @param zeissFile The Zeiss Zen file path
    * @param dcPath The path to the data containers the image data will be stored in
    * @param amName The name of the attribute matrix that the image data will be stored in
    * @param daName The name of the image data array
-   * @param metaAmName The name of the image metadata array
-   * @param importAllMetadata Boolean that imports all of the image metadata
    * @param convertToGrayscale Boolean that converts the image data to grayscale
    * @param colorWeights RGB array of color weights used during the grayscale conversion.  This parameter
    * isn't needed if convertToGrayscale is false.
    * @param changeOrigin Boolean that overrides the origins in the image files.
    * @param origin XYZ origin array that overrides the origins from the image files.  This parameter
    * isn't needed if changeOrigin is false.
-   * @param changeSpacing Boolean that overrides the spacings coming from the image files.
-   * @param spacing XYZ spacing array that overrides the spacings from the image files.  This parameter
-   * isn't needed if changeSpacing is false.
+   * @param montageStart The starting column and row of the montage
+   * @param montageEnd The ending column and row of the montage
    * @return
    */
   AbstractFilter::Pointer createImportZeissZenMontageFilter(const QString& zeissFile, const DataArrayPath& dcPath, const QString& amName, const QString& daName, bool convertToGrayscale,
-                                                            FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin);
+                                                            FloatVec3Type colorWeights, bool changeOrigin, FloatVec3Type origin, IntVec2Type montageStart, IntVec2Type montageEnd);
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
@@ -160,7 +158,7 @@ public:
    * @param daName Common data array name in each common attribute matrix
    * @return
    */
-  AbstractFilter::Pointer createPCMTileRegistrationFilter(IntVec3Type montageStart, IntVec3Type montageEnd, const QString &dcPrefix, const QString& amName, const QString& daName);
+  AbstractFilter::Pointer createPCMTileRegistrationFilter(IntVec2Type montageStart, IntVec2Type montageEnd, const QString& dcPrefix, const QString& amName, const QString& daName);
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
@@ -171,7 +169,7 @@ public:
    * @param montagePath The path to the created montage data array
    * @return
    */
-  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, const QStringList &dcNames, const QString& amName, const QString& daName, const DataArrayPath &montagePath);
+  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, const QStringList& dcNames, const QString& amName, const QString& daName, const DataArrayPath& montagePath);
 
   /**
    * @brief Creates a Set Origin Resolution filter that sets the origin and resolution of a data container's image geometry
@@ -182,7 +180,7 @@ public:
    * @param origin The origin to set into the image geometry
    * @return
    */
-  AbstractFilter::Pointer createSetOriginResolutionFilter(const DataArrayPath &dcPath, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin);
+  AbstractFilter::Pointer createSetOriginResolutionFilter(const DataArrayPath& dcPath, bool changeResolution, bool changeOrigin, FloatVec3Type resolution, FloatVec3Type origin);
 
   /**
    * @brief Creates a Data Container Reader filter that reads the data from a DREAM3D file and sets all necessary properties
@@ -190,7 +188,7 @@ public:
    * @param inputFileDCAProxy The proxy structure from the DREAM3D file
    * @return
    */
-  AbstractFilter::Pointer createDataContainerReaderFilter(const QString& inputFile, const DataContainerArrayProxy &inputFileDCAProxy);
+  AbstractFilter::Pointer createDataContainerReaderFilter(const QString& inputFile, const DataContainerArrayProxy& inputFileDCAProxy);
 
   /**
    * @brief Creates a Data Container Writer filter that write the data to a DREAM3D file and sets all necessary properties
@@ -232,11 +230,11 @@ private:
    * @param propertyName
    * @param value
    */
-  bool setFilterProperty(const AbstractFilter::Pointer &filter, const char* propertyName, const QVariant &value);
+  bool setFilterProperty(const AbstractFilter::Pointer& filter, const char* propertyName, const QVariant& value);
 
 public:
-  VSFilterFactory(const VSFilterFactory&) = delete; // Copy Constructor Not Implemented
-  VSFilterFactory(VSFilterFactory&&) = delete;      // Move Constructor Not Implemented
+  VSFilterFactory(const VSFilterFactory&) = delete;            // Copy Constructor Not Implemented
+  VSFilterFactory(VSFilterFactory&&) = delete;                 // Move Constructor Not Implemented
   VSFilterFactory& operator=(const VSFilterFactory&) = delete; // Copy Assignment Not Implemented
   VSFilterFactory& operator=(VSFilterFactory&&) = delete;      // Move Assignment Not Implemented
 };

@@ -321,7 +321,6 @@ void ImportZeissZenMontageDialog::checkComplete() const
     result = false;
   }
 
-
   QPushButton* okBtn = m_Ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
   if(okBtn == nullptr)
   {
@@ -383,21 +382,21 @@ FloatVec3Type ImportZeissZenMontageDialog::getColorWeighting()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportZeissZenMontageDialog::getMontageStart()
+IntVec2Type ImportZeissZenMontageDialog::getMontageStart()
 {
   int montageStartX = m_Ui->montageStartX->text().toInt();
   int montageStartY = m_Ui->montageStartY->text().toInt();
-  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  IntVec2Type montageStart = {montageStartX, montageStartY};
   return montageStart;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportZeissZenMontageDialog::getMontageEnd()
+IntVec2Type ImportZeissZenMontageDialog::getMontageEnd()
 {
   int montageEndX = m_Ui->montageEndX->text().toInt();
   int montageEndY = m_Ui->montageEndY->text().toInt();
-  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  IntVec2Type montageEnd = {montageEndX, montageEndY};
   return montageEnd;
 }

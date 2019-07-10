@@ -341,22 +341,22 @@ QString ImportGenericMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportGenericMontageDialog::getMontageStart()
+IntVec2Type ImportGenericMontageDialog::getMontageStart()
 {
   int montageStartX = m_Ui->montageStartX->text().toInt();
   int montageStartY = m_Ui->montageStartY->text().toInt();
-  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  IntVec2Type montageStart = {montageStartX, montageStartY};
   return montageStart;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportGenericMontageDialog::getMontageEnd()
+IntVec2Type ImportGenericMontageDialog::getMontageEnd()
 {
   int montageEndX = m_Ui->montageEndX->text().toInt();
   int montageEndY = m_Ui->montageEndY->text().toInt();
-  IntVec3Type montageStart = {montageEndX, montageEndY, 1};
+  IntVec2Type montageStart = {montageEndX, montageEndY};
   return montageStart;
 }
 

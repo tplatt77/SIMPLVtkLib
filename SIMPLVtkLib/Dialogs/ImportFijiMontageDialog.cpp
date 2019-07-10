@@ -305,7 +305,7 @@ void ImportFijiMontageDialog::checkComplete() const
       result = false;
     }
   }
-  
+
   // Check that size of montage based on start and end is valid
   int montageStartX = m_Ui->montageStartX->text().toInt();
   int montageStartY = m_Ui->montageStartY->text().toInt();
@@ -386,22 +386,22 @@ FloatVec3Type ImportFijiMontageDialog::getOrigin()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportFijiMontageDialog::getMontageStart()
+IntVec2Type ImportFijiMontageDialog::getMontageStart()
 {
   int montageStartX = m_Ui->montageStartX->text().toInt();
   int montageStartY = m_Ui->montageStartY->text().toInt();
-  IntVec3Type montageStart = {montageStartX, montageStartY, 1};
+  IntVec2Type montageStart = {montageStartX, montageStartY};
   return montageStart;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IntVec3Type ImportFijiMontageDialog::getMontageEnd()
+IntVec2Type ImportFijiMontageDialog::getMontageEnd()
 {
   int montageEndX = m_Ui->montageEndX->text().toInt();
   int montageEndY = m_Ui->montageEndY->text().toInt();
-  IntVec3Type montageEnd = {montageEndX, montageEndY, 1};
+  IntVec2Type montageEnd = {montageEndX, montageEndY};
   return montageEnd;
 }
 
