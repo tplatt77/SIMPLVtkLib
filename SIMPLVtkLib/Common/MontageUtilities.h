@@ -47,6 +47,12 @@ class SIMPLVtkLib_EXPORT MontageUtilities
 {
 public:
   /**
+   * @brief FindDataContainerPrefix
+   * @param dcNames
+   */
+  static QString FindDataContainerPrefix(const QStringList& dcNames);
+
+  /**
    * @brief GenerateDataContainerName
    * @param dataContainerPrefix
    * @param montageStart

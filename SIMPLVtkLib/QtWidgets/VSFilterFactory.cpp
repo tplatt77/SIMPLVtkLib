@@ -745,7 +745,8 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec2
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type montageSize, const QStringList& dcNames, const QString& amName, const QString& daName, const DataArrayPath& montagePath)
+AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec2Type montageStart, IntVec2Type montageEnd, const QStringList& dcNames, const QString& amName, const QString& daName,
+                                                                   const DataArrayPath& montagePath)
 {
   QString filterName = "ITKStitchMontage";
   FilterManager* fm = FilterManager::Instance();
@@ -758,9 +759,16 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec3Type m
     {
       QVariant var;
 
-      // Set montage size
-      var.setValue(montageSize);
-      if(!setFilterProperty(itkStitchingFilter, "MontageSize", var))
+      // Set montage start
+      var.setValue(montageStart);
+      if(!setFilterProperty(itkStitchingFilter, "MontageStart", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set montage end
+      var.setValue(montageEnd);
+      if(!setFilterProperty(itkStitchingFilter, "MontageEnd", var))
       {
         return AbstractFilter::NullPointer();
       }

@@ -45,6 +45,29 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString MontageUtilities::FindDataContainerPrefix(const QStringList& dcNames)
+{
+  if(dcNames.empty())
+  {
+    return {};
+  }
+
+  for(const QString& dcName : dcNames)
+  {
+    if(!dcName.contains(QRegExp("r\\d+c\\d+")))
+    {
+      return {};
+    }
+  }
+
+  QString dcPrefix = dcNames[0];
+  dcPrefix.remove(QRegExp("r\\d+c\\d+"));
+  return dcPrefix;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QString MontageUtilities::GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageStart, const IntVec2Type& montageEnd, int32_t row, int32_t col)
 {
   IntVec3Type montageSize;

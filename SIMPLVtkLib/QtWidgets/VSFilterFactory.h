@@ -162,14 +162,16 @@ public:
 
   /**
    * @brief Creates a PCM Tile Registration filter, and sets all necessary properties
-   * @param montageSize The size of the montage that is being registered
+   * @param montageStart The start of the montage that is being stitched
+   * @param montageEnd The end of the montage that is being stitched
    * @param dcNames List of data container names that contain the image files from the montage
    * @param amName Common attribute matrix name in each data container
    * @param daName Common data array name in each common attribute matrix
    * @param montagePath The path to the created montage data array
    * @return
    */
-  AbstractFilter::Pointer createTileStitchingFilter(IntVec3Type montageSize, const QStringList& dcNames, const QString& amName, const QString& daName, const DataArrayPath& montagePath);
+  AbstractFilter::Pointer createTileStitchingFilter(IntVec2Type montageStart, IntVec2Type montageEnd, const QStringList& dcNames, const QString& amName, const QString& daName,
+                                                    const DataArrayPath& montagePath);
 
   /**
    * @brief Creates a Set Origin Resolution filter that sets the origin and resolution of a data container's image geometry
