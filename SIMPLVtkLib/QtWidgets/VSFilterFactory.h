@@ -211,6 +211,22 @@ public:
    */
   AbstractFilter::Pointer createImageFileWriterFilter(const QString& outputFile, const DataArrayPath& imageArrayPath);
 
+  /**
+   * @brief Creates an Resample Image filter that resamples the image
+   * @param outputArrayName The data array name to output to
+   * @param dcName The name of the data container
+   * @return
+   */
+  AbstractFilter::Pointer createResampleImageFilter(bool saveAsNewArray, const QString& outputArrayName, const DataArrayPath& imageArrayPath, IntVec3Type outputSize, int subsamplingRate);
+
+  /**
+   * @brief Creates a Remove Arrays filter
+   * @param dataArraysToRemove the data arrays to remove
+   * @Param dataContainerArray data container array to remove arrays from
+   * @return
+   */
+  AbstractFilter::Pointer createRemoveArrays(QStringList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray);
+
 protected:
   /**
    * @brief Constructor

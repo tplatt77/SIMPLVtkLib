@@ -97,9 +97,11 @@ public:
   /**
    * @brief Saves the image to the file at imageFilePath
    * @param imageFilePath
+   * @param filter
+   * @param subsamplingRate
    * @return
    */
-  bool saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter);
+  bool saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter, int subsamplingRate);
 
   /**
    * @brief Saves the filter to the DREAM3D file at outputFilePath

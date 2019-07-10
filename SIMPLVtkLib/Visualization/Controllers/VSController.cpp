@@ -65,6 +65,8 @@
 #include "SIMPLVtkLib/Dialogs/Utilities/ImporterWorker.h"
 #include "SIMPLVtkLib/Dialogs/ZeissListWidget.h"
 
+#include <vtkExtractVOI.h>
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -207,7 +209,7 @@ bool VSController::saveSession(const QString& sessionFilePath)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter)
+bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* filter, int subsamplingRate)
 {
   bool imageSaved = false;
   VSSIMPLDataContainerFilter* dcFilter = dynamic_cast<VSSIMPLDataContainerFilter*>(filter);
@@ -220,21 +222,40 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
     QString dcName = dataContainer->getName();
     QString amName;
     QString dataArrayName;
+    IntVec3Type tupleDims;
     for(const AttributeMatrix::Pointer &am : attributeMatricies)
     {
       if(am->getType() == AttributeMatrix::Type::Cell)
       {
         amName = am->getName();
+        tupleDims.setX(am->getTupleDimensions()[0]);
+        tupleDims.setY(am->getTupleDimensions()[1]);
+        tupleDims.setZ(am->getTupleDimensions()[2]);
         dataArrayName = am->getAttributeArrayNames().first();
       }
     }
     DataContainerArray::Pointer dca = DataContainerArray::New();
     dca->addOrReplaceDataContainer(dataContainer);
     DataArrayPath imageDataPath(dcName, amName, dataArrayName);
+    
+    AbstractFilter::Pointer resampleImageFilter = filterFactory->createResampleImageFilter(true, "ResampledData", imageDataPath, tupleDims, subsamplingRate);
+    if(resampleImageFilter != AbstractFilter::NullPointer() && subsamplingRate > 0)
+    {
+      pipeline->pushBack(resampleImageFilter);
+      imageDataPath.setDataArrayName("ResampledData");
+    }
+    
     AbstractFilter::Pointer imageWriter = filterFactory->createImageFileWriterFilter(imageFilePath, imageDataPath);
+    QStringList arraysToRemove;
+    arraysToRemove.append("ResampledData");
+    AbstractFilter::Pointer removeArrays = filterFactory->createRemoveArrays(arraysToRemove, dca);
     if(imageWriter != AbstractFilter::NullPointer())
     {
       pipeline->pushBack(imageWriter);
+      if(removeArrays != AbstractFilter::NullPointer())
+      {
+        pipeline->pushBack(removeArrays);
+      }
       pipeline->execute(dca);
       if(pipeline->getErrorCode() >= 0)
       {

@@ -858,6 +858,128 @@ AbstractFilter::Pointer VSFilterFactory::createImageFileWriterFilter(const QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createResampleImageFilter(bool saveAsNewArray, const QString& outputArrayName, const DataArrayPath& imageArrayPath, IntVec3Type outputSize,
+                                                                   int subsamplingRate)
+{
+  QString filterName = "ITKResampleImage";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+    AbstractFilter::Pointer itkResampleImageFilter = factory->create();
+    if(itkResampleImageFilter.get() != nullptr)
+    {
+      QVariant var;
+
+      // Save as new array
+      var.setValue(saveAsNewArray);
+      if(!setFilterProperty(itkResampleImageFilter, "SaveAsNewArray", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set output array name
+      var.setValue(outputArrayName);
+      if(!setFilterProperty(itkResampleImageFilter, "NewCellArrayName", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the output spacing to the subsampling rate
+      var.setValue(subsamplingRate);
+      if(!setFilterProperty(itkResampleImageFilter, "OutputSpacing", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set the output size
+      var.setValue(outputSize);
+      if(!setFilterProperty(itkResampleImageFilter, "OutputSize", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      // Set image data array name as input
+      var.setValue(imageArrayPath);
+      if(!setFilterProperty(itkResampleImageFilter, "SelectedCellArrayPath", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      return itkResampleImageFilter;
+    }
+  }
+
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+AbstractFilter::Pointer VSFilterFactory::createRemoveArrays(QStringList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray)
+{
+  QString filterName = "RemoveArrays";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
+
+  if(factory.get() != nullptr)
+  {
+    AbstractFilter::Pointer removeArraysFilter = factory->create();
+    if(removeArraysFilter.get() != nullptr)
+    {
+      QVariant var;
+      DataContainerArrayProxy arraysToRemove = DataContainerArrayProxy(dataContainerArray.get());
+      for(QString dataArrayName : dataArraysToRemove)
+      {
+        QMap<QString, DataContainerProxy>::iterator dcIterator = arraysToRemove.getDataContainers().begin();
+        while(dcIterator != arraysToRemove.getDataContainers().end())
+        {          
+          dcIterator.value().setFlag(Qt::Unchecked);
+
+          QMap<QString, AttributeMatrixProxy>::iterator amIterator = dcIterator.value().getAttributeMatricies().begin();
+          while(amIterator != dcIterator.value().getAttributeMatricies().end())
+          {
+            amIterator.value().setFlag(Qt::Unchecked);
+
+            QMap<QString, DataArrayProxy>::iterator daIterator = amIterator.value().getDataArrays().begin();
+            while(daIterator != amIterator.value().getDataArrays().end())
+            {
+              if(daIterator.key() == dataArrayName)
+              {
+                daIterator.value().setFlag(Qt::Checked);
+              }
+              else
+              {
+                daIterator.value().setFlag(Qt::Unchecked);
+              }
+
+              daIterator++;
+            } // end daIterator            
+
+            amIterator++;
+          } // end amIterator          
+
+          dcIterator++;
+        } // end dcIterator
+      }
+
+      // Save as new array
+      var.setValue(arraysToRemove);
+      if(!setFilterProperty(removeArraysFilter, "DataArraysToRemove", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
+      return removeArraysFilter;
+    }
+  }
+
+  return AbstractFilter::NullPointer();
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool VSFilterFactory::setFilterProperty(const AbstractFilter::Pointer &filter, const char* propertyName, const QVariant &value)
 {
   if(!filter->setProperty(propertyName, value))

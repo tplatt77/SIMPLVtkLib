@@ -16,6 +16,7 @@ set(${PROJECT_NAME}_${SUBDIR_NAME}_Moc_HDRS
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/ImportZeissMontageDialog.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/ImportZeissZenMontageDialog.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/LoadHDF5FileDialog.h
+  ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/MontageImageSavingDialog.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/PerformMontageDialog.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/RobometListWidget.h
   ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/TileListWidget.h
@@ -42,6 +43,7 @@ ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/ImportRobometMontageDia
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/ImportZeissMontageDialog.cpp
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/ImportZeissZenMontageDialog.cpp
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/LoadHDF5FileDialog.cpp
+${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/MontageImageSavingDialog.cpp
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/PerformMontageDialog.cpp
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/RobometListWidget.cpp
 ${${PROJECT_NAME}_SOURCE_DIR}/SIMPLVtkLib/${SUBDIR_NAME}/TileListWidget.cpp
