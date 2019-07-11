@@ -232,6 +232,13 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
         tupleDims.setY(am->getTupleDimensions()[1]);
         tupleDims.setZ(am->getTupleDimensions()[2]);
         dataArrayName = am->getAttributeArrayNames().first();
+
+        // Make copy of attr matrix
+        AttributeMatrix::Pointer amCopy = am->deepCopy();
+        QString amCopyName = amName + "_Copy";
+        amCopy->setName(amCopyName);
+        dataContainer->addOrReplaceAttributeMatrix(amCopy);
+        amName = amCopyName;
       }
     }
     DataContainerArray::Pointer dca = DataContainerArray::New();
@@ -246,8 +253,9 @@ bool VSController::saveAsImage(const QString& imageFilePath, VSAbstractFilter* f
     }
     
     AbstractFilter::Pointer imageWriter = filterFactory->createImageFileWriterFilter(imageFilePath, imageDataPath);
-    QStringList arraysToRemove;
-    arraysToRemove.append("ResampledData");
+    DataContainerArray::DataArrayPathList arraysToRemove;
+    DataArrayPath attrMatrixPath("", amName, "");
+    arraysToRemove.push_back(attrMatrixPath);
     AbstractFilter::Pointer removeArrays = filterFactory->createRemoveArrays(arraysToRemove, dca);
     if(imageWriter != AbstractFilter::NullPointer())
     {

@@ -225,7 +225,7 @@ public:
    * @Param dataContainerArray data container array to remove arrays from
    * @return
    */
-  AbstractFilter::Pointer createRemoveArrays(QStringList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray);
+  AbstractFilter::Pointer createRemoveArrays(DataContainerArray::DataArrayPathList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray);
 
 protected:
   /**

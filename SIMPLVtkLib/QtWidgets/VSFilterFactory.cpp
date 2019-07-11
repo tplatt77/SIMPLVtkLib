@@ -917,7 +917,7 @@ AbstractFilter::Pointer VSFilterFactory::createResampleImageFilter(bool saveAsNe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createRemoveArrays(QStringList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray)
+AbstractFilter::Pointer VSFilterFactory::createRemoveArrays(DataContainerArray::DataArrayPathList dataArraysToRemove, DataContainerArray::Pointer dataContainerArray)
 {
   QString filterName = "RemoveArrays";
   FilterManager* fm = FilterManager::Instance();
@@ -930,35 +930,49 @@ AbstractFilter::Pointer VSFilterFactory::createRemoveArrays(QStringList dataArra
     {
       QVariant var;
       DataContainerArrayProxy arraysToRemove = DataContainerArrayProxy(dataContainerArray.get());
-      for(QString dataArrayName : dataArraysToRemove)
+      for(DataArrayPath dataArrayPath : dataArraysToRemove)
       {
         QMap<QString, DataContainerProxy>::iterator dcIterator = arraysToRemove.getDataContainers().begin();
         while(dcIterator != arraysToRemove.getDataContainers().end())
         {          
-          dcIterator.value().setFlag(Qt::Unchecked);
-
-          QMap<QString, AttributeMatrixProxy>::iterator amIterator = dcIterator.value().getAttributeMatricies().begin();
-          while(amIterator != dcIterator.value().getAttributeMatricies().end())
+          if (dcIterator.key() == dataArrayPath.getDataContainerName())
           {
-            amIterator.value().setFlag(Qt::Unchecked);
+            dcIterator.value().setFlag(Qt::Checked);
+          }
+          else
+          {
+            dcIterator.value().setFlag(Qt::Unchecked);
 
-            QMap<QString, DataArrayProxy>::iterator daIterator = amIterator.value().getDataArrays().begin();
-            while(daIterator != amIterator.value().getDataArrays().end())
+            QMap<QString, AttributeMatrixProxy>::iterator amIterator = dcIterator.value().getAttributeMatricies().begin();
+            while(amIterator != dcIterator.value().getAttributeMatricies().end())
             {
-              if(daIterator.key() == dataArrayName)
+              if (amIterator.key() == dataArrayPath.getAttributeMatrixName())
               {
-                daIterator.value().setFlag(Qt::Checked);
+                amIterator.value().setFlag(Qt::Checked);
               }
               else
               {
-                daIterator.value().setFlag(Qt::Unchecked);
+                amIterator.value().setFlag(Qt::Unchecked);
+
+                QMap<QString, DataArrayProxy>::iterator daIterator = amIterator.value().getDataArrays().begin();
+                while(daIterator != amIterator.value().getDataArrays().end())
+                {
+                  if(daIterator.key() == dataArrayPath.getDataArrayName())
+                  {
+                    daIterator.value().setFlag(Qt::Checked);
+                  }
+                  else
+                  {
+                    daIterator.value().setFlag(Qt::Unchecked);
+                  }
+
+                  daIterator++;
+                } // end daIterator
               }
 
-              daIterator++;
-            } // end daIterator            
-
-            amIterator++;
-          } // end amIterator          
+              amIterator++;
+            } // end amIterator   
+          }       
 
           dcIterator++;
         } // end dcIterator
