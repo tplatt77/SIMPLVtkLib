@@ -745,7 +745,7 @@ AbstractFilter::Pointer VSFilterFactory::createPCMTileRegistrationFilter(IntVec2
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec2Type montageStart, IntVec2Type montageEnd, const QStringList& dcNames, const QString& amName, const QString& daName,
+AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec2Type montageStart, IntVec2Type montageEnd, const QString& dcPrefix, const QString& amName, const QString& daName,
                                                                    const DataArrayPath& montagePath)
 {
   QString filterName = "ITKStitchMontage";
@@ -773,6 +773,13 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec2Type m
         return AbstractFilter::NullPointer();
       }
 
+      // Set the data container prefix
+      var.setValue(dcPrefix);
+      if(!setFilterProperty(itkStitchingFilter, "DataContainerPrefix", var))
+      {
+        return AbstractFilter::NullPointer();
+      }
+
       // Set Common Attribute Matrix Name
       var.setValue(amName);
       if(!setFilterProperty(itkStitchingFilter, "CommonAttributeMatrixName", var))
@@ -783,13 +790,6 @@ AbstractFilter::Pointer VSFilterFactory::createTileStitchingFilter(IntVec2Type m
       // Set Common Data Array Name
       var.setValue(daName);
       if(!setFilterProperty(itkStitchingFilter, "CommonDataArrayName", var))
-      {
-        return AbstractFilter::NullPointer();
-      }
-
-      // Set the list of image data containers
-      var.setValue(dcNames);
-      if(!setFilterProperty(itkStitchingFilter, "ImageDataContainers", var))
       {
         return AbstractFilter::NullPointer();
       }
