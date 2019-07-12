@@ -312,9 +312,9 @@ void VSMainWidget::createFilterMenu()
   m_FilterMenu = new QMenu("Filters", this);
   m_FilterMenu->addAction(m_ActionAddClip);
   m_FilterMenu->addAction(m_ActionAddSlice);
-  m_FilterMenu->addAction(m_ActionAddCrop);
+  //m_FilterMenu->addAction(m_ActionAddCrop); // Does not currently work
   m_FilterMenu->addAction(m_ActionAddThreshold);
-  m_FilterMenu->addAction(m_ActionAddMask);
+  //m_FilterMenu->addAction(m_ActionAddMask); // Does not currently work
 
   m_FilterMenu->addSeparator();
 
