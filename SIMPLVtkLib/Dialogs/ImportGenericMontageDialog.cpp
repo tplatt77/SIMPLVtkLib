@@ -88,12 +88,6 @@ void ImportGenericMontageDialog::setupGui()
   SVStyle* style = SVStyle::Instance();
   m_Ui->errLabel->setStyleSheet(tr("QLabel { color: %1; }").arg(style->getWidget_Error_color().name()));
 
-  m_Ui->numOfRowsSB->setMinimum(1);
-  m_Ui->numOfRowsSB->setMaximum(std::numeric_limits<int>::max());
-
-  m_Ui->numOfColsSB->setMinimum(1);
-  m_Ui->numOfColsSB->setMaximum(std::numeric_limits<int>::max());
-
   m_Ui->tileOverlapSB->setMinimum(0);
   m_Ui->tileOverlapSB->setMaximum(100);
 
@@ -103,6 +97,10 @@ void ImportGenericMontageDialog::setupGui()
   m_Ui->spacingX->setValidator(new QDoubleValidator);
   m_Ui->spacingY->setValidator(new QDoubleValidator);
   m_Ui->spacingZ->setValidator(new QDoubleValidator);
+  m_Ui->montageStartX->setValidator(new QDoubleValidator);
+  m_Ui->montageStartY->setValidator(new QDoubleValidator);
+  m_Ui->montageEndX->setValidator(new QDoubleValidator);
+  m_Ui->montageEndY->setValidator(new QDoubleValidator);
 
   setDisplayType(AbstractImportMontageDialog::DisplayType::Outline);
 
@@ -116,8 +114,6 @@ void ImportGenericMontageDialog::connectSignalsSlots()
 {
   connect(m_Ui->dataDisplayTypeCB, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index) { setDisplayType(static_cast<AbstractImportMontageDialog::DisplayType>(index)); });
 
-  connect(m_Ui->numOfRowsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
-  connect(m_Ui->numOfColsSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
   connect(m_Ui->tileOverlapSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=] { checkComplete(); });
 
   connect(m_Ui->montageNameLE, &QLineEdit::textChanged, this, [=] { checkComplete(); });
@@ -139,6 +135,11 @@ void ImportGenericMontageDialog::connectSignalsSlots()
   connect(m_Ui->originX, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originY, &QLineEdit::textChanged, [=] { checkComplete(); });
   connect(m_Ui->originZ, &QLineEdit::textChanged, [=] { checkComplete(); });
+
+  connect(m_Ui->montageStartX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageStartY, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndX, &QLineEdit::textChanged, [=] { checkComplete(); });
+  connect(m_Ui->montageEndY, &QLineEdit::textChanged, [=] { checkComplete(); });
 
   connect(m_Ui->changeSpacingCB, &QCheckBox::stateChanged, [=] {
     bool isChecked = m_Ui->changeSpacingCB->isChecked();
@@ -202,12 +203,19 @@ void ImportGenericMontageDialog::checkComplete() const
     result = false;
   }
 
-  int numberOfMontageTiles = m_Ui->numOfRowsSB->value() * m_Ui->numOfColsSB->value();
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  int numCols = montageEndX - montageStartX + 1;
+  int numRows = montageEndY - montageStartY + 1;
+
+  int numberOfMontageTiles = numCols * numRows;
   int numberOfSelectedTiles = m_Ui->tileListWidget->getCurrentNumberOfTiles();
-  if(numberOfSelectedTiles != numberOfMontageTiles)
+  if(numberOfSelectedTiles < numberOfMontageTiles)
   {
-    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) does not match the number of tiles declared in the montage (%2).\nPlease update"
-                               " the tile list as well as the 'Total Rows' and 'Total Columns' fields.")
+    m_Ui->errLabel->setText(tr("The number of tiles in the tile list (%1) is less than the number of tiles declared in the montage (%2).\nPlease update"
+                               " the tile list as well as the 'Montage Start' and 'Montage End' fields.")
                                 .arg(numberOfSelectedTiles)
                                 .arg(numberOfMontageTiles));
     result = false;
@@ -333,10 +341,23 @@ QString ImportGenericMontageDialog::getMontageName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::tuple<int, int> ImportGenericMontageDialog::getMontageDimensions()
+IntVec2Type ImportGenericMontageDialog::getMontageStart()
 {
-  std::tuple<int, int> dims = std::make_tuple(m_Ui->numOfRowsSB->value(), m_Ui->numOfColsSB->value());
-  return dims;
+  int montageStartX = m_Ui->montageStartX->text().toInt();
+  int montageStartY = m_Ui->montageStartY->text().toInt();
+  IntVec2Type montageStart = {montageStartX, montageStartY};
+  return montageStart;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IntVec2Type ImportGenericMontageDialog::getMontageEnd()
+{
+  int montageEndX = m_Ui->montageEndX->text().toInt();
+  int montageEndY = m_Ui->montageEndY->text().toInt();
+  IntVec2Type montageStart = {montageEndX, montageEndY};
+  return montageStart;
 }
 
 // -----------------------------------------------------------------------------

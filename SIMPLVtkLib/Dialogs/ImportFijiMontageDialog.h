@@ -104,6 +104,18 @@ public:
   FloatVec3Type getOrigin();
 
   /**
+   * @brief getMontageStart
+   * @return
+   */
+  IntVec2Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec2Type getMontageEnd();
+
+  /**
    * @brief getLengthUnit
    * @return
    */
@@ -126,7 +138,7 @@ protected slots:
   void fijiListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(const QString &val)
+  static void setOpenDialogLastFilePath(const QString& val)
   {
     m_OpenDialogLastDirectory = val;
   }

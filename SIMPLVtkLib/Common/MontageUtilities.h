@@ -47,15 +47,20 @@ class SIMPLVtkLib_EXPORT MontageUtilities
 {
 public:
   /**
+   * @brief FindDataContainerPrefix
+   * @param dcNames
+   */
+  static QString FindDataContainerPrefix(const QStringList& dcNames);
+
+  /**
    * @brief GenerateDataContainerName
    * @param dataContainerPrefix
-   * @param montageStart
-   * @param montageEnd
+   * @param montageMaxValues
    * @param row
    * @param col
    * @return
    */
-  static QString GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec3Type& montageStart, const IntVec3Type& montageEnd, int32_t row, int32_t col);
+  static QString GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageMaxValues, int32_t row, int32_t col);
 
   /**
    * @brief CreateMontageProxy
@@ -64,10 +69,9 @@ public:
    * @param checkedDCNames
    * @return
    */
-  static DataContainerArrayProxy CreateMontageProxy(SIMPLH5DataReader &reader, const QString &filePath, const QStringList &checkedDCNames = QStringList());
+  static DataContainerArrayProxy CreateMontageProxy(SIMPLH5DataReader& reader, const QString& filePath, const QStringList& checkedDCNames = QStringList());
 
 private:
-
   /**
    * @brief CalculatePaddingDigits
    * @param count

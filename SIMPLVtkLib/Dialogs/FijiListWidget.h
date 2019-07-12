@@ -118,6 +118,12 @@ public:
    */
   FijiListInfo_t getFijiListInfo();
 
+  /**
+   * @brief getCurrentNumberOfTiles
+   * @return
+   */
+  int getCurrentNumberOfTiles();
+
 protected slots:
 
   // Slots to catch signals emitted by the various ui widgets
@@ -176,18 +182,6 @@ signals:
    * @param dirPath
    */
   void inputDirectoryChanged(const QString& dirPath);
-
-  /**
-   * @brief numberOfRowsChanged
-   * @param numberOfRows
-   */
-  void numberOfRowsChanged(size_t numberOfRows);
-
-  /**
-   * @brief numberOfColumnsChanged
-   * @param numOfCols
-   */
-  void numberOfColumnsChanged(size_t numOfCols);
 
 private:
   QSharedPointer<Ui::FijiListWidget> m_Ui;

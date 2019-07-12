@@ -35,9 +35,9 @@
 
 #include "MontageUtilities.h"
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
 
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
@@ -45,15 +45,33 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString MontageUtilities::GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec3Type& montageStart, const IntVec3Type& montageEnd, int32_t row, int32_t col)
+QString MontageUtilities::FindDataContainerPrefix(const QStringList& dcNames)
 {
-  IntVec3Type montageSize;
-  std::transform(montageStart.begin(), montageStart.end(), montageEnd.begin(), montageSize.begin(), [](int32_t a, int32_t b) -> int32_t { return a + b + 1; });
-  int32_t rowCount = montageSize[1];
-  int32_t colCount = montageSize[0];
+  if(dcNames.empty())
+  {
+    return {};
+  }
 
-  int32_t rowCountPadding = MontageUtilities::CalculatePaddingDigits(rowCount);
-  int32_t colCountPadding = MontageUtilities::CalculatePaddingDigits(colCount);
+  for(const QString& dcName : dcNames)
+  {
+    if(!dcName.contains(QRegExp("r\\d+c\\d+")))
+    {
+      return {};
+    }
+  }
+
+  QString dcPrefix = dcNames[0];
+  dcPrefix.remove(QRegExp("r\\d+c\\d+"));
+  return dcPrefix;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString MontageUtilities::GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageMaxValues, int32_t row, int32_t col)
+{
+  int32_t rowCountPadding = MontageUtilities::CalculatePaddingDigits(montageMaxValues[1]);
+  int32_t colCountPadding = MontageUtilities::CalculatePaddingDigits(montageMaxValues[0]);
   int charPaddingCount = std::max(rowCountPadding, colCountPadding);
 
   QString dcName = dataContainerPrefix;
@@ -73,7 +91,7 @@ QString MontageUtilities::GenerateDataContainerName(const QString& dataContainer
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataContainerArrayProxy MontageUtilities::CreateMontageProxy(SIMPLH5DataReader &reader, const QString& filePath, const QStringList &checkedDCNames)
+DataContainerArrayProxy MontageUtilities::CreateMontageProxy(SIMPLH5DataReader& reader, const QString& filePath, const QStringList& checkedDCNames)
 {
   bool success = reader.openFile(filePath);
   if(!success)

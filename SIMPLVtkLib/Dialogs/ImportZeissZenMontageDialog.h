@@ -101,6 +101,18 @@ public:
    */
   FloatVec3Type getColorWeighting();
 
+  /**
+   * @brief getMontageStart
+   * @return
+   */
+  IntVec2Type getMontageStart();
+
+  /**
+   * @brief getMontageEnd
+   * @return
+   */
+  IntVec2Type getMontageEnd();
+
 protected:
   /**
    * @brief Constructor
@@ -118,7 +130,7 @@ protected slots:
   void zeissListWidgetChanged();
 
 protected:
-  static void setOpenDialogLastFilePath(const QString &val)
+  static void setOpenDialogLastFilePath(const QString& val)
   {
     m_OpenDialogLastDirectory = val;
   }
