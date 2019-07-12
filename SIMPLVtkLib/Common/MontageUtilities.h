@@ -55,13 +55,12 @@ public:
   /**
    * @brief GenerateDataContainerName
    * @param dataContainerPrefix
-   * @param montageStart
-   * @param montageEnd
+   * @param montageMaxValues
    * @param row
    * @param col
    * @return
    */
-  static QString GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageStart, const IntVec2Type& montageEnd, int32_t row, int32_t col);
+  static QString GenerateDataContainerName(const QString& dataContainerPrefix, const IntVec2Type& montageMaxValues, int32_t row, int32_t col);
 
   /**
    * @brief CreateMontageProxy
